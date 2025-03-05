@@ -220,6 +220,12 @@ export default function ResourceForm({ facilityId, id }: ResourceProps) {
       );
     }
   };
+  const clearMyDetails = () => {
+    form.setValue("referring_facility_contact_name", "", { shouldDirty: true });
+    form.setValue("referring_facility_contact_number", "", {
+      shouldDirty: true,
+    });
+  };
 
   if (isPending || isUpdatePending) {
     return <Loading />;
@@ -496,15 +502,26 @@ export default function ResourceForm({ facilityId, id }: ResourceProps) {
                         {t("contact_information_description")}
                       </p>
                     </div>
-                    <Button
-                      type="button"
-                      variant="outline"
-                      onClick={fillMyDetails}
-                      className="shrink-0"
-                    >
-                      <CareIcon icon="l-user" className="mr-2 h-4 w-4" />
-                      {t("fill_my_details")}
-                    </Button>
+                    <div className="flex gap-2">
+                      <Button
+                        type="button"
+                        variant="outline"
+                        onClick={fillMyDetails}
+                        className="shrink-0"
+                      >
+                        <CareIcon icon="l-user" className="mr-2 h-4 w-4" />
+                        {t("fill_my_details")}
+                      </Button>
+                      <Button
+                        type="button"
+                        variant="destructive"
+                        onClick={clearMyDetails}
+                        className="shrink-0"
+                      >
+                        <CareIcon icon="l-trash" className="mr-2 h-4 w-4" />
+                        {t("clear")}
+                      </Button>
+                    </div>
                   </div>
 
                   <div className="grid grid-cols-1 gap-6 md:grid-cols-2">
