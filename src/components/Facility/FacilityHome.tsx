@@ -12,6 +12,7 @@ import CareIcon from "@/CAREUI/icons/CareIcon";
 import { Button } from "@/components/ui/button";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { Markdown } from "@/components/ui/markdown";
+import { TooltipComponent } from "@/components/ui/tooltip";
 
 import { Avatar } from "@/components/Common/Avatar";
 import AvatarEditModal from "@/components/Common/AvatarEditModal";
@@ -215,12 +216,19 @@ export const FacilityHome = ({ facilityId }: Props) => {
                 <div className="flex flex-wrap items-center gap-4 md:gap-6">
                   <div className="flex-1 min-w-0 mb-2">
                     <div className="text-white">
-                      <h1 className="text-lg sm:text-sm md:text-2xl lg:text-3xl font-bold">
-                        {facilityData?.name}
-                      </h1>
-                      <h2 className="text-xs sm:text-sm md:text-base lg:text-base text-white/70">
-                        {facilityData?.facility_type}
-                      </h2>
+                      <TooltipComponent content={facilityData?.name}>
+                        <h1 className="text-lg sm:text-sm md:text-2xl lg:text-3xl font-bold">
+                          {facilityData?.name}
+                        </h1>
+                      </TooltipComponent>
+                      <TooltipComponent
+                        content={facilityData?.facility_type}
+                        side="right"
+                      >
+                        <h2 className="text-xs sm:text-sm md:text-base lg:text-base text-white/70">
+                          {facilityData?.facility_type}
+                        </h2>
+                      </TooltipComponent>
                     </div>
                   </div>
                   <div className="flex-shrink-0">
