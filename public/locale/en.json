@@ -1996,6 +1996,7 @@
   "rescheduled": "Rescheduled",
   "rescheduling": "Rescheduling...",
   "resend_otp": "Resend OTP",
+  "resend_otp_timer":"Resend OTP in {{time}} seconds",
   "reserved": "Reserved",
   "reset": "Reset",
   "reset_password": "Reset Password",
