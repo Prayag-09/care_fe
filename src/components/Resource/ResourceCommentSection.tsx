@@ -94,11 +94,13 @@ const CommentSection = (props: { id: string }) => {
               ) : (
                 <ul>
                   {resourceComments?.results
-                    ? [...resourceComments.results].reverse().map((comment) => (
-                        <li key={comment.id} className="w-full">
-                          <Comment {...comment} />
-                        </li>
-                      ))
+                    ? [...resourceComments.results]
+                        .reverse()
+                        .map((comment, index) => (
+                          <li key={comment.id || index} className="w-full">
+                            <Comment {...comment} />
+                          </li>
+                        ))
                     : null}
                   <div className="flex w-full items-center justify-center">
                     <div
