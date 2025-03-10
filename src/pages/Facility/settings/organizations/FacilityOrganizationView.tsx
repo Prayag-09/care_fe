@@ -65,7 +65,7 @@ export default function FacilityOrganizationView({ id, facilityId }: Props) {
   const { t } = useTranslation();
   const { qParams, Pagination, resultsPerPage, updateQuery } = useFilters({
     limit: 12,
-    cacheBlacklist: ["username"],
+    disableCache: true,
   });
 
   const { data: children, isLoading } = useQuery({
