@@ -1145,6 +1145,7 @@
   "exception": "Exception",
   "exception_created": "Exception created successfully",
   "exception_deleted": "Exception deleted",
+  "exception_for_non_schedulable_resource_warning": "Exceptions can be created only after creating a schedule",
   "exceptions": "Exceptions",
   "expand_all": "Expand All",
   "expand_sidebar": "Expand Sidebar",
