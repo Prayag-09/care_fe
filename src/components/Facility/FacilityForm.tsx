@@ -85,7 +85,7 @@ export default function FacilityForm({
       description: "",
       features: [],
       pincode: "",
-      geo_organization: "",
+      geo_organization: organizationId || "",
       address: "",
       phone_number: "",
       latitude: undefined,
