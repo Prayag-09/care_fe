@@ -6,6 +6,7 @@ import {
   CircleDashed,
   Clock,
   Droplet,
+  SignatureIcon,
 } from "lucide-react";
 import { Link } from "raviger";
 import { useTranslation } from "react-i18next";
@@ -29,6 +30,7 @@ import {
 } from "@/components/ui/popover";
 
 import { Avatar } from "@/components/Common/Avatar";
+import { ConsentSheet } from "@/components/Consent/ConsentSheet";
 import EncounterActions from "@/components/Encounter/EncounterActions";
 import { LocationSheet } from "@/components/Location/LocationSheet";
 import { LocationTree } from "@/components/Location/LocationTree";
@@ -431,6 +433,18 @@ export default function PatientInfoCard(props: PatientInfoCardProps) {
                   ) : (
                     <></>
                   )}
+                  <Badge variant="outline">
+                    <ConsentSheet
+                      patientId={props.encounter.patient.id}
+                      encounterId={props.encounter.id}
+                      trigger={
+                        <div className="flex items-center gap-1 text-gray-950 py-0.5 cursor-pointer hover:bg-secondary-100">
+                          <SignatureIcon className="h-4 w-4 text-green-600" />
+                          {t("manage_consents")}
+                        </div>
+                      }
+                    />
+                  </Badge>
                 </div>
               </div>
             </div>
