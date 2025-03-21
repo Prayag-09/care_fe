@@ -20,7 +20,6 @@ import { Button } from "@/components/ui/button";
 import {
   DropdownMenu,
   DropdownMenuContent,
-  DropdownMenuLabel,
   DropdownMenuTrigger,
 } from "@/components/ui/dropdown-menu";
 import {
@@ -39,7 +38,11 @@ import LinkDepartmentsSheet from "@/components/Patient/LinkDepartmentsSheet";
 import { PLUGIN_Component } from "@/PluginEngine";
 import dayjs from "@/Utils/dayjs";
 import { formatDateTime, formatPatientAge } from "@/Utils/utils";
-import { Encounter, completedEncounterStatus } from "@/types/emr/encounter";
+import {
+  Encounter,
+  completedEncounterStatus,
+  inactiveEncounterStatus,
+} from "@/types/emr/encounter";
 import { Patient } from "@/types/emr/newPatient";
 import { FacilityOrganization } from "@/types/facilityOrganization/facilityOrganization";
 
@@ -462,12 +465,13 @@ export default function PatientInfoCard(props: PatientInfoCardProps) {
               <DropdownMenu>
                 <DropdownMenuTrigger asChild>
                   <Button variant="primary">
-                    {t("update")}
+                    {inactiveEncounterStatus.includes(encounter.status)
+                      ? t("actions")
+                      : t("update")}
                     <ChevronDown className="ml-2 h-4 w-4" />
                   </Button>
                 </DropdownMenuTrigger>
                 <DropdownMenuContent align="end">
-                  <DropdownMenuLabel>{t("actions")}</DropdownMenuLabel>
                   <EncounterActions encounter={encounter} layout="dropdown" />
                   <PLUGIN_Component
                     __name="PatientInfoCardActions"
