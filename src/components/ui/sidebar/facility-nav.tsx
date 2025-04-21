@@ -96,6 +96,10 @@ function generateFacilityLinks(
           name: t("devices"),
           url: `${baseUrl}/settings/devices`,
         },
+        {
+          name: t("specimen_definitions"),
+          url: `${baseUrl}/settings/specimen-definitions`,
+        },
       ],
     },
   ];
