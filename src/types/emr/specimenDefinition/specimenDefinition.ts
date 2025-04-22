@@ -36,11 +36,44 @@ export interface ContainerSpec {
   preparation: string | null;
 }
 
+export const SPECIMEN_DEFINITION_UNITS_CODES = [
+  {
+    code: "mg",
+    display: "milligram",
+    system: "http://unitsofmeasure.org",
+  },
+  {
+    code: "g",
+    display: "gram",
+    system: "http://unitsofmeasure.org",
+  },
+  {
+    code: "mL",
+    display: "milliliter",
+    system: "http://unitsofmeasure.org",
+  },
+  {
+    code: "[drp]",
+    display: "drop",
+    system: "http://unitsofmeasure.org",
+  },
+  {
+    code: "ug",
+    display: "microgram",
+    system: "http://unitsofmeasure.org",
+  },
+] as const;
+
+export const RETENTION_TIME_UNITS = [
+  { code: "h", display: "hours", system: "http://unitsofmeasure.org" },
+  { code: "d", display: "days", system: "http://unitsofmeasure.org" },
+] as const;
+
 export type PreferenceOptions = (typeof PREFERENCE_OPTIONS)[number];
 
 export interface TypeTestedSpec {
   is_derived: boolean;
-  specimen_type: Code;
+  specimen_type: Code | null;
   preference: PreferenceOptions;
   container: ContainerSpec | null;
   requirement: string | null;
@@ -53,9 +86,9 @@ export interface SpecimenDefinitionRequest {
   slug: string;
   derived_from_uri: string | null;
   status: SpecimenDefinitionStatusOptions;
-  description: string;
+  description: string | null;
   type_collected: Code | null;
-  patient_preparation: Code[];
+  patient_preparation: Code[] | null;
   collection: Code | null;
   type_tested: TypeTestedSpec | null;
 }

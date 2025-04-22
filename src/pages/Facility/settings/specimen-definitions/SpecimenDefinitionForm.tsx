@@ -1,5 +1,6 @@
 import { zodResolver } from "@hookform/resolvers/zod";
 import { PlusCircle, XCircle } from "lucide-react";
+import { useEffect } from "react";
 import { useForm } from "react-hook-form";
 import { useTranslation } from "react-i18next";
 import * as z from "zod";
@@ -25,9 +26,14 @@ import {
 import { Switch } from "@/components/ui/switch";
 import { Textarea } from "@/components/ui/textarea";
 
+import ComboboxQuantityInput from "@/components/Common/ComboboxQuantityInput";
 import ValueSetSelect from "@/components/Questionnaire/ValueSetSelect";
 
-import { SPECIMEN_DEFINITION_STATUS_OPTIONS } from "@/types/emr/specimenDefinition/specimenDefinition";
+import {
+  RETENTION_TIME_UNITS,
+  SPECIMEN_DEFINITION_STATUS_OPTIONS,
+  SPECIMEN_DEFINITION_UNITS_CODES,
+} from "@/types/emr/specimenDefinition/specimenDefinition";
 import { SpecimenDefinitionRequest } from "@/types/emr/specimenDefinition/specimenDefinition";
 import { Code } from "@/types/questionnaire/code";
 
@@ -132,14 +138,6 @@ export function SpecimenDefinitionForm({
     form.setValue("type_tested.container.cap", code);
   };
 
-  const handleCapacityUnitSelect = (code: Code) => {
-    form.setValue("type_tested.container.capacity.unit", code);
-  };
-
-  const handleMinVolumeUnitSelect = (code: Code) => {
-    form.setValue("type_tested.container.minimum_volume.unit", code);
-  };
-
   const handlePatientPreparationSelect = (code: Code, index: number) => {
     const currentPreparations = form.getValues("patient_preparation");
     const newPreparations = [...currentPreparations];
@@ -158,6 +156,10 @@ export function SpecimenDefinitionForm({
     form.setValue("patient_preparation", newPreparations);
   };
 
+  useEffect(() => {
+    console.log(form.watch());
+  }, [form.watch()]);
+
   return (
     <Form {...form}>
       <form
@@ -174,7 +176,7 @@ export function SpecimenDefinitionForm({
             {/* Basic Information */}
             <div className="space-y-4">
               <h3 className="text-lg font-medium">{t("basic_information")}</h3>
-              <div className="grid grid-cols-2 gap-4">
+              <div className="grid grid-cols-1 gap-4 md:grid-cols-2">
                 <FormField
                   control={form.control}
                   name="title"
@@ -208,7 +210,7 @@ export function SpecimenDefinitionForm({
                 />
               </div>
 
-              <div className="grid grid-cols-2 gap-4">
+              <div className="grid grid-cols-1 gap-4 md:grid-cols-2">
                 <FormField
                   control={form.control}
                   name="status"
@@ -245,7 +247,7 @@ export function SpecimenDefinitionForm({
                       <FormLabel>{t("derived_from_uri")}</FormLabel>
                       <FormControl>
                         <Input
-                          placeholder={t("unique_identifier")}
+                          placeholder={t("uri")}
                           {...field}
                           value={field.value || ""}
                         />
@@ -274,7 +276,7 @@ export function SpecimenDefinitionForm({
             {/* Specimen Details */}
             <div className="space-y-4">
               <h3 className="text-lg font-medium">{t("specimen_details")}</h3>
-              <div className="grid grid-cols-2 gap-4">
+              <div className="grid grid-cols-1 gap-4 md:grid-cols-2">
                 <FormField
                   control={form.control}
                   name="type_collected"
@@ -376,6 +378,25 @@ export function SpecimenDefinitionForm({
               <div className="grid grid-cols-2 gap-4">
                 <FormField
                   control={form.control}
+                  name="type_tested.is_derived"
+                  render={({ field }) => (
+                    <FormItem className="flex flex-row items-center justify-between rounded-lg border p-4">
+                      <div className="space-y-0.5">
+                        <FormLabel>{t("is_derived")}</FormLabel>
+                      </div>
+                      <FormControl>
+                        <Switch
+                          checked={field.value || false}
+                          onCheckedChange={field.onChange}
+                        />
+                      </FormControl>
+                    </FormItem>
+                  )}
+                />
+              </div>
+              <div className="grid grid-cols-1 gap-4 md:grid-cols-2">
+                <FormField
+                  control={form.control}
                   name="type_tested.specimen_type"
                   render={({ field }) => (
                     <FormItem>
@@ -448,46 +469,33 @@ export function SpecimenDefinitionForm({
                   )}
                 />
 
-                <div className="grid grid-cols-2 gap-4">
+                <div className="grid grid-cols-1 gap-4 md:grid-cols-2">
                   <div className="space-y-4">
                     <FormField
                       control={form.control}
-                      name="type_tested.container.capacity.value"
+                      name="type_tested.container.capacity"
                       render={({ field }) => (
                         <FormItem>
                           <FormLabel>{t("capacity")}</FormLabel>
-                          <div className="flex gap-2">
-                            <FormControl>
-                              <Input
-                                type="number"
-                                placeholder={t("value")}
-                                {...field}
-                                value={field.value || ""}
-                                onChange={(e) =>
-                                  field.onChange(
-                                    e.target.value
-                                      ? Number(e.target.value)
-                                      : null,
-                                  )
-                                }
-                              />
-                            </FormControl>
-                            <FormField
-                              control={form.control}
-                              name="type_tested.container.capacity.unit"
-                              render={({ field }) => (
-                                <FormControl>
-                                  <ValueSetSelect
-                                    system="ucum"
-                                    placeholder={t("unit")}
-                                    onSelect={handleCapacityUnitSelect}
-                                    value={field.value}
-                                    disabled={isLoading}
-                                  />
-                                </FormControl>
-                              )}
+                          <FormControl>
+                            <ComboboxQuantityInput
+                              quantity={
+                                field.value
+                                  ? {
+                                      value: field.value.value || 0,
+                                      unit: field.value.unit,
+                                    }
+                                  : {
+                                      value: 0,
+                                      unit: SPECIMEN_DEFINITION_UNITS_CODES[0],
+                                    }
+                              }
+                              onChange={field.onChange}
+                              disabled={isLoading}
+                              placeholder={t("enter_capacity")}
+                              units={SPECIMEN_DEFINITION_UNITS_CODES}
                             />
-                          </div>
+                          </FormControl>
                           <FormMessage />
                         </FormItem>
                       )}
@@ -497,42 +505,29 @@ export function SpecimenDefinitionForm({
                   <div className="space-y-4">
                     <FormField
                       control={form.control}
-                      name="type_tested.container.minimum_volume.value"
+                      name="type_tested.container.minimum_volume"
                       render={({ field }) => (
                         <FormItem>
                           <FormLabel>{t("minimum_volume")}</FormLabel>
-                          <div className="flex gap-2">
-                            <FormControl>
-                              <Input
-                                type="number"
-                                placeholder={t("value")}
-                                {...field}
-                                value={field.value || ""}
-                                onChange={(e) =>
-                                  field.onChange(
-                                    e.target.value
-                                      ? Number(e.target.value)
-                                      : null,
-                                  )
-                                }
-                              />
-                            </FormControl>
-                            <FormField
-                              control={form.control}
-                              name="type_tested.container.minimum_volume.unit"
-                              render={({ field }) => (
-                                <FormControl>
-                                  <ValueSetSelect
-                                    system="ucum"
-                                    placeholder={t("unit")}
-                                    onSelect={handleMinVolumeUnitSelect}
-                                    value={field.value}
-                                    disabled={isLoading}
-                                  />
-                                </FormControl>
-                              )}
+                          <FormControl>
+                            <ComboboxQuantityInput
+                              quantity={
+                                field.value
+                                  ? {
+                                      value: field.value.value || 0,
+                                      unit: field.value.unit,
+                                    }
+                                  : {
+                                      value: 0,
+                                      unit: SPECIMEN_DEFINITION_UNITS_CODES[0],
+                                    }
+                              }
+                              onChange={field.onChange}
+                              disabled={isLoading}
+                              placeholder={t("enter_minimum_volume")}
+                              units={SPECIMEN_DEFINITION_UNITS_CODES}
                             />
-                          </div>
+                          </FormControl>
                           <FormMessage />
                         </FormItem>
                       )}
@@ -540,7 +535,7 @@ export function SpecimenDefinitionForm({
                   </div>
                 </div>
 
-                <div className="grid grid-cols-2 gap-4">
+                <div className="grid grid-cols-1 gap-4 md:grid-cols-2">
                   <FormField
                     control={form.control}
                     name="type_tested.container.cap"
@@ -560,25 +555,24 @@ export function SpecimenDefinitionForm({
                       </FormItem>
                     )}
                   />
-
-                  <FormField
-                    control={form.control}
-                    name="type_tested.container.preparation"
-                    render={({ field }) => (
-                      <FormItem>
-                        <FormLabel>{t("preparation")}</FormLabel>
-                        <FormControl>
-                          <Input
-                            placeholder={t("preparation")}
-                            {...field}
-                            value={field.value || ""}
-                          />
-                        </FormControl>
-                        <FormMessage />
-                      </FormItem>
-                    )}
-                  />
                 </div>
+                <FormField
+                  control={form.control}
+                  name="type_tested.container.preparation"
+                  render={({ field }) => (
+                    <FormItem>
+                      <FormLabel>{t("preparation")}</FormLabel>
+                      <FormControl>
+                        <Textarea
+                          placeholder={t("preparation")}
+                          {...field}
+                          value={field.value || ""}
+                        />
+                      </FormControl>
+                      <FormMessage />
+                    </FormItem>
+                  )}
+                />
 
                 <FormField
                   control={form.control}
@@ -598,48 +592,36 @@ export function SpecimenDefinitionForm({
                   )}
                 />
 
-                <div className="grid grid-cols-2 gap-4">
+                <div className="grid grid-cols-1 gap-4 md:grid-cols-2">
                   <FormField
                     control={form.control}
-                    name="type_tested.retention_time.value"
+                    name="type_tested.retention_time"
                     render={({ field }) => (
                       <FormItem>
                         <FormLabel>{t("retention_time")}</FormLabel>
-                        <div className="flex gap-2">
-                          <FormControl>
-                            <Input
-                              type="number"
-                              placeholder={t("value")}
-                              {...field}
-                              value={field.value || ""}
-                              onChange={(e) =>
-                                field.onChange(
-                                  e.target.value
-                                    ? Number(e.target.value)
-                                    : null,
-                                )
-                              }
-                            />
-                          </FormControl>
-                          <Select value="days" onValueChange={() => {}}>
-                            <FormControl>
-                              <SelectTrigger>
-                                <SelectValue />
-                              </SelectTrigger>
-                            </FormControl>
-                            <SelectContent>
-                              <SelectItem value="days">{t("days")}</SelectItem>
-                              <SelectItem value="hours">
-                                {t("hours")}
-                              </SelectItem>
-                            </SelectContent>
-                          </Select>
-                        </div>
+                        <FormControl>
+                          <ComboboxQuantityInput
+                            quantity={
+                              field.value
+                                ? {
+                                    value: field.value.value || 0,
+                                    unit: field.value.unit,
+                                  }
+                                : { value: 0, unit: RETENTION_TIME_UNITS[0] }
+                            }
+                            onChange={field.onChange}
+                            disabled={isLoading}
+                            placeholder={t("enter_retention_time")}
+                            units={RETENTION_TIME_UNITS}
+                          />
+                        </FormControl>
                         <FormMessage />
                       </FormItem>
                     )}
                   />
+                </div>
 
+                <div className="grid grid-cols-1 gap-4 md:grid-cols-2">
                   <FormField
                     control={form.control}
                     name="type_tested.single_use"

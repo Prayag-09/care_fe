@@ -71,16 +71,12 @@ export function SpecimenDefinitionsList({
                 <TableCell>{definition.description}</TableCell>
                 <TableCell>
                   <div className="flex gap-2">
-                    <Link
-                      href={`/facility/${facilityId}/settings/specimen-definitions/${definition.id}`}
-                    >
+                    <Link href={`/specimen-definitions/${definition.id}`}>
                       <Button variant="outline" size="sm">
                         {t("view")}
                       </Button>
                     </Link>
-                    <Link
-                      href={`/facility/${facilityId}/settings/specimen-definitions/${definition.id}/edit`}
-                    >
+                    <Link href={`/specimen-definitions/${definition.id}/edit`}>
                       <Button variant="outline" size="sm">
                         {t("edit")}
                       </Button>
