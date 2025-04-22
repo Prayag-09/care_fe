@@ -42,13 +42,13 @@ const getRoutes = (facilityId: string) => ({
   "/devices/:id/edit": ({ id }: { id: string }) => (
     <UpdateDevice facilityId={facilityId} deviceId={id} />
   ),
-  "/specimen-definitions": () => (
+  "/specimen_definitions": () => (
     <SpecimenDefinitionsList facilityId={facilityId} />
   ),
-  "/specimen-definitions/create": () => (
+  "/specimen_definitions/create": () => (
     <CreateSpecimenDefinition facilityId={facilityId} />
   ),
-  "/specimen-definitions/:id": ({ id }: { id: string }) => (
+  "/specimen_definitions/:id": ({ id }: { id: string }) => (
     <SpecimenDefinitionDetail
       facilityId={facilityId}
       specimenDefinitionId={id}

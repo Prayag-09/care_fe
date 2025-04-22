@@ -98,7 +98,7 @@ function generateFacilityLinks(
         },
         {
           name: t("specimen_definitions"),
-          url: `${baseUrl}/settings/specimen-definitions`,
+          url: `${baseUrl}/settings/specimen_definitions`,
         },
         {
           name: t("observation_definitions"),
