@@ -9,6 +9,7 @@ import UpdateDevice from "@/pages/Facility/settings/devices/UpdateDevice";
 
 import ActivityDefinitionForm from "./activityDefinition/ActivityDefinitionForm";
 import ActivityDefinitionList from "./activityDefinition/ActivityDefinitionList";
+import ActivityDefinitionView from "./activityDefinition/ActivityDefinitionView";
 import { GeneralSettings } from "./general/general";
 import LocationSettings from "./locations/LocationSettings";
 import ObservationDefinitionForm from "./observationDefinition/ObservationDefinitionForm";
@@ -87,6 +88,9 @@ const getRoutes = (facilityId: string) => ({
   ),
   "/activity_definitions/new": () => (
     <ActivityDefinitionForm facilityId={facilityId} />
+  ),
+  "/activity_definitions/:id": ({ id }: { id: string }) => (
+    <ActivityDefinitionView facilityId={facilityId} activityDefinitionId={id} />
   ),
   "/activity_definitions/:id/edit": ({ id }: { id: string }) => (
     <ActivityDefinitionForm facilityId={facilityId} activityDefinitionId={id} />
