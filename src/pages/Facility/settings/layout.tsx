@@ -7,11 +7,14 @@ import DeviceDetail from "@/pages/Facility/settings/devices/DeviceShow";
 import DevicesList from "@/pages/Facility/settings/devices/DevicesList";
 import UpdateDevice from "@/pages/Facility/settings/devices/UpdateDevice";
 
-import ObservationDefinitionList from "./ObservationDefinition/ObservationDefinitionList";
 import { GeneralSettings } from "./general/general";
 import LocationSettings from "./locations/LocationSettings";
 import ObservationDefinitionForm from "./observationDefinition/ObservationDefinitionForm";
+import ObservationDefinitionList from "./observationDefinition/ObservationDefinitionList";
 import FacilityOrganizationList from "./organizations/FacilityOrganizationList";
+import { CreateSpecimenDefinition } from "./specimen-definitions/CreateSpecimenDefinition";
+import { SpecimenDefinitionDetail } from "./specimen-definitions/SpecimenDefinitionDetail";
+import { SpecimenDefinitionsList } from "./specimen-definitions/SpecimenDefinitionsList";
 
 interface SettingsLayoutProps {
   facilityId: string;
@@ -38,6 +41,18 @@ const getRoutes = (facilityId: string) => ({
   ),
   "/devices/:id/edit": ({ id }: { id: string }) => (
     <UpdateDevice facilityId={facilityId} deviceId={id} />
+  ),
+  "/specimen-definitions": () => (
+    <SpecimenDefinitionsList facilityId={facilityId} />
+  ),
+  "/specimen-definitions/create": () => (
+    <CreateSpecimenDefinition facilityId={facilityId} />
+  ),
+  "/specimen-definitions/:id": ({ id }: { id: string }) => (
+    <SpecimenDefinitionDetail
+      facilityId={facilityId}
+      specimenDefinitionId={id}
+    />
   ),
   "/observation_definitions": () => (
     <ObservationDefinitionList facilityId={facilityId} />

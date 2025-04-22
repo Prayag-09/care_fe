@@ -21,13 +21,16 @@ import {
   DOSAGE_UNITS_CODES,
   DosageQuantity,
 } from "@/types/emr/medicationRequest";
+import { QuantitySpec } from "@/types/emr/specimenDefinition/specimenDefinition";
+import { Code } from "@/types/questionnaire/code";
 
 interface Props {
-  quantity?: DosageQuantity;
-  onChange: (quantity: DosageQuantity) => void;
+  quantity?: DosageQuantity | QuantitySpec;
+  onChange: (quantity: DosageQuantity | QuantitySpec) => void;
   disabled?: boolean;
   placeholder?: string;
   autoFocus?: boolean;
+  units?: readonly Code[];
 }
 
 export function ComboboxQuantityInput({
@@ -36,6 +39,7 @@ export function ComboboxQuantityInput({
   disabled,
   placeholder = "Enter a number...",
   autoFocus,
+  units = DOSAGE_UNITS_CODES,
 }: Props) {
   const [open, setOpen] = React.useState(false);
   const [inputValue, setInputValue] = React.useState(
@@ -70,19 +74,15 @@ export function ComboboxQuantityInput({
       e.preventDefault();
       setOpen(true);
       setActiveIndex((prev) =>
-        prev === -1
-          ? 0
-          : prev < DOSAGE_UNITS_CODES.length - 1
-            ? prev + 1
-            : prev,
+        prev === -1 ? 0 : prev < units.length - 1 ? prev + 1 : prev,
       );
     } else if (e.key === "ArrowUp") {
       e.preventDefault();
       setActiveIndex((prev) => (prev > 0 ? prev - 1 : prev));
     } else if (e.key === "Enter") {
       e.preventDefault();
-      if (activeIndex >= 0 && activeIndex < DOSAGE_UNITS_CODES.length) {
-        const unit = DOSAGE_UNITS_CODES[activeIndex];
+      if (activeIndex >= 0 && activeIndex < units.length) {
+        const unit = units[activeIndex];
         setSelectedUnit(unit);
         setOpen(false);
         setActiveIndex(-1);
@@ -139,7 +139,7 @@ export function ComboboxQuantityInput({
             <CommandList>
               <CommandEmpty>No results found.</CommandEmpty>
               <CommandGroup>
-                {DOSAGE_UNITS_CODES.map((unit, index) => (
+                {units.map((unit, index) => (
                   <CommandItem
                     key={unit.code}
                     value={unit.code}
