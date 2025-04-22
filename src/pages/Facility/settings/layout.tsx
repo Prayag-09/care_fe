@@ -7,6 +7,7 @@ import DeviceDetail from "@/pages/Facility/settings/devices/DeviceShow";
 import DevicesList from "@/pages/Facility/settings/devices/DevicesList";
 import UpdateDevice from "@/pages/Facility/settings/devices/UpdateDevice";
 
+import ActivityDefinitionList from "./activityDefinition/ActivityDefinitionList";
 import { GeneralSettings } from "./general/general";
 import LocationSettings from "./locations/LocationSettings";
 import ObservationDefinitionForm from "./observationDefinition/ObservationDefinitionForm";
@@ -79,6 +80,9 @@ const getRoutes = (facilityId: string) => ({
       facilityId={facilityId}
       observationDefinitionId={id}
     />
+  ),
+  "/activity_definitions": () => (
+    <ActivityDefinitionList facilityId={facilityId} />
   ),
   "*": () => <ErrorPage />,
 });

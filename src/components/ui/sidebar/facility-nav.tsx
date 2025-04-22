@@ -104,6 +104,10 @@ function generateFacilityLinks(
           name: t("observation_definitions"),
           url: `${baseUrl}/settings/observation_definitions`,
         },
+        {
+          name: t("activity_definitions"),
+          url: `${baseUrl}/settings/activity_definitions`,
+        },
       ],
     },
   ];
