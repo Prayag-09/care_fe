@@ -16,6 +16,7 @@ import FacilityOrganizationList from "./organizations/FacilityOrganizationList";
 import { CreateSpecimenDefinition } from "./specimen-definitions/CreateSpecimenDefinition";
 import { SpecimenDefinitionDetail } from "./specimen-definitions/SpecimenDefinitionDetail";
 import { SpecimenDefinitionsList } from "./specimen-definitions/SpecimenDefinitionsList";
+import { UpdateSpecimenDefinition } from "./specimen-definitions/UpdateSpecimenDefinition";
 
 interface SettingsLayoutProps {
   facilityId: string;
@@ -51,6 +52,12 @@ const getRoutes = (facilityId: string) => ({
   ),
   "/specimen_definitions/:id": ({ id }: { id: string }) => (
     <SpecimenDefinitionDetail
+      facilityId={facilityId}
+      specimenDefinitionId={id}
+    />
+  ),
+  "/specimen_definitions/:id/edit": ({ id }: { id: string }) => (
+    <UpdateSpecimenDefinition
       facilityId={facilityId}
       specimenDefinitionId={id}
     />

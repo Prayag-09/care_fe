@@ -24,6 +24,7 @@ import {
   SelectValue,
 } from "@/components/ui/select";
 import { Switch } from "@/components/ui/switch";
+import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
 import { Textarea } from "@/components/ui/textarea";
 
 import ComboboxQuantityInput from "@/components/Common/ComboboxQuantityInput";
@@ -52,8 +53,13 @@ const typeTestedSchema = z.object({
         .nullable(),
       minimum_volume: z
         .object({
-          value: z.number().nullable(),
-          unit: z.any(), // Code type
+          quantity: z
+            .object({
+              value: z.number().nullable(),
+              unit: z.any(), // Code type
+            })
+            .nullable(),
+          string: z.string().nullable(),
         })
         .nullable(),
       cap: z.any().nullable(), // Code type
@@ -115,7 +121,10 @@ export function SpecimenDefinitionForm({
         container: {
           description: "",
           capacity: { value: null, unit: null },
-          minimum_volume: { value: null, unit: null },
+          minimum_volume: {
+            quantity: { value: null, unit: null },
+            string: null,
+          },
           cap: null,
           preparation: "",
         },
@@ -154,6 +163,33 @@ export function SpecimenDefinitionForm({
     const currentPreparations = form.getValues("patient_preparation");
     const newPreparations = currentPreparations.filter((_, i) => i !== index);
     form.setValue("patient_preparation", newPreparations);
+  };
+
+  const handleMinimumVolumeTypeChange = (type: string) => {
+    form.setValue("type_tested.container.minimum_volume", {
+      quantity:
+        type === "quantity"
+          ? { value: null, unit: SPECIMEN_DEFINITION_UNITS_CODES[0] }
+          : null,
+      string: type === "text" ? "" : null,
+    });
+  };
+
+  const handleMinimumVolumeChange = (
+    type: "quantity" | "string",
+    value: { value: number | null; unit: Code | null } | string | null,
+  ) => {
+    if (type === "quantity") {
+      form.setValue("type_tested.container.minimum_volume", {
+        quantity: value as { value: number | null; unit: Code | null },
+        string: null,
+      });
+    } else {
+      form.setValue("type_tested.container.minimum_volume", {
+        quantity: null,
+        string: value as string,
+      });
+    }
   };
 
   useEffect(() => {
@@ -503,35 +539,88 @@ export function SpecimenDefinitionForm({
                   </div>
 
                   <div className="space-y-4">
-                    <FormField
-                      control={form.control}
-                      name="type_tested.container.minimum_volume"
-                      render={({ field }) => (
-                        <FormItem>
-                          <FormLabel>{t("minimum_volume")}</FormLabel>
-                          <FormControl>
-                            <ComboboxQuantityInput
-                              quantity={
-                                field.value
-                                  ? {
-                                      value: field.value.value || 0,
-                                      unit: field.value.unit,
+                    <div className="flex flex-col gap-2">
+                      <FormLabel>{t("minimum_volume")}</FormLabel>
+                      <Tabs
+                        defaultValue="quantity"
+                        className="w-full"
+                        onValueChange={handleMinimumVolumeTypeChange}
+                        value={
+                          form.watch(
+                            "type_tested.container.minimum_volume.quantity",
+                          )
+                            ? "quantity"
+                            : "text"
+                        }
+                      >
+                        <TabsList className="grid w-full grid-cols-2">
+                          <TabsTrigger value="quantity">
+                            {t("quantity")}
+                          </TabsTrigger>
+                          <TabsTrigger value="text">{t("text")}</TabsTrigger>
+                        </TabsList>
+                        <TabsContent value="quantity">
+                          <FormField
+                            control={form.control}
+                            name="type_tested.container.minimum_volume.quantity"
+                            render={({ field }) => (
+                              <FormItem>
+                                <FormControl>
+                                  <ComboboxQuantityInput
+                                    quantity={
+                                      field.value
+                                        ? {
+                                            value: field.value.value || 0,
+                                            unit: field.value.unit,
+                                          }
+                                        : {
+                                            value: 0,
+                                            unit: SPECIMEN_DEFINITION_UNITS_CODES[0],
+                                          }
                                     }
-                                  : {
-                                      value: 0,
-                                      unit: SPECIMEN_DEFINITION_UNITS_CODES[0],
+                                    onChange={(value) =>
+                                      handleMinimumVolumeChange(
+                                        "quantity",
+                                        value,
+                                      )
                                     }
-                              }
-                              onChange={field.onChange}
-                              disabled={isLoading}
-                              placeholder={t("enter_minimum_volume")}
-                              units={SPECIMEN_DEFINITION_UNITS_CODES}
-                            />
-                          </FormControl>
-                          <FormMessage />
-                        </FormItem>
-                      )}
-                    />
+                                    disabled={isLoading}
+                                    placeholder={t("enter_minimum_volume")}
+                                    units={SPECIMEN_DEFINITION_UNITS_CODES}
+                                  />
+                                </FormControl>
+                                <FormMessage />
+                              </FormItem>
+                            )}
+                          />
+                        </TabsContent>
+                        <TabsContent value="text">
+                          <FormField
+                            control={form.control}
+                            name="type_tested.container.minimum_volume.string"
+                            render={({ field }) => (
+                              <FormItem>
+                                <FormControl>
+                                  <Input
+                                    placeholder={t("enter_minimum_volume")}
+                                    {...field}
+                                    value={field.value || ""}
+                                    disabled={isLoading}
+                                    onChange={(e) =>
+                                      handleMinimumVolumeChange(
+                                        "string",
+                                        e.target.value,
+                                      )
+                                    }
+                                  />
+                                </FormControl>
+                                <FormMessage />
+                              </FormItem>
+                            )}
+                          />
+                        </TabsContent>
+                      </Tabs>
+                    </div>
                   </div>
                 </div>
 
