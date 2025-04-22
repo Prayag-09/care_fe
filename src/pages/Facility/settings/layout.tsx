@@ -11,6 +11,7 @@ import { GeneralSettings } from "./general/general";
 import LocationSettings from "./locations/LocationSettings";
 import ObservationDefinitionForm from "./observationDefinition/ObservationDefinitionForm";
 import ObservationDefinitionList from "./observationDefinition/ObservationDefinitionList";
+import ObservationDefinitionView from "./observationDefinition/ObservationDefinitionView";
 import FacilityOrganizationList from "./organizations/FacilityOrganizationList";
 import { CreateSpecimenDefinition } from "./specimen-definitions/CreateSpecimenDefinition";
 import { SpecimenDefinitionDetail } from "./specimen-definitions/SpecimenDefinitionDetail";
@@ -62,6 +63,12 @@ const getRoutes = (facilityId: string) => ({
   ),
   "/observation_definitions/:id/edit": ({ id }: { id: string }) => (
     <ObservationDefinitionForm
+      facilityId={facilityId}
+      observationDefinitionId={id}
+    />
+  ),
+  "/observation_definitions/:id": ({ id }: { id: string }) => (
+    <ObservationDefinitionView
       facilityId={facilityId}
       observationDefinitionId={id}
     />

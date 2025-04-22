@@ -125,17 +125,30 @@ export default function ObservationDefinitionList({
                       <TableCell>{t(definition.status)}</TableCell>
                       <TableCell>{t(definition.permitted_data_type)}</TableCell>
                       <TableCell className="text-right">
-                        <Button
-                          variant="ghost"
-                          size="icon"
-                          onClick={() =>
-                            navigate(
-                              `/facility/${facilityId}/settings/observation_definitions/${definition.id}/edit`,
-                            )
-                          }
-                        >
-                          <CareIcon icon="l-pen" className="size-4" />
-                        </Button>
+                        <div className="flex justify-end gap-2">
+                          <Button
+                            variant="ghost"
+                            size="icon"
+                            onClick={() =>
+                              navigate(
+                                `/facility/${facilityId}/settings/observation_definitions/${definition.id}`,
+                              )
+                            }
+                          >
+                            <CareIcon icon="l-eye" className="size-4" />
+                          </Button>
+                          <Button
+                            variant="ghost"
+                            size="icon"
+                            onClick={() =>
+                              navigate(
+                                `/facility/${facilityId}/settings/observation_definitions/${definition.id}/edit`,
+                              )
+                            }
+                          >
+                            <CareIcon icon="l-pen" className="size-4" />
+                          </Button>
+                        </div>
                       </TableCell>
                     </TableRow>
                   ),
