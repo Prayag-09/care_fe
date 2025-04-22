@@ -130,7 +130,7 @@ export default function ObservationDefinitionList({
                           size="icon"
                           onClick={() =>
                             navigate(
-                              `/settings/observation_definitions/${definition.id}`,
+                              `/facility/${facilityId}/settings/observation_definitions/${definition.id}/edit`,
                             )
                           }
                         >

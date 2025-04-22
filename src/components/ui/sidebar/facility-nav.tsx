@@ -102,7 +102,7 @@ function generateFacilityLinks(
         },
         {
           name: t("observation_definitions"),
-          url: `${baseUrl}/settings/observation-definitions`,
+          url: `${baseUrl}/settings/observation_definitions`,
         },
       ],
     },

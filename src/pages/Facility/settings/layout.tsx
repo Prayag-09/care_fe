@@ -60,6 +60,12 @@ const getRoutes = (facilityId: string) => ({
   "/observation_definitions/new": () => (
     <ObservationDefinitionForm facilityId={facilityId} />
   ),
+  "/observation_definitions/:id/edit": ({ id }: { id: string }) => (
+    <ObservationDefinitionForm
+      facilityId={facilityId}
+      observationDefinitionId={id}
+    />
+  ),
   "*": () => <ErrorPage />,
 });
 

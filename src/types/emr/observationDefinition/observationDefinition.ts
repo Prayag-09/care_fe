@@ -1,13 +1,14 @@
 import { Code } from "@/types/questionnaire/code";
 
-export type QuestionType =
-  | "boolean"
-  | "decimal"
-  | "integer"
-  | "dateTime"
-  | "time"
-  | "string"
-  | "quantity";
+export enum QuestionType {
+  boolean = "boolean",
+  decimal = "decimal",
+  integer = "integer",
+  dateTime = "dateTime",
+  time = "time",
+  string = "string",
+  quantity = "quantity",
+}
 
 export interface ObservationDefinitionComponentSpec {
   code: Code;
@@ -37,13 +38,18 @@ export interface BaseObservationDefinitionSpec {
   code: Code;
   permitted_data_type: QuestionType;
   component: ObservationDefinitionComponentSpec[];
-  body_site?: Code;
-  method?: Code;
-  permitted_unit?: Code;
+  body_site: Code | null;
+  method: Code | null;
+  permitted_unit: Code | null;
   derived_from_uri?: string;
 }
 
 export interface ObservationDefinitionCreateSpec
+  extends Omit<BaseObservationDefinitionSpec, "id"> {
+  facility: string;
+}
+
+export interface ObservationDefinitionUpdateSpec
   extends BaseObservationDefinitionSpec {
   facility: string;
 }
