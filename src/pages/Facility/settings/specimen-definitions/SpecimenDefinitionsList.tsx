@@ -26,7 +26,7 @@ export function SpecimenDefinitionsList({
   const { t } = useTranslation();
 
   const { data: specimenDefinitions, isLoading } = useQuery({
-    queryKey: ["specimen-definitions", facilityId],
+    queryKey: ["specimen_definitions", facilityId],
     queryFn: query(specimenDefinitionApi.listSpecimenDefinitions, {
       pathParams: { facilityId },
     }),
@@ -40,7 +40,7 @@ export function SpecimenDefinitionsList({
     <div className="space-y-4">
       <div className="flex justify-between items-center">
         <h1 className="text-2xl font-semibold">{t("specimen_definitions")}</h1>
-        <Link href={`/specimen-definitions/create`}>
+        <Link href={`/specimen_definitions/create`}>
           <Button>{t("create_specimen_definition")}</Button>
         </Link>
       </div>
@@ -71,12 +71,12 @@ export function SpecimenDefinitionsList({
                 <TableCell>{definition.description}</TableCell>
                 <TableCell>
                   <div className="flex gap-2">
-                    <Link href={`/specimen-definitions/${definition.id}`}>
+                    <Link href={`/specimen_definitions/${definition.id}`}>
                       <Button variant="outline" size="sm">
                         {t("view")}
                       </Button>
                     </Link>
-                    <Link href={`/specimen-definitions/${definition.id}/edit`}>
+                    <Link href={`/specimen_definitions/${definition.id}/edit`}>
                       <Button variant="outline" size="sm">
                         {t("edit")}
                       </Button>

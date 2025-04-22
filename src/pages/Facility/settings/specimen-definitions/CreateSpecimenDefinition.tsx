@@ -24,9 +24,9 @@ export function CreateSpecimenDefinition({
     }),
     onSuccess: () => {
       queryClient.invalidateQueries({
-        queryKey: ["specimen-definitions", facilityId],
+        queryKey: ["specimen_definitions", facilityId],
       });
-      navigate(`/settings/specimen-definitions`);
+      navigate(`/settings/specimen_definitions`);
     },
   });
 

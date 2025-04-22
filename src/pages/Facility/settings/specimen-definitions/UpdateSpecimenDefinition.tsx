@@ -22,7 +22,7 @@ export function UpdateSpecimenDefinition({
   const queryClient = useQueryClient();
 
   const { data: specimenDefinition, isLoading: isLoadingData } = useQuery({
-    queryKey: ["specimen-definition", facilityId, specimenDefinitionId],
+    queryKey: ["specimen_definition", facilityId, specimenDefinitionId],
     queryFn: query(specimenDefinitionApi.retrieveSpecimenDefinition, {
       pathParams: { facilityId, specimenDefinitionId },
     }),
@@ -35,9 +35,9 @@ export function UpdateSpecimenDefinition({
       }),
       onSuccess: () => {
         queryClient.invalidateQueries({
-          queryKey: ["specimen-definitions", facilityId],
+          queryKey: ["specimen_definitions", facilityId],
         });
-        navigate(`/specimen-definitions`);
+        navigate(`/specimen_definitions`);
       },
     });
 

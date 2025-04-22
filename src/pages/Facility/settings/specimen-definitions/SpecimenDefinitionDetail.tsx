@@ -25,7 +25,7 @@ export function SpecimenDefinitionDetail({
   const { t } = useTranslation();
 
   const { data: specimenDefinition, isLoading } = useQuery({
-    queryKey: ["specimen-definition", facilityId, specimenDefinitionId],
+    queryKey: ["specimen_definition", facilityId, specimenDefinitionId],
     queryFn: query(specimenDefinitionApi.retrieveSpecimenDefinition, {
       pathParams: { facilityId, specimenDefinitionId },
     }),
@@ -56,7 +56,7 @@ export function SpecimenDefinitionDetail({
       {/* Header */}
       <div className="space-y-1">
         <Link
-          href="/specimen-definitions"
+          href="/specimen_definitions"
           className="flex items-center text-sm text-muted-foreground hover:text-foreground"
         >
           <ArrowLeft className="mr-2 h-4 w-4" />
