@@ -1,0 +1,202 @@
+import { useQuery } from "@tanstack/react-query";
+import { navigate } from "raviger";
+import { useTranslation } from "react-i18next";
+
+import CareIcon from "@/CAREUI/icons/CareIcon";
+
+import { Button } from "@/components/ui/button";
+import { Input } from "@/components/ui/input";
+import {
+  Select,
+  SelectContent,
+  SelectItem,
+  SelectTrigger,
+  SelectValue,
+} from "@/components/ui/select";
+import {
+  Table,
+  TableBody,
+  TableCell,
+  TableHead,
+  TableHeader,
+  TableRow,
+} from "@/components/ui/table";
+
+import Page from "@/components/Common/Page";
+import { TableSkeleton } from "@/components/Common/SkeletonLoading";
+
+import useFilters from "@/hooks/useFilters";
+
+import query from "@/Utils/request/query";
+import {
+  OBSERVATION_DEFINITION_CATEGORY,
+  OBSERVATION_DEFINITION_STATUS,
+  type ObservationDefinitionReadSpec,
+} from "@/types/emr/observationDefinition/observationDefinition";
+import observationDefinitionApi from "@/types/emr/observationDefinition/observationDefinitionApi";
+
+function EmptyState() {
+  const { t } = useTranslation();
+  return (
+    <div className="flex h-[200px] items-center justify-center text-gray-500">
+      <div className="text-center">
+        <CareIcon icon="l-folder-open" className="mx-auto mb-2 size-8" />
+        <p>{t("no_observation_definitions_found")}</p>
+        <p className="text-sm">{t("adjust_observation_definition_filters")}</p>
+      </div>
+    </div>
+  );
+}
+
+export default function ObservationDefinitionList({
+  facilityId,
+}: {
+  facilityId: string;
+}) {
+  const { t } = useTranslation();
+  const { qParams, updateQuery, Pagination, resultsPerPage } = useFilters({
+    limit: 15,
+    disableCache: true,
+  });
+
+  const { data: response, isLoading } = useQuery({
+    queryKey: ["observationDefinitions", qParams],
+    queryFn: query(observationDefinitionApi.listObservationDefinition, {
+      queryParams: {
+        facility: facilityId,
+        limit: resultsPerPage,
+        offset: ((qParams.page ?? 1) - 1) * resultsPerPage,
+        search: qParams.search,
+        status: qParams.status || "active",
+        category: qParams.category,
+      },
+    }),
+  });
+
+  const observationDefinitions = response?.results || [];
+
+  return (
+    <Page title={t("observation_definitions")}>
+      <div className="container mx-auto">
+        <div className="mb-4">
+          <div className="mb-6 flex items-center justify-between">
+            <div>
+              <p className="text-gray-600">
+                {t("manage_observation_definitions")}
+              </p>
+            </div>
+            <Button
+              onClick={() =>
+                navigate(
+                  `/facility/${facilityId}/settings/observation_definitions/new`,
+                )
+              }
+            >
+              <CareIcon icon="l-plus" className="mr-2" />
+              {t("add_observation_definition")}
+            </Button>
+          </div>
+
+          <div className="mb-4 flex flex-wrap items-center gap-4">
+            <Input
+              placeholder={t("search_observation_definitions")}
+              value={qParams.search || ""}
+              onChange={(e) =>
+                updateQuery({ search: e.target.value || undefined })
+              }
+              className="max-w-xs"
+            />
+
+            <Select
+              value={qParams.status || "active"}
+              onValueChange={(value) => updateQuery({ status: value })}
+            >
+              <SelectTrigger className="w-[180px]">
+                <SelectValue placeholder={t("select_status")} />
+              </SelectTrigger>
+              <SelectContent>
+                {OBSERVATION_DEFINITION_STATUS.map((status) => (
+                  <SelectItem key={status} value={status}>
+                    {t(status)}
+                  </SelectItem>
+                ))}
+              </SelectContent>
+            </Select>
+
+            <Select
+              value={qParams.category || "all"}
+              onValueChange={(value) =>
+                updateQuery({ category: value === "all" ? undefined : value })
+              }
+            >
+              <SelectTrigger className="w-[180px]">
+                <SelectValue placeholder={t("select_category")} />
+              </SelectTrigger>
+              <SelectContent>
+                <SelectItem value="all">{t("all_categories")}</SelectItem>
+                {OBSERVATION_DEFINITION_CATEGORY.map((category) => (
+                  <SelectItem key={category} value={category}>
+                    {t(category)}
+                  </SelectItem>
+                ))}
+              </SelectContent>
+            </Select>
+          </div>
+        </div>
+
+        {isLoading ? (
+          <TableSkeleton count={5} />
+        ) : observationDefinitions.length === 0 ? (
+          <EmptyState />
+        ) : (
+          <div className="rounded-lg border">
+            <Table>
+              <TableHeader>
+                <TableRow>
+                  <TableHead>{t("title")}</TableHead>
+                  <TableHead>{t("category")}</TableHead>
+                  <TableHead>{t("status")}</TableHead>
+                  <TableHead>{t("data_type")}</TableHead>
+                  <TableHead className="text-right">{t("actions")}</TableHead>
+                </TableRow>
+              </TableHeader>
+              <TableBody>
+                {observationDefinitions.map(
+                  (definition: ObservationDefinitionReadSpec) => (
+                    <TableRow key={definition.id}>
+                      <TableCell className="font-medium">
+                        {definition.title}
+                      </TableCell>
+                      <TableCell>{t(definition.category)}</TableCell>
+                      <TableCell>{t(definition.status)}</TableCell>
+                      <TableCell>{t(definition.permitted_data_type)}</TableCell>
+                      <TableCell className="text-right">
+                        <Button
+                          variant="ghost"
+                          size="icon"
+                          onClick={() =>
+                            navigate(
+                              `/settings/observation_definitions/${definition.id}`,
+                            )
+                          }
+                        >
+                          <CareIcon icon="l-pen" className="size-4" />
+                        </Button>
+                      </TableCell>
+                    </TableRow>
+                  ),
+                )}
+              </TableBody>
+            </Table>
+          </div>
+        )}
+
+        {response && response.count > resultsPerPage && (
+          <div className="mt-4 flex justify-center">
+            <Pagination totalCount={response.count} />
+          </div>
+        )}
+      </div>
+    </Page>
+  );
+}

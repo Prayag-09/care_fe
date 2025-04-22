@@ -100,6 +100,10 @@ function generateFacilityLinks(
           name: t("specimen_definitions"),
           url: `${baseUrl}/settings/specimen-definitions`,
         },
+        {
+          name: t("observation_definitions"),
+          url: `${baseUrl}/settings/observation-definitions`,
+        },
       ],
     },
   ];

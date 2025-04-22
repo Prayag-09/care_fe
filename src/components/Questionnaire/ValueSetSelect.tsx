@@ -53,6 +53,7 @@ interface Props {
   wrapTextForSmallScreen?: boolean;
   hideTrigger?: boolean;
   controlledOpen?: boolean;
+  showCode?: boolean;
 }
 
 const Item = ({
@@ -60,11 +61,13 @@ const Item = ({
   onFavourite,
   onSelect,
   isFavourite,
+  showCode,
 }: {
   option: Code;
   isFavourite: boolean;
   onFavourite: () => void;
   onSelect: () => void;
+  showCode: boolean;
 }) => (
   <CommandItem
     key={option.code}
@@ -73,7 +76,9 @@ const Item = ({
     className="cursor-pointer"
   >
     <div className="flex items-center justify-between w-full gap-4">
-      <span>{option.display}</span>
+      <span>
+        {option.display} {showCode && `(${option.code})`}
+      </span>
 
       <button
         type="button"
@@ -101,6 +106,7 @@ export default function ValueSetSelect({
   wrapTextForSmallScreen = false,
   hideTrigger = false,
   controlledOpen = false,
+  showCode = false,
 }: Props) {
   const { t } = useTranslation();
   const [internalOpen, setInternalOpen] = useState(false);
@@ -241,6 +247,7 @@ export default function ValueSetSelect({
                 <Item
                   key={option.code}
                   option={option}
+                  showCode={showCode}
                   onSelect={() => {
                     onSelect({
                       code: option.code,
@@ -306,6 +313,7 @@ export default function ValueSetSelect({
                 <Item
                   key={option.code}
                   option={option}
+                  showCode={showCode}
                   onSelect={() => {
                     onSelect({
                       code: option.code,
@@ -389,6 +397,9 @@ export default function ValueSetSelect({
               />
               <span className="text-primary-700 flex items-center font-semibold text-base text-wrap">
                 {value?.display || placeholder}
+                {value?.display && showCode && (
+                  <span className="text-xs ml-1">({value?.code})</span>
+                )}
               </span>
             </div>
           </Button>
@@ -425,7 +436,12 @@ export default function ValueSetSelect({
                 !value?.display && "text-gray-400",
               )}
             >
-              <span>{value?.display || placeholder}</span>
+              <span>
+                {value?.display || placeholder}
+                {value?.display && showCode && (
+                  <span className="text-xs ml-1">({value?.code})</span>
+                )}
+              </span>
               <CaretSortIcon className="ml-2 size-4 shrink-0 opacity-50" />
             </Button>
           </PopoverTrigger>

@@ -9,6 +9,8 @@ import UpdateDevice from "@/pages/Facility/settings/devices/UpdateDevice";
 
 import { GeneralSettings } from "./general/general";
 import LocationSettings from "./locations/LocationSettings";
+import ObservationDefinitionForm from "./observationDefinition/ObservationDefinitionForm";
+import ObservationDefinitionList from "./observationDefinition/ObservationDefinitionList";
 import FacilityOrganizationList from "./organizations/FacilityOrganizationList";
 import { CreateSpecimenDefinition } from "./specimen-definitions/CreateSpecimenDefinition";
 import { SpecimenDefinitionDetail } from "./specimen-definitions/SpecimenDefinitionDetail";
@@ -51,6 +53,12 @@ const getRoutes = (facilityId: string) => ({
       facilityId={facilityId}
       specimenDefinitionId={id}
     />
+  ),
+  "/observation_definitions": () => (
+    <ObservationDefinitionList facilityId={facilityId} />
+  ),
+  "/observation_definitions/new": () => (
+    <ObservationDefinitionForm facilityId={facilityId} />
   ),
   "*": () => <ErrorPage />,
 });
