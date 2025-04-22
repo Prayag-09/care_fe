@@ -1,6 +1,6 @@
 import { ObservationDefinitionReadSpec } from "@/types/emr/observationDefinition/observationDefinition";
 import { SpecimenDefinitionRead } from "@/types/emr/specimenDefinition/specimenDefinition";
-import { LocationBase } from "@/types/location/location";
+import { LocationList } from "@/types/location/location";
 import { Code } from "@/types/questionnaire/code";
 
 export enum Status {
@@ -55,5 +55,5 @@ export interface ActivityDefinitionReadSpec extends BaseActivityDefinitionSpec {
   version?: number;
   specimen_requirements: SpecimenDefinitionRead[];
   observation_result_requirements: ObservationDefinitionReadSpec[];
-  locations: LocationBase[];
+  locations: LocationList[];
 }
