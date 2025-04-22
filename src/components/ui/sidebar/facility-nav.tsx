@@ -96,6 +96,10 @@ function generateFacilityLinks(
           name: t("devices"),
           url: `${baseUrl}/settings/devices`,
         },
+        {
+          name: t("observation_definitions"),
+          url: `${baseUrl}/settings/observation_definitions`,
+        },
       ],
     },
   ];

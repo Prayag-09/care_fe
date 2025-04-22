@@ -7,8 +7,10 @@ import DeviceDetail from "@/pages/Facility/settings/devices/DeviceShow";
 import DevicesList from "@/pages/Facility/settings/devices/DevicesList";
 import UpdateDevice from "@/pages/Facility/settings/devices/UpdateDevice";
 
+import ObservationDefinitionList from "./ObservationDefinition/ObservationDefinitionList";
 import { GeneralSettings } from "./general/general";
 import LocationSettings from "./locations/LocationSettings";
+import ObservationDefinitionForm from "./observationDefinition/ObservationDefinitionForm";
 import FacilityOrganizationList from "./organizations/FacilityOrganizationList";
 
 interface SettingsLayoutProps {
@@ -36,6 +38,12 @@ const getRoutes = (facilityId: string) => ({
   ),
   "/devices/:id/edit": ({ id }: { id: string }) => (
     <UpdateDevice facilityId={facilityId} deviceId={id} />
+  ),
+  "/observation_definitions": () => (
+    <ObservationDefinitionList facilityId={facilityId} />
+  ),
+  "/observation_definitions/new": () => (
+    <ObservationDefinitionForm facilityId={facilityId} />
   ),
   "*": () => <ErrorPage />,
 });
