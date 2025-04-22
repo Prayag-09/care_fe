@@ -19,8 +19,8 @@ export interface QuantitySpec {
 }
 
 export interface MinimumVolumeSpec {
-  value: number;
-  unit: Code;
+  quantity: QuantitySpec | null;
+  string: string | null;
 }
 
 export interface DurationSpec {

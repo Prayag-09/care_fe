@@ -46,7 +46,7 @@ export function UpdateSpecimenDefinition({
   }
 
   if (!specimenDefinition) {
-    return <div>Specimen definition not found</div>;
+    return <div>{t("not_found")}</div>;
   }
 
   return (

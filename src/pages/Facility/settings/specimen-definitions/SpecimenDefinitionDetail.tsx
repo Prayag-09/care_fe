@@ -73,10 +73,12 @@ export function SpecimenDefinitionDetail({
               <Trash2 className="h-4 w-4 mr-2" />
               {t("delete")}
             </Button>
-            <Button variant="outline" size="sm">
-              <Pencil className="h-4 w-4 mr-2" />
-              {t("edit")}
-            </Button>
+            <Link href={`/specimen_definitions/${specimenDefinitionId}/edit`}>
+              <Button variant="outline" size="sm">
+                <Pencil className="h-4 w-4 mr-2" />
+                {t("edit")}
+              </Button>
+            </Link>
           </div>
         </div>
       </div>
