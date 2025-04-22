@@ -27,4 +27,4 @@ export default {
     method: HttpMethod.PUT,
     TRes: Type<ObservationDefinitionCreateSpec>(),
   },
-};
+} as const;

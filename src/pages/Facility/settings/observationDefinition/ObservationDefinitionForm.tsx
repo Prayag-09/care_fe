@@ -1,5 +1,5 @@
 import { zodResolver } from "@hookform/resolvers/zod";
-import { useMutation, useQueryClient } from "@tanstack/react-query";
+import { useMutation, useQuery, useQueryClient } from "@tanstack/react-query";
 import { PlusCircle, X } from "lucide-react";
 import { navigate } from "raviger";
 import { useForm } from "react-hook-form";
@@ -30,24 +30,16 @@ import Page from "@/components/Common/Page";
 import ValueSetSelect from "@/components/Questionnaire/ValueSetSelect";
 
 import mutate from "@/Utils/request/mutate";
+import query from "@/Utils/request/query";
 import {
   OBSERVATION_DEFINITION_CATEGORY,
   OBSERVATION_DEFINITION_STATUS,
-  type ObservationDefinitionComponentSpec,
   type ObservationDefinitionCreateSpec,
+  type ObservationDefinitionReadSpec,
+  ObservationDefinitionUpdateSpec,
   QuestionType,
 } from "@/types/emr/observationDefinition/observationDefinition";
 import observationDefinitionApi from "@/types/emr/observationDefinition/observationDefinitionApi";
-
-const QUESTION_TYPES: [QuestionType, ...QuestionType[]] = [
-  "boolean",
-  "decimal",
-  "integer",
-  "dateTime",
-  "time",
-  "string",
-  "quantity",
-];
 
 const formSchema = z.object({
   title: z.string().min(1, "Title is required"),
@@ -55,7 +47,7 @@ const formSchema = z.object({
   description: z.string().min(1, "Description is required"),
   status: z.enum(OBSERVATION_DEFINITION_STATUS),
   category: z.enum(OBSERVATION_DEFINITION_CATEGORY as [string, ...string[]]),
-  permitted_data_type: z.enum(QUESTION_TYPES),
+  permitted_data_type: z.nativeEnum(QuestionType),
   code: z.object({
     code: z.string().min(1, "Code is required"),
     display: z.string().min(1, "Display name is required"),
@@ -67,21 +59,21 @@ const formSchema = z.object({
       display: z.string().min(1, "Display name is required"),
       system: z.string().min(1, "System is required"),
     })
-    .optional(),
+    .nullable(),
   method: z
     .object({
       code: z.string().min(1, "Code is required"),
       display: z.string().min(1, "Display name is required"),
       system: z.string().min(1, "System is required"),
     })
-    .optional(),
+    .nullable(),
   permitted_unit: z
     .object({
       code: z.string().min(1, "Code is required"),
       display: z.string().min(1, "Display name is required"),
       system: z.string().min(1, "System is required"),
     })
-    .optional(),
+    .nullable(),
   component: z
     .array(
       z.object({
@@ -90,7 +82,7 @@ const formSchema = z.object({
           display: z.string(),
           system: z.string(),
         }),
-        permitted_data_type: z.enum(QUESTION_TYPES),
+        permitted_data_type: z.nativeEnum(QuestionType),
         permitted_unit: z.object({
           code: z.string(),
           display: z.string(),
@@ -105,45 +97,150 @@ type FormValues = z.infer<typeof formSchema>;
 
 export default function ObservationDefinitionForm({
   facilityId,
+  observationDefinitionId,
 }: {
   facilityId: string;
+  observationDefinitionId?: string;
 }) {
   const { t } = useTranslation();
-  const queryClient = useQueryClient();
 
-  const form = useForm<FormValues>({
-    resolver: zodResolver(formSchema),
-    defaultValues: {
-      status: "draft",
-      component: [],
-    },
+  const isEditMode = Boolean(observationDefinitionId);
+
+  const { data: existingData, isLoading } = useQuery({
+    queryKey: ["observationDefinition", observationDefinitionId],
+    queryFn: query(observationDefinitionApi.retrieveObservationDefinition, {
+      pathParams: {
+        observationDefinitionId: observationDefinitionId!,
+      },
+      queryParams: {
+        facility: facilityId,
+      },
+    }),
+    enabled: isEditMode,
   });
 
-  const { mutate: createObservationDefinition, isPending } = useMutation({
-    mutationFn: mutate(observationDefinitionApi.createObservationDefinition),
-    onSuccess: () => {
-      queryClient.invalidateQueries({ queryKey: ["observationDefinitions"] });
-      toast.success(t("observation_definition_created_successfully"));
-      navigate(`/facility/${facilityId}/settings/observation_definitions`);
-    },
-  });
-
-  function onSubmit(data: FormValues) {
-    const payload: ObservationDefinitionCreateSpec = {
-      ...data,
-      facility: facilityId,
-      id: crypto.randomUUID(),
-      component: data.component as ObservationDefinitionComponentSpec[],
-    };
-    createObservationDefinition(payload);
+  if (isEditMode && isLoading) {
+    return (
+      <Page title={t("edit_observation_definition")} hideTitleOnPage>
+        <div className="container mx-auto max-w-3xl">
+          <div className="mb-6">
+            <h1 className="text-xl font-semibold text-gray-900">
+              {t("edit_observation_definition")}
+            </h1>
+          </div>
+          <div className="flex items-center justify-center rounded-lg border border-gray-200 bg-white p-8">
+            <div className="text-center">
+              <div className="mb-2 text-sm text-gray-500">
+                {t("loading_observation_definition")}
+              </div>
+            </div>
+          </div>
+        </div>
+      </Page>
+    );
   }
 
   return (
-    <Page title={t("create_observation_definition")} hideTitleOnPage>
+    <ObservationDefinitionFormContent
+      facilityId={facilityId}
+      observationDefinitionId={observationDefinitionId}
+      existingData={existingData}
+    />
+  );
+}
+
+function ObservationDefinitionFormContent({
+  facilityId,
+  observationDefinitionId,
+  existingData,
+}: {
+  facilityId: string;
+  observationDefinitionId?: string;
+  existingData?: ObservationDefinitionReadSpec;
+}) {
+  const { t } = useTranslation();
+  const queryClient = useQueryClient();
+  const isEditMode = Boolean(observationDefinitionId);
+
+  const form = useForm<FormValues>({
+    resolver: zodResolver(formSchema),
+    defaultValues:
+      isEditMode && existingData
+        ? {
+            title: existingData.title,
+            slug: existingData.slug,
+            description: existingData.description,
+            status: existingData.status,
+            category: existingData.category,
+            permitted_data_type: existingData.permitted_data_type,
+            code: existingData.code,
+            body_site: existingData.body_site || null,
+            method: existingData.method || null,
+            permitted_unit: existingData.permitted_unit || null,
+            component: existingData.component || [],
+          }
+        : {
+            status: "draft",
+            component: [],
+            body_site: null,
+            method: null,
+            permitted_unit: null,
+          },
+  });
+
+  const { mutate: createObservationDefinition, isPending: isCreating } =
+    useMutation({
+      mutationFn: mutate(observationDefinitionApi.createObservationDefinition),
+      onSuccess: () => {
+        queryClient.invalidateQueries({ queryKey: ["observationDefinitions"] });
+        toast.success(t("observation_definition_created_successfully"));
+        navigate(`/facility/${facilityId}/settings/observation_definitions`);
+      },
+    });
+
+  const { mutate: updateObservationDefinition, isPending: isUpdating } =
+    useMutation({
+      mutationFn: mutate(observationDefinitionApi.updateObservationDefinition, {
+        pathParams: { observationDefinitionId: observationDefinitionId || "" },
+      }),
+      onSuccess: () => {
+        queryClient.invalidateQueries({ queryKey: ["observationDefinitions"] });
+        toast.success(t("observation_definition_updated_successfully"));
+        navigate(`/facility/${facilityId}/settings/observation_definitions`);
+      },
+    });
+
+  const isPending = isCreating || isUpdating;
+
+  function onSubmit(data: FormValues) {
+    if (isEditMode && observationDefinitionId) {
+      updateObservationDefinition(data as ObservationDefinitionUpdateSpec);
+    } else {
+      const payload: ObservationDefinitionCreateSpec = {
+        ...data,
+        facility: facilityId,
+      };
+      createObservationDefinition(payload);
+    }
+  }
+
+  console.log("Form errors:", form.formState.errors);
+  console.log("Form values:", form.getValues());
+  return (
+    <Page
+      title={
+        isEditMode
+          ? t("edit_observation_definition")
+          : t("create_observation_definition")
+      }
+      hideTitleOnPage
+    >
       <div className="container mx-auto max-w-3xl">
         <div className="mb-6">
           <h1 className="text-xl font-semibold text-gray-900">
-            {t("create_observation_definition")}
+            {isEditMode
+              ? t("edit_observation_definition")
+              : t("create_observation_definition")}
           </h1>
         </div>
 
@@ -267,31 +364,33 @@ export default function ObservationDefinitionForm({
                   <FormField
                     control={form.control}
                     name="permitted_data_type"
-                    render={({ field }) => (
-                      <FormItem>
-                        <FormLabel>{t("data_type")}</FormLabel>
-                        <Select
-                          onValueChange={field.onChange}
-                          defaultValue={field.value}
-                        >
-                          <FormControl>
-                            <SelectTrigger>
-                              <SelectValue
-                                placeholder={t("select_data_type")}
-                              />
-                            </SelectTrigger>
-                          </FormControl>
-                          <SelectContent>
-                            {QUESTION_TYPES.map((type) => (
-                              <SelectItem key={type} value={type}>
-                                {t(type)}
-                              </SelectItem>
-                            ))}
-                          </SelectContent>
-                        </Select>
-                        <FormMessage />
-                      </FormItem>
-                    )}
+                    render={({ field }) => {
+                      return (
+                        <FormItem>
+                          <FormLabel>{t("data_type")}</FormLabel>
+                          <Select
+                            onValueChange={field.onChange}
+                            defaultValue={field.value}
+                          >
+                            <FormControl>
+                              <SelectTrigger>
+                                <SelectValue
+                                  placeholder={t("select_data_type")}
+                                />
+                              </SelectTrigger>
+                            </FormControl>
+                            <SelectContent>
+                              {Object.keys(QuestionType).map((type) => (
+                                <SelectItem key={type} value={type}>
+                                  {t(type)}
+                                </SelectItem>
+                              ))}
+                            </SelectContent>
+                          </Select>
+                          <FormMessage />
+                        </FormItem>
+                      );
+                    }}
                   />
 
                   <div>
@@ -302,9 +401,11 @@ export default function ObservationDefinitionForm({
                         value={form.watch("code")}
                         placeholder={t("search_for_observation_codes")}
                         onSelect={(code) => {
-                          form.setValue("code.code", code.code);
-                          form.setValue("code.display", code.display);
-                          form.setValue("code.system", code.system);
+                          form.setValue("code", {
+                            code: code.code,
+                            display: code.display,
+                            system: code.system,
+                          });
                         }}
                         showCode={true}
                       />
@@ -339,9 +440,11 @@ export default function ObservationDefinitionForm({
                       value={form.watch("body_site")}
                       placeholder={t("e.g., Right Arm")}
                       onSelect={(code) => {
-                        form.setValue("body_site.code", code.code);
-                        form.setValue("body_site.display", code.display);
-                        form.setValue("body_site.system", code.system);
+                        form.setValue("body_site", {
+                          code: code.code,
+                          display: code.display,
+                          system: code.system,
+                        });
                       }}
                       showCode={true}
                     />
@@ -354,9 +457,11 @@ export default function ObservationDefinitionForm({
                       value={form.watch("method")}
                       placeholder={t("e.g., Automatic")}
                       onSelect={(code) => {
-                        form.setValue("method.code", code.code);
-                        form.setValue("method.display", code.display);
-                        form.setValue("method.system", code.system);
+                        form.setValue("method", {
+                          code: code.code,
+                          display: code.display,
+                          system: code.system,
+                        });
                       }}
                       showCode={true}
                     />
@@ -369,9 +474,11 @@ export default function ObservationDefinitionForm({
                       value={form.watch("permitted_unit")}
                       placeholder={t("e.g., mmHg")}
                       onSelect={(code) => {
-                        form.setValue("permitted_unit.code", code.code);
-                        form.setValue("permitted_unit.display", code.display);
-                        form.setValue("permitted_unit.system", code.system);
+                        form.setValue("permitted_unit", {
+                          code: code.code,
+                          display: code.display,
+                          system: code.system,
+                        });
                       }}
                       showCode={true}
                     />
@@ -403,12 +510,13 @@ export default function ObservationDefinitionForm({
                       variant="outline"
                       size="sm"
                       onClick={() => {
-                        const currentComponents = form.getValues("component");
+                        const currentComponents =
+                          form.getValues("component") || [];
                         form.setValue("component", [
                           ...currentComponents,
                           {
                             code: { code: "", display: "", system: "" },
-                            permitted_data_type: "string",
+                            permitted_data_type: QuestionType.quantity,
                             permitted_unit: {
                               code: "",
                               display: "",
@@ -439,12 +547,13 @@ export default function ObservationDefinitionForm({
                       type="button"
                       variant="outline"
                       onClick={() => {
-                        const currentComponents = form.getValues("component");
+                        const currentComponents =
+                          form.getValues("component") || [];
                         form.setValue("component", [
                           ...currentComponents,
                           {
                             code: { code: "", display: "", system: "" },
-                            permitted_data_type: "string",
+                            permitted_data_type: QuestionType.quantity,
                             permitted_unit: {
                               code: "",
                               display: "",
@@ -473,7 +582,7 @@ export default function ObservationDefinitionForm({
                             className="h-7 w-7 rounded-full hover:bg-gray-100"
                             onClick={() => {
                               const currentComponents =
-                                form.getValues("component");
+                                form.getValues("component") || [];
                               form.setValue(
                                 "component",
                                 currentComponents.filter((_, i) => i !== index),
@@ -529,7 +638,7 @@ export default function ObservationDefinitionForm({
                                       </SelectTrigger>
                                     </FormControl>
                                     <SelectContent>
-                                      {QUESTION_TYPES.map((type) => (
+                                      {Object.keys(QuestionType).map((type) => (
                                         <SelectItem key={type} value={type}>
                                           {t(type)}
                                         </SelectItem>
@@ -576,12 +685,22 @@ export default function ObservationDefinitionForm({
             <div className="flex justify-end space-x-3">
               <Button
                 variant="outline"
-                onClick={() => navigate("/observation-definitions")}
+                onClick={() =>
+                  navigate(
+                    `/facility/${facilityId}/settings/observation_definitions`,
+                  )
+                }
               >
                 {t("cancel")}
               </Button>
               <Button type="submit" disabled={isPending}>
-                {isPending ? t("creating") : t("create")}
+                {isPending
+                  ? isEditMode
+                    ? t("saving")
+                    : t("creating")
+                  : isEditMode
+                    ? t("save")
+                    : t("create")}
               </Button>
             </div>
           </form>
