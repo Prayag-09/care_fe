@@ -183,7 +183,7 @@ jobs:
           fi
 
       - name: Check assignees roles and update Team
-        if: github.event.action == 'assigned'
+        if: github.event.action == 'assigned' || github.event.action == 'unassigned'
         env:
           ISSUE_NUMBER: ${{ github.event.issue.number }}
           REPO: ${{ github.repository }}
