@@ -7,13 +7,6 @@ import CareIcon from "@/CAREUI/icons/CareIcon";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import {
-  Select,
-  SelectContent,
-  SelectItem,
-  SelectTrigger,
-  SelectValue,
-} from "@/components/ui/select";
-import {
   Table,
   TableBody,
   TableCell,
@@ -28,11 +21,7 @@ import { TableSkeleton } from "@/components/Common/SkeletonLoading";
 import useFilters from "@/hooks/useFilters";
 
 import query from "@/Utils/request/query";
-import {
-  OBSERVATION_DEFINITION_CATEGORY,
-  OBSERVATION_DEFINITION_STATUS,
-  type ObservationDefinitionReadSpec,
-} from "@/types/emr/observationDefinition/observationDefinition";
+import { type ObservationDefinitionReadSpec } from "@/types/emr/observationDefinition/observationDefinition";
 import observationDefinitionApi from "@/types/emr/observationDefinition/observationDefinitionApi";
 
 function EmptyState() {
@@ -106,41 +95,6 @@ export default function ObservationDefinitionList({
               }
               className="max-w-xs"
             />
-
-            <Select
-              value={qParams.status || "active"}
-              onValueChange={(value) => updateQuery({ status: value })}
-            >
-              <SelectTrigger className="w-[180px]">
-                <SelectValue placeholder={t("select_status")} />
-              </SelectTrigger>
-              <SelectContent>
-                {OBSERVATION_DEFINITION_STATUS.map((status) => (
-                  <SelectItem key={status} value={status}>
-                    {t(status)}
-                  </SelectItem>
-                ))}
-              </SelectContent>
-            </Select>
-
-            <Select
-              value={qParams.category || "all"}
-              onValueChange={(value) =>
-                updateQuery({ category: value === "all" ? undefined : value })
-              }
-            >
-              <SelectTrigger className="w-[180px]">
-                <SelectValue placeholder={t("select_category")} />
-              </SelectTrigger>
-              <SelectContent>
-                <SelectItem value="all">{t("all_categories")}</SelectItem>
-                {OBSERVATION_DEFINITION_CATEGORY.map((category) => (
-                  <SelectItem key={category} value={category}>
-                    {t(category)}
-                  </SelectItem>
-                ))}
-              </SelectContent>
-            </Select>
           </div>
         </div>
 

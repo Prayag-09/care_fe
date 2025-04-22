@@ -124,7 +124,7 @@ export default function ObservationDefinitionForm({
     onSuccess: () => {
       queryClient.invalidateQueries({ queryKey: ["observationDefinitions"] });
       toast.success(t("observation_definition_created_successfully"));
-      navigate("/settings/observation_definitions");
+      navigate(`/facility/${facilityId}/settings/observation_definitions`);
     },
   });
 
