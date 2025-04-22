@@ -257,10 +257,11 @@ export function SpecimenDefinitionDetail({
                           {t("minimum_volume")}
                         </p>
                         <p>
-                          {formatQuantity(
+                          {/* TODO: @amjith to fix */}
+                          {/* {formatQuantity(
                             specimenDefinition.type_tested.container
                               .minimum_volume,
-                          )}
+                          )} */}
                         </p>
                       </div>
                     )}
