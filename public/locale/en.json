@@ -1682,6 +1682,7 @@
   "loading": "Loading...",
   "loading_encounter": "Loading encounter...",
   "loading_healthcare_service": "Loading healthcare service...",
+  "loading_observation_definition": "Loading observation definition...",
   "local_body": "Local body",
   "local_ip_address": "Local IP Address",
   "local_ip_address_example": "e.g. 192.168.0.123",

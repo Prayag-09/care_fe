@@ -27,6 +27,7 @@ import {
 import { Textarea } from "@/components/ui/textarea";
 
 import Page from "@/components/Common/Page";
+import { FormSkeleton } from "@/components/Common/SkeletonLoading";
 import ValueSetSelect from "@/components/Questionnaire/ValueSetSelect";
 
 import mutate from "@/Utils/request/mutate";
@@ -128,13 +129,7 @@ export default function ObservationDefinitionForm({
               {t("edit_observation_definition")}
             </h1>
           </div>
-          <div className="flex items-center justify-center rounded-lg border border-gray-200 bg-white p-8">
-            <div className="text-center">
-              <div className="mb-2 text-sm text-gray-500">
-                {t("loading_observation_definition")}
-              </div>
-            </div>
-          </div>
+          <FormSkeleton rows={10} />
         </div>
       </Page>
     );
