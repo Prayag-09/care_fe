@@ -272,8 +272,10 @@ export default function ActivityDefinitionView({
         {definition.locations.length > 0 && (
           <Card>
             <CardHeader>
-              <CardTitle>{t("locations")}</CardTitle>
-              <CardDescription>{t("locations_description")}</CardDescription>
+              <CardTitle>{t("location_requirements")}</CardTitle>
+              <CardDescription>
+                {t("location_requirements_description")}
+              </CardDescription>
             </CardHeader>
             <CardContent>
               <div className="space-y-4">
