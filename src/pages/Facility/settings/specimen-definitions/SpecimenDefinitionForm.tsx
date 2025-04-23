@@ -35,7 +35,10 @@ import {
   SPECIMEN_DEFINITION_STATUS_OPTIONS,
   SPECIMEN_DEFINITION_UNITS_CODES,
 } from "@/types/emr/specimenDefinition/specimenDefinition";
-import { SpecimenDefinitionRequest } from "@/types/emr/specimenDefinition/specimenDefinition";
+import {
+  SpecimenDefinitionCreate,
+  SpecimenDefinitionUpdate,
+} from "@/types/emr/specimenDefinition/specimenDefinition";
 import { Code } from "@/types/questionnaire/code";
 
 const typeTestedSchema = z.object({
@@ -91,13 +94,15 @@ const formSchema = z.object({
 type FormValues = z.infer<typeof formSchema>;
 
 interface SpecimenDefinitionFormProps {
-  initialData?: SpecimenDefinitionRequest;
-  onSubmit: (data: SpecimenDefinitionRequest) => void;
+  initialData?: SpecimenDefinitionCreate;
+  specimenDefinitionId?: string;
+  onSubmit: (data: SpecimenDefinitionCreate | SpecimenDefinitionUpdate) => void;
   isLoading?: boolean;
 }
 
 export function SpecimenDefinitionForm({
   initialData,
+  specimenDefinitionId,
   onSubmit,
   isLoading,
 }: SpecimenDefinitionFormProps) {
@@ -199,9 +204,13 @@ export function SpecimenDefinitionForm({
   return (
     <Form {...form}>
       <form
-        onSubmit={form.handleSubmit((data) =>
-          onSubmit(data as SpecimenDefinitionRequest),
-        )}
+        onSubmit={form.handleSubmit((data) => {
+          if (specimenDefinitionId) {
+            onSubmit(data as SpecimenDefinitionUpdate);
+          } else {
+            onSubmit(data as SpecimenDefinitionCreate);
+          }
+        })}
         className="space-y-6"
       >
         <Card>

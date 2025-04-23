@@ -1,12 +1,11 @@
 import { useQuery } from "@tanstack/react-query";
 import { ArrowLeft, Pencil, Trash2 } from "lucide-react";
-import { Link } from "raviger";
+import { Link, navigate } from "raviger";
 import { useTranslation } from "react-i18next";
 
 import { Badge } from "@/components/ui/badge";
 import { Button } from "@/components/ui/button";
 import { Card } from "@/components/ui/card";
-import { Separator } from "@/components/ui/separator";
 
 import query from "@/Utils/request/query";
 import { DurationSpec } from "@/types/emr/specimenDefinition/specimenDefinition";
@@ -32,11 +31,11 @@ export function SpecimenDefinitionDetail({
   });
 
   if (isLoading) {
-    return <div>Loading...</div>;
+    return <div>{t("loading")}</div>;
   }
 
   if (!specimenDefinition) {
-    return <div>Specimen definition not found</div>;
+    return <div>{t("specimen_definition_not_found")}</div>;
   }
 
   const formatQuantity = (
@@ -52,17 +51,21 @@ export function SpecimenDefinitionDetail({
   };
 
   return (
-    <div className="space-y-2">
+    <div className="space-y-2 p-2 md:p-6">
       {/* Header */}
-      <div className="space-y-1">
-        <Link
-          href="/specimen_definitions"
-          className="flex items-center text-sm text-muted-foreground hover:text-foreground"
+      <div className="space-y-4">
+        <Button
+          onClick={() =>
+            navigate(`/facility/${facilityId}/settings/specimen_definitions`)
+          }
+          variant="outline"
+          className="text-destructive"
+          size="sm"
         >
           <ArrowLeft className="mr-2 h-4 w-4" />
           {t("back")}
-        </Link>
-        <div className="flex items-start justify-between">
+        </Button>
+        <div className="flex items-start justify-between p-2">
           <div>
             <h1 className="text-2xl font-semibold text-gray-500">
               {specimenDefinition.title}
@@ -84,18 +87,15 @@ export function SpecimenDefinitionDetail({
       </div>
 
       {/* Basic Information */}
-      <Card className="p-6">
+      <Card className="p-6 space-y-6">
         <div className="space-y-6">
           <div className="flex items-center justify-between">
-            <p className="text-md font-semibold text-gray-400">
-              {t("basic_information")}
-            </p>
             <Badge
               variant={
                 specimenDefinition.status === "active" ? "default" : "secondary"
               }
             >
-              {specimenDefinition.status}
+              {t(specimenDefinition.status)}
             </Badge>
           </div>
 
@@ -127,19 +127,13 @@ export function SpecimenDefinitionDetail({
         </div>
 
         <div className="space-y-6">
-          <h2 className="text-lg font-semibold text-gray-400">
-            {t("specimen_details")}
-          </h2>
-
           <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
             {specimenDefinition.type_collected && (
               <div>
                 <p className="text-sm font-medium text-gray-400">
                   {t("type_collected")}
                 </p>
-                <p className="font-medium">
-                  {specimenDefinition.type_collected.display}
-                </p>
+                <p>{specimenDefinition.type_collected.display}</p>
               </div>
             )}
 
@@ -148,9 +142,7 @@ export function SpecimenDefinitionDetail({
                 <p className="text-sm font-medium text-gray-400">
                   {t("collection_method")}
                 </p>
-                <p className="font-medium">
-                  {specimenDefinition.collection.display}
-                </p>
+                <p>{specimenDefinition.collection.display}</p>
               </div>
             )}
           </div>
@@ -161,10 +153,10 @@ export function SpecimenDefinitionDetail({
                 <p className="text-sm font-medium text-gray-400">
                   {t("patient_preparation")}
                 </p>
-                <div className="space-y-2">
+                <div>
                   {specimenDefinition.patient_preparation.map((prep, index) => (
                     <div key={index} className="flex items-start gap-1">
-                      <span className="text-muted-foreground">•</span>
+                      <span className="text-gray-400">•</span>
                       <div>
                         <p>{prep.display}</p>
                       </div>
@@ -174,10 +166,9 @@ export function SpecimenDefinitionDetail({
               </div>
             )}
         </div>
-
         {/* Type Tested Information */}
         {specimenDefinition.type_tested && (
-          <div className="space-y-6">
+          <div className="space-y-6 border rounded-md shadow-sm py-2 px-4">
             <p className="text-md font-semibold text-gray-400">
               {t("type_tested_information")}
             </p>
@@ -198,19 +189,47 @@ export function SpecimenDefinitionDetail({
                   <p className="text-sm font-medium text-gray-400">
                     {t("specimen_type")}
                   </p>
-                  <p className="font-medium">
-                    {specimenDefinition.type_tested.specimen_type.display}
+                  <p>{specimenDefinition.type_tested.specimen_type.display}</p>
+                </div>
+              )}
+              {/* Additional Information */}
+              {specimenDefinition.type_tested.requirement && (
+                <div>
+                  <p className="text-sm font-medium text-gray-400">
+                    {t("requirement")}
+                  </p>
+                  <p>{specimenDefinition.type_tested.requirement}</p>
+                </div>
+              )}
+              {specimenDefinition.type_tested.retention_time && (
+                <div>
+                  <p className="text-sm font-medium text-gray-400">
+                    {t("retention_time")}
+                  </p>
+                  <p>
+                    {formatDuration(
+                      specimenDefinition.type_tested.retention_time,
+                    )}
                   </p>
                 </div>
               )}
+              <div>
+                <p className="text-sm font-medium text-gray-400">
+                  {t("single_use")}
+                </p>
+                <Badge variant="outline">
+                  {specimenDefinition.type_tested.single_use
+                    ? t("yes")
+                    : t("no")}
+                </Badge>
+              </div>
             </div>
 
             {/* Container Information */}
             {specimenDefinition.type_tested.container && (
               <>
-                <Separator className="my-6" />
-                <div className="space-y-6">
-                  <p className="text-lg font-medium text-gray-400">
+                <div className="space-y-6 border rounded-md bg-gray-50 py-2 px-4">
+                  <p className="text-md font-semibold text-gray-400">
                     {t("container_information")}
                   </p>
 
@@ -257,11 +276,14 @@ export function SpecimenDefinitionDetail({
                           {t("minimum_volume")}
                         </p>
                         <p>
-                          {/* TODO: @amjith to fix */}
-                          {/* {formatQuantity(
-                            specimenDefinition.type_tested.container
-                              .minimum_volume,
-                          )} */}
+                          {specimenDefinition.type_tested.container
+                            .minimum_volume.quantity
+                            ? formatQuantity(
+                                specimenDefinition.type_tested.container
+                                  .minimum_volume.quantity,
+                              )
+                            : specimenDefinition.type_tested.container
+                                .minimum_volume.string}
                         </p>
                       </div>
                     )}
@@ -280,40 +302,6 @@ export function SpecimenDefinitionDetail({
                 </div>
               </>
             )}
-
-            {/* Additional Information */}
-            <Separator className="my-6" />
-            <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
-              {specimenDefinition.type_tested.requirement && (
-                <div>
-                  <p className="text-sm font-medium text-gray-400">
-                    {t("requirement")}
-                  </p>
-                  <p>{specimenDefinition.type_tested.requirement}</p>
-                </div>
-              )}
-              {specimenDefinition.type_tested.retention_time && (
-                <div>
-                  <p className="text-sm font-medium text-gray-400">
-                    {t("retention_time")}
-                  </p>
-                  <p>
-                    {formatDuration(
-                      specimenDefinition.type_tested.retention_time,
-                    )}
-                  </p>
-                </div>
-              )}
-            </div>
-
-            <div>
-              <p className="text-sm font-medium text-gray-400">
-                {t("single_use")}
-              </p>
-              <Badge variant="outline">
-                {specimenDefinition.type_tested.single_use ? t("yes") : t("no")}
-              </Badge>
-            </div>
           </div>
         )}
       </Card>

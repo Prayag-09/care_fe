@@ -81,7 +81,8 @@ export interface TypeTestedSpec {
   single_use: boolean | null;
 }
 
-export interface SpecimenDefinitionRequest {
+export interface SpecimenDefinition {
+  id: string;
   title: string;
   slug: string;
   derived_from_uri: string | null;
@@ -90,13 +91,23 @@ export interface SpecimenDefinitionRequest {
   type_collected: Code | null;
   patient_preparation: Code[] | null;
   collection: Code | null;
+  facility: string;
+}
+
+export interface SpecimenDefinitionCreate
+  extends Omit<SpecimenDefinition, "id" | "facility"> {
   type_tested: TypeTestedSpec | null;
 }
 
-export interface SpecimenDefinitionRead extends SpecimenDefinitionRequest {
-  id: string;
+export interface SpecimenDefinitionUpdate
+  extends Omit<SpecimenDefinition, "facility"> {
+  type_tested: TypeTestedSpec | null;
+}
+
+export interface SpecimenDefinitionRead extends SpecimenDefinition {
   created_by: UserBase;
   updated_by: UserBase;
   created_at: string;
   updated_at: string;
+  type_tested: TypeTestedSpec | null;
 }
