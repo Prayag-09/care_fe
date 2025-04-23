@@ -1,6 +1,6 @@
 import { zodResolver } from "@hookform/resolvers/zod";
 import { useMutation, useQuery, useQueryClient } from "@tanstack/react-query";
-import { Check, ChevronDown, Plus, X } from "lucide-react";
+import { Check, ChevronDown, Plus, Trash2 } from "lucide-react";
 import { navigate } from "raviger";
 import * as React from "react";
 import { useForm } from "react-hook-form";
@@ -10,7 +10,6 @@ import { z } from "zod";
 
 import { cn } from "@/lib/utils";
 
-import { Badge } from "@/components/ui/badge";
 import { Button } from "@/components/ui/button";
 import {
   Command,
@@ -127,9 +126,7 @@ export default function ActivityDefinitionForm({
           </div>
           <div className="flex items-center justify-center rounded-lg border border-gray-200 bg-white p-8">
             <div className="text-center">
-              <div className="mb-2 text-sm text-gray-500">
-                {t("loading_activity_definition")}
-              </div>
+              <div className="mb-2 text-sm text-gray-500">{t("loading")}</div>
             </div>
           </div>
         </div>
@@ -143,6 +140,43 @@ export default function ActivityDefinitionForm({
       activityDefinitionId={activityDefinitionId}
       existingData={existingData}
     />
+  );
+}
+
+function SelectedItemCard({
+  title,
+  details,
+  onRemove,
+}: {
+  title: string;
+  details: { label: string; value: string | undefined }[];
+  onRemove: () => void;
+}) {
+  return (
+    <div className="w-full relative flex flex-col rounded-sm border border-gray-200 bg-white px-2 py-1">
+      <Button
+        onClick={(e) => {
+          e.preventDefault();
+          e.stopPropagation();
+          onRemove();
+        }}
+        className="absolute right-2 top-0 rounded-full p-1 cursor-pointer"
+        variant="ghost"
+      >
+        <Trash2 className="size-4 text-gray-500" />
+      </Button>
+      <p className="mb-2 font-medium text-sm text-gray-900">{title}</p>
+      <div className="grid grid-cols-1 gap-1 md:grid-cols-2">
+        {details
+          .filter(({ value }) => value)
+          .map(({ label, value }, index) => (
+            <div key={index} className="flex text-sm">
+              <span className="text-gray-500">{label}: </span>
+              <span className="ml-1 text-gray-900">{value}</span>
+            </div>
+          ))}
+      </div>
+    </div>
   );
 }
 
@@ -162,7 +196,11 @@ function RequirementsSelector({
   description?: string;
   value: string[];
   onChange: (value: string[]) => void;
-  options: { label: string; value: string }[];
+  options: {
+    label: string;
+    value: string;
+    details: { label: string; value: string | undefined }[];
+  }[];
   isLoading: boolean;
   canCreate?: boolean;
   createForm?: React.ReactNode;
@@ -184,15 +222,13 @@ function RequirementsSelector({
     onChange(newValue);
   };
 
-  const removeItem = (itemValue: string, e: React.MouseEvent) => {
-    e.preventDefault();
-    e.stopPropagation();
+  const removeItem = (itemValue: string) => {
     onChange(value.filter((v) => v !== itemValue));
   };
 
   return (
     <Sheet open={isOpen} onOpenChange={setIsOpen}>
-      <div className="flex flex-col gap-1.5">
+      <div className="flex flex-col gap-3">
         <SheetTrigger asChild>
           <Button
             variant="outline"
@@ -215,21 +251,14 @@ function RequirementsSelector({
         </SheetTrigger>
 
         {selectedItems.length > 0 && (
-          <div className="flex flex-wrap gap-1">
+          <div className="flex flex-col gap-2">
             {selectedItems.map((item) => (
-              <Badge
+              <SelectedItemCard
                 key={item.value}
-                variant="secondary"
-                className="inline-flex items-center gap-1 rounded-md"
-              >
-                {item.label}
-                <button
-                  onClick={(e) => removeItem(item.value, e)}
-                  className="ml-1 rounded-full hover:bg-destructive/20"
-                >
-                  <X className="size-3" />
-                </button>
-              </Badge>
+                title={item.label}
+                details={item.details}
+                onRemove={() => removeItem(item.value)}
+              />
             ))}
           </div>
         )}
@@ -724,6 +753,33 @@ function ActivityDefinitionFormContent({
                           specimenDefinitions?.results.map((spec) => ({
                             label: spec.title,
                             value: spec.id,
+                            details: [
+                              {
+                                label: t("type"),
+                                value: spec.type_collected?.display,
+                              },
+                              {
+                                label: t("container"),
+                                value:
+                                  spec.type_tested?.container?.description ||
+                                  spec.type_tested?.specimen_type?.display,
+                              },
+                              {
+                                label: t("minimum_volume"),
+                                value:
+                                  spec.type_tested?.container?.minimum_volume
+                                    ?.string ||
+                                  (spec.type_tested?.container?.minimum_volume
+                                    ?.quantity
+                                    ? `${spec.type_tested.container.minimum_volume.quantity.value} ${spec.type_tested.container.minimum_volume.quantity.unit.display}`
+                                    : undefined),
+                              },
+                              {
+                                label: t("cap"),
+                                value:
+                                  spec.type_tested?.container?.cap?.display,
+                              },
+                            ],
                           })) || []
                         }
                         isLoading={isLoadingSpecimens}
@@ -740,9 +796,7 @@ function ActivityDefinitionFormContent({
                   </div>
 
                   <div>
-                    <FormLabel>
-                      {t("observation_result_requirements")}
-                    </FormLabel>
+                    <FormLabel>{t("observation_requirements")}</FormLabel>
                     <div className="mt-2">
                       <RequirementsSelector
                         title={t("select_observation_requirements")}
@@ -760,6 +814,30 @@ function ActivityDefinitionFormContent({
                           observationDefinitions?.results.map((obs) => ({
                             label: obs.title,
                             value: obs.id,
+                            details: [
+                              {
+                                label: t("category"),
+                                value: t(obs.category),
+                              },
+                              {
+                                label: t("data_type"),
+                                value: t(obs.permitted_data_type),
+                              },
+                              {
+                                label: t("unit"),
+                                value: obs.permitted_unit?.display,
+                              },
+                              {
+                                label: t("method"),
+                                value: obs.method?.display,
+                              },
+                              {
+                                label: t("components"),
+                                value: obs.component
+                                  ?.map((c) => c.code?.display)
+                                  .join(", "),
+                              },
+                            ],
                           })) || []
                         }
                         isLoading={isLoadingObservations}
@@ -782,7 +860,7 @@ function ActivityDefinitionFormContent({
                     <div className="mt-2">
                       <RequirementsSelector
                         title={t("select_locations")}
-                        description={t("select_locations_description")}
+                        description={t("select_or_create_locations")}
                         value={form.watch("locations")}
                         onChange={(values) =>
                           form.setValue("locations", values)
@@ -791,6 +869,17 @@ function ActivityDefinitionFormContent({
                           locations?.results.map((location) => ({
                             label: location.name,
                             value: location.id,
+                            details: [
+                              {
+                                label: t("type"),
+                                value: t(`location_form__${location.form}`),
+                              },
+                              { label: t("status"), value: t(location.status) },
+                              {
+                                label: t("description"),
+                                value: location.description || undefined,
+                              },
+                            ],
                           })) || []
                         }
                         isLoading={isLoadingLocations}
