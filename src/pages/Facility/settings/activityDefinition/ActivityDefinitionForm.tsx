@@ -859,8 +859,8 @@ function ActivityDefinitionFormContent({
                     <FormLabel>{t("locations")}</FormLabel>
                     <div className="mt-2">
                       <RequirementsSelector
-                        title={t("select_locations")}
-                        description={t("select_or_create_locations")}
+                        title={t("location_requirements")}
+                        description={t("location_requirements_description")}
                         value={form.watch("locations")}
                         onChange={(values) =>
                           form.setValue("locations", values)
