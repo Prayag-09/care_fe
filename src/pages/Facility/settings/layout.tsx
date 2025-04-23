@@ -53,6 +53,9 @@ const getRoutes = (facilityId: string) => ({
   "/specimen_definitions/create": () => (
     <CreateSpecimenDefinition facilityId={facilityId} />
   ),
+  "/specimen_definitions/new": () => (
+    <CreateSpecimenDefinition facilityId={facilityId} />
+  ),
   "/specimen_definitions/:id": ({ id }: { id: string }) => (
     <SpecimenDefinitionDetail
       facilityId={facilityId}

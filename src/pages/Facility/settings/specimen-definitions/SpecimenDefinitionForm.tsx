@@ -207,13 +207,13 @@ export function SpecimenDefinitionForm({
             onSubmit(data as SpecimenDefinitionCreate);
           }
         })}
-        className="space-y-6"
+        className="space-y-4"
       >
         <Card>
           <CardHeader>
             <CardTitle>{t("specimen_definition")}</CardTitle>
           </CardHeader>
-          <CardContent className="space-y-8">
+          <CardContent className="space-y-4">
             {/* Basic Information */}
             <div className="space-y-4">
               <h3 className="text-lg font-medium">{t("basic_information")}</h3>
@@ -411,8 +411,8 @@ export function SpecimenDefinitionForm({
             </div>
 
             {/* Type Tested Information */}
-            <div className="space-y-4">
-              <h3 className="text-lg font-medium">
+            <div className="space-y-4 rounded-md border bg-gray-50 px-2 py-4">
+              <h3 className="text-base font-medium">
                 {t("type_tested_information")}
               </h3>
 
@@ -421,7 +421,7 @@ export function SpecimenDefinitionForm({
                   control={form.control}
                   name="type_tested.is_derived"
                   render={({ field }) => (
-                    <FormItem className="flex flex-row items-center justify-between rounded-lg border p-4">
+                    <FormItem className="flex flex-row items-center justify-between border p-2 rounded-md">
                       <div className="space-y-0.5">
                         <FormLabel>{t("is_derived")}</FormLabel>
                       </div>
@@ -434,8 +434,23 @@ export function SpecimenDefinitionForm({
                     </FormItem>
                   )}
                 />
-              </div>
-              <div className="grid grid-cols-1 gap-4 md:grid-cols-2">
+                <FormField
+                  control={form.control}
+                  name="type_tested.single_use"
+                  render={({ field }) => (
+                    <FormItem className="flex flex-row items-center justify-between border p-2 rounded-md">
+                      <div className="space-y-0.5">
+                        <FormLabel>{t("single_use")}</FormLabel>
+                      </div>
+                      <FormControl>
+                        <Switch
+                          checked={field.value || false}
+                          onCheckedChange={field.onChange}
+                        />
+                      </FormControl>
+                    </FormItem>
+                  )}
+                />
                 <FormField
                   control={form.control}
                   name="type_tested.specimen_type"
@@ -486,10 +501,54 @@ export function SpecimenDefinitionForm({
                     </FormItem>
                   )}
                 />
+
+                <FormField
+                  control={form.control}
+                  name="type_tested.retention_time"
+                  render={({ field }) => (
+                    <FormItem>
+                      <FormLabel>{t("retention_time")}</FormLabel>
+                      <FormControl>
+                        <ComboboxQuantityInput
+                          quantity={
+                            field.value
+                              ? {
+                                  value: field.value.value || 0,
+                                  unit: field.value.unit,
+                                }
+                              : { value: 0, unit: RETENTION_TIME_UNITS[0] }
+                          }
+                          onChange={field.onChange}
+                          disabled={isLoading}
+                          placeholder={t("enter_retention_time")}
+                          units={RETENTION_TIME_UNITS}
+                        />
+                      </FormControl>
+                      <FormMessage />
+                    </FormItem>
+                  )}
+                />
+                <FormField
+                  control={form.control}
+                  name="type_tested.requirement"
+                  render={({ field }) => (
+                    <FormItem>
+                      <FormLabel>{t("requirement")}</FormLabel>
+                      <FormControl>
+                        <Textarea
+                          placeholder={t("requirement")}
+                          {...field}
+                          value={field.value || ""}
+                        />
+                      </FormControl>
+                      <FormMessage />
+                    </FormItem>
+                  )}
+                />
               </div>
 
-              <div className="space-y-4">
-                <h4 className="text-md font-medium">
+              <div className="space-y-4 rounded-md border bg-gray-50 shadow-sm p-2">
+                <h4 className="text-sm font-medium">
                   {t("container_information")}
                 </h4>
                 <FormField
@@ -547,16 +606,15 @@ export function SpecimenDefinitionForm({
                     <div className="flex flex-col gap-2">
                       <FormLabel>{t("minimum_volume")}</FormLabel>
                       <Tabs
-                        defaultValue="quantity"
                         className="w-full"
-                        onValueChange={handleMinimumVolumeTypeChange}
-                        value={
+                        defaultValue={
                           form.watch(
                             "type_tested.container.minimum_volume.quantity",
                           )
                             ? "quantity"
                             : "text"
                         }
+                        onValueChange={handleMinimumVolumeTypeChange}
                       >
                         <TabsList className="grid w-full grid-cols-2">
                           <TabsTrigger value="quantity">
@@ -667,73 +725,6 @@ export function SpecimenDefinitionForm({
                     </FormItem>
                   )}
                 />
-
-                <FormField
-                  control={form.control}
-                  name="type_tested.requirement"
-                  render={({ field }) => (
-                    <FormItem>
-                      <FormLabel>{t("requirement")}</FormLabel>
-                      <FormControl>
-                        <Textarea
-                          placeholder={t("requirement")}
-                          {...field}
-                          value={field.value || ""}
-                        />
-                      </FormControl>
-                      <FormMessage />
-                    </FormItem>
-                  )}
-                />
-
-                <div className="grid grid-cols-1 gap-4 md:grid-cols-2">
-                  <FormField
-                    control={form.control}
-                    name="type_tested.retention_time"
-                    render={({ field }) => (
-                      <FormItem>
-                        <FormLabel>{t("retention_time")}</FormLabel>
-                        <FormControl>
-                          <ComboboxQuantityInput
-                            quantity={
-                              field.value
-                                ? {
-                                    value: field.value.value || 0,
-                                    unit: field.value.unit,
-                                  }
-                                : { value: 0, unit: RETENTION_TIME_UNITS[0] }
-                            }
-                            onChange={field.onChange}
-                            disabled={isLoading}
-                            placeholder={t("enter_retention_time")}
-                            units={RETENTION_TIME_UNITS}
-                          />
-                        </FormControl>
-                        <FormMessage />
-                      </FormItem>
-                    )}
-                  />
-                </div>
-
-                <div className="grid grid-cols-1 gap-4 md:grid-cols-2">
-                  <FormField
-                    control={form.control}
-                    name="type_tested.single_use"
-                    render={({ field }) => (
-                      <FormItem className="flex flex-row items-center justify-between rounded-lg border p-4">
-                        <div className="space-y-0.5">
-                          <FormLabel>{t("single_use")}</FormLabel>
-                        </div>
-                        <FormControl>
-                          <Switch
-                            checked={field.value || false}
-                            onCheckedChange={field.onChange}
-                          />
-                        </FormControl>
-                      </FormItem>
-                    )}
-                  />
-                </div>
               </div>
             </div>
           </CardContent>
