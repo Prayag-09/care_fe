@@ -108,6 +108,10 @@ function generateFacilityLinks(
           name: t("activity_definitions"),
           url: `${baseUrl}/settings/activity_definitions`,
         },
+        {
+          name: t("healthcare_services"),
+          url: `${baseUrl}/settings/healthcare_services`,
+        },
       ],
     },
   ];

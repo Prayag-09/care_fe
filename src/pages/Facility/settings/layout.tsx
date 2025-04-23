@@ -11,6 +11,9 @@ import ActivityDefinitionForm from "./activityDefinition/ActivityDefinitionForm"
 import ActivityDefinitionList from "./activityDefinition/ActivityDefinitionList";
 import ActivityDefinitionView from "./activityDefinition/ActivityDefinitionView";
 import { GeneralSettings } from "./general/general";
+import HealthcareServiceForm from "./healthcareService/HealthcareServiceForm";
+import HealthcareServiceList from "./healthcareService/HealthcareServiceList";
+import HealthcareServiceShow from "./healthcareService/HealthcareServiceShow";
 import LocationSettings from "./locations/LocationSettings";
 import ObservationDefinitionForm from "./observationDefinition/ObservationDefinitionForm";
 import ObservationDefinitionList from "./observationDefinition/ObservationDefinitionList";
@@ -98,6 +101,19 @@ const getRoutes = (facilityId: string) => ({
   "/activity_definitions/:id/edit": ({ id }: { id: string }) => (
     <ActivityDefinitionForm facilityId={facilityId} activityDefinitionId={id} />
   ),
+  "/healthcare_services": () => (
+    <HealthcareServiceList facilityId={facilityId} />
+  ),
+  "/healthcare_services/new": () => (
+    <HealthcareServiceForm facilityId={facilityId} />
+  ),
+  "/healthcare_services/:id": ({ id }: { id: string }) => (
+    <HealthcareServiceShow facilityId={facilityId} healthcareServiceId={id} />
+  ),
+  "/healthcare_services/:id/edit": ({ id }: { id: string }) => (
+    <HealthcareServiceForm facilityId={facilityId} healthcareServiceId={id} />
+  ),
+
   "*": () => <ErrorPage />,
 });
 
