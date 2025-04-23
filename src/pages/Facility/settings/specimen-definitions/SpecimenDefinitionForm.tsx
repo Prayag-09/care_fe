@@ -1,6 +1,5 @@
 import { zodResolver } from "@hookform/resolvers/zod";
 import { PlusCircle, XCircle } from "lucide-react";
-import { useEffect } from "react";
 import { useForm } from "react-hook-form";
 import { useTranslation } from "react-i18next";
 import * as z from "zod";
@@ -197,10 +196,6 @@ export function SpecimenDefinitionForm({
       });
     }
   };
-
-  useEffect(() => {
-    console.log(form.watch());
-  }, [form.watch()]);
 
   return (
     <Form {...form}>
