@@ -31,9 +31,10 @@ import ComboboxQuantityInput from "@/components/Common/ComboboxQuantityInput";
 import ValueSetSelect from "@/components/Questionnaire/ValueSetSelect";
 
 import {
+  Preference,
   RETENTION_TIME_UNITS,
-  SPECIMEN_DEFINITION_STATUS_OPTIONS,
   SPECIMEN_DEFINITION_UNITS_CODES,
+  Status,
 } from "@/types/emr/specimenDefinition/specimenDefinition";
 import {
   SpecimenDefinitionCreate,
@@ -44,7 +45,7 @@ import { Code } from "@/types/questionnaire/code";
 const typeTestedSchema = z.object({
   is_derived: z.boolean(),
   specimen_type: z.any(), // Code type
-  preference: z.enum(["preferred", "required"]),
+  preference: z.nativeEnum(Preference),
   container: z
     .object({
       description: z.string().nullable(),
@@ -82,7 +83,7 @@ const typeTestedSchema = z.object({
 const formSchema = z.object({
   title: z.string().min(1, "Title is required"),
   slug: z.string().min(1, "Slug is required"),
-  status: z.enum(SPECIMEN_DEFINITION_STATUS_OPTIONS),
+  status: z.nativeEnum(Status),
   description: z.string().min(1, "Description is required"),
   derived_from_uri: z.string().nullable(),
   type_collected: z.any().nullable(), // Code type
@@ -113,7 +114,7 @@ export function SpecimenDefinitionForm({
     defaultValues: {
       title: initialData?.title || "",
       slug: initialData?.slug || "",
-      status: initialData?.status || "draft",
+      status: initialData?.status || Status.draft,
       description: initialData?.description || "",
       derived_from_uri: initialData?.derived_from_uri || null,
       type_collected: initialData?.type_collected || null,
@@ -122,7 +123,7 @@ export function SpecimenDefinitionForm({
       type_tested: initialData?.type_tested || {
         is_derived: false,
         specimen_type: null,
-        preference: "preferred",
+        preference: Preference.preferred,
         container: {
           description: "",
           capacity: { value: null, unit: null },
@@ -272,7 +273,7 @@ export function SpecimenDefinitionForm({
                           </SelectTrigger>
                         </FormControl>
                         <SelectContent>
-                          {SPECIMEN_DEFINITION_STATUS_OPTIONS.map((status) => (
+                          {Object.values(Status).map((status) => (
                             <SelectItem key={status} value={status}>
                               {t(status)}
                             </SelectItem>

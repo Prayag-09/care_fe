@@ -1,17 +1,17 @@
 import { Code } from "@/types/questionnaire/code";
 import { UserBase } from "@/types/user/user";
 
-export const SPECIMEN_DEFINITION_STATUS_OPTIONS = [
-  "draft",
-  "active",
-  "retired",
-  "unknown",
-] as const;
+export enum Status {
+  draft = "draft",
+  active = "active",
+  retired = "retired",
+  unknown = "unknown",
+}
 
-export type SpecimenDefinitionStatusOptions =
-  (typeof SPECIMEN_DEFINITION_STATUS_OPTIONS)[number];
-
-export const PREFERENCE_OPTIONS = ["preferred", "required"] as const;
+export enum Preference {
+  preferred = "preferred",
+  required = "required",
+}
 
 export interface QuantitySpec {
   value: number;
@@ -69,12 +69,10 @@ export const RETENTION_TIME_UNITS = [
   { code: "d", display: "days", system: "http://unitsofmeasure.org" },
 ] as const;
 
-export type PreferenceOptions = (typeof PREFERENCE_OPTIONS)[number];
-
 export interface TypeTestedSpec {
   is_derived: boolean;
   specimen_type: Code | null;
-  preference: PreferenceOptions;
+  preference: Preference;
   container: ContainerSpec | null;
   requirement: string | null;
   retention_time: DurationSpec | null;
@@ -86,7 +84,7 @@ export interface SpecimenDefinition {
   title: string;
   slug: string;
   derived_from_uri: string | null;
-  status: SpecimenDefinitionStatusOptions;
+  status: Status;
   description: string | null;
   type_collected: Code | null;
   patient_preparation: Code[] | null;
