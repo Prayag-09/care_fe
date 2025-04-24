@@ -1,4 +1,5 @@
 import { Category } from "@/types/emr/activityDefinition/activityDefinition";
+import { Encounter } from "@/types/emr/encounter";
 import { LocationList } from "@/types/location/location";
 import { Code } from "@/types/questionnaire/code";
 
@@ -56,4 +57,5 @@ export interface ServiceRequestUpdateSpec extends BaseServiceRequestSpec {
 export interface ServiceRequestReadSpec extends BaseServiceRequestSpec {
   version?: number;
   locations: LocationList[];
+  encounter: Encounter;
 }

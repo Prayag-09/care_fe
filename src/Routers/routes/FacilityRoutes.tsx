@@ -7,7 +7,8 @@ import { AppRoutes } from "@/Routers/AppRouter";
 import { FacilityOverview } from "@/pages/Facility/overview";
 import FacilityServices from "@/pages/Facility/services/FacilityServices";
 import HealthcareServiceShow from "@/pages/Facility/services/HealthcareServiceShow";
-import ServiceRequestList from "@/pages/Facility/services/requests/ServiceRequestList";
+import ServiceRequestList from "@/pages/Facility/services/serviceRequests/ServiceRequestList";
+import ServiceRequestShow from "@/pages/Facility/services/serviceRequests/ServiceRequestShow";
 import { SettingsLayout } from "@/pages/Facility/settings/layout";
 
 const FacilityRoutes: AppRoutes = {
@@ -39,6 +40,24 @@ const FacilityRoutes: AppRoutes = {
       facilityId={facilityId}
       serviceId={serviceId}
       locationId={locationId}
+    />
+  ),
+  "/facility/:facilityId/services/:serviceId/requests/locations/:locationId/service_requests/:serviceRequestId":
+    ({ facilityId, serviceId, locationId, serviceRequestId }) => (
+      <ServiceRequestShow
+        facilityId={facilityId}
+        serviceRequestId={serviceRequestId}
+        serviceId={serviceId}
+        locationId={locationId}
+      />
+    ),
+  "/facility/:facilityId/services_requests/:serviceRequestId": ({
+    facilityId,
+    serviceRequestId,
+  }) => (
+    <ServiceRequestShow
+      facilityId={facilityId}
+      serviceRequestId={serviceRequestId}
     />
   ),
 };

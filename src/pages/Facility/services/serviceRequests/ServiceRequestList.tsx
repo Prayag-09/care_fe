@@ -99,7 +99,7 @@ function ServiceRequestCard({
             size="sm"
             onClick={() =>
               navigate(
-                `/facility/${facilityId}/services/requests/${request.id}`,
+                `/facility/${facilityId}/services_requests/${request.id}`,
               )
             }
           >
@@ -166,14 +166,6 @@ export default function ServiceRequestList({
                 {t("manage_service_requests")}
               </p>
             </div>
-            <Button
-              onClick={() =>
-                navigate(`/facility/${facilityId}/services/requests/new`)
-              }
-            >
-              <CareIcon icon="l-plus" className="mr-2" />
-              {t("new_service_request")}
-            </Button>
           </div>
 
           <div className="flex flex-wrap items-center gap-4">

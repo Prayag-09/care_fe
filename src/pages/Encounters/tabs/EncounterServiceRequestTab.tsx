@@ -101,7 +101,7 @@ export const EncounterServiceRequestTab = ({
                         >
                           <TableCell className="font-medium">
                             <Link
-                              href={`/facility/${facilityId}/services/requests/${request.id}`}
+                              href={`/facility/${facilityId}/services_requests/${request.id}`}
                               className="group flex items-start gap-1"
                             >
                               <div>{request.code?.display || "-"}</div>
@@ -139,7 +139,7 @@ export const EncounterServiceRequestTab = ({
                                       size="icon"
                                       onClick={() =>
                                         navigate(
-                                          `/facility/${facilityId}/services/requests/${request.id}`,
+                                          `/facility/${facilityId}/services_requests/${request.id}`,
                                         )
                                       }
                                     >
