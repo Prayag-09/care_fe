@@ -62,9 +62,13 @@ function EmptyState() {
 function ServiceRequestCard({
   request,
   facilityId,
+  serviceId,
+  locationId,
 }: {
   request: ServiceRequestReadSpec;
   facilityId: string;
+  serviceId: string;
+  locationId: string;
 }) {
   const { t } = useTranslation();
 
@@ -99,7 +103,7 @@ function ServiceRequestCard({
             size="sm"
             onClick={() =>
               navigate(
-                `/facility/${facilityId}/services_requests/${request.id}`,
+                `/facility/${facilityId}/services/${serviceId}/requests/locations/${locationId}/service_requests/${request.id}`,
               )
             }
           >
@@ -229,6 +233,8 @@ export default function ServiceRequestList({
                 key={request.id}
                 request={request}
                 facilityId={facilityId}
+                serviceId={serviceId}
+                locationId={locationId}
               />
             ))}
           </div>
