@@ -416,12 +416,12 @@ function ActivityDefinitionFormContent({
             kind: existingData.kind,
             code: existingData.code,
             body_site: existingData.body_site,
-            specimen_requirements: existingData.specimen_requirements.map(
-              (s) => s.id,
-            ),
+            specimen_requirements:
+              existingData.specimen_requirements?.map((s) => s.id) || [],
             observation_result_requirements:
-              existingData.observation_result_requirements.map((o) => o.id),
-            locations: existingData.locations.map((l) => l.id),
+              existingData.observation_result_requirements?.map((o) => o.id) ||
+              [],
+            locations: existingData.locations?.map((l) => l.id) || [],
           }
         : {
             status: Status.active,
