@@ -105,12 +105,10 @@ export default function FacilityServicesPage({
   const healthcareServices = response?.results || [];
 
   return (
-    <Page title={t("our_services")} hideTitleOnPage>
+    <Page title={t("services")} hideTitleOnPage>
       <div className="container mx-auto py-8">
         <div className="mb-8 text-center">
-          <h1 className="text-3xl font-bold text-gray-900">
-            {t("our_services")}
-          </h1>
+          <h1 className="text-3xl font-bold text-gray-900">{t("services")}</h1>
           <p className="mt-2 text-lg text-gray-600">
             {t("discover_healthcare_services")}
           </p>
