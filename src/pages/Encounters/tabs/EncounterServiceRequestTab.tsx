@@ -104,10 +104,20 @@ export const EncounterServiceRequestTab = ({
                               href={`/facility/${facilityId}/services_requests/${request.id}`}
                               className="group flex items-start gap-1"
                             >
-                              <div>{request.code?.display || "-"}</div>
-                              <div className="flex items-center gap-1 text-gray-900 group-hover:text-primary-600 group-hover:underline">
-                                <span>{request.id}</span>
-                                <ExternalLink className="size-3 opacity-70 group-hover:opacity-100" />
+                              <div>
+                                <div className="flex items-center gap-1">
+                                  <div className="text-lg">
+                                    {request.title || "-"}
+                                  </div>
+                                  <div className="flex items-center gap-1 text-gray-900 group-hover:text-primary-600 group-hover:underline">
+                                    <ExternalLink className="size-3 opacity-70 group-hover:opacity-100" />
+                                  </div>
+                                </div>
+                                {request.code?.display && (
+                                  <div className="text-xs space-x-3">
+                                    {request.code.display}
+                                  </div>
+                                )}
                               </div>
                             </Link>
                           </TableCell>
