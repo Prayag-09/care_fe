@@ -1,6 +1,7 @@
 import { useMutation, useQuery, useQueryClient } from "@tanstack/react-query";
 import { useNavigate } from "raviger";
 import { useTranslation } from "react-i18next";
+import { toast } from "sonner";
 
 import mutate from "@/Utils/request/mutate";
 import query from "@/Utils/request/query";
@@ -23,7 +24,7 @@ export function UpdateSpecimenDefinition({
   const queryClient = useQueryClient();
 
   const { data: specimenDefinition, isLoading: isLoadingData } = useQuery({
-    queryKey: ["specimen_definition", facilityId, specimenDefinitionId],
+    queryKey: ["specimen_definitions", facilityId, specimenDefinitionId],
     queryFn: query(specimenDefinitionApi.retrieveSpecimenDefinition, {
       pathParams: { facilityId, specimenDefinitionId },
     }),
@@ -35,8 +36,12 @@ export function UpdateSpecimenDefinition({
         pathParams: { facilityId, specimenDefinitionId },
       }),
       onSuccess: () => {
+        toast.success(t("specimen_definition_updated"));
         queryClient.invalidateQueries({
           queryKey: ["specimen_definitions", facilityId],
+        });
+        queryClient.invalidateQueries({
+          queryKey: ["specimen_definitions", facilityId, specimenDefinitionId],
         });
         navigate(`/specimen_definitions`);
       },

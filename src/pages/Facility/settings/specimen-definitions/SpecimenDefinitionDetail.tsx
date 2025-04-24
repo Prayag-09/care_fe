@@ -24,7 +24,7 @@ export function SpecimenDefinitionDetail({
   const { t } = useTranslation();
 
   const { data: specimenDefinition, isLoading } = useQuery({
-    queryKey: ["specimen_definition", facilityId, specimenDefinitionId],
+    queryKey: ["specimen_definitions", facilityId, specimenDefinitionId],
     queryFn: query(specimenDefinitionApi.retrieveSpecimenDefinition, {
       pathParams: { facilityId, specimenDefinitionId },
     }),

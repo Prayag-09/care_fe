@@ -1,5 +1,6 @@
 import { zodResolver } from "@hookform/resolvers/zod";
 import { PlusCircle, XCircle } from "lucide-react";
+import React from "react";
 import { useForm } from "react-hook-form";
 import { useTranslation } from "react-i18next";
 import * as z from "zod";
@@ -58,12 +59,14 @@ const typeTestedSchema = z.object({
         .object({
           quantity: z
             .object({
-              value: z.number().nullable(),
+              value: z.number().optional().nullable(),
               unit: z.any(), // Code type
             })
+            .optional()
             .nullable(),
-          string: z.string().nullable(),
+          string: z.string().optional().nullable(),
         })
+        .optional()
         .nullable(),
       cap: z.any().nullable(), // Code type
       preparation: z.string().nullable(),
@@ -200,13 +203,19 @@ export function SpecimenDefinitionForm({
   return (
     <Form {...form}>
       <form
-        onSubmit={form.handleSubmit((data) => {
-          if (specimenDefinitionId) {
-            onSubmit(data as SpecimenDefinitionUpdate);
-          } else {
-            onSubmit(data as SpecimenDefinitionCreate);
-          }
-        })}
+        onSubmit={form.handleSubmit(
+          (data) => {
+            if (specimenDefinitionId) {
+              onSubmit(data as SpecimenDefinitionUpdate);
+            } else {
+              onSubmit(data as SpecimenDefinitionCreate);
+            }
+          },
+          (errors) => {
+            // Log all form errors on submission failure
+            console.log("Form submission failed with errors:", errors);
+          },
+        )}
         className="space-y-4"
       >
         <Card>
@@ -492,8 +501,8 @@ export function SpecimenDefinitionForm({
                           <SelectItem value="preferred">
                             {t("preferred")}
                           </SelectItem>
-                          <SelectItem value="required">
-                            {t("required")}
+                          <SelectItem value="alternate">
+                            {t("alternate")}
                           </SelectItem>
                         </SelectContent>
                       </Select>

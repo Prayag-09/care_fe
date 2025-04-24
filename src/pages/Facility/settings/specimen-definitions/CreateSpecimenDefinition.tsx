@@ -1,6 +1,7 @@
 import { useMutation, useQueryClient } from "@tanstack/react-query";
 import { useNavigate } from "raviger";
 import { useTranslation } from "react-i18next";
+import { toast } from "sonner";
 
 import mutate from "@/Utils/request/mutate";
 import specimenDefinitionApi from "@/types/emr/specimenDefinition/specimenDefinitionApi";
@@ -23,6 +24,7 @@ export function CreateSpecimenDefinition({
       pathParams: { facilityId },
     }),
     onSuccess: () => {
+      toast.success(t("specimen_definition_created"));
       queryClient.invalidateQueries({
         queryKey: ["specimen_definitions", facilityId],
       });

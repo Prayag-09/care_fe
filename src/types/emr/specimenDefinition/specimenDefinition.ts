@@ -10,7 +10,7 @@ export enum Status {
 
 export enum Preference {
   preferred = "preferred",
-  required = "required",
+  alternate = "alternate",
 }
 
 export interface QuantitySpec {
