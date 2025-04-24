@@ -172,7 +172,7 @@ export default function ServiceRequestList({
             </Button>
           </div>
 
-          <div className="flex flex-row justify-between items-center gap-4">
+          <div className="flex flex-col md:flex-row justify-between items-center gap-4">
             <Input
               placeholder={t("search_service_requests")}
               value={qParams.search || ""}
