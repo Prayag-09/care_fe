@@ -49,6 +49,14 @@ export interface ServiceRequestCreateSpec
   locations: string[];
 }
 
+export interface ServiceRequestApplyActivityDefinitionSpec {
+  encounter: string;
+  activity_definition: string;
+  service_request: Omit<BaseServiceRequestSpec, "id"> & {
+    locations: string[];
+  };
+}
+
 export interface ServiceRequestUpdateSpec extends BaseServiceRequestSpec {
   encounter: string;
   locations: string[];

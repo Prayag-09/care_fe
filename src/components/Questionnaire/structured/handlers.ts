@@ -195,6 +195,18 @@ export const structuredHandlers: {
       }));
     },
   },
+  service_request: {
+    getRequests: async (serviceRequests, { facilityId }) => {
+      return serviceRequests.map((serviceRequest) => ({
+        url: `/api/v1/facility/${facilityId}/service_request/apply_activity_definition/`,
+        method: "POST",
+        body: {
+          ...serviceRequest,
+        },
+        reference_id: "service_request",
+      }));
+    },
+  },
 };
 
 export const getStructuredRequests = async <T extends StructuredQuestionType>(

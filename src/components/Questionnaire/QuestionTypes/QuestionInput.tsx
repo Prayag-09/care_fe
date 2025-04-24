@@ -30,6 +30,7 @@ import { MedicationStatementQuestion } from "./MedicationStatementQuestion";
 import { NotesInput } from "./NotesInput";
 import { NumberQuestion } from "./NumberQuestion";
 import { QuantityQuestion } from "./QuantityQuestion";
+import { ServiceRequestQuestion } from "./ServiceRequestQuestion";
 import { SymptomQuestion } from "./SymptomQuestion";
 import { TextQuestion } from "./TextQuestion";
 import { TimeQuestion } from "./TimeQuestion";
@@ -156,6 +157,19 @@ export function QuestionInput({
               <span>
                 {t("questionnaire_medication_statement_no_encounter")}
               </span>
+            );
+          case "service_request":
+            if (encounterId && facilityId) {
+              return (
+                <ServiceRequestQuestion
+                  {...commonProps}
+                  facilityId={facilityId}
+                  encounterId={encounterId}
+                />
+              );
+            }
+            return (
+              <span>{t("questionnaire_service_request_no_encounter")}</span>
             );
           case "allergy_intolerance":
             return <AllergyQuestion {...commonProps} />;
