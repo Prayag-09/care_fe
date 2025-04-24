@@ -5,6 +5,7 @@ import ResourceCreate from "@/components/Resource/ResourceForm";
 
 import { AppRoutes } from "@/Routers/AppRouter";
 import { FacilityOverview } from "@/pages/Facility/overview";
+import FacilityServices from "@/pages/Facility/services/FacilityServices";
 import { SettingsLayout } from "@/pages/Facility/settings/layout";
 
 const FacilityRoutes: AppRoutes = {
@@ -20,6 +21,9 @@ const FacilityRoutes: AppRoutes = {
   ),
   "/facility/:facilityId/settings*": ({ facilityId }) => (
     <SettingsLayout facilityId={facilityId} />
+  ),
+  "/facility/:facilityId/services": ({ facilityId }) => (
+    <FacilityServices facilityId={facilityId} />
   ),
 };
 

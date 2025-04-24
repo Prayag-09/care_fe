@@ -70,6 +70,11 @@ function generateFacilityLinks(
       ],
     },
     {
+      name: t("services"),
+      url: `${baseUrl}/services`,
+      icon: "d-microscope",
+    },
+    {
       name: t("resource"),
       url: `${baseUrl}/resource`,
       icon: "d-book-open",
