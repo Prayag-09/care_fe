@@ -424,7 +424,7 @@ function ActivityDefinitionFormContent({
             locations: existingData.locations.map((l) => l.id),
           }
         : {
-            status: Status.draft,
+            status: Status.active,
             kind: Kind.service_request,
             specimen_requirements: [],
             observation_result_requirements: [],

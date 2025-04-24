@@ -175,7 +175,7 @@ function ObservationDefinitionFormContent({
             component: existingData.component || [],
           }
         : {
-            status: "draft",
+            status: "active",
             component: [],
             body_site: null,
             method: null,
