@@ -116,7 +116,7 @@ export function SpecimenDefinitionForm({
     defaultValues: {
       title: initialData?.title || "",
       slug: initialData?.slug || "",
-      status: initialData?.status || Status.draft,
+      status: initialData?.status || Status.active,
       description: initialData?.description || "",
       derived_from_uri: initialData?.derived_from_uri || null,
       type_collected: initialData?.type_collected || null,

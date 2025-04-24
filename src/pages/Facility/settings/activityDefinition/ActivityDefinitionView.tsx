@@ -206,7 +206,7 @@ export default function ActivityDefinitionView({
           </CardContent>
         </Card>
 
-        {definition.specimen_requirements.length > 0 && (
+        {definition.specimen_requirements?.length > 0 && (
           <Card>
             <CardHeader>
               <CardTitle>{t("specimen_requirements")}</CardTitle>
@@ -234,7 +234,7 @@ export default function ActivityDefinitionView({
           </Card>
         )}
 
-        {definition.observation_result_requirements.length > 0 && (
+        {definition.observation_result_requirements?.length > 0 && (
           <Card>
             <CardHeader>
               <CardTitle>{t("observation_result_requirements")}</CardTitle>
@@ -269,7 +269,7 @@ export default function ActivityDefinitionView({
           </Card>
         )}
 
-        {definition.locations.length > 0 && (
+        {definition.locations?.length > 0 && (
           <Card>
             <CardHeader>
               <CardTitle>{t("location_requirements")}</CardTitle>

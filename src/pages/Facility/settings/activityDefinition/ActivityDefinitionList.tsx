@@ -56,7 +56,7 @@ export default function ActivityDefinitionList({
         limit: resultsPerPage,
         offset: ((qParams.page ?? 1) - 1) * resultsPerPage,
         search: qParams.search,
-        status: qParams.status || "active",
+        status: qParams.status,
         category: qParams.category,
       },
     }),
