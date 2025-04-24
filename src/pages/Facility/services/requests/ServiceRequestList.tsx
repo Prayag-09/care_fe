@@ -108,10 +108,6 @@ function ServiceRequestCard({
         </div>
         <div className="flex flex-wrap items-center gap-4 text-sm text-gray-500">
           <div className="flex items-center gap-1">
-            <CareIcon icon="l-map-marker" className="size-4" />
-            <span>{request.locations[0]?.name || t("no_location")}</span>
-          </div>
-          <div className="flex items-center gap-1">
             <CareIcon icon="l-calender" className="size-4" />
             <span>{request.occurance || t("no_occurrence_set")}</span>
           </div>
@@ -176,49 +172,55 @@ export default function ServiceRequestList({
             </Button>
           </div>
 
-          <div className="flex flex-wrap items-center gap-4">
+          <div className="flex flex-row justify-between items-center gap-4">
             <Input
               placeholder={t("search_service_requests")}
               value={qParams.search || ""}
               onChange={(e) =>
                 updateQuery({ search: e.target.value || undefined })
               }
-              className="max-w-xs flex-1"
+              className="max-w-xs flex-wrap "
             />
-            <Select
-              value={qParams.status || ""}
-              onValueChange={(value) =>
-                updateQuery({ status: value || undefined })
-              }
-            >
-              <SelectTrigger className="w-[180px]">
-                <SelectValue placeholder={t("filter_by_status")} />
-              </SelectTrigger>
-              <SelectContent>
-                {Object.values(Status).map((status) => (
-                  <SelectItem key={status} value={status}>
-                    {t(status)}
-                  </SelectItem>
-                ))}
-              </SelectContent>
-            </Select>
-            <Select
-              value={qParams.priority || ""}
-              onValueChange={(value) =>
-                updateQuery({ priority: value || undefined })
-              }
-            >
-              <SelectTrigger className="w-[180px]">
-                <SelectValue placeholder={t("filter_by_priority")} />
-              </SelectTrigger>
-              <SelectContent>
-                {Object.values(Priority).map((priority) => (
-                  <SelectItem key={priority} value={priority}>
-                    {t(priority)}
-                  </SelectItem>
-                ))}
-              </SelectContent>
-            </Select>
+            <div className="flex flex-row items-center gap-4">
+              <div className="min-w-40">
+                <Select
+                  value={qParams.status || ""}
+                  onValueChange={(value) =>
+                    updateQuery({ status: value || undefined })
+                  }
+                >
+                  <SelectTrigger className="">
+                    <SelectValue placeholder={t("filter_by_status")} />
+                  </SelectTrigger>
+                  <SelectContent>
+                    {Object.values(Status).map((status) => (
+                      <SelectItem key={status} value={status}>
+                        {t(status)}
+                      </SelectItem>
+                    ))}
+                  </SelectContent>
+                </Select>
+              </div>
+              <div className="min-w-40">
+                <Select
+                  value={qParams.priority || ""}
+                  onValueChange={(value) =>
+                    updateQuery({ priority: value || undefined })
+                  }
+                >
+                  <SelectTrigger className="w-[180px]">
+                    <SelectValue placeholder={t("filter_by_priority")} />
+                  </SelectTrigger>
+                  <SelectContent>
+                    {Object.values(Priority).map((priority) => (
+                      <SelectItem key={priority} value={priority}>
+                        {t(priority)}
+                      </SelectItem>
+                    ))}
+                  </SelectContent>
+                </Select>
+              </div>
+            </div>
           </div>
         </div>
 
