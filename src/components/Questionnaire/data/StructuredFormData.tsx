@@ -80,6 +80,26 @@ const medication_statement_questionnaire: QuestionnaireDetail = {
   tags: [],
 };
 
+const service_request_questionnaire: QuestionnaireDetail = {
+  id: "service_request",
+  slug: "service_request",
+  version: "0.0.1",
+  title: "Service Request",
+  status: "active",
+  subject_type: "patient",
+  questions: [
+    {
+      id: "service_request",
+      text: "Service Request",
+      type: "structured",
+      structured_type: "service_request",
+      link_id: "1.1",
+      required: true,
+    },
+  ],
+  tags: [],
+};
+
 const diagnosis_questionnaire: QuestionnaireDetail = {
   id: "diagnosis",
   slug: "diagnosis",
@@ -194,6 +214,11 @@ export const STRUCTURED_QUESTIONS = [
   },
   { value: "appointment", label: "Appointment" },
   { value: "files", label: "Files", questionnaire: files_questionnaire },
+  {
+    value: "service_request",
+    label: "Service Request",
+    questionnaire: service_request_questionnaire,
+  },
 ] as const;
 
 export const FIXED_QUESTIONNAIRES: Record<string, QuestionnaireDetail> =
