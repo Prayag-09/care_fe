@@ -20,6 +20,7 @@ import { Textarea } from "@/components/ui/textarea";
 
 import IconPicker from "@/components/Common/IconPicker";
 import Page from "@/components/Common/Page";
+import RequirementsSelector from "@/components/Common/RequirementsSelector";
 import LocationMultiSelect from "@/components/Location/LocationMultiSelect";
 
 // import ValueSetSelect from "@/components/Questionnaire/ValueSetSelect";
@@ -278,10 +279,21 @@ function HealthcareServiceFormContent({
                   render={({ field }) => (
                     <FormItem>
                       <FormControl>
-                        <LocationMultiSelect
-                          facilityId={facilityId}
+                        <RequirementsSelector
+                          title={t("location_requirements")}
+                          description={t("location_requirements_description")}
                           value={field.value}
                           onChange={field.onChange}
+                          options={[]}
+                          isLoading={false}
+                          placeholder={t("select_locations")}
+                          customSelector={
+                            <LocationMultiSelect
+                              facilityId={facilityId}
+                              value={field.value}
+                              onChange={field.onChange}
+                            />
+                          }
                         />
                       </FormControl>
                       <FormMessage />
