@@ -107,7 +107,7 @@ export default function ObservationDefinitionForm({
 
   const isEditMode = Boolean(observationDefinitionId);
 
-  const { data: existingData, isLoading } = useQuery({
+  const { data: existingData, isFetching } = useQuery({
     queryKey: ["observationDefinition", observationDefinitionId],
     queryFn: query(observationDefinitionApi.retrieveObservationDefinition, {
       pathParams: {
@@ -120,7 +120,7 @@ export default function ObservationDefinitionForm({
     enabled: isEditMode,
   });
 
-  if (isEditMode && isLoading) {
+  if (isEditMode && isFetching) {
     return (
       <Page title={t("edit_observation_definition")} hideTitleOnPage>
         <div className="container mx-auto max-w-3xl">
@@ -200,6 +200,9 @@ function ObservationDefinitionFormContent({
       }),
       onSuccess: () => {
         queryClient.invalidateQueries({ queryKey: ["observationDefinitions"] });
+        queryClient.invalidateQueries({
+          queryKey: ["observationDefinition", observationDefinitionId],
+        });
         toast.success(t("observation_definition_updated_successfully"));
         navigate(`/facility/${facilityId}/settings/observation_definitions`);
       },

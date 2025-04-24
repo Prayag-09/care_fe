@@ -104,7 +104,7 @@ export default function ActivityDefinitionForm({
 
   const isEditMode = Boolean(activityDefinitionId);
 
-  const { data: existingData, isLoading } = useQuery({
+  const { data: existingData, isFetching } = useQuery({
     queryKey: ["activityDefinition", activityDefinitionId],
     queryFn: query(activityDefinitionApi.retrieveActivityDefinition, {
       pathParams: {
@@ -115,7 +115,7 @@ export default function ActivityDefinitionForm({
     enabled: isEditMode,
   });
 
-  if (isEditMode && isLoading) {
+  if (isEditMode && isFetching) {
     return (
       <Page title={t("edit_activity_definition")} hideTitleOnPage>
         <div className="container mx-auto max-w-3xl">
@@ -443,6 +443,9 @@ function ActivityDefinitionFormContent({
       }),
       onSuccess: () => {
         queryClient.invalidateQueries({ queryKey: ["activityDefinitions"] });
+        queryClient.invalidateQueries({
+          queryKey: ["activityDefinition", activityDefinitionId],
+        });
         toast.success(t("activity_definition_created_successfully"));
         navigate(`/facility/${facilityId}/settings/activity_definitions`);
       },

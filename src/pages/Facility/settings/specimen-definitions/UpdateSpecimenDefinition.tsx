@@ -23,7 +23,7 @@ export function UpdateSpecimenDefinition({
   const navigate = useNavigate();
   const queryClient = useQueryClient();
 
-  const { data: specimenDefinition, isLoading: isLoadingData } = useQuery({
+  const { data: specimenDefinition, isFetching } = useQuery({
     queryKey: ["specimen_definitions", facilityId, specimenDefinitionId],
     queryFn: query(specimenDefinitionApi.retrieveSpecimenDefinition, {
       pathParams: { facilityId, specimenDefinitionId },
@@ -47,7 +47,7 @@ export function UpdateSpecimenDefinition({
       },
     });
 
-  if (isLoadingData) {
+  if (isFetching) {
     return <div>Loading...</div>;
   }
 
