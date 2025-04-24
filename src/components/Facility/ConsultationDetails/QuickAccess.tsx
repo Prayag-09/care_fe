@@ -1,4 +1,4 @@
-import { Link, navigate, usePathParams } from "raviger";
+import { Link, usePathParams } from "raviger";
 import { useState } from "react";
 import { useTranslation } from "react-i18next";
 
@@ -55,13 +55,8 @@ export default function QuickAccess({ encounter, canEdit }: QuickAccessProps) {
             ))}
           </div>
           <QuestionnaireSearch
-            placeholder={t("choose_questionnaire")}
+            placeholder={t("questionnaire")}
             subjectType="encounter"
-            onSelect={(selected) =>
-              navigate(
-                `/facility/${encounter.facility.id}/patient/${encounter.patient.id}/encounter/${encounter.id}/questionnaire/${selected.slug}`,
-              )
-            }
           />
           <div className="w-full border-t border-dashed border-gray-300" />
         </section>
