@@ -1,6 +1,7 @@
 import {
   DurationSpec,
   QuantitySpec,
+  SpecimenDefinitionRead,
   TypeTestedSpec,
 } from "@/types/emr/specimenDefinition/specimenDefinition";
 import { Code } from "@/types/questionnaire/code";
@@ -33,7 +34,7 @@ export interface ProcessingSpec {
 
 export interface SpecimenBase {
   id: string;
-  accession_identifier: string[];
+  accession_identifier: string;
   status: SpecimenStatus;
   specimen_type: Code | null;
   received_time: string | null;
@@ -54,4 +55,5 @@ export interface SpecimenRead extends SpecimenBase {
   created_at: string;
   updated_at: string;
   type_tested: TypeTestedSpec | null;
+  specimen_definition: SpecimenDefinitionRead;
 }

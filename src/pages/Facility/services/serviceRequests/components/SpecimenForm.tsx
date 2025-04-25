@@ -1,27 +1,23 @@
 "use client";
 
-import { X } from "lucide-react";
+import { Info, QrCode, Scan /* User */ } from "lucide-react";
+// Remove User icon
 import { useState } from "react";
+import { toast } from "sonner";
 
-import { Badge } from "@/components/ui/badge";
 import { Button } from "@/components/ui/button";
-import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
-import {
-  Select,
-  SelectContent,
-  SelectItem,
-  SelectTrigger,
-  SelectValue,
-} from "@/components/ui/select";
-import { Separator } from "@/components/ui/separator";
+import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
+import { Textarea } from "@/components/ui/textarea";
 
 import ValueSetSelect from "@/components/Questionnaire/ValueSetSelect";
 
+// Change to default import
+import useAuthUser from "@/hooks/useAuthUser";
+
 import {
   CollectionSpec,
-  type ProcessingSpec,
   SpecimenFromDefinitionCreate,
   SpecimenStatus,
 } from "@/types/emr/specimen/specimen";
@@ -39,545 +35,351 @@ export function SpecimenForm({
   onSubmit,
   onCancel,
 }: SpecimenFormProps) {
-  const [specimen, setSpecimen] = useState<SpecimenFromDefinitionCreate>({
+  const authUser = useAuthUser(); // Correctly destructure user
+  const currentUserId = authUser.external_id; // Get user ID
+
+  const [identifierMode, setIdentifierMode] = useState<"scan" | "generate">(
+    "generate",
+  );
+
+  const [specimenData, setSpecimenData] = useState<
+    Omit<SpecimenFromDefinitionCreate, "specimen"> & {
+      specimen: Omit<
+        SpecimenFromDefinitionCreate["specimen"],
+        "processing" | "condition"
+      >;
+    }
+  >({
     specimen_definition: specimenDefinition.id,
     specimen: {
       status: SpecimenStatus.available,
       specimen_type: specimenDefinition.type_collected,
-      accession_identifier: [],
+      accession_identifier: "",
       received_time: null,
-      collection: specimenDefinition.collection
-        ? {
-            collector: null,
-            collected_date_time: null,
-            quantity: null,
-            method: specimenDefinition.collection,
-            procedure: null,
-            body_site: null,
-            fasting_status_codeable_concept: null,
-            fasting_status_duration: null,
-          }
-        : null,
-      processing: [],
-      condition: [],
+      collection: {
+        method: specimenDefinition.collection,
+        body_site: null,
+        collector: currentUserId || null, // Use user ID, default to null if not available yet
+        collected_date_time: new Date().toISOString(),
+        quantity: null,
+        procedure: null,
+        fasting_status_codeable_concept: null,
+        fasting_status_duration: null,
+      },
       note: null,
     },
   });
 
-  const [accessionId, setAccessionId] = useState("");
-  const [processing, setProcessing] = useState<ProcessingSpec>({
-    description: "",
-    method: null,
-    performer: null,
-    time_date_time: null,
-  });
-  const [selectedCondition, setSelectedCondition] = useState<Code | null>(null);
-
-  const handleStatusChange = (value: SpecimenStatus) => {
-    setSpecimen({
-      ...specimen,
-      specimen: {
-        ...specimen.specimen,
-        status: value,
-      },
-    });
-  };
-
-  const handleAddAccessionId = () => {
-    if (accessionId.trim()) {
-      setSpecimen({
-        ...specimen,
-        specimen: {
-          ...specimen.specimen,
-          accession_identifier: [
-            ...specimen.specimen.accession_identifier,
-            accessionId.trim(),
-          ],
-        },
-      });
-      setAccessionId("");
-    }
-  };
-
-  const handleAddProcessing = () => {
-    if (processing.description.trim()) {
-      setSpecimen({
-        ...specimen,
-        specimen: {
-          ...specimen.specimen,
-          processing: [...specimen.specimen.processing, processing],
-        },
-      });
-      setProcessing({
-        description: "",
-        method: null,
-        performer: null,
-        time_date_time: null,
-      });
-    }
-  };
-
-  const handleAddCondition = () => {
-    if (selectedCondition) {
-      setSpecimen({
-        ...specimen,
-        specimen: {
-          ...specimen.specimen,
-          condition: [...specimen.specimen.condition, selectedCondition],
-        },
-      });
-      setSelectedCondition(null);
-    }
-  };
-
-  const handleRemoveCondition = (index: number) => {
-    setSpecimen({
-      ...specimen,
-      specimen: {
-        ...specimen.specimen,
-        condition: specimen.specimen.condition.filter((_, i) => i !== index),
-      },
-    });
+  const handleScanBarcode = () => {
+    toast.info("Barcode scanning to be implemented");
   };
 
   const handleCollectionChange = (field: keyof CollectionSpec, value: any) => {
-    setSpecimen({
-      ...specimen,
+    setSpecimenData((prev) => ({
+      ...prev,
       specimen: {
-        ...specimen.specimen,
-        collection: {
-          ...specimen.specimen.collection!,
-          [field]: value,
-        },
+        ...prev.specimen,
+        collection: prev.specimen.collection
+          ? {
+              ...prev.specimen.collection,
+              [field]: value,
+            }
+          : null,
       },
-    });
+    }));
+  };
+
+  const handleSpecimenChange = (
+    field: keyof SpecimenFromDefinitionCreate["specimen"],
+    value: any,
+  ) => {
+    setSpecimenData((prev) => ({
+      ...prev,
+      specimen: {
+        ...prev.specimen,
+        [field]: value,
+      },
+    }));
   };
 
   const handleSubmit = (e: React.FormEvent) => {
     e.preventDefault();
-    onSubmit(specimen);
+
+    // Ensure collector ID is available before submitting
+    if (!currentUserId) {
+      toast.error("Collector information not available. Please try again.");
+      return;
+    }
+
+    let finalData = { ...specimenData };
+    if (identifierMode === "generate") {
+      finalData = {
+        ...finalData,
+        specimen: {
+          ...finalData.specimen,
+          accession_identifier: "",
+        },
+      };
+    }
+    const submissionPayload: SpecimenFromDefinitionCreate = {
+      specimen_definition: finalData.specimen_definition,
+      specimen: {
+        ...finalData.specimen,
+        processing: [],
+        condition: [],
+        collection: {
+          ...(finalData.specimen.collection ?? {
+            method: null,
+            collected_date_time: null,
+            quantity: null,
+            procedure: null,
+            body_site: null,
+            fasting_status_codeable_concept: null,
+            fasting_status_duration: null,
+          }),
+          collector: currentUserId, // Use confirmed user ID
+        },
+      },
+    };
+    onSubmit(submissionPayload);
   };
 
   return (
-    <Card>
-      <CardHeader>
-        <CardTitle>Add Specimen</CardTitle>
-      </CardHeader>
-      <CardContent>
-        <form className="space-y-6" onSubmit={handleSubmit}>
-          <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
-            <div className="space-y-2">
-              <Label htmlFor="status">Status</Label>
-              <Select
-                value={specimen.specimen.status}
-                onValueChange={handleStatusChange}
+    <div>
+      <form className="space-y-8" onSubmit={handleSubmit}>
+        <div>
+          <div className="font-medium text-lg mb-2">Sample Identification</div>
+          <Tabs
+            value={identifierMode}
+            onValueChange={(v) => setIdentifierMode(v as "scan" | "generate")}
+            defaultValue="generate"
+          >
+            <TabsList className="w-full">
+              <TabsTrigger
+                value="generate"
+                className="flex-1 flex items-center justify-center gap-2"
               >
-                <SelectTrigger>
-                  <SelectValue placeholder="Select status" />
-                </SelectTrigger>
-                <SelectContent>
-                  {Object.values(SpecimenStatus).map((status) => (
-                    <SelectItem key={status} value={status}>
-                      {status}
-                    </SelectItem>
-                  ))}
-                </SelectContent>
-              </Select>
-            </div>
-
-            <div className="space-y-2">
-              <Label>Specimen Type</Label>
-              <div className="h-10 px-3 py-2 rounded-md border bg-muted">
-                {specimen.specimen.specimen_type?.display || "Not specified"}
+                <QrCode className="h-4 w-4" />
+                Generate Barcode
+              </TabsTrigger>
+              <TabsTrigger
+                value="scan"
+                className="flex-1 flex items-center justify-center gap-2"
+              >
+                <Scan className="h-4 w-4" />
+                Scan Existing
+              </TabsTrigger>
+            </TabsList>
+            <TabsContent value="generate">
+              <div className="rounded-lg border-2 border-dashed p-4 text-center bg-gray-50">
+                <QrCode className="h-8 w-8 mx-auto mb-2 text-muted-foreground" />
+                <p className="text-sm text-muted-foreground">
+                  A new barcode will be generated automatically when the
+                  specimen is created
+                </p>
               </div>
-            </div>
-
-            <div className="space-y-2">
-              <Label htmlFor="accession">Accession Identifier</Label>
+            </TabsContent>
+            <TabsContent value="scan">
               <div className="flex gap-2">
                 <Input
-                  id="accession"
-                  placeholder="Enter identifier"
-                  value={accessionId}
-                  onChange={(e) => setAccessionId(e.target.value)}
+                  value={specimenData.specimen.accession_identifier}
+                  onChange={(e) =>
+                    handleSpecimenChange("accession_identifier", e.target.value)
+                  }
+                  placeholder="Scan or enter existing barcode"
                 />
-                <Button type="button" onClick={handleAddAccessionId}>
-                  Add
+                <Button
+                  type="button"
+                  variant="outline"
+                  onClick={handleScanBarcode}
+                >
+                  <Scan className="h-4 w-4" />
                 </Button>
               </div>
-              {specimen.specimen.accession_identifier.length > 0 && (
-                <div className="flex flex-wrap gap-2">
-                  {specimen.specimen.accession_identifier.map((id, index) => (
-                    <Badge
-                      key={index}
-                      variant="secondary"
-                      className="flex items-center gap-1"
-                    >
-                      {id}
-                      <button
-                        type="button"
-                        className="ml-1 hover:text-destructive"
-                        onClick={() => {
-                          setSpecimen({
-                            ...specimen,
-                            specimen: {
-                              ...specimen.specimen,
-                              accession_identifier:
-                                specimen.specimen.accession_identifier.filter(
-                                  (_, i) => i !== index,
-                                ),
-                            },
-                          });
-                        }}
-                      >
-                        <X className="h-3 w-3" />
-                      </button>
-                    </Badge>
-                  ))}
-                </div>
-              )}
-            </div>
+            </TabsContent>
+          </Tabs>
+        </div>
 
-            <div className="space-y-2">
-              <Label>Collection Method</Label>
-              <div className="h-10 px-3 py-2 rounded-md border bg-muted">
-                {specimen.specimen.collection?.method?.display ||
-                  "Not specified"}
-              </div>
-            </div>
+        <div className="space-y-4">
+          <div className="font-medium text-lg mb-2">Collection Information</div>
+
+          <div>
+            <Label>Collection Date & Time</Label>
+            <Input
+              type="datetime-local"
+              value={
+                specimenData.specimen.collection?.collected_date_time?.split(
+                  ".",
+                )[0] || ""
+              }
+              onChange={(e) =>
+                handleCollectionChange(
+                  "collected_date_time",
+                  e.target.value
+                    ? new Date(e.target.value).toISOString()
+                    : null,
+                )
+              }
+            />
           </div>
 
-          <Separator />
+          <div className="grid grid-cols-2 gap-4">
+            <div>
+              <Label>Body Site</Label>
+              <ValueSetSelect
+                system="system-body-site"
+                placeholder="Select body site"
+                onSelect={(code: Code | null) =>
+                  handleCollectionChange("body_site", code)
+                }
+                value={specimenData.specimen.collection?.body_site}
+              />
+            </div>
 
-          <div className="space-y-4">
-            <h4 className="font-medium">Collection Details</h4>
-            <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
-              <div className="space-y-2">
-                <Label>Collection Method</Label>
-                <div className="h-10 px-3 py-2 rounded-md border bg-muted">
-                  {specimen.specimen.collection?.method?.display ||
-                    "Not specified"}
-                </div>
-              </div>
-
-              <div className="space-y-2">
-                <Label htmlFor="collector">Collector</Label>
+            <div>
+              <Label>Quantity</Label>
+              <div className="flex gap-2">
                 <Input
-                  id="collector"
-                  placeholder="Enter collector name"
-                  value={specimen.specimen.collection?.collector || ""}
-                  onChange={(e) =>
-                    handleCollectionChange("collector", e.target.value || null)
-                  }
-                />
-              </div>
-
-              <div className="space-y-2">
-                <Label htmlFor="collected_date_time">
-                  Collection Date & Time
-                </Label>
-                <Input
-                  id="collected_date_time"
-                  type="datetime-local"
+                  type="number"
+                  placeholder="Value"
                   value={
-                    specimen.specimen.collection?.collected_date_time || ""
+                    specimenData.specimen.collection?.quantity?.value ?? ""
                   }
                   onChange={(e) =>
-                    handleCollectionChange(
-                      "collected_date_time",
-                      e.target.value,
-                    )
+                    handleCollectionChange("quantity", {
+                      ...(specimenData.specimen.collection?.quantity ?? {}),
+                      value: e.target.value ? parseFloat(e.target.value) : null,
+                      unit: specimenData.specimen.collection?.quantity?.unit,
+                    })
                   }
+                  step="any"
                 />
-              </div>
-
-              <div className="space-y-2">
-                <Label>Body Site</Label>
-                <ValueSetSelect
-                  system="body-site"
-                  placeholder="Select body site"
-                  onSelect={(code) => handleCollectionChange("body_site", code)}
-                  value={specimen.specimen.collection?.body_site}
-                />
-              </div>
-
-              <div className="space-y-2">
-                <Label>Procedure</Label>
-                <ValueSetSelect
-                  system="procedure-code"
-                  placeholder="Select procedure"
-                  onSelect={(code) => handleCollectionChange("procedure", code)}
-                  value={specimen.specimen.collection?.procedure}
-                />
-              </div>
-
-              <div className="space-y-2">
-                <Label>Fasting Status</Label>
-                <ValueSetSelect
-                  system="fasting-status"
-                  placeholder="Select fasting status"
-                  onSelect={(code) =>
-                    handleCollectionChange(
-                      "fasting_status_codeable_concept",
-                      code,
-                    )
-                  }
-                  value={
-                    specimen.specimen.collection
-                      ?.fasting_status_codeable_concept
-                  }
-                />
-              </div>
-
-              <div className="space-y-2">
-                <Label>Fasting Duration</Label>
-                <div className="flex gap-2">
-                  <Input
-                    type="number"
-                    placeholder="Duration"
-                    value={
-                      specimen.specimen.collection?.fasting_status_duration
-                        ?.value || ""
-                    }
-                    onChange={(e) =>
-                      handleCollectionChange("fasting_status_duration", {
-                        ...specimen.specimen.collection
-                          ?.fasting_status_duration,
-                        value: parseFloat(e.target.value),
-                      })
-                    }
-                  />
+                <div className="w-[120px]">
                   <ValueSetSelect
-                    system="duration-units"
+                    system="system-ucum-units"
                     placeholder="Unit"
-                    onSelect={(code) =>
-                      handleCollectionChange("fasting_status_duration", {
-                        ...specimen.specimen.collection
-                          ?.fasting_status_duration,
+                    onSelect={(code: Code | null) =>
+                      handleCollectionChange("quantity", {
+                        ...(specimenData.specimen.collection?.quantity ?? {}),
+                        value:
+                          specimenData.specimen.collection?.quantity?.value ??
+                          null,
                         unit: code,
                       })
                     }
-                    value={
-                      specimen.specimen.collection?.fasting_status_duration
-                        ?.unit
+                    value={specimenData.specimen.collection?.quantity?.unit}
+                  />
+                </div>
+              </div>
+            </div>
+
+            <div>
+              <Label>Fasting Status</Label>
+              <ValueSetSelect
+                system="system-fasting-status-code"
+                placeholder="Select status"
+                onSelect={(code: Code | null) =>
+                  handleCollectionChange(
+                    "fasting_status_codeable_concept",
+                    code,
+                  )
+                }
+                value={
+                  specimenData.specimen.collection
+                    ?.fasting_status_codeable_concept
+                }
+              />
+            </div>
+
+            <div>
+              <Label>Fasting Duration (optional)</Label>
+              <Input
+                type="number"
+                placeholder="Duration value (e.g., 8)"
+                value={
+                  specimenData.specimen.collection?.fasting_status_duration
+                    ?.value ?? ""
+                }
+                onChange={(e) =>
+                  handleCollectionChange("fasting_status_duration", {
+                    ...(specimenData.specimen.collection
+                      ?.fasting_status_duration ?? {}),
+                    value: e.target.value ? parseFloat(e.target.value) : null,
+                    unit: specimenData.specimen.collection
+                      ?.fasting_status_duration?.unit ?? {
+                      code: "h",
+                      display: "hour",
+                      system: "http://unitsofmeasure.org",
+                    },
+                  })
+                }
+              />
+            </div>
+          </div>
+
+          {specimenDefinition.type_tested?.container && (
+            <div className="mt-4 rounded-lg border bg-gray-50 p-4">
+              <div className="flex items-center gap-2 mb-2 text-sm font-medium text-gray-600">
+                <Info className="h-4 w-4" />
+                Container Requirements
+              </div>
+              <div className="grid grid-cols-2 gap-x-8 gap-y-2 text-sm">
+                <div>
+                  <span className="text-gray-600">Type: </span>
+                  {specimenDefinition.type_tested.container.description}
+                </div>
+                {specimenDefinition.type_tested.container.capacity && (
+                  <div>
+                    <span className="text-gray-600">Capacity: </span>
+                    {
+                      specimenDefinition.type_tested.container.capacity.value
+                    }{" "}
+                    {
+                      specimenDefinition.type_tested.container.capacity.unit
+                        .display
                     }
-                  />
-                </div>
-              </div>
-
-              <div className="space-y-2">
-                <Label>Quantity</Label>
-                <div className="flex gap-2">
-                  <Input
-                    type="number"
-                    placeholder="Quantity"
-                    value={specimen.specimen.collection?.quantity?.value || ""}
-                    onChange={(e) =>
-                      handleCollectionChange("quantity", {
-                        ...specimen.specimen.collection?.quantity,
-                        value: parseFloat(e.target.value),
-                      })
-                    }
-                  />
-                  <ValueSetSelect
-                    system="specimen-quantity-units"
-                    placeholder="Unit"
-                    onSelect={(code) =>
-                      handleCollectionChange("quantity", {
-                        ...specimen.specimen.collection?.quantity,
-                        unit: code,
-                      })
-                    }
-                    value={specimen.specimen.collection?.quantity?.unit}
-                  />
-                </div>
+                  </div>
+                )}
+                {specimenDefinition.type_tested.container.minimum_volume && (
+                  <div>
+                    <span className="text-gray-600">Minimum Volume: </span>
+                    {specimenDefinition.type_tested.container.minimum_volume
+                      .string ||
+                      (specimenDefinition.type_tested.container.minimum_volume
+                        .quantity &&
+                        `${specimenDefinition.type_tested.container.minimum_volume.quantity.value} ${specimenDefinition.type_tested.container.minimum_volume.quantity.unit.display}`)}
+                  </div>
+                )}
+                {specimenDefinition.type_tested.container.preparation && (
+                  <div className="col-span-2">
+                    <span className="text-gray-600">Preparation: </span>
+                    {specimenDefinition.type_tested.container.preparation}
+                  </div>
+                )}
               </div>
             </div>
-          </div>
+          )}
+        </div>
 
-          <Separator />
+        <div className="space-y-2">
+          <Label>Notes</Label>
+          <Textarea
+            placeholder="Add any additional notes about the collection..."
+            value={specimenData.specimen.note ?? ""}
+            onChange={(e: React.ChangeEvent<HTMLTextAreaElement>) =>
+              handleSpecimenChange("note", e.target.value || null)
+            }
+            className="min-h-[80px]"
+          />
+        </div>
 
-          <div className="space-y-4">
-            <h4 className="font-medium">Processing</h4>
-            <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
-              <div className="space-y-2">
-                <Label htmlFor="description">Description</Label>
-                <Input
-                  id="description"
-                  placeholder="Enter description"
-                  value={processing.description}
-                  onChange={(e) =>
-                    setProcessing({
-                      ...processing,
-                      description: e.target.value,
-                    })
-                  }
-                />
-              </div>
-
-              <div className="space-y-2">
-                <Label>Method</Label>
-                <ValueSetSelect
-                  system="specimen-processing-method"
-                  placeholder="Select processing method"
-                  onSelect={(code) =>
-                    setProcessing({
-                      ...processing,
-                      method: code,
-                    })
-                  }
-                  value={processing.method}
-                />
-              </div>
-
-              <div className="space-y-2">
-                <Label htmlFor="performer">Performer</Label>
-                <Input
-                  id="performer"
-                  placeholder="Enter performer"
-                  value={processing.performer || ""}
-                  onChange={(e) =>
-                    setProcessing({
-                      ...processing,
-                      performer: e.target.value,
-                    })
-                  }
-                />
-              </div>
-
-              <div className="space-y-2">
-                <Label htmlFor="time_date_time">Time</Label>
-                <Input
-                  id="time_date_time"
-                  type="datetime-local"
-                  value={processing.time_date_time || ""}
-                  onChange={(e) =>
-                    setProcessing({
-                      ...processing,
-                      time_date_time: e.target.value,
-                    })
-                  }
-                />
-              </div>
-            </div>
-
-            <div className="flex justify-end">
-              <Button type="button" onClick={handleAddProcessing}>
-                Add Processing
-              </Button>
-            </div>
-
-            {specimen.specimen.processing.length > 0 && (
-              <div className="space-y-2">
-                <Label>Added Processing Steps</Label>
-                <div className="space-y-2">
-                  {specimen.specimen.processing.map((step, index) => (
-                    <div
-                      key={index}
-                      className="flex items-center justify-between p-2 rounded-md border"
-                    >
-                      <div className="grid grid-cols-1 md:grid-cols-2 gap-2">
-                        <div>
-                          <p className="font-medium">{step.description}</p>
-                          {step.method && (
-                            <p className="text-sm text-muted-foreground">
-                              Method: {step.method.display}
-                            </p>
-                          )}
-                          {step.performer && (
-                            <p className="text-sm text-muted-foreground">
-                              Performer: {step.performer}
-                            </p>
-                          )}
-                          {step.time_date_time && (
-                            <p className="text-sm text-muted-foreground">
-                              Time:{" "}
-                              {new Date(step.time_date_time).toLocaleString()}
-                            </p>
-                          )}
-                        </div>
-                      </div>
-                      <Button
-                        type="button"
-                        variant="ghost"
-                        size="sm"
-                        onClick={() => {
-                          setSpecimen({
-                            ...specimen,
-                            specimen: {
-                              ...specimen.specimen,
-                              processing: specimen.specimen.processing.filter(
-                                (_, i) => i !== index,
-                              ),
-                            },
-                          });
-                        }}
-                      >
-                        <X className="h-4 w-4" />
-                      </Button>
-                    </div>
-                  ))}
-                </div>
-              </div>
-            )}
-          </div>
-
-          <Separator />
-
-          <div className="space-y-4">
-            <h4 className="font-medium">Conditions</h4>
-            <div className="grid grid-cols-1 gap-4">
-              <div className="space-y-2">
-                <Label>Add Condition</Label>
-                <div className="flex gap-2">
-                  <ValueSetSelect
-                    system="system-specimen-condition-code"
-                    placeholder="Select condition"
-                    onSelect={setSelectedCondition}
-                    value={selectedCondition}
-                  />
-                  <Button type="button" onClick={handleAddCondition}>
-                    Add
-                  </Button>
-                </div>
-              </div>
-            </div>
-
-            {specimen.specimen.condition.length > 0 && (
-              <div className="space-y-2">
-                <Label>Added Conditions</Label>
-                <div className="flex flex-wrap gap-2">
-                  {specimen.specimen.condition.map((condition, index) => (
-                    <Badge
-                      key={index}
-                      variant="secondary"
-                      className="flex items-center gap-1"
-                    >
-                      {condition.display}
-                      <button
-                        type="button"
-                        className="ml-1 hover:text-destructive"
-                        onClick={() => handleRemoveCondition(index)}
-                      >
-                        <X className="h-3 w-3" />
-                      </button>
-                    </Badge>
-                  ))}
-                </div>
-              </div>
-            )}
-          </div>
-
-          <Separator />
-
-          <div className="flex justify-end gap-2">
-            <Button type="button" variant="outline" onClick={onCancel}>
-              Cancel
-            </Button>
-            <Button type="submit">Create Specimen</Button>
-          </div>
-        </form>
-      </CardContent>
-    </Card>
+        <div className="flex justify-end gap-2 pt-4 border-t">
+          <Button type="button" variant="outline" onClick={onCancel}>
+            Cancel
+          </Button>
+          <Button type="submit">Collect Specimen</Button>
+        </div>
+      </form>
+    </div>
   );
 }

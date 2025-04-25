@@ -8,16 +8,22 @@ import {
 } from "./specimen";
 
 export default {
-  createSpecimen: {
-    path: "/api/v1/facility/{facilityId}/service_request/{serviceRequestId}/create_specimen/",
-    method: HttpMethod.POST,
-    TRes: Type<PaginatedResponse<SpecimenRead>>(),
-    TBody: Type<SpecimenBase>(),
-  },
+  // createSpecimen: {
+  //   path: "/api/v1/facility/{facilityId}/service_request/{serviceRequestId}/create_specimen/",
+  //   method: HttpMethod.POST,
+  //   TRes: Type<PaginatedResponse<SpecimenRead>>(),
+  //   TBody: Type<SpecimenBase>(),
+  // },
   createSpecimenFromDefinition: {
     path: "/api/v1/facility/{facilityId}/service_request/{serviceRequestId}/create_specimen_from_definition/",
     method: HttpMethod.POST,
     TRes: Type<PaginatedResponse<SpecimenRead>>(),
     TBody: Type<SpecimenFromDefinitionCreate>(),
+  },
+  updateSpecimen: {
+    path: "/api/v1/facility/{facilityId}/specimen/{specimenId}/",
+    method: HttpMethod.PUT,
+    TRes: Type<PaginatedResponse<SpecimenRead>>(),
+    TBody: Type<SpecimenBase>(),
   },
 };

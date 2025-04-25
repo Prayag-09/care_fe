@@ -3,6 +3,7 @@ import {
   Category,
 } from "@/types/emr/activityDefinition/activityDefinition";
 import { Encounter } from "@/types/emr/encounter";
+import { ObservationRead } from "@/types/emr/observation/observation";
 import { SpecimenRead } from "@/types/emr/specimen/specimen";
 import { LocationList } from "@/types/location/location";
 import { Code } from "@/types/questionnaire/code";
@@ -91,6 +92,7 @@ export interface ServiceRequestReadSpec extends BaseServiceRequestSpec {
   encounter: Encounter;
   activity_definition: ActivityDefinitionReadSpec;
   specimens: SpecimenRead[];
+  observations?: ObservationRead[];
   created_by: UserBase;
   updated_by: UserBase;
   created_at: string;
