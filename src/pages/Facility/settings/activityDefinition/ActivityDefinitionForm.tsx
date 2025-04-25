@@ -69,8 +69,50 @@ const formSchema = z.object({
       system: z.string().min(1, "System is required"),
     })
     .nullable(),
-  specimen_requirements: z.array(z.string()).default([]),
-  observation_result_requirements: z.array(z.string()).default([]),
+  specimen_requirements: z
+    .array(
+      z.object({
+        value: z.string(),
+        label: z.string(),
+        details: z.array(
+          z
+            .object({
+              label: z.string(),
+              value: z
+                .string()
+                .optional()
+                .transform((v) => v ?? undefined),
+            })
+            .transform((obj) => ({
+              ...obj,
+              value: obj.value ?? undefined,
+            })),
+        ),
+      }),
+    )
+    .default([]),
+  observation_result_requirements: z
+    .array(
+      z.object({
+        value: z.string(),
+        label: z.string(),
+        details: z.array(
+          z
+            .object({
+              label: z.string(),
+              value: z
+                .string()
+                .optional()
+                .transform((v) => v ?? undefined),
+            })
+            .transform((obj) => ({
+              ...obj,
+              value: obj.value ?? undefined,
+            })),
+        ),
+      }),
+    )
+    .default([]),
   locations: z.array(z.string()).default([]),
 });
 
@@ -144,7 +186,7 @@ function ActivityDefinitionFormContent({
   const { data: specimenDefinitions, isLoading: isLoadingSpecimens } = useQuery(
     {
       queryKey: ["specimenDefinitions", facilityId, specimenSearch],
-      queryFn: query(specimenDefinitionApi.listSpecimenDefinitions, {
+      queryFn: query.debounced(specimenDefinitionApi.listSpecimenDefinitions, {
         pathParams: { facilityId },
         queryParams: { limit: 100, search: specimenSearch },
       }),
@@ -154,18 +196,21 @@ function ActivityDefinitionFormContent({
   const { data: observationDefinitions, isLoading: isLoadingObservations } =
     useQuery({
       queryKey: ["observationDefinitions", facilityId, observationSearch],
-      queryFn: query(observationDefinitionApi.listObservationDefinition, {
-        queryParams: {
-          facility: facilityId,
-          limit: 100,
-          search: observationSearch,
+      queryFn: query.debounced(
+        observationDefinitionApi.listObservationDefinition,
+        {
+          queryParams: {
+            facility: facilityId,
+            limit: 100,
+            search: observationSearch,
+          },
         },
-      }),
+      ),
     });
 
   const { data: locations, isLoading: isLoadingLocations } = useQuery({
     queryKey: ["locations", facilityId],
-    queryFn: query(locationApi.list, {
+    queryFn: query.debounced(locationApi.list, {
       pathParams: { facility_id: facilityId },
       queryParams: {
         limit: 100,
@@ -189,10 +234,64 @@ function ActivityDefinitionFormContent({
             code: existingData.code,
             body_site: existingData.body_site,
             specimen_requirements:
-              existingData.specimen_requirements?.map((s) => s.id) || [],
+              existingData.specimen_requirements?.map((s) => ({
+                value: s.id,
+                label: s.title,
+                details: [
+                  {
+                    label: t("type"),
+                    value: s.type_collected?.display || undefined,
+                  },
+                  {
+                    label: t("container"),
+                    value:
+                      s.type_tested?.container?.description ||
+                      s.type_tested?.specimen_type?.display ||
+                      undefined,
+                  },
+                  {
+                    label: t("minimum_volume"),
+                    value:
+                      s.type_tested?.container?.minimum_volume?.string ||
+                      (s.type_tested?.container?.minimum_volume?.quantity
+                        ? `${s.type_tested.container.minimum_volume.quantity.value} ${s.type_tested.container.minimum_volume.quantity.unit.display}`
+                        : undefined),
+                  },
+                  {
+                    label: t("cap"),
+                    value: s.type_tested?.container?.cap?.display || undefined,
+                  },
+                ],
+              })) || [],
             observation_result_requirements:
-              existingData.observation_result_requirements?.map((o) => o.id) ||
-              [],
+              existingData.observation_result_requirements?.map((obs) => ({
+                value: obs.id,
+                label: obs.title,
+                details: [
+                  {
+                    label: t("category"),
+                    value: t(obs.category) || undefined,
+                  },
+                  {
+                    label: t("data_type"),
+                    value: t(obs.permitted_data_type) || undefined,
+                  },
+                  {
+                    label: t("unit"),
+                    value: obs.permitted_unit?.display || undefined,
+                  },
+                  {
+                    label: t("method"),
+                    value: obs.method?.display || undefined,
+                  },
+                  {
+                    label: t("components"),
+                    value:
+                      obs.component?.map((c) => c.code?.display).join(", ") ||
+                      undefined,
+                  },
+                ],
+              })) || [],
             locations: existingData.locations?.map((l) => l.id) || [],
           }
         : {
@@ -246,10 +345,24 @@ function ActivityDefinitionFormContent({
   const isPending = isCreating || isUpdating;
 
   function onSubmit(data: FormValues) {
+    const transformedData = {
+      ...data,
+      specimen_requirements: data.specimen_requirements.map(
+        (item) => item.value,
+      ),
+      observation_result_requirements: data.observation_result_requirements.map(
+        (item) => item.value,
+      ),
+    };
+
     if (isEditMode && activityDefinitionId) {
-      updateActivityDefinition(data as ActivityDefinitionUpdateSpec);
+      updateActivityDefinition(
+        transformedData as unknown as ActivityDefinitionUpdateSpec,
+      );
     } else {
-      createActivityDefinition(data as ActivityDefinitionCreateSpec);
+      createActivityDefinition(
+        transformedData as unknown as ActivityDefinitionCreateSpec,
+      );
     }
   }
 
@@ -531,19 +644,21 @@ function ActivityDefinitionFormContent({
                             details: [
                               {
                                 label: t("type"),
-                                value: spec.type_collected?.display,
+                                value:
+                                  spec.type_collected?.display ?? undefined,
                               },
                               {
                                 label: t("container"),
                                 value:
-                                  spec.type_tested?.container?.description ||
-                                  spec.type_tested?.specimen_type?.display,
+                                  spec.type_tested?.container?.description ??
+                                  spec.type_tested?.specimen_type?.display ??
+                                  undefined,
                               },
                               {
                                 label: t("minimum_volume"),
                                 value:
                                   spec.type_tested?.container?.minimum_volume
-                                    ?.string ||
+                                    ?.string ??
                                   (spec.type_tested?.container?.minimum_volume
                                     ?.quantity
                                     ? `${spec.type_tested.container.minimum_volume.quantity.value} ${spec.type_tested.container.minimum_volume.quantity.unit.display}`
@@ -552,7 +667,8 @@ function ActivityDefinitionFormContent({
                               {
                                 label: t("cap"),
                                 value:
-                                  spec.type_tested?.container?.cap?.display,
+                                  spec.type_tested?.container?.cap?.display ??
+                                  undefined,
                               },
                             ],
                           })) || []
@@ -592,25 +708,26 @@ function ActivityDefinitionFormContent({
                             details: [
                               {
                                 label: t("category"),
-                                value: t(obs.category),
+                                value: t(obs.category) ?? undefined,
                               },
                               {
                                 label: t("data_type"),
-                                value: t(obs.permitted_data_type),
+                                value: t(obs.permitted_data_type) ?? undefined,
                               },
                               {
                                 label: t("unit"),
-                                value: obs.permitted_unit?.display,
+                                value: obs.permitted_unit?.display ?? undefined,
                               },
                               {
                                 label: t("method"),
-                                value: obs.method?.display,
+                                value: obs.method?.display ?? undefined,
                               },
                               {
                                 label: t("components"),
-                                value: obs.component
-                                  ?.map((c) => c.code?.display)
-                                  .join(", "),
+                                value:
+                                  obs.component
+                                    ?.map((c) => c.code?.display)
+                                    .join(", ") ?? undefined,
                               },
                             ],
                           })) || []
@@ -636,9 +753,18 @@ function ActivityDefinitionFormContent({
                       <RequirementsSelector
                         title={t("location_requirements")}
                         description={t("location_requirements_description")}
-                        value={form.watch("locations")}
+                        value={form.watch("locations").map((id) => ({
+                          value: id,
+                          label:
+                            locations?.results.find((l) => l.id === id)?.name ||
+                            id,
+                          details: [],
+                        }))}
                         onChange={(values) =>
-                          form.setValue("locations", values)
+                          form.setValue(
+                            "locations",
+                            values.map((v) => v.value),
+                          )
                         }
                         options={
                           locations?.results

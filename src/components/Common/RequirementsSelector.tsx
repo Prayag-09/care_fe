@@ -1,8 +1,6 @@
-import { Check, ChevronDown, Plus, Trash2 } from "lucide-react";
+import { ChevronDown, Plus, Trash2, X } from "lucide-react";
 import * as React from "react";
 import { useTranslation } from "react-i18next";
-
-import { cn } from "@/lib/utils";
 
 import { Button } from "@/components/ui/button";
 import {
@@ -23,16 +21,21 @@ import {
 
 import { TableSkeleton } from "@/components/Common/SkeletonLoading";
 
+type RequirementItem = {
+  value: string;
+  label: string;
+  details: {
+    label: string;
+    value: string | undefined;
+  }[];
+};
+
 interface RequirementsSelectorProps {
   title: string;
   description?: string;
-  value: string[];
-  onChange: (value: string[]) => void;
-  options: {
-    label: string;
-    value: string;
-    details: { label: string; value: string | undefined }[];
-  }[];
+  value: RequirementItem[];
+  onChange: (value: RequirementItem[]) => void;
+  options: RequirementItem[];
   isLoading: boolean;
   placeholder: string;
   onSearch?: (query: string) => void;
@@ -65,15 +68,38 @@ function SelectedItemCard({
       </Button>
       <p className="mb-2 font-medium text-sm text-gray-900">{title}</p>
       <div className="grid grid-cols-1 gap-1 md:grid-cols-2">
-        {details
-          .filter(({ value }) => value)
-          .map(({ label, value }, index) => (
-            <div key={index} className="flex text-sm">
-              <span className="text-gray-500">{label}: </span>
-              <span className="ml-1 text-gray-900">{value}</span>
-            </div>
-          ))}
+        {details.map(({ label, value }, index) => (
+          <div key={index} className="flex text-sm">
+            <span className="text-gray-500">{label}: </span>
+            <span className="ml-1 text-gray-900">{value}</span>
+          </div>
+        ))}
       </div>
+    </div>
+  );
+}
+
+function SmallSelectedItemCard({
+  title,
+  onRemove,
+}: {
+  title: string;
+  onRemove: () => void;
+}) {
+  return (
+    <div className="flex items-center gap-2 rounded-full border border-gray-200 bg-white px-3 py-1.5">
+      <span className="text-sm font-medium">{title}</span>
+      <Button
+        onClick={(e) => {
+          e.preventDefault();
+          e.stopPropagation();
+          onRemove();
+        }}
+        className="h-5 w-5 rounded-full p-0"
+        variant="ghost"
+      >
+        <X className="size-3" />
+      </Button>
     </div>
   );
 }
@@ -95,19 +121,14 @@ export default function RequirementsSelector({
   const [isOpen, setIsOpen] = React.useState(false);
   const [isCreateSheetOpen, setIsCreateSheetOpen] = React.useState(false);
 
-  const selectedItems = options.filter((option) =>
-    value.includes(option.value),
-  );
-
-  const toggleOption = (optionValue: string) => {
-    const newValue = value.includes(optionValue)
-      ? value.filter((v) => v !== optionValue)
-      : [...value, optionValue];
-    onChange(newValue);
+  const addOption = (option: RequirementItem) => {
+    onChange([...value, option]);
   };
 
-  const removeItem = (itemValue: string) => {
-    onChange(value.filter((v) => v !== itemValue));
+  const removeItem = (index: number) => {
+    const newValue = [...value];
+    newValue.splice(index, 1);
+    onChange(newValue);
   };
 
   return (
@@ -134,14 +155,14 @@ export default function RequirementsSelector({
           </Button>
         </SheetTrigger>
 
-        {selectedItems.length > 0 && (
+        {value.length > 0 && (
           <div className="flex flex-col gap-2">
-            {selectedItems.map((item) => (
+            {value.map((item, index) => (
               <SelectedItemCard
-                key={item.value}
+                key={`${item.value}-${index}`}
                 title={item.label}
-                details={item.details}
-                onRemove={() => removeItem(item.value)}
+                details={item.details || []}
+                onRemove={() => removeItem(index)}
               />
             ))}
           </div>
@@ -159,38 +180,52 @@ export default function RequirementsSelector({
               {description}
             </SheetDescription>
           )}
-          {canCreate && (
-            <div className="mt-4">
-              <Sheet
-                open={isCreateSheetOpen}
-                onOpenChange={setIsCreateSheetOpen}
-              >
-                <SheetTrigger asChild>
-                  <Button
-                    variant="outline"
-                    className="w-full justify-start gap-2"
-                    onClick={() => setIsCreateSheetOpen(true)}
-                  >
-                    <Plus className="size-4" />
-                    {t("create_new")}
-                  </Button>
-                </SheetTrigger>
-                <SheetContent
-                  side="right"
-                  className="flex h-full w-full flex-col overflow-y-auto md:max-w-[600px] lg:max-w-[800px]"
-                >
-                  <div className="flex-1 overflow-y-auto py-6">
-                    {createForm}
-                  </div>
-                </SheetContent>
-              </Sheet>
-            </div>
-          )}
         </div>
         {customSelector ? (
           customSelector
         ) : (
-          <Command className="overflow-hidden rounded-none border-none">
+          <Command
+            className="overflow-hidden rounded-none border-none"
+            filter={() => 1}
+          >
+            {value.length > 0 && (
+              <div className="flex flex-wrap gap-2 p-4 border-b">
+                {value.map((item, index) => (
+                  <SmallSelectedItemCard
+                    key={`${item.value}-${index}`}
+                    title={item.label}
+                    onRemove={() => removeItem(index)}
+                  />
+                ))}
+              </div>
+            )}
+            {canCreate && (
+              <div className="p-4 border-b">
+                <Sheet
+                  open={isCreateSheetOpen}
+                  onOpenChange={setIsCreateSheetOpen}
+                >
+                  <SheetTrigger asChild>
+                    <Button
+                      variant="outline"
+                      className="w-full justify-start gap-2"
+                      onClick={() => setIsCreateSheetOpen(true)}
+                    >
+                      <Plus className="size-4" />
+                      {t("create_new")}
+                    </Button>
+                  </SheetTrigger>
+                  <SheetContent
+                    side="right"
+                    className="flex h-full w-full flex-col overflow-y-auto md:max-w-[600px] lg:max-w-[800px]"
+                  >
+                    <div className="flex-1 overflow-y-auto py-6">
+                      {createForm}
+                    </div>
+                  </SheetContent>
+                </Sheet>
+              </div>
+            )}
             <CommandInput
               placeholder={t("search")}
               onValueChange={onSearch}
@@ -207,28 +242,28 @@ export default function RequirementsSelector({
                   </div>
                 ) : (
                   <div className="p-2">
-                    {options.map((option) => {
-                      const isSelected = value.includes(option.value);
-                      return (
-                        <CommandItem
-                          key={option.value}
-                          onSelect={() => toggleOption(option.value)}
-                          className="mx-2 flex cursor-pointer items-center gap-2 rounded-md px-2"
+                    {options.map((option) => (
+                      <CommandItem
+                        key={option.value}
+                        value={option.label}
+                        onSelect={() => addOption(option)}
+                        className="mx-2 flex cursor-pointer items-center justify-between rounded-md px-2"
+                      >
+                        <span>{option.label}</span>
+                        <Button
+                          variant="outline"
+                          size="sm"
+                          className="h-8 w-8 p-0"
+                          onClick={(e) => {
+                            e.preventDefault();
+                            e.stopPropagation();
+                            addOption(option);
+                          }}
                         >
-                          <div
-                            className={cn(
-                              "flex size-4 shrink-0 items-center justify-center rounded-sm border border-primary",
-                              isSelected
-                                ? "bg-primary text-primary-foreground"
-                                : "opacity-50",
-                            )}
-                          >
-                            {isSelected && <Check className="size-3" />}
-                          </div>
-                          <span>{option.label}</span>
-                        </CommandItem>
-                      );
-                    })}
+                          <Plus className="size-4" />
+                        </Button>
+                      </CommandItem>
+                    ))}
                   </div>
                 )}
               </ScrollArea>
