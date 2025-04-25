@@ -62,7 +62,7 @@ export default function HealthcareServiceForm({
   const { t } = useTranslation();
   const isEditMode = Boolean(healthcareServiceId);
 
-  const { data: existingData, isLoading } = useQuery({
+  const { data: existingData, isFetching } = useQuery({
     queryKey: ["healthcareService", healthcareServiceId],
     queryFn: query(healthcareServiceApi.retrieveHealthcareService, {
       pathParams: {
@@ -73,7 +73,7 @@ export default function HealthcareServiceForm({
     enabled: isEditMode,
   });
 
-  if (isEditMode && isLoading) {
+  if (isEditMode && isFetching) {
     return (
       <Page title={t("edit_healthcare_service")} hideTitleOnPage>
         <div className="container mx-auto max-w-3xl">
@@ -143,6 +143,9 @@ function HealthcareServiceFormContent({
       }),
       onSuccess: () => {
         queryClient.invalidateQueries({ queryKey: ["healthcareServices"] });
+        queryClient.invalidateQueries({
+          queryKey: ["healthcareService", healthcareServiceId],
+        });
         toast.success(t("healthcare_service_created_successfully"));
         navigate(`/facility/${facilityId}/settings/healthcare_services`);
       },

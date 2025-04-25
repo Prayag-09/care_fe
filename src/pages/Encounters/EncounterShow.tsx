@@ -26,6 +26,7 @@ import { Patient } from "@/types/emr/newPatient";
 
 import { EncounterDrawingsTab } from "./tabs/EncounterDrawingsTab";
 import { EncounterNotesTab } from "./tabs/EncounterNotesTab";
+import { EncounterServiceRequestTab } from "./tabs/EncounterServiceRequestTab";
 
 export interface EncounterTabProps {
   encounter: Encounter;
@@ -43,6 +44,7 @@ const defaultTabs = {
   // nursing: EncounterNursingTab,
   // neurological_monitoring: EncounterNeurologicalMonitoringTab,
   // pressure_sore: EncounterPressureSoreTab,
+  service_requests: EncounterServiceRequestTab,
 } as Record<string, React.FC<EncounterTabProps>>;
 
 interface Props {

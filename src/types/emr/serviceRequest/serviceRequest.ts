@@ -1,4 +1,5 @@
 import { Category } from "@/types/emr/activityDefinition/activityDefinition";
+import { Encounter } from "@/types/emr/encounter";
 import { LocationList } from "@/types/location/location";
 import { Code } from "@/types/questionnaire/code";
 
@@ -48,6 +49,14 @@ export interface ServiceRequestCreateSpec
   locations: string[];
 }
 
+export interface ServiceRequestApplyActivityDefinitionSpec {
+  encounter: string;
+  activity_definition: string;
+  service_request: Omit<BaseServiceRequestSpec, "id"> & {
+    locations: string[];
+  };
+}
+
 export interface ServiceRequestUpdateSpec extends BaseServiceRequestSpec {
   encounter: string;
   locations: string[];
@@ -56,4 +65,5 @@ export interface ServiceRequestUpdateSpec extends BaseServiceRequestSpec {
 export interface ServiceRequestReadSpec extends BaseServiceRequestSpec {
   version?: number;
   locations: LocationList[];
+  encounter: Encounter;
 }
