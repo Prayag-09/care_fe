@@ -1,261 +1,257 @@
-import { useQuery } from "@tanstack/react-query";
-import { navigate } from "raviger";
-import { useTranslation } from "react-i18next";
+import { useMutation, useQuery, useQueryClient } from "@tanstack/react-query";
+import { t } from "i18next";
+import {
+  ArrowLeft,
+  FileText,
+  FoldVertical,
+  UnfoldVertical,
+} from "lucide-react";
+import { Link } from "raviger";
+import { useState } from "react";
+import { toast } from "sonner";
+
+import { cn } from "@/lib/utils";
 
 import CareIcon from "@/CAREUI/icons/CareIcon";
 
+import { Badge } from "@/components/ui/badge";
 import { Button } from "@/components/ui/button";
 import {
-  Card,
-  CardContent,
-  CardDescription,
-  CardHeader,
-  CardTitle,
-} from "@/components/ui/card";
+  Collapsible,
+  CollapsibleContent,
+  CollapsibleTrigger,
+} from "@/components/ui/collapsible";
+import { Skeleton } from "@/components/ui/skeleton";
 
-import Page from "@/components/Common/Page";
-import { TableSkeleton } from "@/components/Common/SkeletonLoading";
-import ErrorPage from "@/components/ErrorPages/DefaultErrorPage";
-
+import mutate from "@/Utils/request/mutate";
 import query from "@/Utils/request/query";
-import { Priority, Status } from "@/types/emr/serviceRequest/serviceRequest";
+import { formatName } from "@/Utils/utils";
+import activityDefinitionApi from "@/types/emr/activityDefinition/activityDefinitionApi";
+import { SPECIMEN_STATUS_STYLES } from "@/types/emr/serviceRequest/serviceRequest";
 import serviceRequestApi from "@/types/emr/serviceRequest/serviceRequestApi";
+import type { SpecimenFromDefinitionCreate } from "@/types/emr/specimen/specimen";
+import specimenApi from "@/types/emr/specimen/specimenApi";
 
-const STATUS_COLORS: Record<Status, string> = {
-  [Status.draft]: "bg-gray-100 text-gray-700",
-  [Status.active]: "bg-green-100 text-green-700",
-  [Status.on_hold]: "bg-yellow-100 text-yellow-700",
-  [Status.revoked]: "bg-red-100 text-red-700",
-  [Status.completed]: "bg-blue-100 text-blue-700",
-  [Status.entered_in_error]: "bg-red-100 text-red-700",
-  [Status.ended]: "bg-gray-100 text-gray-700",
-  [Status.unknown]: "bg-gray-100 text-gray-700",
-};
-
-const PRIORITY_COLORS: Record<Priority, string> = {
-  [Priority.routine]: "bg-blue-100 text-blue-700",
-  [Priority.urgent]: "bg-yellow-100 text-yellow-700",
-  [Priority.asap]: "bg-orange-100 text-orange-700",
-  [Priority.stat]: "bg-red-100 text-red-700",
-};
+import { SpecimenDefinition } from "./components/SpecimenDefinition";
 
 export default function ServiceRequestShow({
   facilityId,
   serviceRequestId,
-  serviceId,
-  locationId,
+  _locationId,
+  _serviceId,
 }: {
   facilityId: string;
   serviceRequestId: string;
-  serviceId?: string;
-  locationId?: string;
+  _locationId?: string;
+  _serviceId?: string;
 }) {
-  const { t } = useTranslation();
+  const [isSpecimenExpanded, setIsSpecimenExpanded] = useState(false);
+  const queryClient = useQueryClient();
 
-  const { data: request, isLoading } = useQuery({
+  const { data: request, isLoading: isLoadingRequest } = useQuery({
     queryKey: ["serviceRequest", serviceRequestId],
     queryFn: query(serviceRequestApi.retrieveServiceRequest, {
-      pathParams: { facilityId, serviceRequestId: serviceRequestId },
+      pathParams: {
+        facilityId: facilityId,
+        serviceRequestId: serviceRequestId,
+      },
     }),
   });
 
-  if (isLoading) {
+  const { data: activityDefinition, isLoading: isLoadingActivityDefinition } =
+    useQuery({
+      queryKey: ["activityDefinition", request?.activity_definition.id],
+      queryFn: query(activityDefinitionApi.retrieveActivityDefinition, {
+        pathParams: {
+          facilityId: facilityId,
+          activityDefinitionId: request?.activity_definition.id || "",
+        },
+      }),
+      enabled: !!request?.activity_definition.id,
+    });
+
+  const { mutate: createSpecimen } = useMutation({
+    mutationFn: mutate(specimenApi.createSpecimenFromDefinition, {
+      pathParams: {
+        facilityId,
+        serviceRequestId,
+      },
+    }),
+    onSuccess: () => {
+      toast.success("Specimen created successfully");
+      queryClient.invalidateQueries({
+        queryKey: ["serviceRequest", serviceRequestId],
+      });
+    },
+  });
+
+  const handleAddSpecimen = (specimen: SpecimenFromDefinitionCreate) => {
+    createSpecimen(specimen);
+  };
+
+  const handleRemoveSpecimen = (specimenId: string) => {
+    // TODO: Implement specimen removal
+    console.log("Remove specimen", specimenId);
+  };
+
+  if (isLoadingRequest || isLoadingActivityDefinition) {
     return (
-      <Page title={t("service_request_details")}>
-        <div className="container mx-auto max-w-4xl py-8">
-          <TableSkeleton count={3} />
-        </div>
-      </Page>
+      <div className="space-y-4">
+        <Skeleton className="h-8 w-1/3" />
+        <Skeleton className="h-32 w-full" />
+      </div>
     );
   }
 
-  if (!request) {
-    return <ErrorPage />;
+  if (!request || !activityDefinition) {
+    return null;
   }
 
+  const specimenRequirements = activityDefinition.specimen_requirements;
+
+  const patient = request.encounter.patient;
   return (
-    <Page title={request.title}>
-      <div className="container mx-auto max-w-4xl py-8">
-        <div className="mb-6 flex items-center justify-between">
-          <div className="flex gap-2">
-            {locationId && serviceId ? (
-              <Button
-                variant="outline"
-                onClick={() =>
-                  navigate(
-                    `/facility/${facilityId}/services/${serviceId}/requests/locations/${locationId}`,
-                  )
-                }
-              >
-                <CareIcon icon="l-arrow-left" className="mr-2 size-4" />
-                {t("back")}
+    <div className="flex min-h-screen bg-gray-50">
+      <div className="flex-1 p-2 max-w-6xl mx-auto">
+        <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+          {/* Left Column - Patient Info and Tests */}
+          <div className="md:col-span-2 space-y-6">
+            {/* Back Button */}
+            <div>
+              <Button variant="outline">
+                <ArrowLeft className="h-5 w-5" />
+                Back
               </Button>
-            ) : (
-              <Button
-                variant="outline"
-                onClick={() =>
-                  navigate(
-                    `/facility/${facilityId}/patient/${request.encounter.patient.id}/encounter/${request.encounter.id}/service_requests`,
-                  )
-                }
+            </div>
+
+            {/* Patient Information */}
+            <div className="p-4 grid grid-cols-3 gap-4">
+              <div>
+                <p className="text-xs text-gray-500 mb-1">Patient</p>
+                <Link
+                  href={`/facility/${facilityId}/patient/${patient.id}`}
+                  className="text-gray-950 font-medium flex items-start underline gap-0.5"
+                  id="patient-details"
+                  data-cy="patient-details-Button"
+                >
+                  {patient.name}
+                  <CareIcon
+                    icon="l-external-link-alt"
+                    className="size-3.5 opacity-50 mt-1"
+                  />
+                </Link>
+              </div>
+              <div>
+                <p className="text-xs text-gray-700 mb-1">Age/Sex</p>
+                <p className="font-medium text-gray-950">
+                  {patient.age && `${patient.age}/`}
+                  {t(patient.gender)}
+                </p>
+              </div>
+            </div>
+            <div className="bg-gray-100 border-gray-200 border rounded-md p-2">
+              {/* Reference Number */}
+              <div className="p-4 flex items-center justify-between">
+                <div className="flex items-center">
+                  <span className="text-sm font-medium text-gray-700">
+                    {request.title}
+                  </span>
+                </div>
+                <Badge
+                  className={cn(
+                    "bg-[#ffedd5] text-[#7c2d12] hover:bg-[#ffedd5] font-normal text-xs rounded-md",
+                    SPECIMEN_STATUS_STYLES[request.status],
+                  )}
+                >
+                  {t(request.status)}
+                </Badge>
+              </div>
+              {/* Service Type */}
+              <div className="bg-white rounded-md shadow-sm p-6">
+                <div className=" grid grid-cols-2 gap-1">
+                  <div className="mb-4">
+                    <p className="text-xs text-gray-700 mb-1">Service Type</p>
+                    <p className="font-medium text-gray-950">
+                      {activityDefinition.title}
+                    </p>
+                  </div>
+                  <div className="">
+                    <p className="text-xs text-gray-700 mb-1">Requested by</p>
+                    <p className="font-medium text-gray-950">
+                      {request.created_by && formatName(request.created_by)}
+                    </p>
+                  </div>
+                  <div>
+                    <p className="text-xs text-gray-700 mb-1">Priority</p>
+                    <Badge
+                      className="font-medium text-gray-950"
+                      variant="secondary"
+                    >
+                      {t(request.priority)}
+                    </Badge>
+                  </div>
+                </div>
+              </div>
+            </div>
+
+            <div className="space-y-3 mt-4">
+              <Collapsible
+                open={isSpecimenExpanded}
+                onOpenChange={setIsSpecimenExpanded}
+                className="border border-gray-400 shadow-sm rounded-md overflow-hidden"
               >
-                <CareIcon icon="l-arrow-left" className="mr-2 size-4" />
-                {t("back_to_encounter")}
-              </Button>
-            )}
+                <CollapsibleTrigger
+                  asChild
+                  className="bg-white cursor-pointer h-10 border-gray-400"
+                >
+                  <div className="flex items-center justify-between px-1 bg-white">
+                    <div className="flex items-center">
+                      <FileText className="size-4 text-gray-700 mr-3" />
+                      <span className="text-gray-950 text-sm font-semibold">
+                        Collect Specimen
+                      </span>
+                    </div>
+                    <div className="flex items-center border border-gray-400 bg-gray-100 rounded-sm p-1">
+                      {isSpecimenExpanded ? (
+                        <FoldVertical className="size-4" />
+                      ) : (
+                        <UnfoldVertical className="size-4" />
+                      )}
+                    </div>
+                  </div>
+                </CollapsibleTrigger>
+
+                <CollapsibleContent className="bg-gray-50 p-2 border-t border-gray-200">
+                  <p className="font-medium text-gray-950 mb-2 text-sm">
+                    Specimen Definitions
+                  </p>
+
+                  {/* Specimen Definition Cards */}
+                  <div className="space-y-2">
+                    {specimenRequirements.map((requirement) => {
+                      const matchingSpecimens = request.specimens.filter(
+                        (specimen) =>
+                          specimen.specimen_type?.code ===
+                          requirement.type_collected?.code,
+                      );
+
+                      return (
+                        <SpecimenDefinition
+                          key={requirement.id}
+                          specimenDefinition={requirement}
+                          onAddSpecimen={handleAddSpecimen}
+                          onRemoveSpecimen={handleRemoveSpecimen}
+                          specimens={matchingSpecimens}
+                        />
+                      );
+                    })}
+                  </div>
+                </CollapsibleContent>
+              </Collapsible>
+            </div>
           </div>
         </div>
-
-        <div className="space-y-6">
-          {/* Basic Information */}
-          <Card>
-            <CardHeader>
-              <div className="flex items-center justify-between">
-                <div>
-                  <CardTitle>{request.title}</CardTitle>
-                  <CardDescription>{t("request_details")}</CardDescription>
-                </div>
-                <div className="flex items-center gap-2">
-                  <span
-                    className={`rounded-full px-3 py-1 text-sm font-medium ${
-                      PRIORITY_COLORS[request.priority]
-                    }`}
-                  >
-                    {t(request.priority)}
-                  </span>
-                  <span
-                    className={`rounded-full px-3 py-1 text-sm font-medium ${
-                      STATUS_COLORS[request.status]
-                    }`}
-                  >
-                    {t(request.status)}
-                  </span>
-                </div>
-              </div>
-            </CardHeader>
-            <CardContent className="space-y-6">
-              <div>
-                <h3 className="mb-2 text-sm font-medium text-gray-500">
-                  {t("request_id")}
-                </h3>
-                <p className="font-mono text-gray-900">{request.id}</p>
-              </div>
-
-              {request.code && (
-                <div>
-                  <h3 className="mb-2 text-sm font-medium text-gray-500">
-                    {t("service_type")}
-                  </h3>
-                  <p className="text-gray-900">{request.code.display}</p>
-                </div>
-              )}
-
-              {request.body_site && (
-                <div>
-                  <h3 className="mb-2 text-sm font-medium text-gray-500">
-                    {t("specimen")}
-                  </h3>
-                  <p className="text-gray-900">{request.body_site.display}</p>
-                </div>
-              )}
-
-              {request.note && (
-                <div>
-                  <h3 className="mb-2 text-sm font-medium text-gray-500">
-                    {t("notes")}
-                  </h3>
-                  <p className="text-gray-900">{request.note}</p>
-                </div>
-              )}
-
-              {request.occurance && (
-                <div>
-                  <h3 className="mb-2 text-sm font-medium text-gray-500">
-                    {t("occurrence")}
-                  </h3>
-                  <p className="text-gray-900">{request.occurance}</p>
-                </div>
-              )}
-
-              {request.patient_instruction && (
-                <div>
-                  <h3 className="mb-2 text-sm font-medium text-gray-500">
-                    {t("patient_instructions")}
-                  </h3>
-                  <p className="text-gray-900">{request.patient_instruction}</p>
-                </div>
-              )}
-            </CardContent>
-          </Card>
-
-          {/* Locations */}
-          <Card>
-            <CardHeader>
-              <CardTitle>{t("locations")}</CardTitle>
-              <CardDescription>{t("service_locations")}</CardDescription>
-            </CardHeader>
-            <CardContent>
-              {request.locations?.length === 0 ? (
-                <p className="text-gray-500">{t("no_locations_assigned")}</p>
-              ) : (
-                <div className="space-y-4">
-                  {request.locations?.map((location) => (
-                    <div
-                      key={location.id}
-                      className="flex items-center justify-between rounded-lg border p-4"
-                    >
-                      <div>
-                        <h4 className="font-medium text-gray-900">
-                          {location.name}
-                        </h4>
-                      </div>
-                      <Button
-                        variant="ghost"
-                        size="sm"
-                        onClick={() =>
-                          navigate(
-                            `/facility/${facilityId}/location/${location.id}`,
-                          )
-                        }
-                      >
-                        <CareIcon icon="l-arrow-right" className="size-4" />
-                      </Button>
-                    </div>
-                  ))}
-                </div>
-              )}
-            </CardContent>
-          </Card>
-
-          {/* Metadata */}
-          <Card>
-            <CardHeader>
-              <CardTitle>{t("metadata")}</CardTitle>
-              <CardDescription>{t("system_information")}</CardDescription>
-            </CardHeader>
-            <CardContent>
-              <div className="grid gap-4 text-sm">
-                <div>
-                  <p className="font-medium text-gray-500">{t("intent")}</p>
-                  <p>{t(request.intent)}</p>
-                </div>
-                {request.version !== undefined && (
-                  <div>
-                    <p className="font-medium text-gray-500">{t("version")}</p>
-                    <p>{request.version}</p>
-                  </div>
-                )}
-                <div>
-                  <p className="font-medium text-gray-500">
-                    {t("do_not_perform")}
-                  </p>
-                  <p>{request.do_not_perform ? t("yes") : t("no")}</p>
-                </div>
-              </div>
-            </CardContent>
-          </Card>
-        </div>
       </div>
-    </Page>
+    </div>
   );
 }

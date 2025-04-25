@@ -1,7 +1,12 @@
-import { Category } from "@/types/emr/activityDefinition/activityDefinition";
+import {
+  ActivityDefinitionReadSpec,
+  Category,
+} from "@/types/emr/activityDefinition/activityDefinition";
 import { Encounter } from "@/types/emr/encounter";
+import { SpecimenRead } from "@/types/emr/specimen/specimen";
 import { LocationList } from "@/types/location/location";
 import { Code } from "@/types/questionnaire/code";
+import { UserBase } from "@/types/user/user";
 
 export enum Status {
   draft = "draft",
@@ -13,6 +18,24 @@ export enum Status {
   revoked = "revoked",
   unknown = "unknown",
 }
+
+export const SPECIMEN_STATUS_STYLES = {
+  draft: "bg-gray-100 text-gray-800 border-gray-200",
+  active: "bg-green-100 text-green-800 border-green-200",
+  on_hold: "bg-yellow-100 text-yellow-800 border-yellow-200",
+  entered_in_error: "bg-red-100 text-red-800 border-red-200",
+  ended: "bg-gray-100 text-gray-800 border-gray-200",
+  completed: "bg-blue-100 text-blue-800 border-blue-200",
+  revoked: "bg-purple-100 text-purple-800 border-purple-200",
+  unknown: "bg-gray-100 text-gray-800 border-gray-200",
+} as const;
+
+export const SPECIMEN_PRIORITY_STYLES = {
+  routine: "bg-gray-100 text-gray-800 border-gray-200",
+  urgent: "bg-yellow-100 text-yellow-800 border-yellow-200",
+  asap: "bg-red-100 text-red-800 border-red-200",
+  stat: "bg-blue-100 text-blue-800 border-blue-200",
+} as const;
 
 export enum Intent {
   order = "order",
@@ -66,4 +89,10 @@ export interface ServiceRequestReadSpec extends BaseServiceRequestSpec {
   version?: number;
   locations: LocationList[];
   encounter: Encounter;
+  activity_definition: ActivityDefinitionReadSpec;
+  specimens: SpecimenRead[];
+  created_by: UserBase;
+  updated_by: UserBase;
+  created_at: string;
+  updated_at: string;
 }
