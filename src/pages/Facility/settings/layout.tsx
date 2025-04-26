@@ -10,6 +10,10 @@ import UpdateDevice from "@/pages/Facility/settings/devices/UpdateDevice";
 import ActivityDefinitionForm from "./activityDefinition/ActivityDefinitionForm";
 import ActivityDefinitionList from "./activityDefinition/ActivityDefinitionList";
 import ActivityDefinitionView from "./activityDefinition/ActivityDefinitionView";
+import { ChargeItemDefinitionDetail } from "./chargeItemDefinitions/ChargeItemDefinitionDetail";
+import { ChargeItemDefinitionsList } from "./chargeItemDefinitions/ChargeItemDefinitionsList";
+import { CreateChargeItemDefinition } from "./chargeItemDefinitions/CreateChargeItemDefinition";
+import { UpdateChargeItemDefinition } from "./chargeItemDefinitions/UpdateChargeItemDefinition";
 import { GeneralSettings } from "./general/general";
 import HealthcareServiceForm from "./healthcareService/HealthcareServiceForm";
 import HealthcareServiceList from "./healthcareService/HealthcareServiceList";
@@ -112,6 +116,24 @@ const getRoutes = (facilityId: string) => ({
   ),
   "/healthcare_services/:id/edit": ({ id }: { id: string }) => (
     <HealthcareServiceForm facilityId={facilityId} healthcareServiceId={id} />
+  ),
+  "/charge_item_definitions": () => (
+    <ChargeItemDefinitionsList facilityId={facilityId} />
+  ),
+  "/charge_item_definitions/new": () => (
+    <CreateChargeItemDefinition facilityId={facilityId} />
+  ),
+  "/charge_item_definitions/:id": ({ id }: { id: string }) => (
+    <ChargeItemDefinitionDetail
+      facilityId={facilityId}
+      chargeItemDefinitionId={id}
+    />
+  ),
+  "/charge_item_definitions/:id/edit": ({ id }: { id: string }) => (
+    <UpdateChargeItemDefinition
+      facilityId={facilityId}
+      chargeItemDefinitionId={id}
+    />
   ),
 
   "*": () => <ErrorPage />,

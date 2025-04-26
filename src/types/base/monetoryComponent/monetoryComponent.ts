@@ -10,7 +10,7 @@ export enum MonetoryComponentType {
 
 export interface MonetoryComponent {
   monetory_component_type: MonetoryComponentType;
-  code: Code | null;
+  code?: Code | null;
   factor?: number | null;
   amount?: number | null;
 }

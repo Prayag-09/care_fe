@@ -18,10 +18,10 @@ export interface ChargeItemDefinitionBase {
 }
 
 export interface ChargeItemDefinitionRead extends ChargeItemDefinitionBase {
-  version: number | null;
+  version?: number | null;
 }
 
 export interface ChargeItemDefinitionCreate
   extends Omit<ChargeItemDefinitionBase, "id"> {
-  patient: string;
+  version?: number | null;
 }

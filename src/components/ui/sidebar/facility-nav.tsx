@@ -114,6 +114,10 @@ function generateFacilityLinks(
           url: `${baseUrl}/settings/activity_definitions`,
         },
         {
+          name: t("charge_item_definitions"),
+          url: `${baseUrl}/settings/charge_item_definitions`,
+        },
+        {
           name: t("healthcare_services"),
           url: `${baseUrl}/settings/healthcare_services`,
         },
