@@ -33,6 +33,7 @@ import {
   type HealthcareServiceUpdateSpec,
 } from "@/types/healthcareService/healthcareService";
 import healthcareServiceApi from "@/types/healthcareService/healthcareServiceApi";
+import locationApi from "@/types/location/locationApi";
 
 const formSchema = z.object({
   name: z.string().min(1, "Name is required"),
@@ -115,6 +116,14 @@ function HealthcareServiceFormContent({
   const { t } = useTranslation();
   const queryClient = useQueryClient();
   const isEditMode = Boolean(healthcareServiceId);
+
+  const { data: locations } = useQuery({
+    queryKey: ["locations", facilityId],
+    queryFn: query(locationApi.list, {
+      pathParams: { facility_id: facilityId },
+      queryParams: { limit: 100 },
+    }),
+  });
 
   const form = useForm<FormValues>({
     resolver: zodResolver(formSchema),
@@ -285,9 +294,26 @@ function HealthcareServiceFormContent({
                         <RequirementsSelector
                           title={t("location_requirements")}
                           description={t("location_requirements_description")}
-                          value={field.value}
-                          onChange={field.onChange}
-                          options={[]}
+                          value={field.value.map((locationId) => {
+                            const location = locations?.results.find(
+                              (loc) => loc.id === locationId,
+                            );
+                            return {
+                              value: locationId,
+                              label: location?.name || locationId,
+                              details: [],
+                            };
+                          })}
+                          onChange={(values) => {
+                            field.onChange(values.map((item) => item.value));
+                          }}
+                          options={
+                            locations?.results.map((location) => ({
+                              label: location.name,
+                              value: location.id,
+                              details: [],
+                            })) || []
+                          }
                           isLoading={false}
                           placeholder={t("select_locations")}
                           customSelector={

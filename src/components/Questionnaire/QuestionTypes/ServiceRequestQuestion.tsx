@@ -1,6 +1,6 @@
 import { useQuery } from "@tanstack/react-query";
 import { Check, ChevronDown, ChevronsUpDown, Trash2 } from "lucide-react";
-import { useEffect, useState } from "react";
+import { useEffect, useMemo, useState } from "react";
 import { useTranslation } from "react-i18next";
 
 import { cn } from "@/lib/utils";
@@ -357,66 +357,40 @@ function ServiceRequestForm({
             <RequirementsSelector
               title={t("location_requirements")}
               description={t("location_requirements_description")}
-              value={(serviceRequest.service_request.locations || []).map(
-                (locationId) => {
+              value={
+                serviceRequest.service_request.locations?.map((locationId) => {
                   const location = locations?.results.find(
                     (loc) => loc.id === locationId,
                   );
                   return {
                     value: locationId,
                     label: location?.name || locationId,
-                    details: location
-                      ? [
-                          {
-                            label: t("type"),
-                            value: t(`location_form__${location.form}`),
-                          },
-                          { label: t("status"), value: t(location.status) },
-                          {
-                            label: t("description"),
-                            value: location.description || undefined,
-                          },
-                        ]
-                      : [],
+                    details: [],
                   };
-                },
-              )}
-              onChange={(values) =>
-                onUpdate?.({
-                  locations: values
-                    .map((v) => v.value)
-                    .map((id) => ({
-                      id,
-                      has_children: false,
-                      status: "active",
-                      operational_status: "O",
-                      name:
-                        locations?.results.find((loc) => loc.id === id)?.name ||
-                        id,
-                      description: "",
-                      form:
-                        locations?.results.find((loc) => loc.id === id)?.form ||
-                        "si",
-                      mode: "instance",
-                      availability_status: "available",
-                    })) as LocationList[],
-                })
+                }) || []
               }
+              onChange={(values) => {
+                onUpdate?.({
+                  locations: values.map((item) => ({
+                    id: item.value,
+                    has_children: false,
+                    status: "active",
+                    operational_status: "O",
+                    name:
+                      locations?.results.find((loc) => loc.id === item.value)
+                        ?.name || item.value,
+                    description: "",
+                    form: "si",
+                    mode: "instance",
+                    availability_status: "available",
+                  })) as LocationList[],
+                });
+              }}
               options={
-                locations?.results.map((location: LocationList) => ({
+                locations?.results.map((location) => ({
                   label: location.name,
                   value: location.id,
-                  details: [
-                    {
-                      label: t("type"),
-                      value: t(`location_form__${location.form}`),
-                    },
-                    { label: t("status"), value: t(location.status) },
-                    {
-                      label: t("description"),
-                      value: location.description || undefined,
-                    },
-                  ],
+                  details: [],
                 })) || []
               }
               isLoading={isLoadingLocations}
@@ -426,7 +400,7 @@ function ServiceRequestForm({
                 <LocationMultiSelect
                   facilityId={facilityId}
                   value={serviceRequest.service_request.locations || []}
-                  onChange={(values) =>
+                  onChange={(values) => {
                     onUpdate?.({
                       locations: values.map((id) => ({
                         id,
@@ -437,14 +411,12 @@ function ServiceRequestForm({
                           locations?.results.find((loc) => loc.id === id)
                             ?.name || id,
                         description: "",
-                        form:
-                          locations?.results.find((loc) => loc.id === id)
-                            ?.form || "si",
+                        form: "si",
                         mode: "instance",
                         availability_status: "available",
                       })) as LocationList[],
-                    })
-                  }
+                    });
+                  }}
                 />
               }
             />
@@ -688,66 +660,43 @@ function ServiceRequestForm({
                 <RequirementsSelector
                   title={t("location_requirements")}
                   description={t("location_requirements_description")}
-                  value={(serviceRequest.service_request.locations || []).map(
-                    (locationId) => {
-                      const location = locations?.results.find(
-                        (loc) => loc.id === locationId,
-                      );
-                      return {
-                        value: locationId,
-                        label: location?.name || locationId,
-                        details: location
-                          ? [
-                              {
-                                label: t("type"),
-                                value: t(`location_form__${location.form}`),
-                              },
-                              { label: t("status"), value: t(location.status) },
-                              {
-                                label: t("description"),
-                                value: location.description || undefined,
-                              },
-                            ]
-                          : [],
-                      };
-                    },
-                  )}
-                  onChange={(values) =>
-                    onUpdate?.({
-                      locations: values
-                        .map((v) => v.value)
-                        .map((id) => ({
-                          id,
-                          has_children: false,
-                          status: "active",
-                          operational_status: "O",
-                          name:
-                            locations?.results.find((loc) => loc.id === id)
-                              ?.name || id,
-                          description: "",
-                          form:
-                            locations?.results.find((loc) => loc.id === id)
-                              ?.form || "si",
-                          mode: "instance",
-                          availability_status: "available",
-                        })) as LocationList[],
-                    })
+                  value={
+                    serviceRequest.service_request.locations?.map(
+                      (locationId) => {
+                        const location = locations?.results.find(
+                          (loc) => loc.id === locationId,
+                        );
+                        return {
+                          value: locationId,
+                          label: location?.name || locationId,
+                          details: [],
+                        };
+                      },
+                    ) || []
                   }
+                  onChange={(values) => {
+                    onUpdate?.({
+                      locations: values.map((item) => ({
+                        id: item.value,
+                        has_children: false,
+                        status: "active",
+                        operational_status: "O",
+                        name:
+                          locations?.results.find(
+                            (loc) => loc.id === item.value,
+                          )?.name || item.value,
+                        description: "",
+                        form: "si",
+                        mode: "instance",
+                        availability_status: "available",
+                      })) as LocationList[],
+                    });
+                  }}
                   options={
-                    locations?.results.map((location: LocationList) => ({
+                    locations?.results.map((location) => ({
                       label: location.name,
                       value: location.id,
-                      details: [
-                        {
-                          label: t("type"),
-                          value: t(`location_form__${location.form}`),
-                        },
-                        { label: t("status"), value: t(location.status) },
-                        {
-                          label: t("description"),
-                          value: location.description || undefined,
-                        },
-                      ],
+                      details: [],
                     })) || []
                   }
                   isLoading={isLoadingLocations}
@@ -757,7 +706,7 @@ function ServiceRequestForm({
                     <LocationMultiSelect
                       facilityId={facilityId}
                       value={serviceRequest.service_request.locations || []}
-                      onChange={(values) =>
+                      onChange={(values) => {
                         onUpdate?.({
                           locations: values.map((id) => ({
                             id,
@@ -768,14 +717,12 @@ function ServiceRequestForm({
                               locations?.results.find((loc) => loc.id === id)
                                 ?.name || id,
                             description: "",
-                            form:
-                              locations?.results.find((loc) => loc.id === id)
-                                ?.form || "si",
+                            form: "si",
                             mode: "instance",
                             availability_status: "available",
                           })) as LocationList[],
-                        })
-                      }
+                        });
+                      }}
                     />
                   }
                 />
@@ -809,6 +756,14 @@ export function ServiceRequestQuestion({
     (questionnaireResponse.values?.[0]
       ?.value as unknown as ServiceRequestApplyActivityDefinitionSpec[]) || [],
   );
+
+  const { data: locations } = useQuery({
+    queryKey: ["locations", facilityId],
+    queryFn: query(locationApi.list, {
+      pathParams: { facility_id: facilityId },
+      queryParams: { limit: 100 },
+    }),
+  });
 
   const { data: activityDefinitions } = useQuery({
     queryKey: ["activity_definitions"],
@@ -904,27 +859,108 @@ export function ServiceRequestQuestion({
     updates: Partial<ServiceRequestReadSpec>,
   ) => {
     const newServiceRequests = serviceRequests.map(
-      (sr: ServiceRequestApplyActivityDefinitionSpec, i: number) =>
-        i === index
-          ? {
-              ...sr,
-              service_request: {
-                ...sr.service_request,
-                ...updates,
-                locations:
-                  (updates.locations as unknown as string[]) ||
-                  sr.service_request.locations ||
-                  [],
-              },
-            }
-          : sr,
-    ) as ServiceRequestApplyActivityDefinitionSpec[];
+      (sr: ServiceRequestApplyActivityDefinitionSpec, i: number) => {
+        if (i !== index) return sr;
+
+        // Handle locations update specifically to ensure correct typing
+        const updatedLocations = updates.locations
+          ? ((Array.isArray(updates.locations)
+              ? updates.locations.map((loc) => {
+                  if (typeof loc === "string") {
+                    return {
+                      id: loc,
+                      has_children: false,
+                      status: "active",
+                      operational_status: "O",
+                      name:
+                        locations?.results.find(
+                          (l: LocationList) => l.id === loc,
+                        )?.name || loc,
+                      description: "",
+                      form:
+                        locations?.results.find(
+                          (l: LocationList) => l.id === loc,
+                        )?.form || "si",
+                      mode: "instance",
+                      availability_status: "available",
+                    } as LocationList;
+                  }
+                  return loc;
+                })
+              : updates.locations) as LocationList[])
+          : sr.service_request.locations || [];
+
+        // Create updated service request with proper type handling
+        const updatedServiceRequest = {
+          ...sr,
+          service_request: {
+            ...sr.service_request,
+            ...updates,
+            locations: updatedLocations.map((loc) =>
+              typeof loc === "string" ? loc : loc.id,
+            ),
+          },
+        };
+
+        return updatedServiceRequest;
+      },
+    );
+
     setServiceRequests(newServiceRequests);
+
     updateQuestionnaireResponseCB(
       [{ type: "service_request", value: newServiceRequests }],
       questionnaireResponse.question_id,
     );
   };
+
+  const handlePreviewServiceRequestUpdate = (
+    updates: Partial<ServiceRequestReadSpec>,
+  ) => {
+    if (!previewServiceRequest) return;
+
+    // Handle locations update specifically
+    const updatedLocations = updates.locations
+      ? Array.isArray(updates.locations)
+        ? updates.locations.map((loc) =>
+            typeof loc === "string" ? loc : loc.id,
+          )
+        : updates.locations
+      : previewServiceRequest.service_request.locations;
+
+    setPreviewServiceRequest({
+      ...previewServiceRequest,
+      service_request: {
+        ...previewServiceRequest.service_request,
+        ...updates,
+        locations: updatedLocations,
+      },
+    });
+  };
+
+  // Memoize activity definitions to prevent unnecessary re-renders
+  const activityDefinitionOptions = useMemo(
+    () =>
+      activityDefinitions?.results.map((ad) => ({
+        id: ad.id,
+        title: ad.title,
+      })) || [],
+    [activityDefinitions?.results],
+  );
+
+  // Effect to sync service requests with questionnaire response
+  useEffect(() => {
+    const initialServiceRequests =
+      (questionnaireResponse.values?.[0]
+        ?.value as unknown as ServiceRequestApplyActivityDefinitionSpec[]) ||
+      [];
+
+    if (
+      JSON.stringify(initialServiceRequests) !== JSON.stringify(serviceRequests)
+    ) {
+      setServiceRequests(initialServiceRequests);
+    }
+  }, [questionnaireResponse.values]);
 
   const handleActivityDefinitionSelect = (activityDefinitionId: string) => {
     setSelectedActivityDefinition(activityDefinitionId);
@@ -935,7 +971,7 @@ export function ServiceRequestQuestion({
       {serviceRequests.map((serviceRequest, index) => (
         <ServiceRequestForm
           facilityId={facilityId}
-          key={serviceRequest.service_request.code.code}
+          key={`${serviceRequest.service_request.code.code}-${index}`}
           serviceRequest={serviceRequest}
           onUpdate={(updates) => handleUpdateServiceRequest(index, updates)}
           onRemove={() => handleRemoveServiceRequest(index)}
@@ -971,20 +1007,7 @@ export function ServiceRequestQuestion({
         <ServiceRequestForm
           facilityId={facilityId}
           serviceRequest={previewServiceRequest}
-          onUpdate={(updates) => {
-            setPreviewServiceRequest({
-              ...previewServiceRequest,
-              service_request: {
-                ...previewServiceRequest.service_request,
-                ...updates,
-                locations: Array.isArray(updates.locations)
-                  ? updates.locations.map((loc) =>
-                      typeof loc === "string" ? loc : (loc as LocationList).id,
-                    )
-                  : previewServiceRequest.service_request.locations,
-              },
-            });
-          }}
+          onUpdate={handlePreviewServiceRequestUpdate}
           onRemove={() => {
             setPreviewServiceRequest(null);
             setSelectedActivityDefinition(null);
@@ -1006,7 +1029,7 @@ export function ServiceRequestQuestion({
               disabled={disabled}
             >
               {selectedActivityDefinition
-                ? activityDefinitions?.results.find(
+                ? activityDefinitionOptions.find(
                     (ad) => ad.id === selectedActivityDefinition,
                   )?.title
                 : t("select_activity_definition")}
@@ -1021,13 +1044,13 @@ export function ServiceRequestQuestion({
               />
               <CommandEmpty>{t("no_activity_definitions_found")}</CommandEmpty>
               <CommandGroup>
-                {activityDefinitions?.results.map((ad) => (
+                {activityDefinitionOptions.map((ad) => (
                   <CommandItem
                     key={ad.id}
                     value={ad.id}
                     onSelect={() => {
-                      setSelectedActivityDefinition(ad.id);
                       handleActivityDefinitionSelect(ad.id);
+                      setSelectedActivityDefinition(ad.id);
                     }}
                   >
                     <Check
