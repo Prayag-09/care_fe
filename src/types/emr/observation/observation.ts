@@ -26,17 +26,10 @@ export interface ObservationReferenceRange {
   text?: string;
 }
 
-export interface Coding {
-  system?: string;
-  version?: string;
-  code: string;
-  display?: string;
-}
-
 export type QuestionnaireSubmitResultValue = {
   value?: string | null;
-  unit?: Coding;
-  coding?: Coding;
+  unit?: Code;
+  coding?: Code;
 };
 
 // Based on backend Component
