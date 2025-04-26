@@ -357,9 +357,50 @@ function ServiceRequestForm({
             <RequirementsSelector
               title={t("location_requirements")}
               description={t("location_requirements_description")}
-              value={serviceRequest.service_request.locations || []}
+              value={(serviceRequest.service_request.locations || []).map(
+                (locationId) => {
+                  const location = locations?.results.find(
+                    (loc) => loc.id === locationId,
+                  );
+                  return {
+                    value: locationId,
+                    label: location?.name || locationId,
+                    details: location
+                      ? [
+                          {
+                            label: t("type"),
+                            value: t(`location_form__${location.form}`),
+                          },
+                          { label: t("status"), value: t(location.status) },
+                          {
+                            label: t("description"),
+                            value: location.description || undefined,
+                          },
+                        ]
+                      : [],
+                  };
+                },
+              )}
               onChange={(values) =>
-                onUpdate?.({ locations: values as unknown as LocationList[] })
+                onUpdate?.({
+                  locations: values
+                    .map((v) => v.value)
+                    .map((id) => ({
+                      id,
+                      has_children: false,
+                      status: "active",
+                      operational_status: "O",
+                      name:
+                        locations?.results.find((loc) => loc.id === id)?.name ||
+                        id,
+                      description: "",
+                      form:
+                        locations?.results.find((loc) => loc.id === id)?.form ||
+                        "si",
+                      mode: "instance",
+                      availability_status: "available",
+                    })) as LocationList[],
+                })
               }
               options={
                 locations?.results.map((location: LocationList) => ({
@@ -387,7 +428,21 @@ function ServiceRequestForm({
                   value={serviceRequest.service_request.locations || []}
                   onChange={(values) =>
                     onUpdate?.({
-                      locations: values as unknown as LocationList[],
+                      locations: values.map((id) => ({
+                        id,
+                        has_children: false,
+                        status: "active",
+                        operational_status: "O",
+                        name:
+                          locations?.results.find((loc) => loc.id === id)
+                            ?.name || id,
+                        description: "",
+                        form:
+                          locations?.results.find((loc) => loc.id === id)
+                            ?.form || "si",
+                        mode: "instance",
+                        availability_status: "available",
+                      })) as LocationList[],
                     })
                   }
                 />
@@ -633,10 +688,49 @@ function ServiceRequestForm({
                 <RequirementsSelector
                   title={t("location_requirements")}
                   description={t("location_requirements_description")}
-                  value={serviceRequest.service_request.locations || []}
+                  value={(serviceRequest.service_request.locations || []).map(
+                    (locationId) => {
+                      const location = locations?.results.find(
+                        (loc) => loc.id === locationId,
+                      );
+                      return {
+                        value: locationId,
+                        label: location?.name || locationId,
+                        details: location
+                          ? [
+                              {
+                                label: t("type"),
+                                value: t(`location_form__${location.form}`),
+                              },
+                              { label: t("status"), value: t(location.status) },
+                              {
+                                label: t("description"),
+                                value: location.description || undefined,
+                              },
+                            ]
+                          : [],
+                      };
+                    },
+                  )}
                   onChange={(values) =>
                     onUpdate?.({
-                      locations: values as unknown as LocationList[],
+                      locations: values
+                        .map((v) => v.value)
+                        .map((id) => ({
+                          id,
+                          has_children: false,
+                          status: "active",
+                          operational_status: "O",
+                          name:
+                            locations?.results.find((loc) => loc.id === id)
+                              ?.name || id,
+                          description: "",
+                          form:
+                            locations?.results.find((loc) => loc.id === id)
+                              ?.form || "si",
+                          mode: "instance",
+                          availability_status: "available",
+                        })) as LocationList[],
                     })
                   }
                   options={
@@ -665,7 +759,21 @@ function ServiceRequestForm({
                       value={serviceRequest.service_request.locations || []}
                       onChange={(values) =>
                         onUpdate?.({
-                          locations: values as unknown as LocationList[],
+                          locations: values.map((id) => ({
+                            id,
+                            has_children: false,
+                            status: "active",
+                            operational_status: "O",
+                            name:
+                              locations?.results.find((loc) => loc.id === id)
+                                ?.name || id,
+                            description: "",
+                            form:
+                              locations?.results.find((loc) => loc.id === id)
+                                ?.form || "si",
+                            mode: "instance",
+                            availability_status: "available",
+                          })) as LocationList[],
                         })
                       }
                     />
