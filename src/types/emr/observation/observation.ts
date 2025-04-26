@@ -1,67 +1,97 @@
-// Correct the path if needed
-// AI Warning: This file is not complete
 import { ObservationDefinitionReadSpec } from "@/types/emr/observationDefinition/observationDefinition";
-import { ServiceRequestReadSpec } from "@/types/emr/serviceRequest/serviceRequest";
-import { SpecimenRead } from "@/types/emr/specimen/specimen";
 import { Code } from "@/types/questionnaire/code";
+import { QuestionType } from "@/types/questionnaire/question";
+import { SubjectType } from "@/types/questionnaire/questionnaire";
 import { UserBase } from "@/types/user/user";
 
-export interface ObservationValueQuantity {
-  value: number;
-  unit: string; // Or Code?
-  system?: string;
-  code?: string;
+export enum ObservationStatus {
+  FINAL = "final",
+  AMENDED = "amended",
+}
+
+export enum PerformerType {
+  RELATED_PERSON = "related_person",
+  USER = "user",
+}
+
+export interface Performer {
+  type: PerformerType;
+  id: string;
 }
 
 export interface ObservationReferenceRange {
-  low?: ObservationValueQuantity;
-  high?: ObservationValueQuantity;
-  type?: Code;
-  applies_to?: Code[];
+  low?: number;
+  high?: number;
+  unit?: string;
   text?: string;
 }
 
-export interface ObservationBase {
-  id: string;
-  status: string; // e.g., 'final', 'amended', 'preliminary'
-  category?: Code[];
-  code: Code; // Link to the type of observation
-  subject?: { id: string; resource_type: string }; // Link to Patient
-  encounter?: { id: string }; // Link to Encounter
-  effective_date_time?: string;
-  issued?: string;
-  performer?: UserBase[]; // Or reference to Practitioner/Organization
-  value_quantity?: ObservationValueQuantity;
-  value_string?: string;
-  value_codeable_concept?: Code;
-  interpretation?: Code[];
-  note?: string; // Annotations/Notes
-  body_site?: Code;
-  method?: Code;
-  specimen?: { id: string }; // Link to Specimen
+export interface Coding {
+  system?: string;
+  version?: string;
+  code: string;
+  display?: string;
+}
+
+export type QuestionnaireSubmitResultValue = {
+  value?: string | null;
+  unit?: Coding;
+  coding?: Coding;
+};
+
+// Based on backend Component
+export interface ObservationComponent {
+  value: QuestionnaireSubmitResultValue;
+  interpretation?: string | null;
   reference_range?: ObservationReferenceRange[];
-  derived_from?: { id: string; resource_type: string }[]; // Link to parent Observations or ServiceRequest
-  observation_definition?: ObservationDefinitionReadSpec; // Optional: Embed definition?
-  service_request?: ServiceRequestReadSpec; // Optional: Embed request?
+  code?: Code | null;
+  note?: string;
+}
+
+export interface CodeableConcept {
+  id?: string;
+  coding?: Code[];
+  text?: string | null;
+}
+
+// Based on backend BaseObservationSpec
+export interface ObservationBase {
+  id: string; // UUID4 | null
+  status: ObservationStatus;
+  category?: Code | null;
+  main_code?: Code | null;
+  alternate_coding?: CodeableConcept | null;
+  subject_type: SubjectType;
+  encounter: string | null; // UUID4 | null
+  effective_datetime: string; // datetime
+  performer?: Performer | null;
+  value_type: QuestionType;
+  value: QuestionnaireSubmitResultValue;
+  note?: string | null;
+  body_site?: Code | null; // ValueSetBoundCoding<...>
+  method?: Code | null; // ValueSetBoundCoding<...>
+  reference_range?: ObservationReferenceRange[];
+  interpretation?: string | null;
+  parent?: string | null; // UUID4 | null
+  questionnaire_response?: string | null; // UUID4 | null
+  component?: ObservationComponent[];
 }
 
 export interface ObservationRead extends ObservationBase {
   created_by: UserBase;
   updated_by: UserBase;
-  created_at: string;
-  updated_at: string;
-  specimen_object?: SpecimenRead;
+  data_entered_by?: UserBase | null;
+  observation_definition?: ObservationDefinitionReadSpec | null;
 }
 
-export interface ObservationCreate
-  extends Omit<
-    ObservationBase,
-    "id" | "issued" | "observation_definition" | "service_request" | "performer"
-  > {
-  status: string;
-  code: Code;
-  subject: { id: string; resource_type: string };
-  service_request_id?: string;
-  specimen_id?: string;
-  observation_definition_id?: string;
+export type ObservationCreate = Omit<ObservationBase, "id">;
+
+export interface ObservationUpdate {
+  observation_id: string;
+  observation: Partial<ObservationCreate>;
+}
+
+export interface ObservationFromDefinitionCreate {
+  observation_definition: string;
+  observation: Partial<ObservationCreate>;
 }

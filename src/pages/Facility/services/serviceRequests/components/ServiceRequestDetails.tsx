@@ -9,17 +9,20 @@ import { ServiceRequestReadSpec } from "@/types/emr/serviceRequest/serviceReques
 import { SpecimenDefinitionRead } from "@/types/emr/specimenDefinition/specimenDefinition";
 
 interface ServiceRequestDetailsProps {
+  facilityId: string;
   request: ServiceRequestReadSpec;
   activityDefinition: ActivityDefinitionReadSpec;
 }
 
 export function ServiceRequestDetails({
+  facilityId,
   request,
   activityDefinition,
 }: ServiceRequestDetailsProps) {
   const specimenRequirements = activityDefinition?.specimen_requirements ?? [];
   const observationRequirements =
     activityDefinition?.observation_result_requirements ?? [];
+  console.log(facilityId);
 
   return (
     <div className="bg-white rounded-lg border border-gray-200">
@@ -31,9 +34,11 @@ export function ServiceRequestDetails({
             </div>
             <div className="font-medium">Request id: {request.id}</div>
           </div>
-          {request.do_not_perform && (
-            <Badge variant="destructive">Do not perform</Badge>
-          )}
+          <div className="flex gap-2 items-center">
+            {request.do_not_perform && (
+              <Badge variant="destructive">Do not perform</Badge>
+            )}
+          </div>
         </div>
       </div>
 

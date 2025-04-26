@@ -2,6 +2,7 @@ import {
   ActivityDefinitionReadSpec,
   Category,
 } from "@/types/emr/activityDefinition/activityDefinition";
+import { DiagnosticReportRead } from "@/types/emr/diagnosticReport/diagnosticReport";
 import { Encounter } from "@/types/emr/encounter";
 import { ObservationRead } from "@/types/emr/observation/observation";
 import { SpecimenRead } from "@/types/emr/specimen/specimen";
@@ -93,6 +94,7 @@ export interface ServiceRequestReadSpec extends BaseServiceRequestSpec {
   activity_definition: ActivityDefinitionReadSpec;
   specimens: SpecimenRead[];
   observations?: ObservationRead[];
+  diagnostic_reports: DiagnosticReportRead[];
   created_by: UserBase;
   updated_by: UserBase;
   created_at: string;

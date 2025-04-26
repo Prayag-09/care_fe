@@ -26,11 +26,10 @@ import {
 import specimenApi from "@/types/emr/specimen/specimenApi";
 import { SpecimenDefinitionRead } from "@/types/emr/specimenDefinition/specimenDefinition";
 
+import { PatientHeader } from "./components/PatientHeader";
+import { ServiceRequestDetails } from "./components/ServiceRequestDetails";
 import { SpecimenForm } from "./components/SpecimenForm";
-import { PatientHeader } from "./components/service-request/PatientHeader";
-import { ServiceRequestDetails } from "./components/service-request/ServiceRequestDetails";
-import { SpecimenWorkflowCard } from "./components/service-request/SpecimenWorkflowCard";
-import { TestResultsSection } from "./components/service-request/TestResultsSection";
+import { SpecimenWorkflowCard } from "./components/SpecimenWorkflowCard";
 
 interface ServiceRequestShowProps {
   facilityId: string;
@@ -120,8 +119,6 @@ export default function ServiceRequestShow({
     );
   }
 
-  const patientId = request.encounter.patient.id;
-
   const specimenRequirements = activityDefinition.specimen_requirements ?? [];
 
   const assignedSpecimenIds = new Set<string>();
@@ -145,6 +142,7 @@ export default function ServiceRequestShow({
           />
 
           <ServiceRequestDetails
+            facilityId={facilityId}
             request={request}
             activityDefinition={activityDefinition}
           />
@@ -184,16 +182,6 @@ export default function ServiceRequestShow({
               </Card>
             )}
           </div>
-
-          <TestResultsSection
-            facilityId={facilityId}
-            serviceRequestId={serviceRequestId}
-            patientId={patientId}
-            observationRequirements={
-              activityDefinition.observation_result_requirements ?? []
-            }
-            existingObservations={request.observations ?? []}
-          />
         </div>
 
         <Sheet
