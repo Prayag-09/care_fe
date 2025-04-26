@@ -1,31 +1,23 @@
 import { useMutation, useQuery, useQueryClient } from "@tanstack/react-query";
-import { ArrowLeft /* FileText */ } from "lucide-react";
+import { navigate } from "raviger";
 import { useState } from "react";
 import { toast } from "sonner";
 
+import CareIcon from "@/CAREUI/icons/CareIcon";
+
 import { Button } from "@/components/ui/button";
-import {
-  Card,
-  CardContent /* CardHeader, CardTitle */,
-} from "@/components/ui/card";
-import {
-  Sheet,
-  SheetContent,
-  SheetHeader,
-  SheetTitle,
-} from "@/components/ui/sheet";
+import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { Skeleton } from "@/components/ui/skeleton";
 
 import mutate from "@/Utils/request/mutate";
 import query from "@/Utils/request/query";
 import activityDefinitionApi from "@/types/emr/activityDefinition/activityDefinitionApi";
 import serviceRequestApi from "@/types/emr/serviceRequest/serviceRequestApi";
-import {
-  SpecimenFromDefinitionCreate /* SpecimenRead */,
-} from "@/types/emr/specimen/specimen";
+import { SpecimenFromDefinitionCreate } from "@/types/emr/specimen/specimen";
 import specimenApi from "@/types/emr/specimen/specimenApi";
 import { SpecimenDefinitionRead } from "@/types/emr/specimenDefinition/specimenDefinition";
 
+import { DiagnosticReportForm } from "./components/DiagnosticReportForm";
 import { PatientHeader } from "./components/PatientHeader";
 import { ServiceRequestDetails } from "./components/ServiceRequestDetails";
 import { SpecimenForm } from "./components/SpecimenForm";
@@ -34,18 +26,19 @@ import { SpecimenWorkflowCard } from "./components/SpecimenWorkflowCard";
 interface ServiceRequestShowProps {
   facilityId: string;
   serviceRequestId: string;
-  _locationId?: string;
-  _serviceId?: string;
+  locationId?: string;
+  serviceId?: string;
 }
 
 export default function ServiceRequestShow({
   facilityId,
   serviceRequestId,
-  _locationId,
-  _serviceId,
+  locationId,
+  serviceId,
 }: ServiceRequestShowProps) {
   const [selectedSpecimenDefinition, setSelectedSpecimenDefinition] =
     useState<SpecimenDefinitionRead | null>(null);
+
   const queryClient = useQueryClient();
 
   const { data: request, isLoading: isLoadingRequest } = useQuery({
@@ -120,21 +113,41 @@ export default function ServiceRequestShow({
   }
 
   const specimenRequirements = activityDefinition.specimen_requirements ?? [];
+  const observationRequirements =
+    activityDefinition.observation_result_requirements ?? [];
+  const diagnosticReports = request.diagnostic_reports || [];
 
   const assignedSpecimenIds = new Set<string>();
 
   return (
-    <div className="flex min-h-screen bg-gray-50">
+    <div className="flex min-h-screen bg-gray-50 relative">
       <div className="flex-1 p-4 max-w-6xl mx-auto">
         <div className="space-y-6">
-          <Button
-            variant="outline"
-            className="mb-4"
-            onClick={() => window.history.back()}
-          >
-            <ArrowLeft className="h-5 w-5 mr-2" />
-            Back
-          </Button>
+          {locationId && serviceId ? (
+            <Button
+              variant="outline"
+              onClick={() =>
+                navigate(
+                  `/facility/${facilityId}/services/${serviceId}/requests/locations/${locationId}`,
+                )
+              }
+            >
+              <CareIcon icon="l-arrow-left" className="mr-2 size-4" />
+              Back
+            </Button>
+          ) : (
+            <Button
+              variant="outline"
+              onClick={() =>
+                navigate(
+                  `/facility/${facilityId}/patient/${request.encounter.patient.id}/encounter/${request.encounter.id}/service_requests`,
+                )
+              }
+            >
+              <CareIcon icon="l-arrow-left" className="mr-2 size-4" />
+              Back to encounter
+            </Button>
+          )}
 
           <PatientHeader
             patient={request.encounter.patient}
@@ -147,10 +160,10 @@ export default function ServiceRequestShow({
             activityDefinition={activityDefinition}
           />
 
-          <div className="space-y-6">
-            <h2 className="text-xl font-semibold">Specimens</h2>
-            {specimenRequirements.length > 0 ? (
-              specimenRequirements.map((requirement) => {
+          {specimenRequirements.length > 0 && !selectedSpecimenDefinition && (
+            <div className="space-y-6">
+              <h2 className="text-xl font-semibold">Specimens</h2>
+              {specimenRequirements.map((requirement) => {
                 const allMatchingForThisDefId = request.specimens.filter(
                   (spec) => spec.specimen_definition?.id === requirement.id,
                 );
@@ -173,36 +186,54 @@ export default function ServiceRequestShow({
                     onCollect={() => setSelectedSpecimenDefinition(requirement)}
                   />
                 );
-              })
-            ) : (
-              <Card>
-                <CardContent className="p-4 text-center text-gray-500">
-                  No specific specimen requirements defined for this request.
-                </CardContent>
-              </Card>
-            )}
-          </div>
-        </div>
+              })}
+            </div>
+          )}
 
-        <Sheet
-          open={selectedSpecimenDefinition !== null}
-          onOpenChange={(open) => !open && setSelectedSpecimenDefinition(null)}
-        >
-          <SheetContent className="w-full sm:max-w-[800px] overflow-y-auto">
-            <SheetHeader>
-              <SheetTitle>
-                Collect Specimen: {selectedSpecimenDefinition?.title}
-              </SheetTitle>
-            </SheetHeader>
-            {selectedSpecimenDefinition && (
-              <SpecimenForm
-                specimenDefinition={selectedSpecimenDefinition}
-                onSubmit={handleAddSpecimen}
-                onCancel={() => setSelectedSpecimenDefinition(null)}
+          {selectedSpecimenDefinition && (
+            <Card className="shadow-lg border-t-4 border-t-primary">
+              <CardHeader className="pb-0 flex flex-row justify-between items-center">
+                <CardTitle>
+                  Collect Specimen: {selectedSpecimenDefinition?.title}
+                </CardTitle>
+                <Button
+                  variant="ghost"
+                  size="icon"
+                  onClick={() => setSelectedSpecimenDefinition(null)}
+                >
+                  <CareIcon icon="l-arrow-left" className="size-4" />
+                </Button>
+              </CardHeader>
+              <CardContent className="py-4">
+                <SpecimenForm
+                  specimenDefinition={selectedSpecimenDefinition}
+                  onSubmit={handleAddSpecimen}
+                  onCancel={() => setSelectedSpecimenDefinition(null)}
+                />
+              </CardContent>
+            </Card>
+          )}
+
+          {specimenRequirements.length === 0 && !selectedSpecimenDefinition && (
+            <Card>
+              <CardContent className="p-4 text-center text-gray-500">
+                No specific specimen requirements defined for this request.
+              </CardContent>
+            </Card>
+          )}
+
+          {observationRequirements.length > 0 && (
+            <div className="space-y-6">
+              <h2 className="text-xl font-semibold">Test Results</h2>
+              <DiagnosticReportForm
+                facilityId={facilityId}
+                serviceRequestId={serviceRequestId}
+                observationDefinitions={observationRequirements}
+                diagnosticReports={diagnosticReports}
               />
-            )}
-          </SheetContent>
-        </Sheet>
+            </div>
+          )}
+        </div>
       </div>
     </div>
   );

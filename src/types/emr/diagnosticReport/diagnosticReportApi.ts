@@ -12,7 +12,6 @@ export default {
     path: "/api/v1/facility/{facility_external_id}/diagnostic_report/",
     method: HttpMethod.GET,
     TRes: Type<PaginatedResponse<DiagnosticReportRead>>(),
-    TQuery: Type<{ limit?: number; offset?: number }>(),
   },
 
   createDiagnosticReport: {
