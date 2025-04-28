@@ -1,8 +1,8 @@
 // TODO: This is a temporary fix to the location multi select.
 // This doesn't account for nested locations.
 import { useQuery } from "@tanstack/react-query";
-import { Check, ChevronDown, ChevronRight, Search } from "lucide-react";
-import { useState } from "react";
+import { ChevronDown, ChevronRight, Plus, Search, X } from "lucide-react";
+import { useMemo, useState } from "react";
 import { useTranslation } from "react-i18next";
 
 import { cn } from "@/lib/utils";
@@ -93,9 +93,15 @@ function LocationTreeNode({
     <div className="space-y-1">
       <div
         className={cn(
-          "flex items-center py-1 px-2 rounded-md cursor-pointer hover:bg-gray-100",
+          "group flex items-center py-1 px-2 rounded-md hover:bg-gray-100 cursor-pointer",
         )}
         style={{ paddingLeft: `${level}rem` }}
+        onClick={(e) => {
+          e.stopPropagation();
+          if (hasChildren) {
+            onToggleExpand(location.id);
+          }
+        }}
       >
         {isLoading ? (
           <Button variant="ghost" size="icon" className="size-6">
@@ -120,21 +126,23 @@ function LocationTreeNode({
         ) : (
           <span className="w-6" />
         )}
-        <div
-          className="flex items-center flex-1 text-sm gap-2 w-0"
-          onClick={() => onSelect(location.id)}
-        >
-          <div
-            className={cn(
-              "flex size-4 shrink-0 items-center justify-center rounded-sm border border-primary",
-              isSelected ? "bg-primary text-primary-foreground" : "opacity-50",
-            )}
-          >
-            {isSelected && <Check className="size-3" />}
-          </div>
-          <Icon className="size-4" />
+        <div className="flex items-center flex-1 text-sm gap-2 w-0">
+          <Icon className="size-4 shrink-0" />
           <span className="truncate">{location.name}</span>
         </div>
+        {!isSelected && (
+          <Button
+            variant="ghost"
+            size="icon"
+            className="ml-2 h-8 w-8 shrink-0 rounded-lg border shadow-sm hover:bg-background"
+            onClick={(e) => {
+              e.stopPropagation();
+              onSelect(location.id);
+            }}
+          >
+            <Plus className="size-4" />
+          </Button>
+        )}
       </div>
       {isExpanded && filteredChildren && filteredChildren.length > 0 && (
         <div className="pl-2">
@@ -163,6 +171,56 @@ interface LocationMultiSelectProps {
   onChange: (value: string[]) => void;
 }
 
+function SelectedLocationPill({
+  locationId,
+  locations,
+  onRemove,
+}: {
+  locationId: string;
+  locations?: LocationList[];
+  onRemove: (id: string) => void;
+}) {
+  const location = locations?.find((loc) => loc.id === locationId);
+
+  if (!locations) {
+    return (
+      <div className="flex items-center gap-2 rounded-full border border-gray-200 bg-white px-3 py-1.5">
+        <div className="h-4 w-24 animate-pulse rounded bg-gray-200" />
+        <Button
+          onClick={(e) => {
+            e.preventDefault();
+            e.stopPropagation();
+            onRemove(locationId);
+          }}
+          className="h-5 w-5 rounded-full p-0"
+          variant="ghost"
+        >
+          <X className="size-3" />
+        </Button>
+      </div>
+    );
+  }
+
+  return (
+    <div className="flex items-center gap-2 rounded-full border border-gray-200 bg-white px-3 py-1.5">
+      <span className="text-sm font-medium">
+        {location?.name || locationId}
+      </span>
+      <Button
+        onClick={(e) => {
+          e.preventDefault();
+          e.stopPropagation();
+          onRemove(locationId);
+        }}
+        className="h-5 w-5 rounded-full p-0"
+        variant="ghost"
+      >
+        <X className="size-3" />
+      </Button>
+    </div>
+  );
+}
+
 export default function LocationMultiSelect({
   facilityId,
   value,
@@ -174,17 +232,27 @@ export default function LocationMultiSelect({
   );
   const [searchQuery, setSearchQuery] = useState("");
 
+  // Fetch all locations data including nested ones
   const { data: allLocations, isLoading: isLoadingLocations } = useQuery({
-    queryKey: ["locations", facilityId, "mine", "kind"],
+    queryKey: ["locations", facilityId, "all", "kind"],
     queryFn: query.paginated(locationApi.list, {
       pathParams: { facility_id: facilityId },
       queryParams: {
-        mine: true,
         mode: "kind",
+        all: true,
       },
-      pageSize: 100,
+      pageSize: 1000,
     }),
   });
+
+  // Create a map of all locations for quick lookup
+  const locationsMap = useMemo(() => {
+    const map = new Map<string, LocationList>();
+    allLocations?.results?.forEach((loc) => {
+      map.set(loc.id, loc);
+    });
+    return map;
+  }, [allLocations?.results]);
 
   // Filter to get only top-level locations (no parent)
   const topLevelLocations =
@@ -213,9 +281,30 @@ export default function LocationMultiSelect({
     );
   };
 
+  const handleRemove = (locationId: string) => {
+    onChange(value.filter((id) => id !== locationId));
+  };
+
   return (
-    <div className="flex flex-col gap-2">
-      <div className="relative w-full px-3">
+    <div className="h-full flex flex-col gap-2">
+      {value.length > 0 && (
+        <>
+          <ScrollArea className="max-h-[calc(20vh-2rem)]">
+            <div className="flex flex-wrap gap-2 px-3">
+              {value.map((locationId) => (
+                <SelectedLocationPill
+                  key={locationId}
+                  locationId={locationId}
+                  locations={Array.from(locationsMap.values())}
+                  onRemove={handleRemove}
+                />
+              ))}
+            </div>
+          </ScrollArea>
+          <div className="lex flex-col border-b py-1" />
+        </>
+      )}
+      <div className="relative w-full px-3 pt-1">
         <Search className="absolute left-5 top-1/2 transform -translate-y-1/2 size-4 text-muted-foreground" />
         <input
           type="text"
@@ -225,7 +314,7 @@ export default function LocationMultiSelect({
           onChange={(e) => setSearchQuery(e.target.value)}
         />
       </div>
-      <ScrollArea className="h-[300px]">
+      <ScrollArea className="max-h-[calc(80vh-10rem)]">
         <div className="p-2">
           {isLoadingLocations ? (
             <div className="p-4">
