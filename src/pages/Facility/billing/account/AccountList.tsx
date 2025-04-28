@@ -238,7 +238,7 @@ export function AccountList({
                           size="icon"
                           onClick={() =>
                             navigate(
-                              `/facility/${facilityId}/account/${account.id}`,
+                              `/facility/${facilityId}/billing/account/${account.id}`,
                             )
                           }
                           aria-label={t("view")}
