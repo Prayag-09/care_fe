@@ -5,6 +5,7 @@ import ResourceCreate from "@/components/Resource/ResourceForm";
 
 import { AppRoutes } from "@/Routers/AppRouter";
 import AccountList from "@/pages/Facility/billing/account/AccountList";
+import AccountShow from "@/pages/Facility/billing/account/AccountShow";
 import { FacilityOverview } from "@/pages/Facility/overview";
 import FacilityServices from "@/pages/Facility/services/FacilityServices";
 import HealthcareServiceShow from "@/pages/Facility/services/HealthcareServiceShow";
@@ -64,6 +65,10 @@ const FacilityRoutes: AppRoutes = {
   "/facility/:facilityId/billing/accounts": ({ facilityId }) => (
     <AccountList facilityId={facilityId} />
   ),
+  "/facility/:facilityId/billing/account/:accountId": ({
+    facilityId,
+    accountId,
+  }) => <AccountShow facilityId={facilityId} accountId={accountId} />,
 };
 
 export default FacilityRoutes;

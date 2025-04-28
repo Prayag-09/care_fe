@@ -127,6 +127,9 @@ export function AccountSheet({
     onSuccess: () => {
       onOpenChange(false);
       queryClient.invalidateQueries({ queryKey: ["accounts"] });
+      queryClient.invalidateQueries({
+        queryKey: ["account", initialValues?.id],
+      });
     },
   });
 

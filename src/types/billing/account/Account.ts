@@ -18,6 +18,20 @@ export enum AccountBillingStatus {
   closed_combined = "closed_combined",
 }
 
+export enum AccountAggregate {
+  patient = "patient",
+  insurance = "insurance",
+  total = "total",
+}
+
+export interface AccountBalance {
+  aggregate: AccountAggregate;
+  amount: {
+    value: number;
+    currency: string;
+  };
+}
+
 export interface AccountBase {
   id: string;
   status: AccountStatus;
@@ -29,6 +43,8 @@ export interface AccountBase {
 
 export interface AccountRead extends AccountBase {
   patient: Patient;
+  balances?: AccountBalance[];
+  calculated_at?: string;
 }
 
 export interface AccountUpdate extends AccountBase {
