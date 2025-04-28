@@ -1,7 +1,7 @@
 import { FacilityModel } from "@/components/Facility/models";
 import { UserBareMinimum } from "@/components/Users/models";
 
-import { PatientModel } from "@/types/emr/patient";
+import { PatientModel } from "@/types/emr/patient/patient";
 import { UserBase } from "@/types/user/user";
 
 export interface ResourceRequest {

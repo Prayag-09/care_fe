@@ -31,6 +31,11 @@ export interface AccountRead extends AccountBase {
   patient: Patient;
 }
 
+export interface AccountUpdate extends AccountBase {
+  id: string;
+  patient: string;
+}
+
 export interface AccountCreate extends Omit<AccountBase, "id"> {
   patient: string;
 }

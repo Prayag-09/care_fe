@@ -5,7 +5,7 @@ import { toPng } from "html-to-image";
 import dayjs from "@/Utils/dayjs";
 import { Time } from "@/Utils/types";
 import { Patient } from "@/types/emr/newPatient";
-import { PatientModel } from "@/types/emr/patient";
+import { PatientModel } from "@/types/emr/patient/patient";
 
 const DATE_FORMAT = "DD/MM/YYYY";
 const TIME_FORMAT = "hh:mm A";

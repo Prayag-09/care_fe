@@ -1,5 +1,6 @@
 import { useQuery } from "@tanstack/react-query";
 import { navigate } from "raviger";
+import React from "react";
 import { useTranslation } from "react-i18next";
 
 import CareIcon from "@/CAREUI/icons/CareIcon";
@@ -31,10 +32,12 @@ import useFilters from "@/hooks/useFilters";
 
 import query from "@/Utils/request/query";
 import {
-  type AccountBase,
+  type AccountRead,
   AccountStatus,
 } from "@/types/billing/account/Account";
 import accountApi from "@/types/billing/account/accountApi";
+
+import AccountSheet from "./AccountSheet";
 
 function EmptyState() {
   const { t } = useTranslation();
@@ -72,8 +75,17 @@ function formatDate(date?: string) {
   });
 }
 
-export function AccountList({ facilityId }: { facilityId: string }) {
+export function AccountList({
+  facilityId,
+  patientId,
+}: {
+  facilityId: string;
+  patientId?: string;
+}) {
   const { t } = useTranslation();
+  const [sheetOpen, setSheetOpen] = React.useState(false);
+  const [editingAccount, setEditingAccount] =
+    React.useState<AccountRead | null>(null);
   const { qParams, updateQuery, Pagination, resultsPerPage } = useFilters({
     limit: 15,
     disableCache: true,
@@ -84,6 +96,7 @@ export function AccountList({ facilityId }: { facilityId: string }) {
     queryFn: query(accountApi.listAccount, {
       pathParams: { facilityId },
       queryParams: {
+        patient: patientId,
         limit: resultsPerPage,
         offset: ((qParams.page ?? 1) - 1) * resultsPerPage,
         search: qParams.search,
@@ -92,7 +105,7 @@ export function AccountList({ facilityId }: { facilityId: string }) {
     }),
   });
 
-  const accounts = (response?.results as AccountBase[]) || [];
+  const accounts = (response?.results as AccountRead[]) || [];
 
   return (
     <Page title={t("accounts")}>
@@ -107,7 +120,33 @@ export function AccountList({ facilityId }: { facilityId: string }) {
                 {t("view_and_manage_accounts")}
               </p>
             </div>
+            {patientId && (
+              <Button onClick={() => setSheetOpen(true)}>
+                {t("create_account")}
+              </Button>
+            )}
           </div>
+          <AccountSheet
+            open={sheetOpen}
+            onOpenChange={(open) => {
+              setSheetOpen(open);
+              if (!open) setEditingAccount(null);
+            }}
+            facilityId={facilityId}
+            patientId={patientId}
+            initialValues={
+              editingAccount
+                ? {
+                    id: editingAccount.id,
+                    name: editingAccount.name,
+                    description: editingAccount.description || undefined,
+                    status: editingAccount.status,
+                    patient: editingAccount.patient,
+                  }
+                : undefined
+            }
+            isEdit={!!editingAccount}
+          />
           <div className="mb-4 flex flex-wrap items-center gap-4">
             <Input
               placeholder={t("search_accounts")}
@@ -118,8 +157,10 @@ export function AccountList({ facilityId }: { facilityId: string }) {
               className="max-w-xs"
             />
             <Select
-              value={qParams.status}
-              onValueChange={(value) => updateQuery({ status: value })}
+              value={qParams.status ?? "all"}
+              onValueChange={(value) =>
+                updateQuery({ status: value === "all" ? undefined : value })
+              }
             >
               <SelectTrigger className="w-40">
                 <SelectValue placeholder={t("all_statuses")} />
@@ -133,7 +174,6 @@ export function AccountList({ facilityId }: { facilityId: string }) {
                 ))}
               </SelectContent>
             </Select>
-            {/* Facility filter can be added here if needed */}
           </div>
         </div>
         {isLoading ? (
@@ -146,17 +186,15 @@ export function AccountList({ facilityId }: { facilityId: string }) {
               <TableHeader>
                 <TableRow>
                   <TableHead>{t("patient")}</TableHead>
-                  <TableHead>{t("account_id")}</TableHead>
-                  <TableHead>{t("facility")}</TableHead>
                   <TableHead>{t("balance")}</TableHead>
                   <TableHead>{t("status")}</TableHead>
                   <TableHead>{t("start_date")}</TableHead>
-                  <TableHead>{t("last_updated")}</TableHead>
+                  <TableHead>{t("end_date")}</TableHead>
                   <TableHead className="text-right">{t("actions")}</TableHead>
                 </TableRow>
               </TableHeader>
               <TableBody>
-                {accounts.map((account: AccountBase) => (
+                {accounts.map((account: AccountRead) => (
                   <TableRow key={account.id}>
                     <TableCell>
                       <div className="flex items-center gap-3">
@@ -169,8 +207,6 @@ export function AccountList({ facilityId }: { facilityId: string }) {
                         </div>
                       </div>
                     </TableCell>
-                    <TableCell>{account.id}</TableCell>
-                    <TableCell>???{t("main_hospital")}</TableCell>
                     <TableCell>{formatCurrency(0)}</TableCell>
                     <TableCell>
                       <Badge variant={statusMap[account.status]?.color as any}>
@@ -184,19 +220,33 @@ export function AccountList({ facilityId }: { facilityId: string }) {
                       {formatDate(account.service_period?.end)}
                     </TableCell>
                     <TableCell className="text-right">
-                      <Button
-                        variant="ghost"
-                        size="icon"
-                        onClick={() =>
-                          navigate(
-                            `/facility/${facilityId}/account/${account.id}`,
-                          )
-                        }
-                        aria-label={t("view")}
-                      >
-                        <CareIcon icon="l-user" className="size-4" />
-                        <span className="sr-only">{t("view")}</span>
-                      </Button>
+                      <div className="flex justify-end gap-2">
+                        <Button
+                          variant="ghost"
+                          size="icon"
+                          onClick={() => {
+                            setEditingAccount(account);
+                            setSheetOpen(true);
+                          }}
+                          aria-label={t("edit")}
+                        >
+                          <CareIcon icon="l-pen" className="size-4" />
+                          <span className="sr-only">{t("edit")}</span>
+                        </Button>
+                        <Button
+                          variant="ghost"
+                          size="icon"
+                          onClick={() =>
+                            navigate(
+                              `/facility/${facilityId}/account/${account.id}`,
+                            )
+                          }
+                          aria-label={t("view")}
+                        >
+                          <CareIcon icon="l-eye" className="size-4" />
+                          <span className="sr-only">{t("view")}</span>
+                        </Button>
+                      </div>
                     </TableCell>
                   </TableRow>
                 ))}

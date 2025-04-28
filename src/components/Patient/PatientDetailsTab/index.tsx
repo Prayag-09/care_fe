@@ -6,6 +6,7 @@ import { HasPermissionFn, getPermissions } from "@/common/Permissions";
 
 import { Patient } from "@/types/emr/newPatient";
 
+import { Accounts } from "./Accounts";
 import { Appointments } from "./Appointments";
 import { PatientDrawingTab } from "./PatientDrawingsTab";
 import { PatientFilesTab } from "./PatientFiles";
@@ -65,6 +66,10 @@ export const BASE_PATIENT_TABS: Tab[] = [
   {
     route: "drawings",
     component: PatientDrawingTab,
+  },
+  {
+    route: "accounts",
+    component: Accounts,
   },
 ];
 

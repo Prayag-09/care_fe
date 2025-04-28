@@ -1,7 +1,12 @@
 import { HttpMethod, Type } from "@/Utils/request/api";
 import { PaginatedResponse } from "@/Utils/request/types";
 
-import { AccountBase, AccountCreate, AccountRead } from "./Account";
+import {
+  AccountBase,
+  AccountCreate,
+  AccountRead,
+  AccountUpdate,
+} from "./Account";
 
 export default {
   listAccount: {
@@ -24,6 +29,6 @@ export default {
     path: "/api/v1/facility/{facilityId}/account/{accountId}/",
     method: HttpMethod.PUT,
     TRes: Type<AccountRead>(),
-    TBody: Type<AccountBase>(),
+    TBody: Type<AccountUpdate>(),
   },
 } as const;

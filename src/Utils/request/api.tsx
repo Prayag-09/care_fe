@@ -19,7 +19,7 @@ import {
   Observation,
   ObservationAnalyzeResponse,
 } from "@/types/emr/observation";
-import { PatientModel } from "@/types/emr/patient";
+import { PatientModel } from "@/types/emr/patient/patient";
 import {
   BaseFacility,
   CreateFacility,

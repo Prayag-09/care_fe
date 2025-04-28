@@ -55,7 +55,7 @@ import query from "@/Utils/request/query";
 import { dateQueryString } from "@/Utils/utils";
 import validators from "@/Utils/validators";
 import GovtOrganizationSelector from "@/pages/Organization/components/GovtOrganizationSelector";
-import { PatientModel } from "@/types/emr/patient";
+import { PatientModel } from "@/types/emr/patient/patient";
 import { Organization } from "@/types/organization/organization";
 
 interface PatientRegistrationPageProps {
