@@ -81,6 +81,17 @@ function generateFacilityLinks(
     },
     { name: t("users"), url: `${baseUrl}/users`, icon: "d-people" },
     {
+      name: t("billing"),
+      url: `${baseUrl}/billing/`,
+      icon: "d-notice-board",
+      children: [
+        {
+          name: t("accounts"),
+          url: `${baseUrl}/billing/accounts`,
+        },
+      ],
+    },
+    {
       name: t("settings"),
       url: `${baseUrl}/settings/general`,
       icon: "l-setting",

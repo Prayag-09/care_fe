@@ -4,6 +4,7 @@ import FacilityUsers from "@/components/Facility/FacilityUsers";
 import ResourceCreate from "@/components/Resource/ResourceForm";
 
 import { AppRoutes } from "@/Routers/AppRouter";
+import AccountList from "@/pages/Facility/billing/account/AccountList";
 import { FacilityOverview } from "@/pages/Facility/overview";
 import FacilityServices from "@/pages/Facility/services/FacilityServices";
 import HealthcareServiceShow from "@/pages/Facility/services/HealthcareServiceShow";
@@ -59,6 +60,9 @@ const FacilityRoutes: AppRoutes = {
       facilityId={facilityId}
       serviceRequestId={serviceRequestId}
     />
+  ),
+  "/facility/:facilityId/billing/accounts": ({ facilityId }) => (
+    <AccountList facilityId={facilityId} />
   ),
 };
 

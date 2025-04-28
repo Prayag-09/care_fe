@@ -5,23 +5,23 @@ import { AccountBase, AccountCreate, AccountRead } from "./Account";
 
 export default {
   listAccount: {
-    path: "/api/v1/{facilityId}/account/",
+    path: "/api/v1/facility/{facilityId}/account/",
     method: HttpMethod.GET,
     TRes: Type<PaginatedResponse<AccountBase>>(),
   },
   retrieveAccount: {
-    path: "/api/v1/{facilityId}/account/{accountId}/",
+    path: "/api/v1/facility/{facilityId}/account/{accountId}/",
     method: HttpMethod.GET,
     TRes: Type<AccountRead>(),
   },
   createAccount: {
-    path: "/api/v1/{facilityId}/account/",
+    path: "/api/v1/facility/{facilityId}/account/",
     method: HttpMethod.POST,
     TRes: Type<AccountRead>(),
     TBody: Type<AccountCreate>(),
   },
   updateAccount: {
-    path: "/api/v1/{facilityId}/account/{accountId}/",
+    path: "/api/v1/facility/{facilityId}/account/{accountId}/",
     method: HttpMethod.PUT,
     TRes: Type<AccountRead>(),
     TBody: Type<AccountBase>(),
