@@ -30,6 +30,6 @@ export default {
     path: "/api/v1/facility/{facilityId}/charge_item/upsert/",
     method: HttpMethod.POST,
     TRes: Type<ChargeItemRead>(),
-    TBody: Type<ChargeItemCreate[]>,
+    TBody: Type<{ datapoints: ChargeItemCreate[] }>(),
   },
 } as const;

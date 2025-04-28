@@ -180,6 +180,26 @@ const time_of_death_questionnaire: QuestionnaireDetail = {
   tags: [],
 };
 
+const charge_item_questionnaire: QuestionnaireDetail = {
+  id: "charge_item",
+  slug: "charge_item",
+  version: "0.0.1",
+  title: "Charge Item",
+  status: "active",
+  subject_type: "encounter",
+  questions: [
+    {
+      id: "charge_item",
+      text: "Charge Item",
+      type: "structured",
+      structured_type: "charge_item",
+      link_id: "1.1",
+      required: true,
+    },
+  ],
+  tags: [],
+};
+
 export const STRUCTURED_QUESTIONS = [
   {
     value: "allergy_intolerance",
@@ -218,6 +238,11 @@ export const STRUCTURED_QUESTIONS = [
     value: "service_request",
     label: "Service Request",
     questionnaire: service_request_questionnaire,
+  },
+  {
+    value: "charge_item",
+    label: "Charge Item",
+    questionnaire: charge_item_questionnaire,
   },
 ] as const;
 

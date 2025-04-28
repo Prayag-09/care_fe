@@ -18,8 +18,14 @@ import {
   AccountStatus,
 } from "@/types/billing/account/Account";
 import accountApi from "@/types/billing/account/accountApi";
+import { ChargeItemRead } from "@/types/billing/chargeItem/chargeItem";
+import chargeItemApi from "@/types/billing/chargeItem/chargeItemApi";
+import { InvoiceRead } from "@/types/billing/invoice/invoice";
+import invoiceApi from "@/types/billing/invoice/invoiceApi";
 
 import AccountSheet from "./AccountSheet";
+import ChargeItemsTable from "./components/ChargeItemsTable";
+import InvoicesTable from "./components/InvoicesTable";
 
 const statusMap: Record<AccountStatus, { label: string; color: string }> = {
   active: { label: "active", color: "primary" },
@@ -60,6 +66,22 @@ export function AccountShow({
       pathParams: { facilityId, accountId },
     }),
   });
+
+  const { data: chargeItems, isLoading: isLoadingChargeItems } = useQuery({
+    queryKey: ["chargeItems", accountId],
+    queryFn: query(chargeItemApi.listChargeItem, {
+      pathParams: { facilityId },
+      queryParams: { account: accountId },
+    }),
+  }) as { data: { results: ChargeItemRead[] } | undefined; isLoading: boolean };
+
+  const { data: invoices, isLoading: isLoadingInvoices } = useQuery({
+    queryKey: ["invoices", accountId],
+    queryFn: query(invoiceApi.listInvoice, {
+      pathParams: { facilityId },
+      queryParams: { account: accountId },
+    }),
+  }) as { data: { results: InvoiceRead[] } | undefined; isLoading: boolean };
 
   if (isLoading) {
     return <TableSkeleton count={5} />;
@@ -296,6 +318,31 @@ export function AccountShow({
             </div>
           </CardContent>
         </Card>
+      </div>
+
+      {/* Charge Items Section */}
+      <div className="mt-8">
+        <ChargeItemsTable
+          isLoading={isLoadingChargeItems}
+          items={chargeItems?.results}
+          onAddClick={() => {
+            // TODO: Implement add charge item
+            console.log("Add charge item clicked");
+          }}
+        />
+      </div>
+
+      {/* Invoices Section */}
+      <div className="mt-8">
+        <InvoicesTable
+          isLoading={isLoadingInvoices}
+          items={invoices?.results}
+          facilityId={facilityId}
+          onCreateClick={() => {
+            // TODO: Implement create invoice
+            console.log("Create invoice clicked");
+          }}
+        />
       </div>
 
       <AccountSheet

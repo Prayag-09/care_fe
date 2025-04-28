@@ -18,6 +18,7 @@ import type { Question } from "@/types/questionnaire/question";
 
 import { AllergyQuestion } from "./AllergyQuestion";
 import { BooleanQuestion } from "./BooleanQuestion";
+import { ChargeItemQuestion } from "./ChargeItemQuestion";
 import { ChoiceQuestion } from "./ChoiceQuestion";
 import { DateQuestion } from "./DateQuestion";
 import { DateTimeQuestion } from "./DateTimeQuestion";
@@ -171,6 +172,17 @@ export function QuestionInput({
             return (
               <span>{t("questionnaire_service_request_no_encounter")}</span>
             );
+          case "charge_item":
+            if (encounterId && facilityId) {
+              return (
+                <ChargeItemQuestion
+                  {...commonProps}
+                  facilityId={facilityId}
+                  encounterId={encounterId}
+                />
+              );
+            }
+            return <span>{t("questionnaire_charge_item_no_encounter")}</span>;
           case "allergy_intolerance":
             return <AllergyQuestion {...commonProps} />;
           case "symptom":

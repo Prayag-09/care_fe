@@ -23,7 +23,7 @@ export interface ChargeItemBase {
   override_reason: ChargeItemOverrideReason | null;
 }
 
-export interface ChargeItemCreate extends ChargeItemBase {
+export interface ChargeItemCreate extends Omit<ChargeItemBase, "id"> {
   encounter: string;
   account: string;
 }
