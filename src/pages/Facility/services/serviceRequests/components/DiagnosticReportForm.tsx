@@ -217,6 +217,7 @@ export function DiagnosticReportForm({
     definitionId: string,
     componentCode: string,
     value: string,
+    unit: string,
   ) {
     setObservations((prev) => {
       const observation = prev[definitionId] || {
@@ -228,8 +229,9 @@ export function DiagnosticReportForm({
       const components = { ...observation.components };
 
       components[componentCode] = {
-        ...(components[componentCode] || { unit: "", isNormal: true }),
+        ...(components[componentCode] || { isNormal: true }),
         value,
+        unit,
       };
 
       return {
@@ -445,7 +447,7 @@ export function DiagnosticReportForm({
             component.code.code
           ] || {
             value: "",
-            unit: "",
+            unit: component.permitted_unit?.code,
             isNormal: true,
           };
 
@@ -463,6 +465,7 @@ export function DiagnosticReportForm({
                         definition.id,
                         component.code.code,
                         e.target.value,
+                        componentData.unit,
                       )
                     }
                     placeholder="Component value"
