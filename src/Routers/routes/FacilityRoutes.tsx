@@ -12,6 +12,8 @@ import PrintInvoice from "@/pages/Facility/billing/invoice/PrintInvoice";
 import { FacilityOverview } from "@/pages/Facility/overview";
 import FacilityServices from "@/pages/Facility/services/FacilityServices";
 import HealthcareServiceShow from "@/pages/Facility/services/HealthcareServiceShow";
+import DiagnosticReportPrint from "@/pages/Facility/services/diagnosticReports/DiagnosticReportPrint";
+import DiagnosticReportView from "@/pages/Facility/services/diagnosticReports/DiagnosticReportView";
 import ServiceRequestList from "@/pages/Facility/services/serviceRequests/ServiceRequestList";
 import ServiceRequestShow from "@/pages/Facility/services/serviceRequests/ServiceRequestShow";
 import { SettingsLayout } from "@/pages/Facility/settings/layout";
@@ -63,6 +65,24 @@ const FacilityRoutes: AppRoutes = {
     <ServiceRequestShow
       facilityId={facilityId}
       serviceRequestId={serviceRequestId}
+    />
+  ),
+  "/facility/:facilityId/diagnostic_reports/:diagnosticReportId": ({
+    facilityId,
+    diagnosticReportId,
+  }) => (
+    <DiagnosticReportView
+      facilityId={facilityId}
+      diagnosticReportId={diagnosticReportId}
+    />
+  ),
+  "/facility/:facilityId/diagnostic_reports/:diagnosticReportId/print": ({
+    facilityId,
+    diagnosticReportId,
+  }) => (
+    <DiagnosticReportPrint
+      facilityId={facilityId}
+      diagnosticReportId={diagnosticReportId}
     />
   ),
   "/facility/:facilityId/billing/accounts": ({ facilityId }) => (
