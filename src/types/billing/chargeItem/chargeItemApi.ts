@@ -32,4 +32,16 @@ export default {
     TRes: Type<ChargeItemRead>(),
     TBody: Type<{ datapoints: ChargeItemCreate[] }>(),
   },
+  addChargeItemsToInvoice: {
+    path: "/api/v1/facility/{facilityId}/invoice/{invoiceId}/charge_item/",
+    method: HttpMethod.POST,
+    TRes: Type<ChargeItemRead>(),
+    TBody: Type<{ charge_items: string[] }>(),
+  },
+  removeChargeItemFromInvoice: {
+    path: "/api/v1/facility/{facilityId}/invoice/{invoiceId}/charge_item/",
+    method: HttpMethod.POST,
+    TRes: Type<ChargeItemRead>(),
+    TBody: Type<{ charge_item: string }>(),
+  },
 } as const;

@@ -38,18 +38,21 @@ import { Textarea } from "@/components/ui/textarea";
 import { FieldError } from "@/components/Questionnaire/QuestionTypes/FieldError";
 
 import query from "@/Utils/request/query";
-import { ChargeItemStatus } from "@/types/billing/chargeItem/chargeItem";
+import {
+  ChargeItemBase,
+  ChargeItemStatus,
+} from "@/types/billing/chargeItem/chargeItem";
 import chargeItemDefinitionApi from "@/types/billing/chargeItemDefinition/chargeItemDefinitionApi";
 import { QuestionValidationError } from "@/types/questionnaire/batch";
 import { QuestionnaireResponse } from "@/types/questionnaire/form";
+import { ResponseValue } from "@/types/questionnaire/form";
 
 interface ChargeItemQuestionProps {
   encounterId: string;
-  accountId: string;
   facilityId: string;
   questionnaireResponse: QuestionnaireResponse;
   updateQuestionnaireResponseCB: (
-    values: any[],
+    values: ResponseValue[],
     questionId: string,
     note?: string,
   ) => void;
@@ -88,8 +91,8 @@ export function validateChargeItemQuestion(
 }
 
 interface ChargeItemFormProps {
-  chargeItem: any;
-  onUpdate?: (updates: any) => void;
+  chargeItem: ChargeItemBase;
+  onUpdate?: (updates: ChargeItemBase) => void;
   onRemove?: () => void;
   onAdd?: () => void;
   disabled?: boolean;
@@ -120,7 +123,7 @@ function ChargeItemForm({
             <p className="text-sm font-semibold">{chargeItem.title}</p>
             <span className="text-sm text-gray-500">
               {chargeItem.unit_price_component?.[0]?.amount || 0}{" "}
-              {chargeItem.unit_price_component?.[0]?.currency || "INR"}
+              {chargeItem.unit_price_component?.[0]?.code?.code || "INR"}
             </span>
           </div>
           {onRemove && (
@@ -137,7 +140,7 @@ function ChargeItemForm({
             <Select
               value={chargeItem.status}
               onValueChange={(value: ChargeItemStatus) =>
-                onUpdate?.({ status: value })
+                onUpdate?.({ ...chargeItem, status: value })
               }
               disabled={disabled}
             >
@@ -171,7 +174,10 @@ function ChargeItemForm({
               min={1}
               value={chargeItem.quantity}
               onChange={(e) =>
-                onUpdate?.({ quantity: parseInt(e.target.value, 10) })
+                onUpdate?.({
+                  ...chargeItem,
+                  quantity: parseInt(e.target.value, 10),
+                })
               }
               disabled={disabled}
             />
@@ -189,7 +195,9 @@ function ChargeItemForm({
             <Label>{t("note")}</Label>
             <Textarea
               value={chargeItem.note || ""}
-              onChange={(e) => onUpdate?.({ note: e.target.value })}
+              onChange={(e) =>
+                onUpdate?.({ ...chargeItem, note: e.target.value })
+              }
               disabled={disabled}
               placeholder={t("add_notes")}
             />
@@ -214,7 +222,7 @@ function ChargeItemForm({
             <p className="text-sm font-semibold">{chargeItem.title}</p>
             <span className="text-sm text-gray-500">
               {chargeItem.unit_price_component?.[0]?.amount || 0}{" "}
-              {chargeItem.unit_price_component?.[0]?.currency || "INR"}
+              {chargeItem.unit_price_component?.[0]?.code?.code || "INR"}
             </span>
           </div>
           <div className="flex items-center gap-2">
@@ -246,7 +254,7 @@ function ChargeItemForm({
                 <Select
                   value={chargeItem.status}
                   onValueChange={(value: ChargeItemStatus) =>
-                    onUpdate?.({ status: value })
+                    onUpdate?.({ ...chargeItem, status: value })
                   }
                   disabled={disabled}
                 >
@@ -280,7 +288,10 @@ function ChargeItemForm({
                   min={1}
                   value={chargeItem.quantity}
                   onChange={(e) =>
-                    onUpdate?.({ quantity: parseInt(e.target.value, 10) })
+                    onUpdate?.({
+                      ...chargeItem,
+                      quantity: parseInt(e.target.value, 10),
+                    })
                   }
                   disabled={disabled}
                 />
@@ -298,7 +309,9 @@ function ChargeItemForm({
                 <Label>{t("note")}</Label>
                 <Textarea
                   value={chargeItem.note || ""}
-                  onChange={(e) => onUpdate?.({ note: e.target.value })}
+                  onChange={(e) =>
+                    onUpdate?.({ ...chargeItem, note: e.target.value })
+                  }
                   disabled={disabled}
                   placeholder={t("add_notes")}
                 />
@@ -317,7 +330,6 @@ export function ChargeItemQuestion({
   disabled,
   facilityId,
   encounterId,
-  accountId,
   errors,
 }: ChargeItemQuestionProps) {
   const { t } = useTranslation();
@@ -366,7 +378,6 @@ export function ChargeItemQuestion({
         note: null,
         override_reason: null,
         encounter: encounterId,
-        account: accountId,
       };
 
       setPreviewChargeItem(newChargeItem);
@@ -377,7 +388,6 @@ export function ChargeItemQuestion({
     selectedChargeItemDefinitionData,
     chargeItemDefinitions,
     encounterId,
-    accountId,
   ]);
 
   const handleAddChargeItem = () => {

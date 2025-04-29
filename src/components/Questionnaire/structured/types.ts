@@ -1,8 +1,8 @@
 import { StructuredQuestionType } from "@/components/Questionnaire/data/StructuredFormData";
 
 import {
+  ChargeItemBase,
   ChargeItemCreate,
-  ChargeItemRead,
 } from "@/types/billing/chargeItem/chargeItem";
 import { AllergyIntoleranceRequest } from "@/types/emr/allergyIntolerance/allergyIntolerance";
 import { DiagnosisRequest } from "@/types/emr/diagnosis/diagnosis";
@@ -29,7 +29,7 @@ export interface StructuredDataMap {
   files: FileUploadQuestion;
   time_of_death: string;
   service_request: ServiceRequestApplyActivityDefinitionSpec;
-  charge_item: ChargeItemRead;
+  charge_item: ChargeItemBase;
 }
 
 // Map structured types to their request types
