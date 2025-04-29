@@ -755,7 +755,6 @@ function ActivityDefinitionFormContent({
                         description={t(
                           "select_or_create_observation_requirements",
                         )}
-                        allowDuplicate={true}
                         value={form.watch("observation_result_requirements")}
                         onChange={(values) =>
                           form.setValue(
