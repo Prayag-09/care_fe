@@ -48,6 +48,7 @@ export interface InvoicesTableProps {
   items?: InvoiceRead[];
   onCreateClick: () => void;
   facilityId: string;
+  accountId: string;
 }
 
 export function InvoicesTable({
@@ -55,6 +56,7 @@ export function InvoicesTable({
   items,
   onCreateClick,
   facilityId,
+  accountId,
 }: InvoicesTableProps) {
   const { t } = useTranslation();
 
@@ -67,10 +69,20 @@ export function InvoicesTable({
             {t("billing_statements")}
           </p>
         </div>
-        <Button variant="outline" onClick={onCreateClick}>
-          <CareIcon icon="l-plus" className="mr-2 size-4" />
-          {t("create_invoice")}
-        </Button>
+        <div className="flex gap-2">
+          <Button variant="ghost" asChild>
+            <Link
+              href={`/facility/${facilityId}/billing/payments?accountId=${accountId}`}
+            >
+              <CareIcon icon="l-wallet" className="mr-2 size-4" />
+              {t("view_payments")}
+            </Link>
+          </Button>
+          <Button variant="outline" onClick={onCreateClick}>
+            <CareIcon icon="l-plus" className="mr-2 size-4" />
+            {t("create_invoice")}
+          </Button>
+        </div>
       </CardHeader>
       <CardContent>
         {isLoading ? (

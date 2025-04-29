@@ -234,6 +234,7 @@ export function AccountShow({
         <InvoicesTable
           isLoading={isLoadingInvoices}
           items={invoices?.results}
+          accountId={accountId}
           facilityId={facilityId}
           onCreateClick={() => {
             navigate(

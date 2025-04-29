@@ -10,6 +10,9 @@ import CreateInvoicePage from "@/pages/Facility/billing/account/CreateInvoice";
 import InvoiceList from "@/pages/Facility/billing/invoice/InvoiceList";
 import InvoiceShow from "@/pages/Facility/billing/invoice/InvoiceShow";
 import PrintInvoice from "@/pages/Facility/billing/invoice/PrintInvoice";
+import PaymentReconciliationList from "@/pages/Facility/billing/paymentReconciliation/PaymentReconciliationList";
+import PaymentReconciliationShow from "@/pages/Facility/billing/paymentReconciliation/PaymentReconciliationShow";
+import PrintPaymentReconciliation from "@/pages/Facility/billing/paymentReconciliation/PrintPaymentReconciliation";
 import { FacilityOverview } from "@/pages/Facility/overview";
 import FacilityServices from "@/pages/Facility/services/FacilityServices";
 import HealthcareServiceShow from "@/pages/Facility/services/HealthcareServiceShow";
@@ -108,6 +111,27 @@ const FacilityRoutes: AppRoutes = {
     facilityId,
     invoiceId,
   }) => <PrintInvoice facilityId={facilityId} invoiceId={invoiceId} />,
+  "/facility/:facilityId/billing/payments": ({ facilityId }) => (
+    <PaymentReconciliationList facilityId={facilityId} />
+  ),
+  "/facility/:facilityId/billing/payments/:paymentReconciliationId": ({
+    facilityId,
+    paymentReconciliationId,
+  }) => (
+    <PaymentReconciliationShow
+      facilityId={facilityId}
+      paymentReconciliationId={paymentReconciliationId}
+    />
+  ),
+  "/facility/:facilityId/billing/payments/:paymentReconciliationId/print": ({
+    facilityId,
+    paymentReconciliationId,
+  }) => (
+    <PrintPaymentReconciliation
+      facilityId={facilityId}
+      paymentReconciliationId={paymentReconciliationId}
+    />
+  ),
 };
 
 export default FacilityRoutes;
