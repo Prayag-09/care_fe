@@ -222,10 +222,6 @@ export function AccountShow({
           isLoading={isLoadingChargeItems}
           items={chargeItems?.results}
           facilityId={facilityId}
-          onAddClick={() => {
-            // TODO: Implement add charge item
-            console.log("Add charge item clicked");
-          }}
         />
       </div>
 

@@ -1,9 +1,6 @@
 import { useTranslation } from "react-i18next";
 
-import CareIcon from "@/CAREUI/icons/CareIcon";
-
 import { Badge } from "@/components/ui/badge";
-import { Button } from "@/components/ui/button";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import {
   Table,
@@ -31,14 +28,12 @@ function formatCurrency(amount: number, currency: string = "INR") {
 export interface ChargeItemsTableProps {
   isLoading: boolean;
   items?: ChargeItemRead[];
-  onAddClick: () => void;
   facilityId: string;
 }
 
 export function ChargeItemsTable({
   isLoading,
   items,
-  onAddClick,
   facilityId,
 }: ChargeItemsTableProps) {
   const { t } = useTranslation();
@@ -52,10 +47,6 @@ export function ChargeItemsTable({
             {t("billable_items_for_account")}
           </p>
         </div>
-        <Button variant="outline" onClick={onAddClick}>
-          <CareIcon icon="l-plus" className="mr-2 size-4" />
-          {t("add_charge_item")}
-        </Button>
       </CardHeader>
       <CardContent>
         {isLoading ? (
@@ -99,7 +90,7 @@ export function ChargeItemsTable({
                             (item.unit_price_component.find(
                               (p) => p.monetory_component_type === "base",
                             )?.amount || 0),
-                        "USD",
+                        "INR",
                       )}
                     </TableCell>
                     <TableCell>

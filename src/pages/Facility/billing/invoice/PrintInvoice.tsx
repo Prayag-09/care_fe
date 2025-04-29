@@ -78,9 +78,9 @@ export function PrintInvoice({ facilityId, invoiceId }: PrintInvoiceProps) {
           {/* Invoice Information */}
           <div className="grid grid-cols-1 sm:grid-cols-2 gap-6 mb-6">
             <div>
-              <h3 className="font-medium text-muted-foreground mb-2">
+              <p className="font-semibold text-muted-foreground mb-2">
                 {t("bill_to")}
-              </h3>
+              </p>
               <div>
                 <p className="font-medium">{invoice.title}</p>
                 {invoice.note && (
@@ -88,30 +88,12 @@ export function PrintInvoice({ facilityId, invoiceId }: PrintInvoiceProps) {
                 )}
               </div>
             </div>
-            {invoice.payment_terms && (
-              <div>
-                <h3 className="font-medium text-muted-foreground mb-2">
-                  {t("payment_terms")}
-                </h3>
-                <div>
-                  <p>{invoice.payment_terms}</p>
-                </div>
-              </div>
-            )}
             <div>
-              <h3 className="font-medium text-muted-foreground mb-2">
+              <div className="font-semibold text-muted-foreground mb-2">
                 {t("invoice_date")}
-              </h3>
+              </div>
               <div>
                 <p>{format(new Date(), "MMM dd, yyyy")}</p>
-              </div>
-            </div>
-            <div>
-              <h3 className="font-medium text-muted-foreground mb-2">
-                {t("invoice_number")}
-              </h3>
-              <div>
-                <p>#{invoice.id}</p>
               </div>
             </div>
           </div>
@@ -180,8 +162,8 @@ export function PrintInvoice({ facilityId, invoiceId }: PrintInvoiceProps) {
           {/* Footer with Terms */}
           {invoice.payment_terms && (
             <div className="mt-10 text-sm text-gray-600 border-t pt-4">
-              <h3 className="font-medium mb-2">{t("terms_and_conditions")}</h3>
-              <p>{invoice.payment_terms}</p>
+              <h3 className="font-medium mb-2">{t("payment_terms")}</h3>
+              <p className="prose w-full text-sm">{invoice.payment_terms}</p>
             </div>
           )}
         </div>

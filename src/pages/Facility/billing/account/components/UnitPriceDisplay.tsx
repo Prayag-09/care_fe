@@ -40,7 +40,7 @@ export function UnitPriceDisplay({ components }: UnitPriceDisplayProps) {
         >
           {price.factor
             ? `${(price.factor * 100).toFixed(0)}%`
-            : formatCurrency(price.amount || 0, "USD")}{" "}
+            : formatCurrency(price.amount || 0, "INR")}{" "}
           {t(price.monetory_component_type)}
         </Badge>
       ))}

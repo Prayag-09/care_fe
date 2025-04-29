@@ -38,13 +38,13 @@ export default {
     TBody: Type<{ datapoints: ChargeItemCreate[] }>(),
   },
   addChargeItemsToInvoice: {
-    path: "/api/v1/facility/{facilityId}/invoice/{invoiceId}/charge_item/",
+    path: "/api/v1/facility/{facilityId}/invoice/{invoiceId}/attach_items_to_invoice/",
     method: HttpMethod.POST,
     TRes: Type<ChargeItemRead>(),
     TBody: Type<{ charge_items: string[] }>(),
   },
   removeChargeItemFromInvoice: {
-    path: "/api/v1/facility/{facilityId}/invoice/{invoiceId}/charge_item/",
+    path: "/api/v1/facility/{facilityId}/invoice/{invoiceId}/remove_item_from_invoice/",
     method: HttpMethod.POST,
     TRes: Type<ChargeItemRead>(),
     TBody: Type<{ charge_item: string }>(),
