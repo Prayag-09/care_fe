@@ -561,8 +561,8 @@ export function DiagnosticReportForm({
 
   return (
     <Card className="shadow-lg border">
-      <CardHeader className="pb-0 bg-gray-50">
-        <div className="flex justify-between items-center">
+      <CardHeader className="pb-2 bg-gray-50 rounded-md">
+        <div className="flex justify-between items-center rounded-md">
           <div className="flex items-center gap-2">
             <CardTitle>Test Results</CardTitle>
           </div>
@@ -713,16 +713,18 @@ export function DiagnosticReportForm({
                 );
               })}
 
-              <div className="flex justify-end space-x-4">
-                <Button
-                  variant="default"
-                  onClick={handleSubmit}
-                  disabled={isSubmitting}
-                >
-                  <Save className="h-4 w-4 mr-2" />
-                  Save Results
-                </Button>
-              </div>
+              {fullReport?.status === DiagnosticReportStatus.preliminary && (
+                <div className="flex justify-end space-x-4">
+                  <Button
+                    variant="default"
+                    onClick={handleSubmit}
+                    disabled={isSubmitting}
+                  >
+                    <Save className="h-4 w-4 mr-2" />
+                    Save Results
+                  </Button>
+                </div>
+              )}
             </div>
           ) : (
             <div className="space-y-4">

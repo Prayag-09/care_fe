@@ -18,6 +18,7 @@ import specimenApi from "@/types/emr/specimen/specimenApi";
 import { SpecimenDefinitionRead } from "@/types/emr/specimenDefinition/specimenDefinition";
 
 import { DiagnosticReportForm } from "./components/DiagnosticReportForm";
+import { DiagnosticReportReview } from "./components/DiagnosticReportReview";
 import { PatientHeader } from "./components/PatientHeader";
 import { ServiceRequestDetails } from "./components/ServiceRequestDetails";
 import { SpecimenForm } from "./components/SpecimenForm";
@@ -232,6 +233,14 @@ export default function ServiceRequestShow({
                 diagnosticReports={diagnosticReports}
               />
             </div>
+          )}
+
+          {diagnosticReports.length > 0 && (
+            <DiagnosticReportReview
+              facilityId={facilityId}
+              serviceRequestId={serviceRequestId}
+              diagnosticReports={diagnosticReports}
+            />
           )}
         </div>
       </div>
