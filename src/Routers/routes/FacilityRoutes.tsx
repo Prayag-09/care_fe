@@ -7,6 +7,7 @@ import { AppRoutes } from "@/Routers/AppRouter";
 import AccountList from "@/pages/Facility/billing/account/AccountList";
 import AccountShow from "@/pages/Facility/billing/account/AccountShow";
 import CreateInvoicePage from "@/pages/Facility/billing/account/CreateInvoice";
+import InvoiceList from "@/pages/Facility/billing/invoice/InvoiceList";
 import InvoiceShow from "@/pages/Facility/billing/invoice/InvoiceShow";
 import PrintInvoice from "@/pages/Facility/billing/invoice/PrintInvoice";
 import { FacilityOverview } from "@/pages/Facility/overview";
@@ -96,6 +97,9 @@ const FacilityRoutes: AppRoutes = {
     facilityId,
     accountId,
   }) => <CreateInvoicePage facilityId={facilityId} accountId={accountId} />,
+  "/facility/:facilityId/billing/invoices": ({ facilityId }) => (
+    <InvoiceList facilityId={facilityId} />
+  ),
   "/facility/:facilityId/billing/invoices/:invoiceId": ({
     facilityId,
     invoiceId,

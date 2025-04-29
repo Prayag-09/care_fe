@@ -89,6 +89,10 @@ function generateFacilityLinks(
           name: t("accounts"),
           url: `${baseUrl}/billing/accounts`,
         },
+        {
+          name: t("invoices"),
+          url: `${baseUrl}/billing/invoices`,
+        },
       ],
     },
     {
