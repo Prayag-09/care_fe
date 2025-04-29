@@ -17,7 +17,31 @@ import {
 
 import { TableSkeleton } from "@/components/Common/SkeletonLoading";
 
-import { InvoiceRead } from "@/types/billing/invoice/invoice";
+import { InvoiceRead, InvoiceStatus } from "@/types/billing/invoice/invoice";
+
+function formatCurrency(amount: number, currency: string = "USD") {
+  return new Intl.NumberFormat("en-US", {
+    style: "currency",
+    currency,
+  }).format(amount);
+}
+
+const statusMap: Record<
+  InvoiceStatus,
+  {
+    label: string;
+    variant: "default" | "secondary" | "primary" | "destructive" | "outline";
+  }
+> = {
+  [InvoiceStatus.draft]: { label: "draft", variant: "secondary" },
+  [InvoiceStatus.issued]: { label: "issued", variant: "default" },
+  [InvoiceStatus.balanced]: { label: "balanced", variant: "primary" },
+  [InvoiceStatus.cancelled]: { label: "cancelled", variant: "destructive" },
+  [InvoiceStatus.entered_in_error]: {
+    label: "entered_in_error",
+    variant: "destructive",
+  },
+};
 
 export interface InvoicesTableProps {
   isLoading: boolean;
@@ -58,6 +82,7 @@ export function InvoicesTable({
                 <TableHead>{t("invoice_number")}</TableHead>
                 <TableHead>{t("title")}</TableHead>
                 <TableHead>{t("status")}</TableHead>
+                <TableHead>{t("total")}</TableHead>
                 <TableHead>{t("actions")}</TableHead>
               </TableRow>
             </TableHeader>
@@ -65,7 +90,7 @@ export function InvoicesTable({
               {!items?.length ? (
                 <TableRow>
                   <TableCell
-                    colSpan={4}
+                    colSpan={5}
                     className="text-center text-muted-foreground"
                   >
                     {t("no_invoices")}
@@ -77,8 +102,11 @@ export function InvoicesTable({
                     <TableCell className="font-medium">{invoice.id}</TableCell>
                     <TableCell>{invoice.title}</TableCell>
                     <TableCell>
-                      <Badge variant="secondary">{t(invoice.status)}</Badge>
+                      <Badge variant={statusMap[invoice.status].variant}>
+                        {t(statusMap[invoice.status].label)}
+                      </Badge>
                     </TableCell>
+                    <TableCell>{formatCurrency(invoice.total_gross)}</TableCell>
                     <TableCell>
                       <div className="flex gap-2">
                         <Button variant="ghost" size="icon" asChild>

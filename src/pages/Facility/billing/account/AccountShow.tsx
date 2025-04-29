@@ -1,5 +1,5 @@
 import { useQuery } from "@tanstack/react-query";
-import { Link } from "raviger";
+import { Link, navigate } from "raviger";
 import React from "react";
 import { useTranslation } from "react-i18next";
 
@@ -104,172 +104,68 @@ export function AccountShow({
   }
 
   return (
-    <div className="container mx-auto px-4 py-6">
-      {/* Header */}
-      <div className="mb-8 flex items-center justify-between">
-        <div className="flex items-center gap-3">
-          <Button variant="ghost" size="icon" asChild>
-            <Link href={`/facility/${facilityId}/billing/accounts`}>
-              <CareIcon icon="l-angle-left" className="size-4" />
-            </Link>
-          </Button>
-          <h1 className="flex items-center gap-2 text-xl font-semibold">
-            Account {account.id}
-            <Badge variant={statusMap[account.status]?.color as any}>
-              {t(statusMap[account.status]?.label)}
-            </Badge>
-          </h1>
-        </div>
-        <Button variant="outline" onClick={() => setSheetOpen(true)}>
-          <CareIcon icon="l-pen" className="mr-2 size-4" />
-          {t("edit_account")}
-        </Button>
-      </div>
-
-      <div className="grid gap-6 lg:grid-cols-3">
-        <div className="lg:col-span-2">
-          <Card>
-            <CardHeader>
-              <CardTitle>{t("account_information")}</CardTitle>
+    <div className="space-y-8">
+      {/* Account Details Section */}
+      <div className="grid gap-4 md:grid-cols-2 lg:grid-cols-3">
+        <Card className="md:col-span-2">
+          <CardHeader className="flex flex-row items-center justify-between">
+            <div>
+              <CardTitle>{account.name}</CardTitle>
               <p className="text-sm text-muted-foreground">
-                {t("patient_and_billing_details")}
+                {account.description || t("no_description")}
               </p>
-            </CardHeader>
-            <CardContent className="space-y-8">
-              {/* Patient Basic Info */}
-              <div className="flex items-start gap-4">
-                <Avatar
-                  name={account.patient.name}
-                  className="size-12 shrink-0"
-                />
-                <div>
-                  <h3 className="text-lg font-medium">
-                    {account.patient.name}
-                  </h3>
-                  <p className="text-sm text-muted-foreground">
-                    {t("patient_id")}: {account.patient.id}
-                  </p>
-                </div>
-              </div>
-
-              {/* Description and Personal Details */}
-              <div className="grid gap-6 md:grid-cols-2">
-                <div>
-                  <h4 className="mb-2 font-medium">{t("description")}</h4>
-                  <div className="space-y-2 text-sm">
-                    <p>{account.patient.address || "-"}</p>
-                    <p>
-                      {t("phone")}: {account.patient.phone_number || "-"}
-                    </p>
-                  </div>
-                </div>
-                <div>
-                  <h4 className="mb-2 font-medium">{t("personal_details")}</h4>
-                  <div className="space-y-2 text-sm">
-                    <p>
-                      {t("date_of_birth")}:{" "}
-                      {formatDate(account.patient.date_of_birth)}
-                    </p>
-                    <p>
-                      {t("gender")}: {t(account.patient.gender)}
-                    </p>
+            </div>
+            <Button variant="outline" onClick={() => setSheetOpen(true)}>
+              <CareIcon icon="l-pen" className="mr-2 size-4" />
+              {t("edit")}
+            </Button>
+          </CardHeader>
+          <CardContent>
+            <div className="grid gap-4 md:grid-cols-2">
+              <div>
+                <h3 className="font-semibold">{t("patient_details")}</h3>
+                <div className="mt-2 flex items-center gap-4">
+                  <Avatar name={account.patient.name} className="size-12" />
+                  <div>
+                    <div className="font-medium">{account.patient.name}</div>
+                    <div className="text-sm text-muted-foreground">
+                      {account.patient.phone_number}
+                    </div>
                   </div>
                 </div>
               </div>
-            </CardContent>
-          </Card>
-        </div>
+              <div>
+                <h3 className="font-semibold">{t("account_details")}</h3>
+                <div className="mt-2 space-y-1">
+                  <div className="flex items-center justify-between text-sm">
+                    <span className="text-muted-foreground">{t("status")}</span>
+                    <Badge variant={statusMap[account.status].color as any}>
+                      {t(statusMap[account.status].label)}
+                    </Badge>
+                  </div>
+                  <div className="flex items-center justify-between text-sm">
+                    <span className="text-muted-foreground">
+                      {t("start_date")}
+                    </span>
+                    <span>{formatDate(account.service_period?.start)}</span>
+                  </div>
+                  <div className="flex items-center justify-between text-sm">
+                    <span className="text-muted-foreground">
+                      {t("end_date")}
+                    </span>
+                    <span>{formatDate(account.service_period?.end)}</span>
+                  </div>
+                </div>
+              </div>
+            </div>
+          </CardContent>
+        </Card>
 
-        {/* Account Summary */}
         <Card>
           <CardHeader>
-            <CardTitle>{t("account_summary")}</CardTitle>
-            <p className="text-sm text-muted-foreground">
-              {t("financial_overview")}
-            </p>
+            <CardTitle>{t("balance")}</CardTitle>
           </CardHeader>
-          <CardContent className="space-y-6">
-            <div>
-              <h4 className="mb-2 font-medium">{t("account_status")}</h4>
-              <div className="flex items-center gap-2">
-                <Badge variant="primary">Active</Badge>
-                <span className="text-sm text-muted-foreground">
-                  {t("since")} {formatDate(account.service_period?.start)}
-                </span>
-              </div>
-            </div>
-
-            <div>
-              <h4 className="mb-2 font-medium">{t("current_balance")}</h4>
-              {account.balances?.map((balance) => {
-                if (balance.aggregate === AccountAggregate.total) {
-                  const isPositive = balance.amount.value > 0;
-                  return (
-                    <React.Fragment key={balance.aggregate}>
-                      <div className="flex items-center gap-2">
-                        <span
-                          className={`text-2xl font-bold ${isPositive ? "text-red-500" : "text-green-500"}`}
-                        >
-                          {formatCurrency(
-                            balance.amount.value,
-                            balance.amount.currency,
-                          )}
-                        </span>
-                        {isPositive && (
-                          <Badge variant="destructive">
-                            {t("outstanding")}
-                          </Badge>
-                        )}
-                      </div>
-                      <p className="mt-1 text-sm text-muted-foreground">
-                        {t("last_updated")}: {formatDate(account.calculated_at)}
-                      </p>
-                    </React.Fragment>
-                  );
-                }
-                return null;
-              })}
-            </div>
-
-            {account.balances?.map((balance) => {
-              if (
-                balance.aggregate === AccountAggregate.total &&
-                balance.amount.value > 0
-              ) {
-                return (
-                  <div
-                    key={balance.aggregate}
-                    className="rounded-lg bg-muted/50 p-4"
-                  >
-                    <div className="mb-2 flex items-center gap-2">
-                      <CareIcon
-                        icon="l-clock"
-                        className="size-4 text-muted-foreground"
-                      />
-                      <span className="font-medium">{t("payment_due")}</span>
-                    </div>
-                    <p className="text-sm">
-                      {t("payment_due_message", {
-                        amount: formatCurrency(
-                          balance.amount.value,
-                          balance.amount.currency,
-                        ),
-                        // Add 30 days to the last calculation date as due date
-                        date: formatDate(
-                          new Date(
-                            new Date(account.calculated_at || "").getTime() +
-                              30 * 24 * 60 * 60 * 1000,
-                          ).toISOString(),
-                        ),
-                      })}
-                    </p>
-                  </div>
-                );
-              }
-              return null;
-            })}
-
-            {/* Detailed Balances */}
+          <CardContent>
             <div className="space-y-2">
               {account.balances?.map((balance) => {
                 if (balance.aggregate !== AccountAggregate.total) {
@@ -325,6 +221,7 @@ export function AccountShow({
         <ChargeItemsTable
           isLoading={isLoadingChargeItems}
           items={chargeItems?.results}
+          facilityId={facilityId}
           onAddClick={() => {
             // TODO: Implement add charge item
             console.log("Add charge item clicked");
@@ -339,8 +236,9 @@ export function AccountShow({
           items={invoices?.results}
           facilityId={facilityId}
           onCreateClick={() => {
-            // TODO: Implement create invoice
-            console.log("Create invoice clicked");
+            navigate(
+              `/facility/${facilityId}/billing/account/${accountId}/invoices/create`,
+            );
           }}
         />
       </div>

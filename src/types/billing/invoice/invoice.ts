@@ -18,7 +18,7 @@ export interface InvoiceBase {
   note?: string | null;
 }
 
-export interface InvoiceCreate extends InvoiceBase {
+export interface InvoiceCreate extends Omit<InvoiceBase, "id"> {
   account: string;
   charge_items: string[];
 }

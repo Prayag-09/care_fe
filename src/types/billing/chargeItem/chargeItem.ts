@@ -31,6 +31,10 @@ export interface ChargeItemCreate extends Omit<ChargeItemBase, "id"> {
   account?: string;
 }
 
+export interface ChargeItemUpdate extends ChargeItemBase {
+  account?: string;
+}
+
 export interface ChargeItemRead extends ChargeItemBase {
   total_price_component: MonetoryComponent[];
   total_price: number;

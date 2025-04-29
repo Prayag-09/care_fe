@@ -1,7 +1,12 @@
 import { HttpMethod, Type } from "@/Utils/request/api";
 import { PaginatedResponse } from "@/Utils/request/types";
 
-import { ChargeItemBase, ChargeItemCreate, ChargeItemRead } from "./chargeItem";
+import {
+  ChargeItemBase,
+  ChargeItemCreate,
+  ChargeItemRead,
+  ChargeItemUpdate,
+} from "./chargeItem";
 
 export default {
   listChargeItem: {
@@ -24,7 +29,7 @@ export default {
     path: "/api/v1/facility/{facilityId}/charge_item/{chargeItemId}/",
     method: HttpMethod.PUT,
     TRes: Type<ChargeItemRead>(),
-    TBody: Type<ChargeItemCreate>(),
+    TBody: Type<ChargeItemUpdate>(),
   },
   upsertChargeItem: {
     path: "/api/v1/facility/{facilityId}/charge_item/upsert/",

@@ -6,6 +6,9 @@ import ResourceCreate from "@/components/Resource/ResourceForm";
 import { AppRoutes } from "@/Routers/AppRouter";
 import AccountList from "@/pages/Facility/billing/account/AccountList";
 import AccountShow from "@/pages/Facility/billing/account/AccountShow";
+import CreateInvoicePage from "@/pages/Facility/billing/account/CreateInvoice";
+import InvoiceShow from "@/pages/Facility/billing/invoice/InvoiceShow";
+import PrintInvoice from "@/pages/Facility/billing/invoice/PrintInvoice";
 import { FacilityOverview } from "@/pages/Facility/overview";
 import FacilityServices from "@/pages/Facility/services/FacilityServices";
 import HealthcareServiceShow from "@/pages/Facility/services/HealthcareServiceShow";
@@ -69,6 +72,18 @@ const FacilityRoutes: AppRoutes = {
     facilityId,
     accountId,
   }) => <AccountShow facilityId={facilityId} accountId={accountId} />,
+  "/facility/:facilityId/billing/account/:accountId/invoices/create": ({
+    facilityId,
+    accountId,
+  }) => <CreateInvoicePage facilityId={facilityId} accountId={accountId} />,
+  "/facility/:facilityId/billing/invoices/:invoiceId": ({
+    facilityId,
+    invoiceId,
+  }) => <InvoiceShow facilityId={facilityId} invoiceId={invoiceId} />,
+  "/facility/:facilityId/billing/invoice/:invoiceId/print": ({
+    facilityId,
+    invoiceId,
+  }) => <PrintInvoice facilityId={facilityId} invoiceId={invoiceId} />,
 };
 
 export default FacilityRoutes;

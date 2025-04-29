@@ -18,6 +18,7 @@ import { TableSkeleton } from "@/components/Common/SkeletonLoading";
 
 import { ChargeItemRead } from "@/types/billing/chargeItem/chargeItem";
 
+import EditChargeItemPopover from "./EditChargeItemPopover";
 import UnitPriceDisplay from "./UnitPriceDisplay";
 
 function formatCurrency(amount: number, currency: string = "USD") {
@@ -31,12 +32,14 @@ export interface ChargeItemsTableProps {
   isLoading: boolean;
   items?: ChargeItemRead[];
   onAddClick: () => void;
+  facilityId: string;
 }
 
 export function ChargeItemsTable({
   isLoading,
   items,
   onAddClick,
+  facilityId,
 }: ChargeItemsTableProps) {
   const { t } = useTranslation();
 
@@ -66,13 +69,14 @@ export function ChargeItemsTable({
                 <TableHead>{t("unit_price")}</TableHead>
                 <TableHead>{t("total")}</TableHead>
                 <TableHead>{t("status")}</TableHead>
+                <TableHead className="w-[50px]"></TableHead>
               </TableRow>
             </TableHeader>
             <TableBody>
               {!items?.length ? (
                 <TableRow>
                   <TableCell
-                    colSpan={5}
+                    colSpan={6}
                     className="text-center text-muted-foreground"
                   >
                     {t("no_charge_items")}
@@ -100,6 +104,12 @@ export function ChargeItemsTable({
                     </TableCell>
                     <TableCell>
                       <Badge variant="secondary">{t(item.status)}</Badge>
+                    </TableCell>
+                    <TableCell>
+                      <EditChargeItemPopover
+                        facilityId={facilityId}
+                        item={item}
+                      />
                     </TableCell>
                   </TableRow>
                 ))
