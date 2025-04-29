@@ -4,6 +4,17 @@ import { CheckCircle2, ChevronDown, ChevronUp } from "lucide-react";
 import { useState } from "react";
 import { toast } from "sonner";
 
+import {
+  AlertDialog,
+  AlertDialogAction,
+  AlertDialogCancel,
+  AlertDialogContent,
+  AlertDialogDescription,
+  AlertDialogFooter,
+  AlertDialogHeader,
+  AlertDialogTitle,
+  AlertDialogTrigger,
+} from "@/components/ui/alert-dialog";
 import { Badge } from "@/components/ui/badge";
 import { Button } from "@/components/ui/button";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
@@ -220,6 +231,10 @@ export function DiagnosticReportReview({
     );
   };
 
+  if (fullReport?.observations.length === 0) {
+    return null;
+  }
+
   return (
     <Card className="shadow-lg border">
       <CardHeader className="pb-2">
@@ -270,14 +285,29 @@ export function DiagnosticReportReview({
 
           {fullReport?.status === DiagnosticReportStatus.preliminary && (
             <div className="flex justify-end">
-              <Button
-                onClick={handleApprove}
-                disabled={isUpdatingReport}
-                className="gap-2"
-              >
-                <CheckCircle2 className="h-4 w-4" />
-                Approve Results
-              </Button>
+              <AlertDialog>
+                <AlertDialogTrigger asChild>
+                  <Button disabled={isUpdatingReport} className="gap-2">
+                    <CheckCircle2 className="h-4 w-4" />
+                    Approve Results
+                  </Button>
+                </AlertDialogTrigger>
+                <AlertDialogContent>
+                  <AlertDialogHeader>
+                    <AlertDialogTitle>Confirm Approval</AlertDialogTitle>
+                    <AlertDialogDescription>
+                      Are you sure you want to approve these diagnostic results?
+                      This action cannot be undone.
+                    </AlertDialogDescription>
+                  </AlertDialogHeader>
+                  <AlertDialogFooter>
+                    <AlertDialogCancel>Cancel</AlertDialogCancel>
+                    <AlertDialogAction onClick={handleApprove}>
+                      Approve
+                    </AlertDialogAction>
+                  </AlertDialogFooter>
+                </AlertDialogContent>
+              </AlertDialog>
             </div>
           )}
         </CardContent>

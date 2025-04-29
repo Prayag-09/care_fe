@@ -559,6 +559,10 @@ export function DiagnosticReportForm({
     );
   }
 
+  if (fullReport?.status === DiagnosticReportStatus.final) {
+    return null;
+  }
+
   return (
     <Card className="shadow-lg border">
       <CardHeader className="pb-2 bg-gray-50 rounded-md">
