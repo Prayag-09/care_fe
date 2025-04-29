@@ -1,6 +1,6 @@
 import { useQuery } from "@tanstack/react-query";
 import { Link, navigate } from "raviger";
-import React from "react";
+import React, { useState } from "react";
 import { useTranslation } from "react-i18next";
 
 import CareIcon from "@/CAREUI/icons/CareIcon";
@@ -13,6 +13,7 @@ import { Avatar } from "@/components/Common/Avatar";
 import { TableSkeleton } from "@/components/Common/SkeletonLoading";
 
 import query from "@/Utils/request/query";
+import PaymentReconciliationSheet from "@/pages/Facility/billing/PaymentReconciliationSheet";
 import {
   AccountAggregate,
   AccountStatus,
@@ -58,7 +59,8 @@ export function AccountShow({
   accountId: string;
 }) {
   const { t } = useTranslation();
-  const [sheetOpen, setSheetOpen] = React.useState(false);
+  const [sheetOpen, setSheetOpen] = useState(false);
+  const [isPaymentSheetOpen, setIsPaymentSheetOpen] = useState(false);
 
   const { data: account, isLoading } = useQuery({
     queryKey: ["account", accountId],
@@ -196,11 +198,18 @@ export function AccountShow({
               })}
             </div>
 
-            <div className="space-y-6">
-              <div className="grid grid-cols-2 gap-3 text-5xl">0</div>
+            <div className="space-y-2 mt-4">
               <Button className="w-full">
                 <CareIcon icon="l-file" className="mr-2 size-4" />
                 {t("view_statement")}
+              </Button>
+              <Button
+                variant="outline"
+                className="w-full"
+                onClick={() => setIsPaymentSheetOpen(true)}
+              >
+                <CareIcon icon="l-wallet" className="mr-2 size-4" />
+                {t("record_payment")}
               </Button>
             </div>
           </CardContent>
@@ -246,6 +255,13 @@ export function AccountShow({
           patient: account.patient,
         }}
         isEdit
+      />
+
+      <PaymentReconciliationSheet
+        open={isPaymentSheetOpen}
+        onOpenChange={setIsPaymentSheetOpen}
+        facilityId={facilityId}
+        accountId={accountId}
       />
     </div>
   );

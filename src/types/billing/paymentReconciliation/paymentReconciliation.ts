@@ -54,13 +54,14 @@ export interface PaymentReconciliationBase {
   method: PaymentReconciliationPaymentMethod;
   reference_number?: string | null;
   authorization?: string | null;
-  tender_amount?: number | null;
-  returned_amount?: number | null;
+  tendered_amount?: number | null;
+  retruned_amount?: number | null;
   note?: string | null;
   amount?: number | null;
 }
 
-export interface PaymentReconciliationCreate extends PaymentReconciliationBase {
+export interface PaymentReconciliationCreate
+  extends Omit<PaymentReconciliationBase, "id"> {
   target_invoice: string;
 }
 

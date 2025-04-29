@@ -1,7 +1,7 @@
 import { useQuery } from "@tanstack/react-query";
 import { format } from "date-fns";
 import { Link } from "raviger";
-import React from "react";
+import React, { useState } from "react";
 import { useTranslation } from "react-i18next";
 
 import CareIcon from "@/CAREUI/icons/CareIcon";
@@ -14,6 +14,7 @@ import { Separator } from "@/components/ui/separator";
 import { TableSkeleton } from "@/components/Common/SkeletonLoading";
 
 import query from "@/Utils/request/query";
+import PaymentReconciliationSheet from "@/pages/Facility/billing/PaymentReconciliationSheet";
 import { InvoiceStatus } from "@/types/billing/invoice/invoice";
 import invoiceApi from "@/types/billing/invoice/invoiceApi";
 
@@ -40,6 +41,7 @@ export function InvoiceShow({
   invoiceId: string;
 }) {
   const { t } = useTranslation();
+  const [isPaymentSheetOpen, setIsPaymentSheetOpen] = useState(false);
 
   const { data: invoice, isLoading } = useQuery({
     queryKey: ["invoice", invoiceId],
@@ -97,7 +99,7 @@ export function InvoiceShow({
               {t("print")}
             </Link>
           </Button>
-          <Button>
+          <Button onClick={() => setIsPaymentSheetOpen(true)}>
             <CareIcon icon="l-wallet" className="mr-2 size-4" />
             {t("record_payment")}
           </Button>
@@ -235,6 +237,13 @@ export function InvoiceShow({
           </Card>
         </div>
       </div>
+
+      <PaymentReconciliationSheet
+        open={isPaymentSheetOpen}
+        onOpenChange={setIsPaymentSheetOpen}
+        facilityId={facilityId}
+        invoice={invoice}
+      />
     </div>
   );
 }
