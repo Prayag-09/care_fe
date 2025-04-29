@@ -1,5 +1,6 @@
 import { useMutation, useQuery, useQueryClient } from "@tanstack/react-query";
-import { PlusCircle, Save } from "lucide-react";
+import { t } from "i18next";
+import { ChevronDown, ChevronUp, PlusCircle, Save } from "lucide-react";
 import { useEffect, useState } from "react";
 import { toast } from "sonner";
 
@@ -54,6 +55,7 @@ interface ComponentValue {
 
 // Interface for observation values
 interface ObservationValue {
+  id: string;
   value: string;
   unit: string;
   isNormal: boolean;
@@ -66,12 +68,10 @@ export function DiagnosticReportForm({
   observationDefinitions,
   diagnosticReports,
 }: DiagnosticReportFormProps) {
-  const [reportStatus, setReportStatus] = useState<DiagnosticReportStatus>(
-    DiagnosticReportStatus.final,
-  );
   const [observations, setObservations] = useState<
     Record<string, ObservationValue>
   >({});
+  const [isExpanded, setIsExpanded] = useState(true);
   const queryClient = useQueryClient();
 
   // Get the latest report if any exists
@@ -112,31 +112,6 @@ export function DiagnosticReportForm({
       onError: (err: any) => {
         toast.error(
           `Failed to create diagnostic report: ${err.message || "Unknown error"}`,
-        );
-      },
-    });
-
-  // Updating existing diagnostic report
-  const { mutate: updateDiagnosticReport, isPending: isUpdatingReport } =
-    useMutation({
-      mutationFn: mutate(diagnosticReportApi.updateDiagnosticReport, {
-        pathParams: {
-          facility_external_id: facilityId,
-          external_id: latestReport?.id || "",
-        },
-      }),
-      onSuccess: () => {
-        toast.success("Diagnostic report updated successfully");
-        queryClient.invalidateQueries({
-          queryKey: ["serviceRequest", serviceRequestId],
-        });
-        queryClient.invalidateQueries({
-          queryKey: ["diagnosticReport", latestReport?.id],
-        });
-      },
-      onError: (err: any) => {
-        toast.error(
-          `Failed to update diagnostic report: ${err.message || "Unknown error"}`,
         );
       },
     });
@@ -189,6 +164,7 @@ export function DiagnosticReportForm({
           }
 
           initialObservations[obs.observation_definition.id] = {
+            id: obs.id,
             value: obs.value.value || "",
             unit: obs.value.unit?.code || "",
             isNormal: obs.interpretation === "normal",
@@ -200,9 +176,6 @@ export function DiagnosticReportForm({
       setObservations(initialObservations);
 
       // Set report status from the full report
-      if (fullReport.status) {
-        setReportStatus(fullReport.status);
-      }
     }
   }, [fullReport]);
 
@@ -428,7 +401,9 @@ export function DiagnosticReportForm({
           }
 
           return {
-            observation_definition: definitionId,
+            ...(obsData.id
+              ? { observation_id: obsData.id }
+              : { observation_definition: definitionId }),
             observation: {
               status: ObservationStatus.FINAL,
               subject_type: "patient",
@@ -444,23 +419,6 @@ export function DiagnosticReportForm({
         .filter(Boolean) as ObservationFromDefinitionCreate[];
 
     if (fullReport) {
-      // Default category if none exists
-      const defaultCategory: Code = {
-        code: "lab",
-        display: "Laboratory",
-        system: "http://terminology.hl7.org/CodeSystem/v2-0074",
-      };
-
-      // Update existing report status
-      updateDiagnosticReport({
-        id: fullReport.id,
-        status: reportStatus,
-        category: fullReport.category || defaultCategory,
-        code: fullReport.code,
-        note: fullReport.note,
-        conclusion: fullReport.conclusion,
-      });
-
       // Upsert observations
       if (formattedObservations.length > 0) {
         upsertObservations({
@@ -584,9 +542,7 @@ export function DiagnosticReportForm({
     );
   }
 
-  const isSubmitting =
-    isCreatingReport || isUpdatingReport || isUpsertingObservations;
-  const isFinalReport = fullReport?.status === DiagnosticReportStatus.final;
+  const isSubmitting = isCreatingReport || isUpsertingObservations;
 
   // Show loading state while fetching the report
   if (hasReport && isLoadingReport) {
@@ -604,53 +560,43 @@ export function DiagnosticReportForm({
   }
 
   return (
-    <Card className="shadow-lg border-t-4 border-t-primary">
-      {hasReport && fullReport ? (
-        <>
-          <CardHeader className="pb-0">
-            <div className="flex justify-between items-center">
-              <CardTitle>Test Results</CardTitle>
-              <Badge
-                className={
-                  isFinalReport
-                    ? "bg-green-100 text-green-800"
-                    : "bg-amber-100 text-amber-800"
-                }
-              >
-                {isFinalReport ? "Final" : "Preliminary"}
+    <Card className="shadow-lg border">
+      <CardHeader className="pb-0 bg-gray-50">
+        <div className="flex justify-between items-center">
+          <div className="flex items-center gap-2">
+            <CardTitle>Test Results</CardTitle>
+          </div>
+          <div className="flex items-center gap-2">
+            {hasReport && fullReport && (
+              <Badge className={"bg-amber-100 text-amber-800"}>
+                {t(fullReport.status)}
               </Badge>
-            </div>
-            {fullReport?.created_by && (
-              <div className="text-sm text-gray-500 mt-1">
-                Created by {fullReport.created_by.first_name || ""}{" "}
-                {fullReport.created_by.last_name || ""}
-              </div>
             )}
-          </CardHeader>
-          <CardContent className="py-4">
-            <div className="space-y-6">
-              <div className="flex justify-between items-center">
-                <h3 className="text-lg font-semibold">Results</h3>
-                <Select
-                  value={reportStatus}
-                  onValueChange={(value) =>
-                    setReportStatus(value as DiagnosticReportStatus)
-                  }
-                >
-                  <SelectTrigger className="w-[180px]">
-                    <SelectValue placeholder="Report Status" />
-                  </SelectTrigger>
-                  <SelectContent>
-                    <SelectItem value={DiagnosticReportStatus.preliminary}>
-                      Preliminary
-                    </SelectItem>
-                    <SelectItem value={DiagnosticReportStatus.final}>
-                      Final
-                    </SelectItem>
-                  </SelectContent>
-                </Select>
-              </div>
+            <Button
+              variant="ghost"
+              size="icon"
+              onClick={() => setIsExpanded(!isExpanded)}
+            >
+              {isExpanded ? (
+                <ChevronUp className="h-4 w-4" />
+              ) : (
+                <ChevronDown className="h-4 w-4" />
+              )}
+            </Button>
+          </div>
+        </div>
+        {hasReport && fullReport?.created_by && (
+          <div className="text-sm text-gray-500 mt-1">
+            Created by {fullReport.created_by.first_name || ""}{" "}
+            {fullReport.created_by.last_name || ""}
+          </div>
+        )}
+      </CardHeader>
 
+      {isExpanded && (
+        <CardContent className="py-4">
+          {hasReport && fullReport ? (
+            <div className="space-y-6">
               {observationDefinitions.map((definition) => {
                 const hasComponents =
                   definition.component && definition.component.length > 0;
@@ -778,26 +724,24 @@ export function DiagnosticReportForm({
                 </Button>
               </div>
             </div>
-          </CardContent>
-        </>
-      ) : (
-        <CardContent className="p-6 text-center">
-          <div className="space-y-4">
-            <div className="text-gray-500">
-              <p>No test results have been recorded yet.</p>
-              <p className="mt-2 text-sm">
-                Click "Create Report" to add test results.
-              </p>
+          ) : (
+            <div className="space-y-4">
+              <div className="text-gray-500">
+                <p>No test results have been recorded yet.</p>
+                <p className="mt-2 text-sm">
+                  Click "Create Report" to add test results.
+                </p>
+              </div>
+              <Button
+                onClick={handleCreateReport}
+                disabled={isCreatingReport}
+                className="mx-auto"
+              >
+                <PlusCircle className="h-4 w-4 mr-2" />
+                Create Report
+              </Button>
             </div>
-            <Button
-              onClick={handleCreateReport}
-              disabled={isCreatingReport}
-              className="mx-auto"
-            >
-              <PlusCircle className="h-4 w-4 mr-2" />
-              Create Report
-            </Button>
-          </div>
+          )}
         </CardContent>
       )}
     </Card>

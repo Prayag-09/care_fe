@@ -85,6 +85,7 @@ export interface ObservationUpdate {
 }
 
 export interface ObservationFromDefinitionCreate {
-  observation_definition: string;
+  observation_definition?: string;
+  observation_id?: string;
   observation: Partial<ObservationCreate>;
 }
