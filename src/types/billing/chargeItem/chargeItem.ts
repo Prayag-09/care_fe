@@ -1,4 +1,5 @@
 import { MonetoryComponent } from "@/types/base/monetoryComponent/monetoryComponent";
+import { ChargeItemDefinitionBase } from "@/types/billing/chargeItemDefinition/chargeItemDefinition";
 
 export enum ChargeItemStatus {
   planned = "planned",
@@ -11,24 +12,27 @@ export enum ChargeItemStatus {
 
 export interface ChargeItemOverrideReason {
   code: string;
-  display?: string | null;
+  display?: string;
 }
 
 export interface ChargeItemBase {
   id: string;
+  title: string;
+  description?: string;
   status: ChargeItemStatus;
   quantity: number;
   unit_price_component: MonetoryComponent[];
-  note?: string | null;
-  override_reason: ChargeItemOverrideReason | null;
+  note?: string;
+  override_reason?: ChargeItemOverrideReason;
 }
 
 export interface ChargeItemCreate extends Omit<ChargeItemBase, "id"> {
   encounter: string;
-  account: string;
+  account?: string;
 }
 
 export interface ChargeItemRead extends ChargeItemBase {
   total_price_component: MonetoryComponent[];
   total_price: number;
+  charge_item_definition: ChargeItemDefinitionBase;
 }

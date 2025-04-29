@@ -2,6 +2,7 @@ import { useQuery } from "@tanstack/react-query";
 import { navigate } from "raviger";
 import { useTranslation } from "react-i18next";
 
+import ColoredIndicator from "@/CAREUI/display/ColoredIndicator";
 import CareIcon from "@/CAREUI/icons/CareIcon";
 import duoToneIcons from "@/CAREUI/icons/DuoTonePaths.json";
 
@@ -22,12 +23,12 @@ type DuoToneIconName = keyof typeof duoToneIcons;
 function EmptyState() {
   const { t } = useTranslation();
   return (
-    <div className="flex h-[200px] items-center justify-center text-gray-500">
-      <div className="text-center">
-        <CareIcon icon="l-folder-open" className="mx-auto mb-2 size-8" />
-        <p>{t("no_services_found")}</p>
+    <Card className="flex flex-col items-center justify-center p-8 text-center border-dashed">
+      <div className="rounded-full bg-primary/10 p-3 mb-4">
+        <CareIcon icon="l-folder-open" className="size-6 text-primary" />
       </div>
-    </div>
+      <h3 className="text-lg font-semibold mb-1">{t("no_services_found")}</h3>
+    </Card>
   );
 }
 
@@ -43,38 +44,41 @@ function ServiceCard({
     `d-${name}` as DuoToneIconName;
 
   return (
-    <Card className="group transition-all duration-200 hover:border-primary/50 hover:shadow-md">
-      <CardContent className="p-6">
-        <div className="mb-4 flex items-start gap-4">
-          <div className="rounded-lg bg-primary/10 p-2 h-full">
-            <CareIcon
-              icon={
-                service.styling_metadata?.careIcon
-                  ? getIconName(service.styling_metadata.careIcon)
-                  : "d-health-worker"
-              }
-              className="text-7xl text-primary"
-            />
-          </div>
-          <div className="flex-1">
-            <h3 className="font-medium text-gray-900">{service.name}</h3>
-            <p className="mt-1 line-clamp-2 text-sm text-gray-500">
-              {service.extra_details}
-            </p>
-          </div>
-        </div>
-        <div className="mt-4  pt-4">
-          <Button
-            onClick={() =>
-              navigate(`/facility/${facilityId}/services/${service.id}`)
+    <Card className="transition-all duration-200 hover:border-primary/50 hover:shadow-sm rounded-md">
+      <CardContent className="flex items-center gap-3 py-3 px-4">
+        <div className="relative size-10 rounded-sm flex p-4 items-center justify-center">
+          <ColoredIndicator
+            id={service.id}
+            className="absolute inset-0 rounded-sm opacity-20"
+          />
+          <CareIcon
+            icon={
+              service.styling_metadata?.careIcon
+                ? getIconName(service.styling_metadata.careIcon)
+                : "d-health-worker"
             }
-            variant="outline"
-            className="group-hover:border-primary group-hover:bg-primary group-hover:text-white"
-          >
-            {t("view_service_details")}
-            <CareIcon icon="l-arrow-right" className="ml-2 size-4" />
-          </Button>
+            className="size-6 relative z-1"
+          />
         </div>
+        <div className="flex-1 min-w-0">
+          <h3 className="font-semibold truncate text-gray-900 text-base">
+            {service.name}
+          </h3>
+          <p className="mt-0.5 text-xs text-gray-500 truncate">
+            {service.extra_details}
+          </p>
+        </div>
+        <Button
+          onClick={() =>
+            navigate(`/facility/${facilityId}/services/${service.id}`)
+          }
+          variant="outline"
+          size="sm"
+          className="px-3 text-xs whitespace-nowrap"
+        >
+          {t("view_details")}
+          <CareIcon icon="l-arrow-right" className="size-3" />
+        </Button>
       </CardContent>
     </Card>
   );
@@ -106,22 +110,22 @@ export default function FacilityServicesPage({
 
   return (
     <Page title={t("services")} hideTitleOnPage>
-      <div className="container mx-auto py-8">
-        <div className="mb-8 text-center">
-          <h1 className="text-3xl font-bold text-gray-900">{t("services")}</h1>
-          <p className="mt-2 text-lg text-gray-600">
+      <div className="container mx-auto">
+        <div className="mb-6">
+          <h1 className="text-2xl font-bold text-gray-900">{t("services")}</h1>
+          <p className="mt-1 text-sm text-gray-600">
             {t("discover_healthcare_services")}
           </p>
         </div>
 
         {isLoading ? (
-          <div className="grid gap-6 md:grid-cols-2 lg:grid-cols-3">
-            <CardGridSkeleton count={6} />
+          <div className="space-y-2">
+            <CardGridSkeleton count={4} />
           </div>
         ) : healthcareServices.length === 0 ? (
           <EmptyState />
         ) : (
-          <div className="grid gap-6 md:grid-cols-2 lg:grid-cols-3">
+          <div className="space-y-2">
             {healthcareServices.map((service) => (
               <ServiceCard
                 key={service.id}
@@ -133,7 +137,7 @@ export default function FacilityServicesPage({
         )}
 
         {response && response.count > resultsPerPage && (
-          <div className="mt-8 flex justify-center">
+          <div className="mt-6 flex justify-center">
             <Pagination totalCount={response.count} />
           </div>
         )}
