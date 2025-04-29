@@ -24,6 +24,7 @@ import { EncounterPlotsTab } from "@/pages/Encounters/tabs/EncounterPlotsTab";
 import { Encounter, inactiveEncounterStatus } from "@/types/emr/encounter";
 import { Patient } from "@/types/emr/newPatient";
 
+import { EncounterDiagnosticReportsTab } from "./tabs/EncounterDiagnosticReportsTab";
 import { EncounterDrawingsTab } from "./tabs/EncounterDrawingsTab";
 import { EncounterNotesTab } from "./tabs/EncounterNotesTab";
 import { EncounterServiceRequestTab } from "./tabs/EncounterServiceRequestTab";
@@ -45,6 +46,7 @@ const defaultTabs = {
   // neurological_monitoring: EncounterNeurologicalMonitoringTab,
   // pressure_sore: EncounterPressureSoreTab,
   service_requests: EncounterServiceRequestTab,
+  diagnostic_reports: EncounterDiagnosticReportsTab,
 } as Record<string, React.FC<EncounterTabProps>>;
 
 interface Props {
