@@ -19,8 +19,8 @@ import { TableSkeleton } from "@/components/Common/SkeletonLoading";
 
 import { InvoiceRead, InvoiceStatus } from "@/types/billing/invoice/invoice";
 
-function formatCurrency(amount: number, currency: string = "USD") {
-  return new Intl.NumberFormat("en-US", {
+function formatCurrency(amount: number, currency: string = "INR") {
+  return new Intl.NumberFormat("en-IN", {
     style: "currency",
     currency,
   }).format(amount);
@@ -116,8 +116,12 @@ export function InvoicesTable({
                             <CareIcon icon="l-eye" className="size-4" />
                           </Link>
                         </Button>
-                        <Button variant="ghost" size="icon">
-                          <CareIcon icon="l-print" className="size-4" />
+                        <Button variant="ghost" size="icon" asChild>
+                          <Link
+                            href={`/facility/${facilityId}/billing/invoice/${invoice.id}/print`}
+                          >
+                            <CareIcon icon="l-print" className="size-4" />
+                          </Link>
                         </Button>
                       </div>
                     </TableCell>

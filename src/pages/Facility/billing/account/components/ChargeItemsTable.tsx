@@ -21,8 +21,8 @@ import { ChargeItemRead } from "@/types/billing/chargeItem/chargeItem";
 import EditChargeItemPopover from "./EditChargeItemPopover";
 import UnitPriceDisplay from "./UnitPriceDisplay";
 
-function formatCurrency(amount: number, currency: string = "USD") {
-  return new Intl.NumberFormat("en-US", {
+function formatCurrency(amount: number, currency: string = "INR") {
+  return new Intl.NumberFormat("en-IN", {
     style: "currency",
     currency,
   }).format(amount);

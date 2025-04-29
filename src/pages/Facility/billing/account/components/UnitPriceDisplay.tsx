@@ -15,8 +15,8 @@ const monetoryComponentColorMap: Record<MonetoryComponentType, string> = {
   informational: "secondary",
 };
 
-function formatCurrency(amount: number, currency: string = "USD") {
-  return new Intl.NumberFormat("en-US", {
+function formatCurrency(amount: number, currency: string = "INR") {
+  return new Intl.NumberFormat("en-IN", {
     style: "currency",
     currency,
   }).format(amount);

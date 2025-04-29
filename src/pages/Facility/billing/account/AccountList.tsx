@@ -60,15 +60,15 @@ const statusMap: Record<AccountStatus, { label: string; color: string }> = {
 
 function formatCurrency(amount?: number | string) {
   if (amount == null) return "$0.00";
-  return Number(amount).toLocaleString("en-US", {
+  return Number(amount).toLocaleString("en-IN", {
     style: "currency",
-    currency: "USD",
+    currency: "INR",
   });
 }
 
 function formatDate(date?: string) {
   if (!date) return "-";
-  return new Date(date).toLocaleDateString("en-US", {
+  return new Date(date).toLocaleDateString("en-IN", {
     month: "short",
     day: "numeric",
     year: "numeric",

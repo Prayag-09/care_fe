@@ -36,15 +36,15 @@ const statusMap: Record<AccountStatus, { label: string; color: string }> = {
 
 function formatDate(date?: string) {
   if (!date) return "-";
-  return new Date(date).toLocaleDateString("en-US", {
+  return new Date(date).toLocaleDateString("en-IN", {
     month: "short",
     day: "numeric",
     year: "numeric",
   });
 }
 
-function formatCurrency(amount: number, currency: string = "USD") {
-  return new Intl.NumberFormat("en-US", {
+function formatCurrency(amount: number, currency: string = "INR") {
+  return new Intl.NumberFormat("en-IN", {
     style: "currency",
     currency,
   }).format(amount);
@@ -196,21 +196,12 @@ export function AccountShow({
               })}
             </div>
 
-            <div className="space-y-3">
+            <div className="space-y-6">
+              <div className="grid grid-cols-2 gap-3 text-5xl">0</div>
               <Button className="w-full">
                 <CareIcon icon="l-file" className="mr-2 size-4" />
                 {t("view_statement")}
               </Button>
-              <div className="grid grid-cols-2 gap-3">
-                <Button variant="outline">
-                  <CareIcon icon="l-print" className="mr-2 size-4" />
-                  {t("print")}
-                </Button>
-                <Button variant="outline">
-                  <CareIcon icon="l-export" className="mr-2 size-4" />
-                  {t("export")}
-                </Button>
-              </div>
             </div>
           </CardContent>
         </Card>
