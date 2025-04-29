@@ -42,6 +42,7 @@ interface RequirementsSelectorProps {
   customSelector?: React.ReactNode;
   canCreate?: boolean;
   createForm?: React.ReactNode;
+  allowDuplicate?: boolean;
 }
 
 function SelectedItemCard({
@@ -116,12 +117,19 @@ export default function RequirementsSelector({
   customSelector,
   canCreate,
   createForm,
+  allowDuplicate = false,
 }: RequirementsSelectorProps) {
   const { t } = useTranslation();
   const [isOpen, setIsOpen] = React.useState(false);
   const [isCreateSheetOpen, setIsCreateSheetOpen] = React.useState(false);
 
   const addOption = (option: RequirementItem) => {
+    if (!allowDuplicate && !customSelector) {
+      const isDuplicate = value.some((item) => item.value === option.value);
+      if (isDuplicate) {
+        return;
+      }
+    }
     onChange([...value, option]);
   };
 
@@ -242,28 +250,37 @@ export default function RequirementsSelector({
                   </div>
                 ) : (
                   <div className="p-2">
-                    {options.map((option) => (
-                      <CommandItem
-                        key={option.value}
-                        value={option.label}
-                        onSelect={() => addOption(option)}
-                        className="mx-2 flex cursor-pointer items-center justify-between rounded-md px-2"
-                      >
-                        <span>{option.label}</span>
-                        <Button
-                          variant="outline"
-                          size="sm"
-                          className="h-8 w-8 p-0"
-                          onClick={(e) => {
-                            e.preventDefault();
-                            e.stopPropagation();
-                            addOption(option);
-                          }}
+                    {options.map((option) => {
+                      const isSelected = value.some(
+                        (item) => item.value === option.value,
+                      );
+                      const showPlusButton = allowDuplicate || !isSelected;
+
+                      return (
+                        <CommandItem
+                          key={option.value}
+                          value={option.label}
+                          onSelect={() => addOption(option)}
+                          className="mx-2 flex cursor-pointer items-center justify-between rounded-md px-2"
                         >
-                          <Plus className="size-4" />
-                        </Button>
-                      </CommandItem>
-                    ))}
+                          <span>{option.label}</span>
+                          {showPlusButton && (
+                            <Button
+                              variant="outline"
+                              size="sm"
+                              className="h-8 w-8 p-0"
+                              onClick={(e) => {
+                                e.preventDefault();
+                                e.stopPropagation();
+                                addOption(option);
+                              }}
+                            >
+                              <Plus className="size-4" />
+                            </Button>
+                          )}
+                        </CommandItem>
+                      );
+                    })}
                   </div>
                 )}
               </ScrollArea>

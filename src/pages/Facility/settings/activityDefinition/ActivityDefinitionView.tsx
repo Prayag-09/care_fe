@@ -269,6 +269,39 @@ export default function ActivityDefinitionView({
           </Card>
         )}
 
+        {definition.charge_item_definitions?.length > 0 && (
+          <Card>
+            <CardHeader>
+              <CardTitle>{t("charge_item_definitions")}</CardTitle>
+              <CardDescription>
+                {t("charge_item_definitions_description")}
+              </CardDescription>
+            </CardHeader>
+            <CardContent>
+              <div className="space-y-4">
+                {definition.charge_item_definitions.map((chargeItem) => (
+                  <div
+                    key={chargeItem.id}
+                    className="rounded-lg border bg-gray-50/50 p-4 transition-colors hover:bg-gray-50"
+                  >
+                    <div className="space-y-2">
+                      <p className="font-medium">{chargeItem.title}</p>
+                      <p className="text-sm text-gray-600">
+                        {chargeItem.description}
+                      </p>
+                      <Separator />
+                      <div className="pt-2">
+                        <p className="text-sm text-gray-500">{t("purpose")}</p>
+                        <p className="text-gray-700">{chargeItem.purpose}</p>
+                      </div>
+                    </div>
+                  </div>
+                ))}
+              </div>
+            </CardContent>
+          </Card>
+        )}
+
         {definition.locations?.length > 0 && (
           <Card>
             <CardHeader>

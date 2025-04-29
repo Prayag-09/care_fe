@@ -1,3 +1,4 @@
+import { ChargeItemDefinitionRead } from "@/types/billing/chargeItemDefinition/chargeItemDefinition";
 import { ObservationDefinitionReadSpec } from "@/types/emr/observationDefinition/observationDefinition";
 import { SpecimenDefinitionRead } from "@/types/emr/specimenDefinition/specimenDefinition";
 import { LocationList } from "@/types/location/location";
@@ -39,6 +40,7 @@ export interface ActivityDefinitionCreateSpec
   extends Omit<BaseActivityDefinitionSpec, "id"> {
   facility: string;
   specimen_requirements: string[];
+  charge_item_definitions: string[];
   observation_result_requirements: string[];
   locations: string[];
 }
@@ -47,6 +49,7 @@ export interface ActivityDefinitionUpdateSpec
   extends BaseActivityDefinitionSpec {
   facility: string;
   specimen_requirements: string[];
+  charge_item_definitions: string[];
   observation_result_requirements: string[];
   locations: string[];
 }
@@ -54,6 +57,7 @@ export interface ActivityDefinitionUpdateSpec
 export interface ActivityDefinitionReadSpec extends BaseActivityDefinitionSpec {
   version?: number;
   specimen_requirements: SpecimenDefinitionRead[];
+  charge_item_definitions: ChargeItemDefinitionRead[];
   observation_result_requirements: ObservationDefinitionReadSpec[];
   locations: LocationList[];
 }
