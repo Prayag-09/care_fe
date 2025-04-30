@@ -316,7 +316,7 @@ export default function ServiceRequestList({
       <Button
         variant="outline"
         onClick={() =>
-          navigate(`/facility/${facilityId}/services/${serviceId}}`)
+          navigate(`/facility/${facilityId}/services/${serviceId}`)
         }
         className="gap-2"
         size="sm"
