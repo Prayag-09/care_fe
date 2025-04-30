@@ -116,7 +116,8 @@ function ServiceRequestCard({
               )
             }
           >
-            {t("view_details")}
+            <CareIcon icon="l-edit" />
+            {t("see_details")}
           </Button>
         </div>
         <div className="flex flex-wrap items-center gap-4 text-sm text-gray-500">
@@ -146,17 +147,17 @@ function ServiceRequestTable({
   return (
     <div className="rounded-md border">
       <Table>
-        <TableHeader className="bg-gray-200">
-          <TableRow className="divide-x divide-gray-200">
-            <TableHead className="border-r">{t("title")}</TableHead>
-            <TableHead className="border-r">{t("status")}</TableHead>
-            <TableHead className="border-r">{t("priority")}</TableHead>
-            <TableHead className="border-r">{t("occurrence")}</TableHead>
-            <TableHead className="border-r">{t("notes")}</TableHead>
+        <TableHeader className="bg-gray-100">
+          <TableRow className="divide-gray-200">
+            <TableHead>{t("title")}</TableHead>
+            <TableHead>{t("status")}</TableHead>
+            <TableHead>{t("priority")}</TableHead>
+            <TableHead>{t("occurrence")}</TableHead>
+            <TableHead>{t("notes")}</TableHead>
             <TableHead>{t("actions")}</TableHead>
           </TableRow>
         </TableHeader>
-        <TableBody>
+        <TableBody className="bg-white">
           {requests.map((request) => (
             <TableRow key={request.id} className="divide-x divide-gray-200">
               <TableCell className="border-r font-medium">
@@ -178,17 +179,17 @@ function ServiceRequestTable({
               <TableCell className="border-r max-w-[200px] truncate">
                 {request.note || t("no_notes")}
               </TableCell>
-              <TableCell className="text-right">
+              <TableCell className="text-left">
                 <Button
                   variant="outline"
-                  size="sm"
                   onClick={() =>
                     navigate(
                       `/facility/${facilityId}/services/${serviceId}/requests/locations/${locationId}/service_requests/${request.id}`,
                     )
                   }
                 >
-                  {t("view_details")}
+                  <CareIcon icon="l-edit" />
+                  {t("see_details")}
                 </Button>
               </TableCell>
             </TableRow>
