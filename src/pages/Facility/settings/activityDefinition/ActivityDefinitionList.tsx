@@ -1,5 +1,4 @@
 import { useQuery } from "@tanstack/react-query";
-import { X } from "lucide-react";
 import { navigate } from "raviger";
 import { useTranslation } from "react-i18next";
 
@@ -9,12 +8,6 @@ import { Badge } from "@/components/ui/badge";
 import { Button } from "@/components/ui/button";
 import { Card, CardContent } from "@/components/ui/card";
 import { Input } from "@/components/ui/input";
-import {
-  Select,
-  SelectContent,
-  SelectItem,
-  SelectTrigger,
-} from "@/components/ui/select";
 import {
   Table,
   TableBody,
@@ -29,6 +22,8 @@ import {
   CardGridSkeleton,
   TableSkeleton,
 } from "@/components/Common/SkeletonLoading";
+import { EmptyState } from "@/components/definition-list/EmptyState";
+import { FilterSelect } from "@/components/definition-list/FilterSelect";
 
 import useFilters from "@/hooks/useFilters";
 
@@ -44,23 +39,6 @@ const ACTIVITY_DEFINITION_STATUS_COLORS: Record<string, string> = {
   active: "bg-green-100 text-green-700",
   retired: "bg-gray-100 text-gray-700",
 };
-
-function EmptyState() {
-  const { t } = useTranslation();
-  return (
-    <Card className="flex flex-col items-center justify-center p-8 text-center border-dashed">
-      <div className="rounded-full bg-primary/10 p-3 mb-4">
-        <CareIcon icon="l-folder-open" className="size-6 text-primary" />
-      </div>
-      <h3 className="text-lg font-semibold mb-1">
-        {t("no_activity_definitions_found")}
-      </h3>
-      <p className="text-sm text-gray-500 mb-4">
-        {t("adjust_activity_definition_filters")}
-      </p>
-    </Card>
-  );
-}
 
 function ActivityDefinitionCard({
   definition,
@@ -91,8 +69,6 @@ function ActivityDefinitionCard({
               {t(definition.category)}
             </p>
             <p className="mt-1 text-xs text-gray-400">{t(definition.kind)}</p>
-          </div>
-          <div className="flex flex-col gap-2">
             <Button
               variant="outline"
               size="sm"
@@ -102,83 +78,13 @@ function ActivityDefinitionCard({
                 )
               }
             >
-              <CareIcon icon="l-eye" className="size-4" />
-              {t("view")}
-            </Button>
-            <Button
-              variant="outline"
-              size="sm"
-              onClick={() =>
-                navigate(
-                  `/facility/${facilityId}/settings/activity_definitions/${definition.id}/edit`,
-                )
-              }
-            >
-              <CareIcon icon="l-pen" className="size-4" />
-              {t("edit")}
+              <CareIcon icon="l-edit" className="size-4" />
+              {t("see_details")}
             </Button>
           </div>
         </div>
       </CardContent>
     </Card>
-  );
-}
-
-function FilterSelect({
-  value,
-  onValueChange,
-  options,
-  isStatus,
-  onClear,
-}: {
-  value: string;
-  onValueChange: (value: string | undefined) => void;
-  options: string[];
-  isStatus?: boolean;
-  onClear: () => void;
-}) {
-  const { t } = useTranslation();
-  return (
-    <div className="flex overflow-hidden rounded-lg border">
-      <Select
-        value={value}
-        onValueChange={(newValue) => onValueChange(newValue || undefined)}
-      >
-        <SelectTrigger className="border-0 hover:bg-transparent focus:ring-0 focus:ring-offset-0">
-          <div className="flex items-center gap-2">
-            <CareIcon icon="l-filter" className="size-4" />
-            {value ? (
-              <>
-                <span>{isStatus ? t("status") : t("category")}</span>
-                <span className="text-gray-500">is</span>
-                <span>{t(value)}</span>
-              </>
-            ) : (
-              <span className="text-gray-500">
-                {isStatus ? t("status") : t("category")}
-              </span>
-            )}
-          </div>
-        </SelectTrigger>
-        <SelectContent>
-          {options.map((option) => (
-            <SelectItem key={option} value={option}>
-              {t(option)}
-            </SelectItem>
-          ))}
-        </SelectContent>
-      </Select>
-      {value && (
-        <Button
-          variant="ghost"
-          size="sm"
-          onClick={onClear}
-          className="h-auto border-l px-2 hover:bg-transparent"
-        >
-          <X className="size-4" />
-        </Button>
-      )}
-    </div>
   );
 }
 
@@ -257,7 +163,7 @@ export default function ActivityDefinitionList({
                   value={qParams.status || ""}
                   onValueChange={(value) => updateQuery({ status: value })}
                   options={Object.values(Status)}
-                  isStatus
+                  label="status"
                   onClear={() => updateQuery({ status: undefined })}
                 />
               </div>
@@ -266,6 +172,7 @@ export default function ActivityDefinitionList({
                   value={qParams.category || ""}
                   onValueChange={(value) => updateQuery({ category: value })}
                   options={Object.values(Category)}
+                  label="category"
                   onClear={() => updateQuery({ category: undefined })}
                 />
               </div>
@@ -283,7 +190,11 @@ export default function ActivityDefinitionList({
             </div>
           </>
         ) : activityDefinitions.length === 0 ? (
-          <EmptyState />
+          <EmptyState
+            icon="l-folder-open"
+            title={t("no_activity_definitions_found")}
+            description={t("adjust_activity_definition_filters")}
+          />
         ) : (
           <>
             {/* Mobile Card View */}
@@ -308,9 +219,7 @@ export default function ActivityDefinitionList({
                       <TableHead>{t("category")}</TableHead>
                       <TableHead>{t("status")}</TableHead>
                       <TableHead>{t("kind")}</TableHead>
-                      <TableHead className="text-right">
-                        {t("actions")}
-                      </TableHead>
+                      <TableHead>{t("actions")}</TableHead>
                     </TableRow>
                   </TableHeader>
                   <TableBody className="bg-white">
@@ -334,31 +243,19 @@ export default function ActivityDefinitionList({
                             </Badge>
                           </TableCell>
                           <TableCell>{t(definition.kind)}</TableCell>
-                          <TableCell className="text-right">
-                            <div className="flex justify-end gap-2">
-                              <Button
-                                variant="ghost"
-                                size="icon"
-                                onClick={() =>
-                                  navigate(
-                                    `/facility/${facilityId}/settings/activity_definitions/${definition.id}`,
-                                  )
-                                }
-                              >
-                                <CareIcon icon="l-eye" className="size-4" />
-                              </Button>
-                              <Button
-                                variant="ghost"
-                                size="icon"
-                                onClick={() =>
-                                  navigate(
-                                    `/facility/${facilityId}/settings/activity_definitions/${definition.id}/edit`,
-                                  )
-                                }
-                              >
-                                <CareIcon icon="l-pen" className="size-4" />
-                              </Button>
-                            </div>
+                          <TableCell>
+                            <Button
+                              variant="outline"
+                              size="sm"
+                              onClick={() =>
+                                navigate(
+                                  `/facility/${facilityId}/settings/activity_definitions/${definition.id}`,
+                                )
+                              }
+                            >
+                              <CareIcon icon="l-edit" className="size-4" />
+                              {t("see_details")}
+                            </Button>
                           </TableCell>
                         </TableRow>
                       ),
