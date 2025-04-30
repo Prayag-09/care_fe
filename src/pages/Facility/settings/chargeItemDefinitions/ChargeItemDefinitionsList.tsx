@@ -205,12 +205,12 @@ export function ChargeItemDefinitionsList({
     <Page title={t("charge_item_definitions")} hideTitleOnPage>
       <div className="container mx-auto">
         <div className="mb-4">
-          <h1 className="text-2xl font-semibold text-gray-900">
+          <h1 className="text-2xl font-bold text-gray-700">
             {t("charge_item_definitions")}
           </h1>
           <div className="mb-6 flex items-center justify-between">
             <div>
-              <p className="text-gray-600">
+              <p className="text-gray-600 text-sm">
                 {t("manage_charge_item_definitions")}
               </p>
             </div>
