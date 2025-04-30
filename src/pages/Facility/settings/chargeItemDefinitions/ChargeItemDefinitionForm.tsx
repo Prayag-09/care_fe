@@ -1,5 +1,6 @@
 import { zodResolver } from "@hookform/resolvers/zod";
 import { useMutation } from "@tanstack/react-query";
+import { navigate } from "raviger";
 import { useEffect, useState } from "react";
 import { useForm, useWatch } from "react-hook-form";
 import { useTranslation } from "react-i18next";
@@ -43,7 +44,7 @@ interface ChargeItemDefinitionFormProps {
   facilityId: string;
   initialData?: ChargeItemDefinitionRead;
   isUpdate?: boolean;
-  onSuccess?: (id: string) => void;
+  onSuccess?: () => void;
 }
 
 // Define a CodeSchema that matches the Code type
@@ -90,7 +91,8 @@ export function ChargeItemDefinitionForm({
   facilityId,
   initialData,
   isUpdate = false,
-  onSuccess,
+  onSuccess = () =>
+    navigate(`/facility/${facilityId}/settings/charge_item_definitions`),
 }: ChargeItemDefinitionFormProps) {
   const { t } = useTranslation();
   const [priceComponents, setPriceComponents] = useState<MonetoryComponent[]>(
@@ -171,9 +173,7 @@ export function ChargeItemDefinitionForm({
     },
     onSuccess: (response) => {
       console.log("Success response:", JSON.stringify(response, null, 2));
-      if (onSuccess) {
-        onSuccess(response.id);
-      }
+      onSuccess();
     },
     onError: (err) => {
       console.error("Mutation error:", err);

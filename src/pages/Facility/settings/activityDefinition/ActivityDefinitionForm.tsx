@@ -738,11 +738,12 @@ function ActivityDefinitionFormContent({
                         placeholder={t("select_specimen_requirements")}
                         onSearch={setSpecimenSearch}
                         canCreate={true}
-                        createForm={
-                          <div className="py-2">
-                            <CreateSpecimenDefinition facilityId={facilityId} />
-                          </div>
-                        }
+                        createForm={(onSuccess) => (
+                          <CreateSpecimenDefinition
+                            facilityId={facilityId}
+                            onSuccess={onSuccess}
+                          />
+                        )}
                       />
                     </div>
                   </div>
@@ -797,13 +798,14 @@ function ActivityDefinitionFormContent({
                         placeholder={t("select_observation_requirements")}
                         onSearch={setObservationSearch}
                         canCreate={true}
-                        createForm={
+                        createForm={(onSuccess) => (
                           <div className="py-2">
                             <ObservationDefinitionForm
                               facilityId={facilityId}
+                              onSuccess={onSuccess}
                             />
                           </div>
-                        }
+                        )}
                       />
                     </div>
                   </div>
@@ -845,11 +847,14 @@ function ActivityDefinitionFormContent({
                         placeholder={t("select_charge_item_definitions")}
                         onSearch={setChargeItemSearch}
                         canCreate={true}
-                        createForm={
+                        createForm={(onSuccess) => (
                           <div className="py-2">
-                            <ChargeItemDefinitionForm facilityId={facilityId} />
+                            <ChargeItemDefinitionForm
+                              facilityId={facilityId}
+                              onSuccess={onSuccess}
+                            />
                           </div>
-                        }
+                        )}
                       />
                     </div>
                   </div>

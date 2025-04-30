@@ -99,9 +99,11 @@ type FormValues = z.infer<typeof formSchema>;
 export default function ObservationDefinitionForm({
   facilityId,
   observationDefinitionId,
+  onSuccess,
 }: {
   facilityId: string;
   observationDefinitionId?: string;
+  onSuccess?: () => void;
 }) {
   const { t } = useTranslation();
 
@@ -140,6 +142,7 @@ export default function ObservationDefinitionForm({
       facilityId={facilityId}
       observationDefinitionId={observationDefinitionId}
       existingData={existingData}
+      onSuccess={onSuccess}
     />
   );
 }
@@ -148,10 +151,13 @@ function ObservationDefinitionFormContent({
   facilityId,
   observationDefinitionId,
   existingData,
+  onSuccess = () =>
+    navigate(`/facility/${facilityId}/settings/observation_definitions`),
 }: {
   facilityId: string;
   observationDefinitionId?: string;
   existingData?: ObservationDefinitionReadSpec;
+  onSuccess?: () => void;
 }) {
   const { t } = useTranslation();
   const queryClient = useQueryClient();
@@ -189,7 +195,7 @@ function ObservationDefinitionFormContent({
       onSuccess: () => {
         queryClient.invalidateQueries({ queryKey: ["observationDefinitions"] });
         toast.success(t("observation_definition_created_successfully"));
-        navigate(`/facility/${facilityId}/settings/observation_definitions`);
+        onSuccess();
       },
     });
 

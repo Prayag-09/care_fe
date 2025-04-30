@@ -41,7 +41,7 @@ interface RequirementsSelectorProps {
   onSearch?: (query: string) => void;
   customSelector?: React.ReactNode;
   canCreate?: boolean;
-  createForm?: React.ReactNode;
+  createForm?: (onSuccess: () => void) => React.ReactNode;
   allowDuplicate?: boolean;
 }
 
@@ -108,7 +108,7 @@ function SmallSelectedItemCard({
 export default function RequirementsSelector({
   title,
   description,
-  value,
+  value = [],
   onChange,
   options,
   isLoading,
@@ -228,7 +228,7 @@ export default function RequirementsSelector({
                     className="flex h-full w-full flex-col overflow-y-auto md:max-w-[600px] lg:max-w-[800px]"
                   >
                     <div className="flex-1 overflow-y-auto py-6">
-                      {createForm}
+                      {createForm?.(() => setIsCreateSheetOpen(false))}
                     </div>
                   </SheetContent>
                 </Sheet>

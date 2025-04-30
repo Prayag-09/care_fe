@@ -1,5 +1,5 @@
 import { useMutation, useQueryClient } from "@tanstack/react-query";
-import { useNavigate } from "raviger";
+import { navigate } from "raviger";
 import { useTranslation } from "react-i18next";
 import { toast } from "sonner";
 
@@ -10,13 +10,14 @@ import { SpecimenDefinitionForm } from "./SpecimenDefinitionForm";
 
 interface CreateSpecimenDefinitionProps {
   facilityId: string;
+  onSuccess?: () => void;
 }
 
 export function CreateSpecimenDefinition({
   facilityId,
+  onSuccess = () => navigate(`/settings/specimen_definitions`),
 }: CreateSpecimenDefinitionProps) {
   const { t } = useTranslation();
-  const navigate = useNavigate();
   const queryClient = useQueryClient();
 
   const { mutate: createSpecimenDefinition, isPending } = useMutation({
@@ -28,7 +29,7 @@ export function CreateSpecimenDefinition({
       queryClient.invalidateQueries({
         queryKey: ["specimen_definitions", facilityId],
       });
-      navigate(`/settings/specimen_definitions`);
+      onSuccess?.();
     },
   });
 
