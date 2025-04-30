@@ -1,4 +1,3 @@
-import { navigate } from "raviger";
 import { useTranslation } from "react-i18next";
 
 import Page from "@/components/Common/Page";
@@ -23,14 +22,7 @@ export function CreateChargeItemDefinition({
           </p>
         </div>
 
-        <ChargeItemDefinitionForm
-          facilityId={facilityId}
-          onSuccess={(id) => {
-            navigate(
-              `/facility/${facilityId}/settings/charge_item_definitions/${id}`,
-            );
-          }}
-        />
+        <ChargeItemDefinitionForm facilityId={facilityId} />
       </div>
     </Page>
   );

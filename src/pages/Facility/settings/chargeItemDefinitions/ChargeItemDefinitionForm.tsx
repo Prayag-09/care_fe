@@ -1241,11 +1241,7 @@ export function ChargeItemDefinitionForm({
         </Card>
 
         <div className="flex justify-end gap-2">
-          <Button
-            type="button"
-            variant="outline"
-            onClick={() => onSuccess && onSuccess(initialData?.id || "")}
-          >
+          <Button type="button" variant="outline" onClick={() => onSuccess?.()}>
             {t("cancel")}
           </Button>
           <Button type="submit" disabled={isPending}>
