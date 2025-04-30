@@ -1,9 +1,11 @@
 import { useQuery } from "@tanstack/react-query";
+import { X } from "lucide-react";
 import { navigate } from "raviger";
 import { useTranslation } from "react-i18next";
 
 import CareIcon from "@/CAREUI/icons/CareIcon";
 
+import { Badge } from "@/components/ui/badge";
 import { Button } from "@/components/ui/button";
 import { Card, CardContent } from "@/components/ui/card";
 import { Input } from "@/components/ui/input";
@@ -12,11 +14,21 @@ import {
   SelectContent,
   SelectItem,
   SelectTrigger,
-  SelectValue,
 } from "@/components/ui/select";
+import {
+  Table,
+  TableBody,
+  TableCell,
+  TableHead,
+  TableHeader,
+  TableRow,
+} from "@/components/ui/table";
 
 import Page from "@/components/Common/Page";
-import { CardGridSkeleton } from "@/components/Common/SkeletonLoading";
+import {
+  CardGridSkeleton,
+  TableSkeleton,
+} from "@/components/Common/SkeletonLoading";
 
 import useFilters from "@/hooks/useFilters";
 
@@ -27,6 +39,7 @@ import {
   Status,
 } from "@/types/emr/serviceRequest/serviceRequest";
 import serviceRequestApi from "@/types/emr/serviceRequest/serviceRequestApi";
+import locationApi from "@/types/location/locationApi";
 
 const STATUS_COLORS: Record<Status, string> = {
   [Status.draft]: "bg-gray-100 text-gray-700",
@@ -49,13 +62,17 @@ const PRIORITY_COLORS: Record<Priority, string> = {
 function EmptyState() {
   const { t } = useTranslation();
   return (
-    <div className="flex h-[200px] items-center justify-center text-gray-500">
-      <div className="text-center">
-        <CareIcon icon="l-folder-open" className="mx-auto mb-2 size-8" />
-        <p>{t("no_service_requests_found")}</p>
-        <p className="text-sm">{t("try_different_search")}</p>
+    <Card className="flex flex-col items-center justify-center p-8 text-center border-dashed">
+      <div className="rounded-full bg-primary/10 p-3 mb-4">
+        <CareIcon icon="l-folder-open" className="size-6 text-primary" />
       </div>
-    </div>
+      <h3 className="text-lg font-semibold mb-1">
+        {t("no_service_requests_found")}
+      </h3>
+      <p className="text-sm text-gray-500 mb-4">
+        {t("adjust_service_request_filters")}
+      </p>
+    </Card>
   );
 }
 
@@ -78,20 +95,12 @@ function ServiceRequestCard({
         <div className="mb-4 flex items-start justify-between gap-4">
           <div>
             <div className="mb-2 flex items-center gap-2">
-              <span
-                className={`rounded-full px-2 py-0.5 text-xs font-medium ${
-                  STATUS_COLORS[request.status]
-                }`}
-              >
+              <Badge className={STATUS_COLORS[request.status]}>
                 {t(request.status)}
-              </span>
-              <span
-                className={`rounded-full px-2 py-0.5 text-xs font-medium ${
-                  PRIORITY_COLORS[request.priority]
-                }`}
-              >
+              </Badge>
+              <Badge className={PRIORITY_COLORS[request.priority]}>
                 {t(request.priority)}
-              </span>
+              </Badge>
             </div>
             <h3 className="font-medium text-gray-900">{request.title}</h3>
             <p className="mt-1 text-sm text-gray-500">
@@ -121,6 +130,135 @@ function ServiceRequestCard({
   );
 }
 
+function ServiceRequestTable({
+  requests,
+  facilityId,
+  serviceId,
+  locationId,
+}: {
+  requests: ServiceRequestReadSpec[];
+  facilityId: string;
+  serviceId: string;
+  locationId: string;
+}) {
+  const { t } = useTranslation();
+
+  return (
+    <div className="rounded-md border">
+      <Table>
+        <TableHeader className="bg-gray-200">
+          <TableRow className="divide-x divide-gray-200">
+            <TableHead className="border-r">{t("title")}</TableHead>
+            <TableHead className="border-r">{t("status")}</TableHead>
+            <TableHead className="border-r">{t("priority")}</TableHead>
+            <TableHead className="border-r">{t("occurrence")}</TableHead>
+            <TableHead className="border-r">{t("notes")}</TableHead>
+            <TableHead>{t("actions")}</TableHead>
+          </TableRow>
+        </TableHeader>
+        <TableBody>
+          {requests.map((request) => (
+            <TableRow key={request.id} className="divide-x divide-gray-200">
+              <TableCell className="border-r font-medium">
+                {request.title}
+              </TableCell>
+              <TableCell className="border-r">
+                <Badge className={STATUS_COLORS[request.status]}>
+                  {t(request.status)}
+                </Badge>
+              </TableCell>
+              <TableCell className="border-r">
+                <Badge className={PRIORITY_COLORS[request.priority]}>
+                  {t(request.priority)}
+                </Badge>
+              </TableCell>
+              <TableCell className="border-r">
+                {request.occurance || t("no_occurrence_set")}
+              </TableCell>
+              <TableCell className="border-r max-w-[200px] truncate">
+                {request.note || t("no_notes")}
+              </TableCell>
+              <TableCell className="text-right">
+                <Button
+                  variant="outline"
+                  size="sm"
+                  onClick={() =>
+                    navigate(
+                      `/facility/${facilityId}/services/${serviceId}/requests/locations/${locationId}/service_requests/${request.id}`,
+                    )
+                  }
+                >
+                  {t("view_details")}
+                </Button>
+              </TableCell>
+            </TableRow>
+          ))}
+        </TableBody>
+      </Table>
+    </div>
+  );
+}
+
+function FilterSelect({
+  value,
+  onValueChange,
+  options,
+  isStatus,
+  onClear,
+}: {
+  value: string;
+  onValueChange: (value: string | undefined) => void;
+  options: string[];
+  isStatus?: boolean;
+  onClear: () => void;
+}) {
+  const { t } = useTranslation();
+
+  return (
+    <div className="flex overflow-hidden rounded-lg border">
+      <Select
+        value={value}
+        onValueChange={(newValue) => onValueChange(newValue || undefined)}
+      >
+        <SelectTrigger className="border-0 hover:bg-transparent focus:ring-0 focus:ring-offset-0">
+          <div className="flex items-center gap-2">
+            <CareIcon icon="l-filter" className="size-4" />
+            {!value ? null : (
+              <>
+                <span>{isStatus ? "Status" : "Priority"}</span>
+                {isStatus && <span className="text-gray-500">is</span>}
+                <span>{t(value)}</span>
+              </>
+            )}
+            {!value && (
+              <span className="text-gray-500">
+                {isStatus ? "Status" : "Priority"}
+              </span>
+            )}
+          </div>
+        </SelectTrigger>
+        <SelectContent>
+          {options.map((option) => (
+            <SelectItem key={option} value={option}>
+              {t(option)}
+            </SelectItem>
+          ))}
+        </SelectContent>
+      </Select>
+      {value && (
+        <Button
+          variant="ghost"
+          size="sm"
+          onClick={onClear}
+          className="h-auto border-l px-2 hover:bg-transparent"
+        >
+          <X className="size-4" />
+        </Button>
+      )}
+    </div>
+  );
+}
+
 export default function ServiceRequestList({
   facilityId,
   serviceId,
@@ -135,16 +273,23 @@ export default function ServiceRequestList({
     limit: 14,
     disableCache: true,
   });
-  console.log(serviceId, locationId);
+
+  const { data: location } = useQuery({
+    queryKey: ["location", facilityId, locationId],
+    queryFn: query(locationApi.get, {
+      pathParams: { facility_id: facilityId, id: locationId },
+    }),
+  });
+
   const { data: response, isLoading } = useQuery({
     queryKey: ["serviceRequests", qParams],
-    queryFn: query(serviceRequestApi.listServiceRequest, {
+    queryFn: query.debounced(serviceRequestApi.listServiceRequest, {
       pathParams: { facilityId },
       queryParams: {
         location: locationId,
         limit: resultsPerPage,
         offset: ((qParams.page ?? 1) - 1) * resultsPerPage,
-        search: qParams.search,
+        title: qParams.search,
         status: qParams.status,
         priority: qParams.priority,
       },
@@ -153,91 +298,126 @@ export default function ServiceRequestList({
 
   const serviceRequests = response?.results || [];
 
+  const handleClearStatus = () => {
+    updateQuery({ status: undefined });
+  };
+
+  const handleClearPriority = () => {
+    updateQuery({ priority: undefined });
+  };
+
+  const handleClearAll = () => {
+    updateQuery({ status: undefined, priority: undefined });
+  };
+
   return (
-    <Page title={t("service_requests")}>
+    <Page title={t("service_requests")} hideTitleOnPage>
+      <Button
+        variant="outline"
+        onClick={() =>
+          navigate(`/facility/${facilityId}/services/${serviceId}}`)
+        }
+        className="gap-2"
+        size="sm"
+      >
+        <CareIcon icon="l-arrow-left" className="size-4" />
+        {t("back")}
+      </Button>
       <div className="container mx-auto py-8">
         <div className="mb-8">
-          <div className="mb-6 flex items-center justify-between">
-            <div>
-              <h1 className="text-xl font-semibold text-gray-900">
-                {t("service_requests")}
-              </h1>
-              <p className="mt-1 text-sm text-gray-600">
-                {t("manage_service_requests")}
-              </p>
-            </div>
+          <div className="mb-4">
+            <p className="text-sm text-gray-600">{location?.name}</p>
+            <h1 className="text-2xl font-semibold text-gray-900">
+              {t("service_requests")}
+            </h1>
           </div>
 
-          <div className="flex flex-col md:flex-row justify-between items-center gap-4">
-            <Input
-              placeholder={t("search_service_requests")}
-              value={qParams.search || ""}
-              onChange={(e) =>
-                updateQuery({ search: e.target.value || undefined })
-              }
-              className="max-w-xs flex-wrap "
-            />
-            <div className="flex flex-row items-center gap-4">
-              <div className="min-w-40">
-                <Select
+          <div className="flex flex-col md:flex-row justify-between items-start gap-4">
+            <div className="w-full md:w-auto">
+              <div className="relative w-full md:w-auto">
+                <span className="absolute left-3 top-1/2 -translate-y-1/2 text-gray-400">
+                  <CareIcon icon="l-search" className="size-5" />
+                </span>
+                <Input
+                  placeholder={t("search_service_requests")}
+                  value={qParams.search || ""}
+                  onChange={(e) =>
+                    updateQuery({ search: e.target.value || undefined })
+                  }
+                  className="w-full md:w-[300px] pl-10"
+                />
+              </div>
+            </div>
+            <div className="flex flex-col sm:flex-row items-stretch gap-2 w-full sm:w-auto">
+              <div className="flex-1 sm:flex-initial sm:w-auto">
+                <FilterSelect
                   value={qParams.status || ""}
-                  onValueChange={(value) =>
-                    updateQuery({ status: value || undefined })
-                  }
-                >
-                  <SelectTrigger className="">
-                    <SelectValue placeholder={t("filter_by_status")} />
-                  </SelectTrigger>
-                  <SelectContent>
-                    {Object.values(Status).map((status) => (
-                      <SelectItem key={status} value={status}>
-                        {t(status)}
-                      </SelectItem>
-                    ))}
-                  </SelectContent>
-                </Select>
+                  onValueChange={(value) => updateQuery({ status: value })}
+                  options={Object.values(Status)}
+                  isStatus
+                  onClear={handleClearStatus}
+                />
               </div>
-              <div className="min-w-40">
-                <Select
+              <div className="flex-1 sm:flex-initial sm:w-auto">
+                <FilterSelect
                   value={qParams.priority || ""}
-                  onValueChange={(value) =>
-                    updateQuery({ priority: value || undefined })
-                  }
-                >
-                  <SelectTrigger className="w-[180px]">
-                    <SelectValue placeholder={t("filter_by_priority")} />
-                  </SelectTrigger>
-                  <SelectContent>
-                    {Object.values(Priority).map((priority) => (
-                      <SelectItem key={priority} value={priority}>
-                        {t(priority)}
-                      </SelectItem>
-                    ))}
-                  </SelectContent>
-                </Select>
+                  onValueChange={(value) => updateQuery({ priority: value })}
+                  options={Object.values(Priority)}
+                  onClear={handleClearPriority}
+                />
               </div>
+              {qParams.status && qParams.priority && (
+                <Button
+                  variant="ghost"
+                  size="sm"
+                  onClick={handleClearAll}
+                  className="text-sm font-medium"
+                >
+                  {t("clear")}
+                </Button>
+              )}
             </div>
           </div>
         </div>
 
         {isLoading ? (
-          <div className="grid gap-4 md:grid-cols-2 lg:grid-cols-3">
-            <CardGridSkeleton count={6} />
-          </div>
+          <>
+            <div className="grid gap-4 md:grid-cols-2 lg:grid-cols-3 md:hidden">
+              <CardGridSkeleton count={6} />
+            </div>
+            <div className="phidden md:block">
+              <TableSkeleton count={5} />
+            </div>
+          </>
+        ) : serviceRequests.length === 0 && !isLoading ? (
+          <EmptyState />
         ) : serviceRequests.length === 0 ? (
           <EmptyState />
         ) : (
-          <div className="grid gap-4 md:grid-cols-2 lg:grid-cols-3">
-            {serviceRequests.map((request) => (
-              <ServiceRequestCard
-                key={request.id}
-                request={request}
+          <>
+            {/* Mobile View */}
+            <div className="grid gap-4 md:grid-cols-2 lg:grid-cols-3 md:hidden">
+              {serviceRequests.map((request) => (
+                <ServiceRequestCard
+                  key={request.id}
+                  request={request}
+                  facilityId={facilityId}
+                  serviceId={serviceId}
+                  locationId={locationId}
+                />
+              ))}
+            </div>
+
+            {/* Desktop View */}
+            <div className="hidden md:block">
+              <ServiceRequestTable
+                requests={serviceRequests}
                 facilityId={facilityId}
                 serviceId={serviceId}
                 locationId={locationId}
               />
-            ))}
-          </div>
+            </div>
+          </>
         )}
 
         {response && response.count > resultsPerPage && (
