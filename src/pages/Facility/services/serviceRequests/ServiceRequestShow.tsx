@@ -1,4 +1,5 @@
 import { useMutation, useQuery, useQueryClient } from "@tanstack/react-query";
+import { ArrowLeftIcon } from "lucide-react";
 import { navigate } from "raviger";
 import { useState } from "react";
 import { toast } from "sonner";
@@ -119,14 +120,14 @@ export default function ServiceRequestShow({
   const diagnosticReports = request.diagnostic_reports || [];
 
   const assignedSpecimenIds = new Set<string>();
-
   return (
     <div className="flex min-h-screen bg-gray-50 relative">
       <div className="flex-1 p-4 max-w-6xl mx-auto">
         <div className="space-y-6">
           {locationId && serviceId ? (
             <Button
-              variant="outline"
+              variant="link"
+              className="underline underline-offset-2 text-gray-950 font-semibold pl-0"
               onClick={() =>
                 navigate(
                   `/facility/${facilityId}/services/${serviceId}/requests/locations/${locationId}`,
@@ -138,29 +139,31 @@ export default function ServiceRequestShow({
             </Button>
           ) : (
             <Button
-              variant="outline"
+              variant="link"
+              className="underline underline-offset-2 text-gray-950 font-semibold pl-0 cursor-pointer"
               onClick={() =>
                 navigate(
                   `/facility/${facilityId}/patient/${request.encounter.patient.id}/encounter/${request.encounter.id}/service_requests`,
                 )
               }
             >
-              <CareIcon icon="l-arrow-left" className="mr-2 size-4" />
+              <ArrowLeftIcon className="size-4" />
               Back to encounter
             </Button>
           )}
 
-          <PatientHeader
-            patient={request.encounter.patient}
-            facilityId={facilityId}
-          />
+          <div className="px-2">
+            <PatientHeader
+              patient={request.encounter.patient}
+              facilityId={facilityId}
+            />
+          </div>
 
           <ServiceRequestDetails
             facilityId={facilityId}
             request={request}
             activityDefinition={activityDefinition}
           />
-
           {specimenRequirements.length > 0 && !selectedSpecimenDefinition && (
             <div className="space-y-6">
               <h2 className="text-xl font-semibold">Specimens</h2>

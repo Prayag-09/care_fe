@@ -14,3 +14,5 @@
 - [ ] Add support for search by specimen ID in the UI based on design
 - [ ] Add filters for statues in service request page as of the UI
 - [ ] Add support for multiple diagnostic report for a service request
+- [ ] Service Request - Show collector details instead of UUID (After BE change)
+
