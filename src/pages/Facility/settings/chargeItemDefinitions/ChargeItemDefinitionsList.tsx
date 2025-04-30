@@ -62,8 +62,6 @@ function ChargeItemDefinitionCard({
             <p className="mt-1 text-sm text-gray-500">
               {definition.description}
             </p>
-          </div>
-          <div className="flex flex-col gap-2">
             <Button
               variant="outline"
               size="sm"
@@ -73,20 +71,8 @@ function ChargeItemDefinitionCard({
                 )
               }
             >
-              <CareIcon icon="l-eye" className="size-4" />
-              {t("view")}
-            </Button>
-            <Button
-              variant="outline"
-              size="sm"
-              onClick={() =>
-                navigate(
-                  `/facility/${facilityId}/settings/charge_item_definitions/${definition.id}/edit`,
-                )
-              }
-            >
-              <CareIcon icon="l-pen" className="size-4" />
-              {t("edit")}
+              <CareIcon icon="l-edit" className="size-4" />
+              {t("see_details")}
             </Button>
           </div>
         </div>
@@ -205,9 +191,7 @@ export function ChargeItemDefinitionsList({
                       <TableHead>{t("title")}</TableHead>
                       <TableHead>{t("status")}</TableHead>
                       <TableHead>{t("description")}</TableHead>
-                      <TableHead className="text-right">
-                        {t("actions")}
-                      </TableHead>
+                      <TableHead>{t("actions")}</TableHead>
                     </TableRow>
                   </TableHeader>
                   <TableBody className="bg-white">
@@ -231,31 +215,19 @@ export function ChargeItemDefinitionsList({
                         <TableCell className="whitespace-pre-wrap">
                           {definition.description}
                         </TableCell>
-                        <TableCell className="text-right">
-                          <div className="flex justify-end gap-2">
-                            <Button
-                              variant="ghost"
-                              size="icon"
-                              onClick={() =>
-                                navigate(
-                                  `/facility/${facilityId}/settings/charge_item_definitions/${definition.id}`,
-                                )
-                              }
-                            >
-                              <CareIcon icon="l-eye" className="size-4" />
-                            </Button>
-                            <Button
-                              variant="ghost"
-                              size="icon"
-                              onClick={() =>
-                                navigate(
-                                  `/facility/${facilityId}/settings/charge_item_definitions/${definition.id}/edit`,
-                                )
-                              }
-                            >
-                              <CareIcon icon="l-pen" className="size-4" />
-                            </Button>
-                          </div>
+                        <TableCell>
+                          <Button
+                            variant="outline"
+                            size="sm"
+                            onClick={() =>
+                              navigate(
+                                `/facility/${facilityId}/settings/charge_item_definitions/${definition.id}`,
+                              )
+                            }
+                          >
+                            <CareIcon icon="l-edit" className="size-4" />
+                            {t("see_details")}
+                          </Button>
                         </TableCell>
                       </TableRow>
                     ))}

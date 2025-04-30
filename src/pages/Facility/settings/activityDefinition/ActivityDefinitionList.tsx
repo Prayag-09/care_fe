@@ -69,8 +69,6 @@ function ActivityDefinitionCard({
               {t(definition.category)}
             </p>
             <p className="mt-1 text-xs text-gray-400">{t(definition.kind)}</p>
-          </div>
-          <div className="flex flex-col gap-2">
             <Button
               variant="outline"
               size="sm"
@@ -80,20 +78,8 @@ function ActivityDefinitionCard({
                 )
               }
             >
-              <CareIcon icon="l-eye" className="size-4" />
-              {t("view")}
-            </Button>
-            <Button
-              variant="outline"
-              size="sm"
-              onClick={() =>
-                navigate(
-                  `/facility/${facilityId}/settings/activity_definitions/${definition.id}/edit`,
-                )
-              }
-            >
-              <CareIcon icon="l-pen" className="size-4" />
-              {t("edit")}
+              <CareIcon icon="l-edit" className="size-4" />
+              {t("see_details")}
             </Button>
           </div>
         </div>
@@ -233,9 +219,7 @@ export default function ActivityDefinitionList({
                       <TableHead>{t("category")}</TableHead>
                       <TableHead>{t("status")}</TableHead>
                       <TableHead>{t("kind")}</TableHead>
-                      <TableHead className="text-right">
-                        {t("actions")}
-                      </TableHead>
+                      <TableHead>{t("actions")}</TableHead>
                     </TableRow>
                   </TableHeader>
                   <TableBody className="bg-white">
@@ -259,31 +243,19 @@ export default function ActivityDefinitionList({
                             </Badge>
                           </TableCell>
                           <TableCell>{t(definition.kind)}</TableCell>
-                          <TableCell className="text-right">
-                            <div className="flex justify-end gap-2">
-                              <Button
-                                variant="ghost"
-                                size="icon"
-                                onClick={() =>
-                                  navigate(
-                                    `/facility/${facilityId}/settings/activity_definitions/${definition.id}`,
-                                  )
-                                }
-                              >
-                                <CareIcon icon="l-eye" className="size-4" />
-                              </Button>
-                              <Button
-                                variant="ghost"
-                                size="icon"
-                                onClick={() =>
-                                  navigate(
-                                    `/facility/${facilityId}/settings/activity_definitions/${definition.id}/edit`,
-                                  )
-                                }
-                              >
-                                <CareIcon icon="l-pen" className="size-4" />
-                              </Button>
-                            </div>
+                          <TableCell>
+                            <Button
+                              variant="outline"
+                              size="sm"
+                              onClick={() =>
+                                navigate(
+                                  `/facility/${facilityId}/settings/activity_definitions/${definition.id}`,
+                                )
+                              }
+                            >
+                              <CareIcon icon="l-edit" className="size-4" />
+                              {t("see_details")}
+                            </Button>
                           </TableCell>
                         </TableRow>
                       ),
