@@ -1,3 +1,7 @@
+# Todo
+
+Do keep this updated if you have completed something, also mark your name to the issue if you have working on something.
+
 ## Billing
 
 - [ ] Wire the actual amounts in all payment pages once backend is done
@@ -15,4 +19,4 @@
 - [ ] Add filters for statues in service request page as of the UI
 - [ ] Add support for multiple diagnostic report for a service request
 - [ ] Service Request - Show collector details instead of UUID (After BE change)
-
+- [ ] Add support for xray and file uploads service request

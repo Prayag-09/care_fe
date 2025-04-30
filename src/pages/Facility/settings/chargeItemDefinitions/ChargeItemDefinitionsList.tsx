@@ -6,6 +6,7 @@ import CareIcon from "@/CAREUI/icons/CareIcon";
 
 import { Badge } from "@/components/ui/badge";
 import { Button } from "@/components/ui/button";
+import { Card, CardContent } from "@/components/ui/card";
 import { Input } from "@/components/ui/input";
 import {
   Table,
@@ -18,22 +19,65 @@ import {
 
 import Page from "@/components/Common/Page";
 import { TableSkeleton } from "@/components/Common/SkeletonLoading";
+import { EmptyState } from "@/components/definition-list/EmptyState";
+import { FilterSelect } from "@/components/definition-list/FilterSelect";
 
 import useFilters from "@/hooks/useFilters";
 
 import query from "@/Utils/request/query";
+import { ChargeItemDefinitionStatus } from "@/types/billing/chargeItemDefinition/chargeItemDefinition";
 import chargeItemDefinitionApi from "@/types/billing/chargeItemDefinition/chargeItemDefinitionApi";
 
-function EmptyState() {
+const CHARGE_ITEM_DEFINITION_STATUS_COLORS: Record<string, string> = {
+  active: "bg-green-100 text-green-700",
+  draft: "bg-gray-100 text-gray-700",
+  retired: "bg-red-100 text-red-700",
+};
+
+function ChargeItemDefinitionCard({
+  definition,
+  facilityId,
+}: {
+  definition: any;
+  facilityId: string;
+}) {
   const { t } = useTranslation();
   return (
-    <div className="flex h-[200px] items-center justify-center text-gray-500">
-      <div className="text-center">
-        <CareIcon icon="l-folder-open" className="mx-auto mb-2 size-8" />
-        <p>{t("no_charge_definitions_found")}</p>
-        <p className="text-sm">{t("adjust_filters")}</p>
-      </div>
-    </div>
+    <Card>
+      <CardContent className="p-6">
+        <div className="mb-4 flex items-start justify-between gap-4">
+          <div>
+            <div className="mb-2 flex items-center gap-2">
+              <Badge
+                variant="outline"
+                className={
+                  CHARGE_ITEM_DEFINITION_STATUS_COLORS[definition.status] ||
+                  "bg-gray-100 text-gray-700"
+                }
+              >
+                {t(definition.status)}
+              </Badge>
+            </div>
+            <h3 className="font-medium text-gray-900">{definition.title}</h3>
+            <p className="mt-1 text-sm text-gray-500">
+              {definition.description}
+            </p>
+            <Button
+              variant="outline"
+              size="sm"
+              onClick={() =>
+                navigate(
+                  `/facility/${facilityId}/settings/charge_item_definitions/${definition.id}`,
+                )
+              }
+            >
+              <CareIcon icon="l-edit" className="size-4" />
+              {t("see_details")}
+            </Button>
+          </div>
+        </div>
+      </CardContent>
+    </Card>
   );
 }
 
@@ -52,10 +96,11 @@ export function ChargeItemDefinitionsList({
 
   const { data: response, isLoading } = useQuery({
     queryKey: ["charge_item_definitions", facilityId, qParams],
-    queryFn: query(chargeItemDefinitionApi.listChargeItemDefinition, {
+    queryFn: query.debounced(chargeItemDefinitionApi.listChargeItemDefinition, {
       pathParams: { facilityId },
       queryParams: {
-        search: qParams.search,
+        title: qParams.search,
+        status: qParams.status,
         limit: resultsPerPage,
         offset: ((qParams.page ?? 1) - 1) * resultsPerPage,
       },
@@ -64,26 +109,16 @@ export function ChargeItemDefinitionsList({
 
   const chargeItemDefinitions = response?.results || [];
 
-  const getStatusVariant = (status: string) => {
-    switch (status) {
-      case "active":
-        return "default";
-      case "draft":
-        return "secondary";
-      case "retired":
-        return "outline";
-      default:
-        return "secondary";
-    }
-  };
-
   return (
-    <Page title={t("charge_item_definitions")}>
+    <Page title={t("charge_item_definitions")} hideTitleOnPage>
       <div className="container mx-auto">
         <div className="mb-4">
+          <h1 className="text-2xl font-bold text-gray-700">
+            {t("charge_item_definitions")}
+          </h1>
           <div className="mb-6 flex items-center justify-between">
             <div>
-              <p className="text-gray-600">
+              <p className="text-gray-600 text-sm">
                 {t("manage_charge_item_definitions")}
               </p>
             </div>
@@ -99,78 +134,108 @@ export function ChargeItemDefinitionsList({
             </Button>
           </div>
 
-          <div className="mb-4 flex flex-wrap items-center gap-4">
-            <Input
-              placeholder={t("search_definitions")}
-              value={qParams.search || ""}
-              onChange={(e) =>
-                updateQuery({ search: e.target.value || undefined })
-              }
-              className="max-w-xs"
-            />
+          <div className="flex flex-col md:flex-row justify-between items-start gap-4 mb-4">
+            <div className="w-full md:w-auto">
+              <div className="relative w-full md:w-auto">
+                <span className="absolute left-3 top-1/2 -translate-y-1/2 text-gray-400">
+                  <CareIcon icon="l-search" className="size-5" />
+                </span>
+                <Input
+                  placeholder={t("search_definitions")}
+                  value={qParams.search || ""}
+                  onChange={(e) =>
+                    updateQuery({ search: e.target.value || undefined })
+                  }
+                  className="w-full md:w-[300px] pl-10"
+                />
+              </div>
+            </div>
+            <div className="flex flex-col sm:flex-row items-stretch gap-2 w-full sm:w-auto">
+              <div className="flex-1 sm:flex-initial sm:w-auto">
+                <FilterSelect
+                  value={qParams.status || ""}
+                  onValueChange={(value) => updateQuery({ status: value })}
+                  options={Object.values(ChargeItemDefinitionStatus)}
+                  label="status"
+                  onClear={() => updateQuery({ status: undefined })}
+                />
+              </div>
+            </div>
           </div>
         </div>
 
         {isLoading ? (
           <TableSkeleton count={5} />
         ) : chargeItemDefinitions.length === 0 ? (
-          <EmptyState />
+          <EmptyState
+            icon="l-folder-open"
+            title={t("no_charge_definitions_found")}
+            description={t("adjust_filters")}
+          />
         ) : (
-          <div className="rounded-lg border">
-            <Table>
-              <TableHeader>
-                <TableRow>
-                  <TableHead>{t("title")}</TableHead>
-                  <TableHead>{t("status")}</TableHead>
-                  <TableHead>{t("description")}</TableHead>
-                  <TableHead className="text-right">{t("actions")}</TableHead>
-                </TableRow>
-              </TableHeader>
-              <TableBody>
-                {chargeItemDefinitions.map((definition) => (
-                  <TableRow key={definition.id}>
-                    <TableCell className="font-medium">
-                      {definition.title}
-                    </TableCell>
-                    <TableCell>
-                      <Badge variant={getStatusVariant(definition.status)}>
-                        {t(definition.status)}
-                      </Badge>
-                    </TableCell>
-                    <TableCell className="whitespace-pre-wrap">
-                      {definition.description}
-                    </TableCell>
-                    <TableCell className="text-right">
-                      <div className="flex justify-end gap-2">
-                        <Button
-                          variant="ghost"
-                          size="icon"
-                          onClick={() =>
-                            navigate(
-                              `/facility/${facilityId}/settings/charge_item_definitions/${definition.id}`,
-                            )
-                          }
-                        >
-                          <CareIcon icon="l-eye" className="size-4" />
-                        </Button>
-                        <Button
-                          variant="ghost"
-                          size="icon"
-                          onClick={() =>
-                            navigate(
-                              `/facility/${facilityId}/settings/charge_item_definitions/${definition.id}/edit`,
-                            )
-                          }
-                        >
-                          <CareIcon icon="l-pen" className="size-4" />
-                        </Button>
-                      </div>
-                    </TableCell>
-                  </TableRow>
-                ))}
-              </TableBody>
-            </Table>
-          </div>
+          <>
+            <div className="grid gap-4 md:hidden">
+              {chargeItemDefinitions.map((definition) => (
+                <ChargeItemDefinitionCard
+                  key={definition.id}
+                  definition={definition}
+                  facilityId={facilityId}
+                />
+              ))}
+            </div>
+            <div className="hidden md:block">
+              <div className="rounded-lg border">
+                <Table>
+                  <TableHeader className="bg-gray-100">
+                    <TableRow>
+                      <TableHead>{t("title")}</TableHead>
+                      <TableHead>{t("status")}</TableHead>
+                      <TableHead>{t("description")}</TableHead>
+                      <TableHead>{t("actions")}</TableHead>
+                    </TableRow>
+                  </TableHeader>
+                  <TableBody className="bg-white">
+                    {chargeItemDefinitions.map((definition) => (
+                      <TableRow key={definition.id} className="divide-x">
+                        <TableCell className="font-medium">
+                          {definition.title}
+                        </TableCell>
+                        <TableCell>
+                          <Badge
+                            variant="outline"
+                            className={
+                              CHARGE_ITEM_DEFINITION_STATUS_COLORS[
+                                definition.status
+                              ] || "bg-gray-100 text-gray-700"
+                            }
+                          >
+                            {t(definition.status)}
+                          </Badge>
+                        </TableCell>
+                        <TableCell className="whitespace-pre-wrap">
+                          {definition.description}
+                        </TableCell>
+                        <TableCell>
+                          <Button
+                            variant="outline"
+                            size="sm"
+                            onClick={() =>
+                              navigate(
+                                `/facility/${facilityId}/settings/charge_item_definitions/${definition.id}`,
+                              )
+                            }
+                          >
+                            <CareIcon icon="l-edit" className="size-4" />
+                            {t("see_details")}
+                          </Button>
+                        </TableCell>
+                      </TableRow>
+                    ))}
+                  </TableBody>
+                </Table>
+              </div>
+            </div>
+          </>
         )}
 
         {response && response.count > resultsPerPage && (

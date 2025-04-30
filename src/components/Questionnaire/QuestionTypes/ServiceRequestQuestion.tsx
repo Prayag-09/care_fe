@@ -867,22 +867,21 @@ export function ServiceRequestQuestion({
           ? ((Array.isArray(updates.locations)
               ? updates.locations.map((loc) => {
                   if (typeof loc === "string") {
+                    const location = locations?.results.find(
+                      (l: LocationList) => l.id === loc,
+                    );
+
                     return {
                       id: loc,
                       has_children: false,
                       status: "active",
                       operational_status: "O",
-                      name:
-                        locations?.results.find(
-                          (l: LocationList) => l.id === loc,
-                        )?.name || loc,
+                      name: location?.name || loc,
                       description: "",
-                      form:
-                        locations?.results.find(
-                          (l: LocationList) => l.id === loc,
-                        )?.form || "si",
+                      form: location?.form || "si",
                       mode: "instance",
                       availability_status: "available",
+                      sort_index: location?.sort_index || 0,
                     } as LocationList;
                   }
                   return loc;

@@ -94,14 +94,14 @@ const formSchema = z.object({
     .default([]),
 });
 
-type FormValues = z.infer<typeof formSchema>;
-
 export default function ObservationDefinitionForm({
   facilityId,
   observationDefinitionId,
+  onSuccess,
 }: {
   facilityId: string;
   observationDefinitionId?: string;
+  onSuccess?: () => void;
 }) {
   const { t } = useTranslation();
 
@@ -140,6 +140,7 @@ export default function ObservationDefinitionForm({
       facilityId={facilityId}
       observationDefinitionId={observationDefinitionId}
       existingData={existingData}
+      onSuccess={onSuccess}
     />
   );
 }
@@ -148,16 +149,19 @@ function ObservationDefinitionFormContent({
   facilityId,
   observationDefinitionId,
   existingData,
+  onSuccess = () =>
+    navigate(`/facility/${facilityId}/settings/observation_definitions`),
 }: {
   facilityId: string;
   observationDefinitionId?: string;
   existingData?: ObservationDefinitionReadSpec;
+  onSuccess?: () => void;
 }) {
   const { t } = useTranslation();
   const queryClient = useQueryClient();
   const isEditMode = Boolean(observationDefinitionId);
 
-  const form = useForm<FormValues>({
+  const form = useForm({
     resolver: zodResolver(formSchema),
     defaultValues:
       isEditMode && existingData
@@ -189,7 +193,7 @@ function ObservationDefinitionFormContent({
       onSuccess: () => {
         queryClient.invalidateQueries({ queryKey: ["observationDefinitions"] });
         toast.success(t("observation_definition_created_successfully"));
-        navigate(`/facility/${facilityId}/settings/observation_definitions`);
+        onSuccess();
       },
     });
 
@@ -210,7 +214,7 @@ function ObservationDefinitionFormContent({
 
   const isPending = isCreating || isUpdating;
 
-  function onSubmit(data: FormValues) {
+  function onSubmit(data: z.infer<typeof formSchema>) {
     if (isEditMode && observationDefinitionId) {
       updateObservationDefinition(data as ObservationDefinitionUpdateSpec);
     } else {
@@ -502,7 +506,7 @@ function ObservationDefinitionFormContent({
                       )}
                     </p>
                   </div>
-                  {form.watch("component").length > 0 && (
+                  {(form.watch("component") ?? [])?.length > 0 && (
                     <Button
                       type="button"
                       variant="outline"
@@ -530,7 +534,7 @@ function ObservationDefinitionFormContent({
                   )}
                 </div>
 
-                {form.watch("component").length === 0 ? (
+                {(form.watch("component") ?? [])?.length === 0 ? (
                   <div className="flex flex-col items-center justify-center rounded-lg border border-dashed border-gray-200 bg-gray-50 p-4">
                     <p className="mb-2 text-sm text-gray-500">
                       {t(
@@ -567,7 +571,7 @@ function ObservationDefinitionFormContent({
                   </div>
                 ) : (
                   <div className="space-y-3">
-                    {form.watch("component").map((_, index) => (
+                    {(form.watch("component") ?? []).map((_, index) => (
                       <div
                         key={index}
                         className="relative rounded-lg border border-gray-200 bg-white p-4"
