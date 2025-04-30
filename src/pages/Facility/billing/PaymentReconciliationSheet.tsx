@@ -90,7 +90,7 @@ export function PaymentReconciliationSheet({
       payment_datetime: format(new Date(), "yyyy-MM-dd'T'HH:mm"),
       amount: invoice?.total_gross || 0,
       tendered_amount: 0,
-      retruned_amount: 0,
+      returned_amount: 0,
       target_invoice: invoice?.id || "",
       reference_number: "",
       authorization: "",
@@ -123,11 +123,11 @@ export function PaymentReconciliationSheet({
       const returned = Math.max(0, tenderAmount - (amount || 0));
       setReturnedAmount(returned);
       form.setValue("tendered_amount", tenderAmount);
-      form.setValue("retruned_amount", returned);
+      form.setValue("returned_amount", returned);
     } else {
       // For non-cash payments, tendered amount equals payment amount and returned is 0
       form.setValue("tendered_amount", amount || 0);
-      form.setValue("retruned_amount", 0);
+      form.setValue("returned_amount", 0);
       setReturnedAmount(0);
     }
   }, [tenderAmount, amount, isCashPayment, form]);

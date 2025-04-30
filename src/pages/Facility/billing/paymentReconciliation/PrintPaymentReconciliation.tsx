@@ -259,7 +259,7 @@ export function PrintPaymentReconciliation({
                 </div>
                 <div className="flex w-48 justify-between">
                   <span className="text-muted-foreground">{t("returned")}</span>
-                  <span>{formatCurrency(payment.retruned_amount ?? null)}</span>
+                  <span>{formatCurrency(payment.returned_amount ?? null)}</span>
                 </div>
               </>
             )}
