@@ -25,13 +25,19 @@ import {
 } from "@/components/ui/table";
 
 import Page from "@/components/Common/Page";
-import { TableSkeleton } from "@/components/Common/SkeletonLoading";
+import {
+  CardGridSkeleton,
+  TableSkeleton,
+} from "@/components/Common/SkeletonLoading";
 
 import useFilters from "@/hooks/useFilters";
 
 import query from "@/Utils/request/query";
 import { type ActivityDefinitionReadSpec } from "@/types/emr/activityDefinition/activityDefinition";
-import { Status } from "@/types/emr/activityDefinition/activityDefinition";
+import {
+  Category,
+  Status,
+} from "@/types/emr/activityDefinition/activityDefinition";
 import activityDefinitionApi from "@/types/emr/activityDefinition/activityDefinitionApi";
 
 const ACTIVITY_DEFINITION_STATUS_COLORS: Record<string, string> = {
@@ -122,11 +128,13 @@ function FilterSelect({
   value,
   onValueChange,
   options,
+  isStatus,
   onClear,
 }: {
   value: string;
   onValueChange: (value: string | undefined) => void;
   options: string[];
+  isStatus?: boolean;
   onClear: () => void;
 }) {
   const { t } = useTranslation();
@@ -140,9 +148,15 @@ function FilterSelect({
           <div className="flex items-center gap-2">
             <CareIcon icon="l-filter" className="size-4" />
             {value ? (
-              <span>{t(value)}</span>
+              <>
+                <span>{isStatus ? t("status") : t("category")}</span>
+                <span className="text-gray-500">is</span>
+                <span>{t(value)}</span>
+              </>
             ) : (
-              <span className="text-gray-500">{t("status")}</span>
+              <span className="text-gray-500">
+                {isStatus ? t("status") : t("category")}
+              </span>
             )}
           </div>
         </SelectTrigger>
@@ -243,7 +257,16 @@ export default function ActivityDefinitionList({
                   value={qParams.status || ""}
                   onValueChange={(value) => updateQuery({ status: value })}
                   options={Object.values(Status)}
+                  isStatus
                   onClear={() => updateQuery({ status: undefined })}
+                />
+              </div>
+              <div className="flex-1 sm:flex-initial sm:w-auto">
+                <FilterSelect
+                  value={qParams.category || ""}
+                  onValueChange={(value) => updateQuery({ category: value })}
+                  options={Object.values(Category)}
+                  onClear={() => updateQuery({ category: undefined })}
                 />
               </div>
             </div>
@@ -251,7 +274,14 @@ export default function ActivityDefinitionList({
         </div>
 
         {isLoading ? (
-          <TableSkeleton count={5} />
+          <>
+            <div className="grid gap-4 md:grid-cols-2 lg:grid-cols-3 md:hidden">
+              <CardGridSkeleton count={4} />
+            </div>
+            <div className="phidden md:block">
+              <TableSkeleton count={5} />
+            </div>
+          </>
         ) : activityDefinitions.length === 0 ? (
           <EmptyState />
         ) : (
