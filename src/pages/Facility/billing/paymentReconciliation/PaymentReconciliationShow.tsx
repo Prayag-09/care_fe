@@ -236,7 +236,7 @@ export function PaymentReconciliationShow({
               {/* Cash payment details */}
               {payment.method === "cash" &&
                 (payment.tendered_amount != null ||
-                  payment.retruned_amount != null) && (
+                  payment.returned_amount != null) && (
                   <>
                     <Separator className="my-4" />
                     <div className="pt-2">
@@ -250,10 +250,10 @@ export function PaymentReconciliationShow({
                             value={formatCurrency(payment.tendered_amount)}
                           />
                         )}
-                        {payment.retruned_amount != null && (
+                        {payment.returned_amount != null && (
                           <InfoItem
                             label={t("change_returned")}
-                            value={formatCurrency(payment.retruned_amount)}
+                            value={formatCurrency(payment.returned_amount)}
                           />
                         )}
                       </div>
