@@ -1,5 +1,4 @@
 import { useQuery } from "@tanstack/react-query";
-import { X } from "lucide-react";
 import { navigate } from "raviger";
 import { useTranslation } from "react-i18next";
 
@@ -9,12 +8,6 @@ import { Badge } from "@/components/ui/badge";
 import { Button } from "@/components/ui/button";
 import { Card, CardContent } from "@/components/ui/card";
 import { Input } from "@/components/ui/input";
-import {
-  Select,
-  SelectContent,
-  SelectItem,
-  SelectTrigger,
-} from "@/components/ui/select";
 import {
   Table,
   TableBody,
@@ -27,6 +20,8 @@ import {
 import Page from "@/components/Common/Page";
 import { TableSkeleton } from "@/components/Common/SkeletonLoading";
 import { CardGridSkeleton } from "@/components/Common/SkeletonLoading";
+import { EmptyState } from "@/components/definition-list/EmptyState";
+import { FilterSelect } from "@/components/definition-list/FilterSelect";
 
 import useFilters from "@/hooks/useFilters";
 
@@ -40,64 +35,6 @@ const SPECIMEN_DEFINITION_STATUS_COLORS: Record<string, string> = {
   retired: "bg-red-100 text-red-700",
   unknown: "bg-gray-100 text-gray-700",
 };
-
-function FilterSelect({
-  value,
-  onValueChange,
-  options,
-  isStatus,
-  onClear,
-}: {
-  value: string;
-  onValueChange: (value: string | undefined) => void;
-  options: string[];
-  isStatus?: boolean;
-  onClear: () => void;
-}) {
-  const { t } = useTranslation();
-  return (
-    <div className="flex overflow-hidden rounded-lg border">
-      <Select
-        value={value}
-        onValueChange={(newValue) => onValueChange(newValue || undefined)}
-      >
-        <SelectTrigger className="border-0 hover:bg-transparent focus:ring-0 focus:ring-offset-0">
-          <div className="flex items-center gap-2">
-            <CareIcon icon="l-filter" className="size-4" />
-            {value ? (
-              <>
-                <span>{isStatus ? t("status") : t("filter")}</span>
-                <span className="text-gray-500">is</span>
-                <span>{t(value)}</span>
-              </>
-            ) : (
-              <span className="text-gray-500">
-                {isStatus ? t("status") : t("filter")}
-              </span>
-            )}
-          </div>
-        </SelectTrigger>
-        <SelectContent>
-          {options.map((option) => (
-            <SelectItem key={option} value={option}>
-              {t(option)}
-            </SelectItem>
-          ))}
-        </SelectContent>
-      </Select>
-      {value && (
-        <Button
-          variant="ghost"
-          size="sm"
-          onClick={onClear}
-          className="h-auto border-l px-2 hover:bg-transparent"
-        >
-          <X className="size-4" />
-        </Button>
-      )}
-    </div>
-  );
-}
 
 function SpecimenDefinitionCard({
   definition,
@@ -156,21 +93,6 @@ function SpecimenDefinitionCard({
           </div>
         </div>
       </CardContent>
-    </Card>
-  );
-}
-
-function EmptyState() {
-  const { t } = useTranslation();
-  return (
-    <Card className="flex flex-col items-center justify-center p-8 text-center border-dashed">
-      <div className="rounded-full bg-primary/10 p-3 mb-4">
-        <CareIcon icon="l-folder-open" className="size-6 text-primary" />
-      </div>
-      <h3 className="text-lg font-semibold mb-1">
-        {t("no_definitions_found")}
-      </h3>
-      <p className="text-sm text-gray-500 mb-4">{t("adjust_filters")}</p>
     </Card>
   );
 }
@@ -250,7 +172,7 @@ export function SpecimenDefinitionsList({
                   value={qParams.status || ""}
                   onValueChange={(value) => updateQuery({ status: value })}
                   options={Object.values(Status)}
-                  isStatus
+                  label="status"
                   onClear={() => updateQuery({ status: undefined })}
                 />
               </div>
@@ -268,7 +190,11 @@ export function SpecimenDefinitionsList({
             </div>
           </>
         ) : specimenDefinitions.length === 0 ? (
-          <EmptyState />
+          <EmptyState
+            icon="l-folder-open"
+            title={t("no_definitions_found")}
+            description={t("adjust_filters")}
+          />
         ) : (
           <>
             {/* Mobile Card View */}
