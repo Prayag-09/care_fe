@@ -87,8 +87,17 @@ export const EncounterDiagnosticReportsTab = ({
                             >
                               <div>
                                 <div className="flex items-center gap-1">
-                                  <div className="text-xs underline">
-                                    {report.id}
+                                  <div className="text-sm">
+                                    {report.code ? (
+                                      <p className="flex flex-col gap-1">
+                                        {report.code.display}
+                                        <span className="text-xs text-gray-500">
+                                          {report.code.code}
+                                        </span>
+                                      </p>
+                                    ) : (
+                                      report.id
+                                    )}
                                   </div>
                                 </div>
                                 {report.conclusion && (

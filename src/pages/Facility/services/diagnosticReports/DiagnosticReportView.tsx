@@ -77,15 +77,27 @@ export default function DiagnosticReportView({
       </div>
 
       <div className="space-y-6">
-        <PatientHeader
-          patient={report.encounter.patient}
-          facilityId={report.encounter.facility.id}
-        />
+        <div className="px-2">
+          <PatientHeader
+            patient={report.encounter.patient}
+            facilityId={report.encounter.facility.id}
+          />
+        </div>
         {/* Report Details */}
         <Card>
           <CardHeader>
             <CardTitle>
-              {report.code?.display || t("diagnostic_report")}
+              {report.code ? (
+                <p className="flex flex-col gap-1">
+                  {report.code.display}
+                  <span className="text-xs text-gray-500">
+                    {report.code.system} <br />
+                    {report.code.code}
+                  </span>
+                </p>
+              ) : (
+                t("diagnostic_report")
+              )}
             </CardTitle>
           </CardHeader>
           <CardContent className="space-y-6">

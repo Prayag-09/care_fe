@@ -44,6 +44,9 @@ interface DiagnosticReportFormProps {
   serviceRequestId: string;
   observationDefinitions: ObservationDefinitionReadSpec[];
   diagnosticReports: DiagnosticReportRead[];
+  activityDefinition?: {
+    diagnostic_report_codes?: Code[];
+  };
 }
 
 // Interface for component values
@@ -67,11 +70,15 @@ export function DiagnosticReportForm({
   serviceRequestId,
   observationDefinitions,
   diagnosticReports,
+  activityDefinition,
 }: DiagnosticReportFormProps) {
   const [observations, setObservations] = useState<
     Record<string, ObservationValue>
   >({});
   const [isExpanded, setIsExpanded] = useState(true);
+  const [selectedReportCode, setSelectedReportCode] = useState<Code | null>(
+    null,
+  );
   const queryClient = useQueryClient();
 
   // Get the latest report if any exists
@@ -315,6 +322,7 @@ export function DiagnosticReportForm({
         status: DiagnosticReportStatus.preliminary,
         category,
         service_request: serviceRequestId,
+        code: selectedReportCode || undefined,
       });
     }
   }
@@ -571,7 +579,19 @@ export function DiagnosticReportForm({
       <CardHeader className="pb-2 bg-gray-50 rounded-md">
         <div className="flex justify-between items-center rounded-md">
           <div className="flex items-center gap-2">
-            <CardTitle>Test Results</CardTitle>
+            <CardTitle>
+              {fullReport?.code ? (
+                <p className="flex flex-col gap-1">
+                  {fullReport?.code?.display} <br />
+                  <span className="text-sm text-gray-500">
+                    {fullReport?.code?.system} <br />
+                    {fullReport?.code?.code}
+                  </span>
+                </p>
+              ) : (
+                <p>Test Results</p>
+              )}
+            </CardTitle>
           </div>
           <div className="flex items-center gap-2">
             {hasReport && fullReport && (
@@ -741,14 +761,54 @@ export function DiagnosticReportForm({
                   Click "Create Report" to add test results.
                 </p>
               </div>
-              <Button
-                onClick={handleCreateReport}
-                disabled={isCreatingReport}
-                className="mx-auto"
-              >
-                <PlusCircle className="h-4 w-4 mr-2" />
-                Create Report
-              </Button>
+              <div className="flex items-center gap-4">
+                {activityDefinition?.diagnostic_report_codes &&
+                  activityDefinition.diagnostic_report_codes.length > 0 && (
+                    <div className="flex-1">
+                      <Select
+                        value={selectedReportCode?.code}
+                        onValueChange={(value) => {
+                          const code =
+                            activityDefinition.diagnostic_report_codes?.find(
+                              (c) => c.code === value,
+                            );
+                          setSelectedReportCode(code || null);
+                        }}
+                      >
+                        <SelectTrigger>
+                          <SelectValue
+                            placeholder={t("select_diagnostic_report_type")}
+                          />
+                        </SelectTrigger>
+                        <SelectContent>
+                          {activityDefinition.diagnostic_report_codes.map(
+                            (code) => (
+                              <SelectItem key={code.code} value={code.code}>
+                                <div className="flex flex-col">
+                                  <span>
+                                    {code.display} ({code.code})
+                                  </span>
+                                </div>
+                              </SelectItem>
+                            ),
+                          )}
+                        </SelectContent>
+                      </Select>
+                    </div>
+                  )}
+                <Button
+                  onClick={handleCreateReport}
+                  disabled={
+                    isCreatingReport ||
+                    (!!activityDefinition?.diagnostic_report_codes?.length &&
+                      !selectedReportCode)
+                  }
+                  className="shrink-0"
+                >
+                  <PlusCircle className="h-4 w-4 mr-2" />
+                  Create Report
+                </Button>
+              </div>
             </div>
           )}
         </CardContent>

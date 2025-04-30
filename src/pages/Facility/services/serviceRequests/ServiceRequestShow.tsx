@@ -234,6 +234,7 @@ export default function ServiceRequestShow({
                 serviceRequestId={serviceRequestId}
                 observationDefinitions={observationRequirements}
                 diagnosticReports={diagnosticReports}
+                activityDefinition={activityDefinition}
               />
             </div>
           )}

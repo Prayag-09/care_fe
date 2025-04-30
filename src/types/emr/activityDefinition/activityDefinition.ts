@@ -34,6 +34,7 @@ export interface BaseActivityDefinitionSpec {
   kind: Kind;
   code: Code;
   body_site: Code | null;
+  diagnostic_report_codes: Code[];
 }
 
 export interface ActivityDefinitionCreateSpec

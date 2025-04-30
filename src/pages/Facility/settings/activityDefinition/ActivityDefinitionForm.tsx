@@ -1,5 +1,6 @@
 import { zodResolver } from "@hookform/resolvers/zod";
 import { useMutation, useQuery, useQueryClient } from "@tanstack/react-query";
+import { Trash2Icon } from "lucide-react";
 import { navigate } from "raviger";
 import * as React from "react";
 import { useForm } from "react-hook-form";
@@ -71,6 +72,15 @@ const formSchema = z.object({
       system: z.string().min(1, "System is required"),
     })
     .nullable(),
+  diagnostic_report_codes: z
+    .array(
+      z.object({
+        code: z.string().min(1, "Code is required"),
+        display: z.string().min(1, "Display name is required"),
+        system: z.string().min(1, "System is required"),
+      }),
+    )
+    .default([]),
   specimen_requirements: z
     .array(
       z.object({
@@ -269,6 +279,7 @@ function ActivityDefinitionFormContent({
             kind: existingData.kind,
             code: existingData.code,
             body_site: existingData.body_site,
+            diagnostic_report_codes: existingData.diagnostic_report_codes,
             specimen_requirements:
               existingData.specimen_requirements?.map((s) => ({
                 value: s.id,
@@ -357,6 +368,7 @@ function ActivityDefinitionFormContent({
             locations: [],
             derived_from_uri: null,
             body_site: null,
+            diagnostic_report_codes: [],
           },
   });
 
@@ -919,6 +931,93 @@ function ActivityDefinitionFormContent({
                     </div>
                   </div>
                 </div>
+              </div>
+            </div>
+
+            {/* Diagnostic Report Section */}
+            <div className="rounded-lg border border-gray-200 bg-white p-4">
+              <div className="space-y-4">
+                <div>
+                  <h2 className="text-base font-medium text-gray-900">
+                    {t("diagnostic_report")}
+                  </h2>
+                  <p className="mt-0.5 text-sm text-gray-500">
+                    {t("specify_diagnostic_report_codes")}
+                  </p>
+                </div>
+
+                <FormField
+                  control={form.control}
+                  name="diagnostic_report_codes"
+                  render={({ field }) => (
+                    <FormItem>
+                      <FormLabel>{t("diagnostic_report_codes")}</FormLabel>
+                      <div className="space-y-3">
+                        {(field.value || []).length > 0 && (
+                          <div className="grid gap-2">
+                            {(field.value || []).map((code, index) => (
+                              <div
+                                key={index}
+                                className="flex items-center gap-2 rounded-md border border-gray-200 bg-gray-50 px-3 py-2 text-sm"
+                              >
+                                <div className="flex-1">
+                                  <span className="font-medium">
+                                    {code.display}
+                                  </span>
+                                  <span className="ml-2 text-gray-500">
+                                    ({code.code})
+                                  </span>
+                                </div>
+                                <Button
+                                  type="button"
+                                  variant="ghost"
+                                  size="sm"
+                                  className="h-auto p-1 hover:bg-gray-100"
+                                  onClick={() => {
+                                    const newCodes = (field.value || []).filter(
+                                      (_, i) => i !== index,
+                                    );
+                                    form.setValue(
+                                      "diagnostic_report_codes",
+                                      newCodes,
+                                    );
+                                  }}
+                                >
+                                  <Trash2Icon className="h-4 w-4" />
+                                  <span className="sr-only">{t("remove")}</span>
+                                </Button>
+                              </div>
+                            ))}
+                          </div>
+                        )}
+                        <ValueSetSelect
+                          system="system-observation"
+                          value={null}
+                          placeholder={t("search_for_diagnostic_codes")}
+                          onSelect={(selectedCode) => {
+                            const currentCodes = field.value || [];
+                            if (
+                              !currentCodes.some(
+                                (code) => code.code === selectedCode.code,
+                              )
+                            ) {
+                              form.setValue("diagnostic_report_codes", [
+                                ...currentCodes,
+                                {
+                                  code: selectedCode.code,
+                                  display: selectedCode.display,
+                                  system: selectedCode.system,
+                                },
+                              ]);
+                            }
+                          }}
+                          showCode={true}
+                        />
+                      </div>
+                      <FormMessage />
+                    </FormItem>
+                  )}
+                />
               </div>
             </div>
 

@@ -332,6 +332,33 @@ export default function ActivityDefinitionView({
           </Card>
         )}
 
+        {definition.diagnostic_report_codes?.length > 0 && (
+          <Card>
+            <CardHeader>
+              <CardTitle>{t("diagnostic_report")}</CardTitle>
+              <CardDescription>
+                {t("diagnostic_report_codes_description")}
+              </CardDescription>
+            </CardHeader>
+            <CardContent>
+              <div className="space-y-4">
+                {definition.diagnostic_report_codes.map((code, index) => (
+                  <div
+                    key={index}
+                    className="rounded-lg border bg-gray-50/50 p-2 transition-colors hover:bg-gray-50"
+                  >
+                    <div className="space-y-2">
+                      <div className="pt-2">
+                        <CodeDisplay code={code} />
+                      </div>
+                    </div>
+                  </div>
+                ))}
+              </div>
+            </CardContent>
+          </Card>
+        )}
+
         {definition.derived_from_uri && (
           <Card>
             <CardHeader>
