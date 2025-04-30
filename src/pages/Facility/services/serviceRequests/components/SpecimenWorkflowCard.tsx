@@ -7,11 +7,13 @@ import {
   CircleDashed,
   Droplet,
   FileText,
+  MoreVertical,
   PackageSearch,
   Plus,
   Receipt,
   ShieldCheck,
   TestTubeDiagonal,
+  Trash2,
   User,
 } from "lucide-react";
 import { useState } from "react";
@@ -26,6 +28,17 @@ import {
   AccordionItem,
   AccordionTrigger,
 } from "@/components/ui/accordion";
+import {
+  AlertDialog,
+  AlertDialogAction,
+  AlertDialogCancel,
+  AlertDialogContent,
+  AlertDialogDescription,
+  AlertDialogFooter,
+  AlertDialogHeader,
+  AlertDialogTitle,
+  AlertDialogTrigger,
+} from "@/components/ui/alert-dialog";
 import { Badge } from "@/components/ui/badge";
 import { Button } from "@/components/ui/button";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
@@ -34,6 +47,12 @@ import {
   CollapsibleContent,
   CollapsibleTrigger,
 } from "@/components/ui/collapsible";
+import {
+  DropdownMenuContent,
+  DropdownMenuItem,
+  DropdownMenuTrigger,
+} from "@/components/ui/dropdown-menu";
+import { DropdownMenu } from "@/components/ui/dropdown-menu";
 import {
   Table,
   TableBody,
@@ -135,25 +154,25 @@ export function SpecimenWorkflowCard({
     },
   });
 
-  // const { mutate: discardSpecimen, isPending: isDiscarding } = useMutation({
-  //   mutationFn: () => {
-  //     if (!collectedSpecimen) return Promise.reject("No specimen to discard");
-  //     return mutate(specimenApi.updateSpecimen, {
-  //       pathParams: { facilityId, specimenId: collectedSpecimen.id },
-  //     })(collectedSpecimen);
-  //   },
-  //   onSuccess: () => {
-  //     toast.success(`Specimen ${collectedSpecimen?.id} marked as discarded.`);
-  //     queryClient.invalidateQueries({
-  //       queryKey: ["serviceRequest", serviceRequestId],
-  //     });
-  //   },
-  //   onError: (err: any) => {
-  //     toast.error(
-  //       `Failed to discard specimen: ${err.message || "Unknown error"}`,
-  //     );
-  //   },
-  // });
+  const { mutate: discardSpecimen, isPending: isDiscarding } = useMutation({
+    mutationFn: () => {
+      if (!collectedSpecimen) return Promise.reject("No specimen to discard");
+      return mutate(specimenApi.updateSpecimen, {
+        pathParams: { facilityId, specimenId: collectedSpecimen.id },
+      })(collectedSpecimen);
+    },
+    onSuccess: () => {
+      toast.success(`Specimen ${collectedSpecimen?.id} marked as discarded.`);
+      queryClient.invalidateQueries({
+        queryKey: ["serviceRequest", serviceRequestId],
+      });
+    },
+    onError: (err: any) => {
+      toast.error(
+        `Failed to discard specimen: ${err.message || "Unknown error"}`,
+      );
+    },
+  });
 
   // --- Handlers (acting on the collected specimen) ---
   const handleAddProcessing = (newStep: ProcessingSpec) => {
@@ -274,29 +293,77 @@ export function SpecimenWorkflowCard({
                   </div>
                 </div>
                 {/* Status Badge on Right */}
-                <div className="flex items-center gap-4">
-                  <Badge
-                    variant={
-                      statusVariantMap[collectedSpecimen.status] || "secondary"
-                    }
-                    className={cn(
-                      "capitalize font-medium h-fit",
-                      statusColorMap[collectedSpecimen.status],
+                <div className="flex items-center flex-col gap-4">
+                  <div className="flex items-center gap-2">
+                    <Badge
+                      variant={
+                        statusVariantMap[collectedSpecimen.status] ||
+                        "secondary"
+                      }
+                      className={cn(
+                        "capitalize font-medium h-fit",
+                        statusColorMap[collectedSpecimen.status],
+                      )}
+                    >
+                      {collectedSpecimen.status?.replace(/_/g, " ") ||
+                        "Unknown Status"}
+                    </Badge>
+                    {isOpen ? (
+                      <ChevronsDownUp className="size-7 border border-gray-300 rounded-md p-1 shadow-sm transition-transform duration-200" />
+                    ) : (
+                      <ChevronsUpDown className="size-7 border border-gray-300 rounded-md p-1 shadow-sm transition-transform duration-200" />
                     )}
-                  >
-                    {collectedSpecimen.status?.replace(/_/g, " ") ||
-                      "Unknown Status"}
-                  </Badge>
-                  {isOpen ? (
-                    <ChevronsDownUp className="size-7 border border-gray-300 rounded-md p-1 shadow-sm transition-transform duration-200" />
-                  ) : (
-                    <ChevronsUpDown className="size-7 border border-gray-300 rounded-md p-1 shadow-sm transition-transform duration-200" />
-                  )}
+                  </div>
+                  <div className="flex self-end gap-2">
+                    <DropdownMenu>
+                      <DropdownMenuTrigger asChild>
+                        <Button variant="ghost" size="icon">
+                          <MoreVertical className="h-4 w-4" />
+                        </Button>
+                      </DropdownMenuTrigger>
+                      <DropdownMenuContent align="end">
+                        <AlertDialog>
+                          <AlertDialogTrigger asChild>
+                            <DropdownMenuItem
+                              className="text-red-600 focus:text-red-600 focus:bg-red-50"
+                              onSelect={(e) => e.preventDefault()}
+                            >
+                              <Trash2 className="h-4 w-4 mr-2" />
+                              Discard Specimen
+                            </DropdownMenuItem>
+                          </AlertDialogTrigger>
+                          <AlertDialogContent>
+                            <AlertDialogHeader>
+                              <AlertDialogTitle>Are you sure?</AlertDialogTitle>
+                              <AlertDialogDescription>
+                                This action will mark the specimen as
+                                discarded/unavailable and cannot be easily
+                                undone.
+                              </AlertDialogDescription>
+                            </AlertDialogHeader>
+                            <AlertDialogFooter>
+                              <AlertDialogCancel disabled={isDiscarding}>
+                                Cancel
+                              </AlertDialogCancel>
+                              <AlertDialogAction
+                                onClick={() => discardSpecimen()}
+                                disabled={isDiscarding}
+                              >
+                                {isDiscarding
+                                  ? "Discarding..."
+                                  : "Confirm Discard"}
+                              </AlertDialogAction>
+                            </AlertDialogFooter>
+                          </AlertDialogContent>
+                        </AlertDialog>
+                      </DropdownMenuContent>
+                    </DropdownMenu>
+                  </div>
                 </div>
               </div>
             ) : (
               // --- Pending Collection Header ---
-              <div className="flex flex-row items-center justify-between">
+              <div className="flex flex-row items-center justify-between gap-2">
                 <CardTitle className="text-base font-medium flex items-center gap-2">
                   <PackageSearch className="h-5 w-5 text-gray-600" />
                   Required: {requirement.title}
@@ -599,74 +666,6 @@ export function SpecimenWorkflowCard({
                   />
                 </div>
               )}
-
-              {/* TODO: Move to Action button */}
-              {/* 4. Discard (Only if collected)
-          {hasCollected && (
-            <AccordionItem value="discard">
-              <AccordionTrigger className="px-4 py-3 text-sm hover:bg-gray-50/50 data-[state=open]:text-red-600">
-                <div
-                  className={cn(
-                    "flex items-center gap-2 flex-1 mr-4",
-                    isDiscarded && "text-red-700",
-                  )}
-                >
-                  <Trash2 className="h-4 w-4" />
-                  <span className="font-medium">Discard Specimen</span>
-                </div>
-                <div className="flex items-center gap-2">
-                  {isDiscarded && (
-                    <Badge variant="destructive">Discarded</Badge>
-                  )}
-                </div>
-              </AccordionTrigger>
-              <AccordionContent className="px-4 pt-3 pb-4 border-t">
-                <div className="flex justify-between items-center">
-                  <p className="text-sm text-muted-foreground">
-                    Mark this specimen as unavailable/discarded.
-                  </p>
-                  <AlertDialog>
-                    <AlertDialogTrigger asChild>
-                      <Button
-                        size="sm"
-                        variant="destructive"
-                        disabled={isDiscarding || isDiscarded}
-                      >
-                        {isDiscarded ? (
-                          <>
-                            <CheckCircle2 className="h-4 w-4 mr-1.5" />{" "}
-                            Discarded
-                          </>
-                        ) : (
-                          "Discard Specimen"
-                        )}
-                      </Button>
-                    </AlertDialogTrigger>
-                    <AlertDialogContent>
-                      <AlertDialogHeader>
-                        <AlertDialogTitle>Are you sure?</AlertDialogTitle>
-                        <AlertDialogDescription>
-                          This action will mark the specimen as
-                          discarded/unavailable and cannot be easily undone.
-                        </AlertDialogDescription>
-                      </AlertDialogHeader>
-                      <AlertDialogFooter>
-                        <AlertDialogCancel disabled={isDiscarding}>
-                          Cancel
-                        </AlertDialogCancel>
-                        <AlertDialogAction
-                          onClick={() => discardSpecimen()}
-                          disabled={isDiscarding}
-                        >
-                          {isDiscarding ? "Discarding..." : "Confirm Discard"}
-                        </AlertDialogAction>
-                      </AlertDialogFooter>
-                    </AlertDialogContent>
-                  </AlertDialog>
-                </div>
-              </AccordionContent>
-            </AccordionItem>
-          )} */}
             </Accordion>
           </CardContent>
         </CollapsibleContent>

@@ -199,33 +199,75 @@ export function SpecimenForm({
             </TabsContent>
           </Tabs>
         </div>
-
         <div className="space-y-4">
           <div className="font-medium text-lg mb-2">Collection Information</div>
+          <div className="space-y-4 bg-gray-50 p-4 rounded-lg">
+            <div className="grid grid-cols-1 lg:grid-cols-2 gap-4">
+              <div>
+                <Label className="text-sm text-gray-700">
+                  Collection Date & Time
+                </Label>
+                <Input
+                  className="h-9"
+                  type="datetime-local"
+                  value={
+                    specimenData.specimen.collection?.collected_date_time?.split(
+                      ".",
+                    )[0] || ""
+                  }
+                  onChange={(e) =>
+                    handleCollectionChange(
+                      "collected_date_time",
+                      e.target.value
+                        ? new Date(e.target.value).toISOString()
+                        : null,
+                    )
+                  }
+                />
+              </div>
+              <div>
+                <Label className="text-sm text-gray-700">Quantity</Label>
+                <div className="flex gap-2">
+                  <Input
+                    type="number"
+                    placeholder="Value"
+                    className="max-w-36 h-9"
+                    value={
+                      specimenData.specimen.collection?.quantity?.value ?? ""
+                    }
+                    onChange={(e) =>
+                      handleCollectionChange("quantity", {
+                        ...(specimenData.specimen.collection?.quantity ?? {}),
+                        value: e.target.value
+                          ? parseFloat(e.target.value)
+                          : null,
+                        unit: specimenData.specimen.collection?.quantity?.unit,
+                      })
+                    }
+                    step="any"
+                  />
+                  <div className="flex-1">
+                    <ValueSetSelect
+                      system="system-ucum-units"
+                      placeholder="Unit"
+                      onSelect={(code: Code | null) =>
+                        handleCollectionChange("quantity", {
+                          ...(specimenData.specimen.collection?.quantity ?? {}),
+                          value:
+                            specimenData.specimen.collection?.quantity?.value ??
+                            null,
+                          unit: code,
+                        })
+                      }
+                      value={specimenData.specimen.collection?.quantity?.unit}
+                    />
+                  </div>
+                </div>
+              </div>
+            </div>
 
-          <div>
-            <Label>Collection Date & Time</Label>
-            <Input
-              type="datetime-local"
-              value={
-                specimenData.specimen.collection?.collected_date_time?.split(
-                  ".",
-                )[0] || ""
-              }
-              onChange={(e) =>
-                handleCollectionChange(
-                  "collected_date_time",
-                  e.target.value
-                    ? new Date(e.target.value).toISOString()
-                    : null,
-                )
-              }
-            />
-          </div>
-
-          <div className="grid grid-cols-2 gap-4">
             <div>
-              <Label>Body Site</Label>
+              <Label className="text-sm text-gray-700">Body Site</Label>
               <ValueSetSelect
                 system="system-body-site"
                 placeholder="Select body site"
@@ -235,149 +277,114 @@ export function SpecimenForm({
                 value={specimenData.specimen.collection?.body_site}
               />
             </div>
+            <div className="grid grid-cols-1 md:grid-cols-6 gap-4">
+              <div className="col-span-1 md:col-span-4">
+                <Label className="text-sm text-gray-700">Fasting Status</Label>
+                <ValueSetSelect
+                  system="system-fasting-status-code"
+                  placeholder="Select status"
+                  onSelect={(code: Code | null) =>
+                    handleCollectionChange(
+                      "fasting_status_codeable_concept",
+                      code,
+                    )
+                  }
+                  value={
+                    specimenData.specimen.collection
+                      ?.fasting_status_codeable_concept
+                  }
+                />
+              </div>
 
-            <div>
-              <Label>Quantity</Label>
-              <div className="flex gap-2">
+              <div className="col-span-1 md:col-span-2">
+                <Label className="text-sm text-gray-700">
+                  Fasting Duration (optional)
+                </Label>
                 <Input
                   type="number"
-                  placeholder="Value"
+                  placeholder="Duration value (e.g., 8)"
                   value={
-                    specimenData.specimen.collection?.quantity?.value ?? ""
+                    specimenData.specimen.collection?.fasting_status_duration
+                      ?.value ?? ""
                   }
                   onChange={(e) =>
-                    handleCollectionChange("quantity", {
-                      ...(specimenData.specimen.collection?.quantity ?? {}),
+                    handleCollectionChange("fasting_status_duration", {
+                      ...(specimenData.specimen.collection
+                        ?.fasting_status_duration ?? {}),
                       value: e.target.value ? parseFloat(e.target.value) : null,
-                      unit: specimenData.specimen.collection?.quantity?.unit,
+                      unit: specimenData.specimen.collection
+                        ?.fasting_status_duration?.unit ?? {
+                        code: "h",
+                        display: "hour",
+                        system: "http://unitsofmeasure.org",
+                      },
                     })
                   }
-                  step="any"
                 />
-                <div className="w-[120px]">
-                  <ValueSetSelect
-                    system="system-ucum-units"
-                    placeholder="Unit"
-                    onSelect={(code: Code | null) =>
-                      handleCollectionChange("quantity", {
-                        ...(specimenData.specimen.collection?.quantity ?? {}),
-                        value:
-                          specimenData.specimen.collection?.quantity?.value ??
-                          null,
-                        unit: code,
-                      })
-                    }
-                    value={specimenData.specimen.collection?.quantity?.unit}
-                  />
-                </div>
               </div>
             </div>
 
-            <div>
-              <Label>Fasting Status</Label>
-              <ValueSetSelect
-                system="system-fasting-status-code"
-                placeholder="Select status"
-                onSelect={(code: Code | null) =>
-                  handleCollectionChange(
-                    "fasting_status_codeable_concept",
-                    code,
-                  )
+            {specimenDefinition.type_tested?.container && (
+              <div className="mt-4 rounded-lg border bg-gray-50 p-4">
+                <div className="flex items-center gap-2 mb-2 text-sm font-medium text-gray-600">
+                  <Info className="h-4 w-4" />
+                  Container Requirements
+                </div>
+                <div className="grid grid-cols-2 gap-x-8 gap-y-2 text-sm">
+                  <div>
+                    <span className="text-gray-600">Type: </span>
+                    {specimenDefinition.type_tested.container.description}
+                  </div>
+                  {specimenDefinition.type_tested.container.capacity && (
+                    <div>
+                      <span className="text-gray-600">Capacity: </span>
+                      {
+                        specimenDefinition.type_tested.container.capacity.value
+                      }{" "}
+                      {
+                        specimenDefinition.type_tested.container.capacity.unit
+                          .display
+                      }
+                    </div>
+                  )}
+                  {specimenDefinition.type_tested.container.minimum_volume && (
+                    <div>
+                      <span className="text-gray-600">Minimum Volume: </span>
+                      {specimenDefinition.type_tested.container.minimum_volume
+                        .string ||
+                        (specimenDefinition.type_tested.container.minimum_volume
+                          .quantity &&
+                          `${specimenDefinition.type_tested.container.minimum_volume.quantity.value} ${specimenDefinition.type_tested.container.minimum_volume.quantity.unit.display}`)}
+                    </div>
+                  )}
+                  {specimenDefinition.type_tested.container.preparation && (
+                    <div className="col-span-2">
+                      <span className="text-gray-600">Preparation: </span>
+                      {specimenDefinition.type_tested.container.preparation}
+                    </div>
+                  )}
+                </div>
+              </div>
+            )}
+            <div className="space-y-2">
+              <Label className="text-sm text-gray-700">Notes</Label>
+              <Textarea
+                placeholder="Add any additional notes about the collection..."
+                value={specimenData.specimen.note ?? ""}
+                onChange={(e: React.ChangeEvent<HTMLTextAreaElement>) =>
+                  handleSpecimenChange("note", e.target.value || null)
                 }
-                value={
-                  specimenData.specimen.collection
-                    ?.fasting_status_codeable_concept
-                }
+                className="min-h-[80px]"
               />
             </div>
 
-            <div>
-              <Label>Fasting Duration (optional)</Label>
-              <Input
-                type="number"
-                placeholder="Duration value (e.g., 8)"
-                value={
-                  specimenData.specimen.collection?.fasting_status_duration
-                    ?.value ?? ""
-                }
-                onChange={(e) =>
-                  handleCollectionChange("fasting_status_duration", {
-                    ...(specimenData.specimen.collection
-                      ?.fasting_status_duration ?? {}),
-                    value: e.target.value ? parseFloat(e.target.value) : null,
-                    unit: specimenData.specimen.collection
-                      ?.fasting_status_duration?.unit ?? {
-                      code: "h",
-                      display: "hour",
-                      system: "http://unitsofmeasure.org",
-                    },
-                  })
-                }
-              />
+            <div className="flex justify-end gap-2 pt-2">
+              <Button type="button" variant="outline" onClick={onCancel}>
+                Cancel
+              </Button>
+              <Button type="submit">Collect Specimen</Button>
             </div>
           </div>
-
-          {specimenDefinition.type_tested?.container && (
-            <div className="mt-4 rounded-lg border bg-gray-50 p-4">
-              <div className="flex items-center gap-2 mb-2 text-sm font-medium text-gray-600">
-                <Info className="h-4 w-4" />
-                Container Requirements
-              </div>
-              <div className="grid grid-cols-2 gap-x-8 gap-y-2 text-sm">
-                <div>
-                  <span className="text-gray-600">Type: </span>
-                  {specimenDefinition.type_tested.container.description}
-                </div>
-                {specimenDefinition.type_tested.container.capacity && (
-                  <div>
-                    <span className="text-gray-600">Capacity: </span>
-                    {
-                      specimenDefinition.type_tested.container.capacity.value
-                    }{" "}
-                    {
-                      specimenDefinition.type_tested.container.capacity.unit
-                        .display
-                    }
-                  </div>
-                )}
-                {specimenDefinition.type_tested.container.minimum_volume && (
-                  <div>
-                    <span className="text-gray-600">Minimum Volume: </span>
-                    {specimenDefinition.type_tested.container.minimum_volume
-                      .string ||
-                      (specimenDefinition.type_tested.container.minimum_volume
-                        .quantity &&
-                        `${specimenDefinition.type_tested.container.minimum_volume.quantity.value} ${specimenDefinition.type_tested.container.minimum_volume.quantity.unit.display}`)}
-                  </div>
-                )}
-                {specimenDefinition.type_tested.container.preparation && (
-                  <div className="col-span-2">
-                    <span className="text-gray-600">Preparation: </span>
-                    {specimenDefinition.type_tested.container.preparation}
-                  </div>
-                )}
-              </div>
-            </div>
-          )}
-        </div>
-
-        <div className="space-y-2">
-          <Label>Notes</Label>
-          <Textarea
-            placeholder="Add any additional notes about the collection..."
-            value={specimenData.specimen.note ?? ""}
-            onChange={(e: React.ChangeEvent<HTMLTextAreaElement>) =>
-              handleSpecimenChange("note", e.target.value || null)
-            }
-            className="min-h-[80px]"
-          />
-        </div>
-
-        <div className="flex justify-end gap-2 pt-4 border-t">
-          <Button type="button" variant="outline" onClick={onCancel}>
-            Cancel
-          </Button>
-          <Button type="submit">Collect Specimen</Button>
         </div>
       </form>
     </div>

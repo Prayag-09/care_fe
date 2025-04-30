@@ -18,5 +18,6 @@ Do keep this updated if you have completed something, also mark your name to the
 - [ ] Add support for search by specimen ID in the UI based on design
 - [ ] Add filters for statues in service request page as of the UI
 - [ ] Add support for multiple diagnostic report for a service request
-- [ ] Service Request - Show collector details instead of UUID (After BE change)
+- [ ] Service Request - Show specimen.collection.collector details instead of UUID (After BE change)
+- [ ] Service Request - Show specimen.processing.performer details instead of UUID (After BE change)
 - [ ] Add support for xray and file uploads service request

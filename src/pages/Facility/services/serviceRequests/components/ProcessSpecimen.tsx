@@ -1,6 +1,7 @@
-import { Check, Edit, Settings2 } from "lucide-react";
+import { CircleCheckBig, Edit, Settings2 } from "lucide-react";
 import { useState } from "react";
 
+import { Badge } from "@/components/ui/badge";
 import { Button } from "@/components/ui/button";
 import {
   Dialog,
@@ -92,20 +93,26 @@ export function ProcessSpecimen({
     <>
       <div>
         <div className="flex-row items-center justify-between space-y-0 pb-2">
-          <div className="text-base font-medium flex items-center gap-2">
+          <div className="text-sm font-medium flex items-center gap-1">
             <Settings2 className="h-4 w-4" />
             Process Specimen
+            <Badge
+              variant="outline"
+              className="bg-primary-100 text-primary-600 border-primary-300"
+            >
+              {existingProcessing.length}
+            </Badge>
           </div>
         </div>
         <div className="space-y-4">
           {existingProcessing.map((process, index) => (
             <div
               key={index}
-              className="flex items-center gap-2 rounded-md bg-green-50 px-3 py-2"
+              className="flex items-center gap-2 rounded-md bg-primary-100 border border-primary-300 px-3 py-2"
             >
-              <Check className="h-4 w-4 text-green-600" />
+              <CircleCheckBig className="h-4 w-4 text-green-600" />
               <div className="flex-1">
-                <div className="font-medium text-sm">
+                <div className="font-medium text-sm text-primary-950">
                   {process.method?.display || process.description}
                 </div>
                 {process.method &&
@@ -115,6 +122,11 @@ export function ProcessSpecimen({
                     </div>
                   )}
               </div>
+              {process.performer && (
+                <div className="text-sm text-gray-600 mt-0.5">
+                  Performed by: {process.performer}
+                </div>
+              )}
               <Button
                 type="button" // Explicitly set type to button
                 variant="ghost"
