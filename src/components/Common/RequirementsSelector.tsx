@@ -26,7 +26,7 @@ type RequirementItem = {
   label: string;
   details: {
     label: string;
-    value: string | undefined;
+    value?: string | undefined;
   }[];
 };
 
@@ -51,7 +51,7 @@ function SelectedItemCard({
   onRemove,
 }: {
   title: string;
-  details: { label: string; value: string | undefined }[];
+  details: { label: string; value?: string | undefined }[];
   onRemove: () => void;
 }) {
   return (

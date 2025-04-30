@@ -140,8 +140,6 @@ const formSchema = z.object({
   locations: z.array(z.string()).default([]),
 });
 
-type FormValues = z.infer<typeof formSchema>;
-
 export default function ActivityDefinitionForm({
   facilityId,
   activityDefinitionId,
@@ -256,7 +254,7 @@ function ActivityDefinitionFormContent({
     }),
   });
 
-  const form = useForm<FormValues>({
+  const form = useForm({
     resolver: zodResolver(formSchema),
     defaultValues:
       isEditMode && existingData
@@ -401,7 +399,7 @@ function ActivityDefinitionFormContent({
 
   const isPending = isCreating || isUpdating;
 
-  function onSubmit(data: FormValues) {
+  function onSubmit(data: z.infer<typeof formSchema>) {
     const transformedData = {
       ...data,
       specimen_requirements: data.specimen_requirements.map(
@@ -694,7 +692,7 @@ function ActivityDefinitionFormContent({
                           "select_or_create_specimen_requirements",
                         )}
                         allowDuplicate={true}
-                        value={form.watch("specimen_requirements")}
+                        value={form.watch("specimen_requirements") || []}
                         onChange={(values) =>
                           form.setValue("specimen_requirements", values)
                         }
@@ -756,7 +754,9 @@ function ActivityDefinitionFormContent({
                         description={t(
                           "select_or_create_observation_requirements",
                         )}
-                        value={form.watch("observation_result_requirements")}
+                        value={
+                          form.watch("observation_result_requirements") || []
+                        }
                         onChange={(values) =>
                           form.setValue(
                             "observation_result_requirements",
@@ -819,7 +819,7 @@ function ActivityDefinitionFormContent({
                           "select_or_create_charge_item_definitions",
                         )}
                         allowDuplicate={true}
-                        value={form.watch("charge_item_definitions")}
+                        value={form.watch("charge_item_definitions") || []}
                         onChange={(values) =>
                           form.setValue("charge_item_definitions", values)
                         }
@@ -865,7 +865,7 @@ function ActivityDefinitionFormContent({
                       <RequirementsSelector
                         title={t("location_requirements")}
                         description={t("location_requirements_description")}
-                        value={form.watch("locations").map((id) => ({
+                        value={(form.watch("locations") || []).map((id) => ({
                           value: id,
                           label:
                             locations?.results.find((l) => l.id === id)?.name ||
@@ -881,7 +881,9 @@ function ActivityDefinitionFormContent({
                         options={
                           locations?.results
                             .filter((location) =>
-                              form.watch("locations").includes(location.id),
+                              (form.watch("locations") || []).includes(
+                                location.id,
+                              ),
                             )
                             .map((location) => ({
                               label: location.name,
@@ -907,7 +909,7 @@ function ActivityDefinitionFormContent({
                         customSelector={
                           <LocationMultiSelect
                             facilityId={facilityId}
-                            value={form.watch("locations")}
+                            value={form.watch("locations") || []}
                             onChange={(values) =>
                               form.setValue("locations", values)
                             }
