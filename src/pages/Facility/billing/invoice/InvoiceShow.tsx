@@ -26,6 +26,7 @@ import { TableSkeleton } from "@/components/Common/SkeletonLoading";
 
 import mutate from "@/Utils/request/mutate";
 import query from "@/Utils/request/query";
+// import { formatDate } from "@/Utils/utils";
 import PaymentReconciliationSheet from "@/pages/Facility/billing/PaymentReconciliationSheet";
 import EditInvoiceSheet from "@/pages/Facility/billing/invoice/EditInvoiceSheet";
 import chargeItemApi from "@/types/billing/chargeItem/chargeItemApi";
@@ -157,42 +158,56 @@ export function InvoiceShow({
         <div className="md:col-span-2">
           <Card>
             <CardHeader>
-              <CardTitle>{t("invoice_details")}</CardTitle>
+              <CardTitle>
+                <div className="space-y-1">
+                  <div className="font-medium text-xl">
+                    {t("invoice_details")}
+                  </div>
+                </div>
+              </CardTitle>
             </CardHeader>
             <CardContent>
               <div className="grid gap-6 md:grid-cols-2">
                 <div>
-                  <h3 className="font-medium text-muted-foreground">
+                  <div className="font-semibold text-muted-foreground mb-2">
                     {t("bill_to")}
-                  </h3>
+                  </div>
+                  <div>
+                    <p className="font-medium">
+                      {invoice.account.patient.name}
+                    </p>
+                    <p className="font-normal">
+                      {invoice.account.patient.address}
+                    </p>
+                    <p className="text-sm text-muted-foreground">
+                      {t("phone")}: {invoice.account.patient.phone_number}
+                    </p>
+                  </div>
                   <div className="mt-2">
-                    <p className="font-medium">{invoice.title}</p>
                     {invoice.note && <p>{invoice.note}</p>}
                   </div>
                 </div>
-                <div className="grid grid-cols-1 sm:grid-cols-2 gap-6 mb-6">
-                  <div>
-                    <p className="font-semibold text-muted-foreground mb-2">
-                      {t("bill_to")}
-                    </p>
-                    <div>
-                      <p className="font-medium">{invoice.title}</p>
-                      {invoice.note && (
-                        <p className="text-sm text-gray-600">{invoice.note}</p>
-                      )}
-                    </div>
-                  </div>
-                  <div>
-                    <div className="font-semibold text-muted-foreground mb-2">
-                      {t("invoice_date")}
-                    </div>
-                    <div>
-                      <p>{format(new Date(), "MMM dd, yyyy")}</p>
-                    </div>
-                  </div>
+              </div>
+              <div className="grid grid-cols-3 gap-4 mb-6 mt-4">
+                <div>
+                  <h3 className="text-sm font-medium text-muted-foreground mb-1">
+                    Invoice Number
+                  </h3>
+                  <p className="text-sm">{invoice.title || invoice.id}</p>
+                </div>
+                <div>
+                  <h3 className="text-sm font-medium text-muted-foreground mb-1">
+                    Issue Date
+                  </h3>
+                  {/* <p className="text-sm">{formatDate(invoice.created_at)}</p> */}
+                </div>
+                <div>
+                  <h3 className="text-sm font-medium text-muted-foreground mb-1">
+                    Due Date
+                  </h3>
+                  {/* <p className="text-sm">{formatDate(invoice.dueDate)}</p> */}
                 </div>
               </div>
-
               <Separator className="my-6" />
 
               <div className="space-y-4">
@@ -350,6 +365,7 @@ export function InvoiceShow({
         onOpenChange={setIsPaymentSheetOpen}
         facilityId={facilityId}
         invoice={invoice}
+        accountId={invoice.account.id}
       />
 
       <AlertDialog

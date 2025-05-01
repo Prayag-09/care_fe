@@ -92,7 +92,6 @@ export function InvoicesTable({
             <TableHeader>
               <TableRow>
                 <TableHead>{t("invoice_number")}</TableHead>
-                <TableHead>{t("title")}</TableHead>
                 <TableHead>{t("status")}</TableHead>
                 <TableHead>{t("total")}</TableHead>
                 <TableHead>{t("actions")}</TableHead>
@@ -111,8 +110,13 @@ export function InvoicesTable({
               ) : (
                 items.map((invoice) => (
                   <TableRow key={invoice.id}>
-                    <TableCell className="font-medium">{invoice.id}</TableCell>
-                    <TableCell>{invoice.title}</TableCell>
+                    <TableCell className="font-medium">
+                      <div> {invoice.title}</div>
+                      <div className="text-xs text-muted-foreground mt-px">
+                        {invoice.id}
+                      </div>
+                    </TableCell>
+
                     <TableCell>
                       <Badge variant={statusMap[invoice.status].variant}>
                         {t(statusMap[invoice.status].label)}

@@ -1,4 +1,5 @@
 import { MonetoryComponent } from "@/types/base/monetoryComponent/monetoryComponent";
+import { AccountRead } from "@/types/billing/account/Account";
 import { ChargeItemRead } from "@/types/billing/chargeItem/chargeItem";
 
 export enum InvoiceStatus {
@@ -24,6 +25,7 @@ export interface InvoiceCreate extends Omit<InvoiceBase, "id"> {
 }
 
 export interface InvoiceRead extends InvoiceBase {
+  account: AccountRead;
   charge_items: ChargeItemRead[];
   total_price_component: MonetoryComponent[];
   total_net: number;

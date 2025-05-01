@@ -62,7 +62,7 @@ interface PaymentReconciliationSheetProps {
   onOpenChange: (open: boolean) => void;
   facilityId: string;
   invoice?: InvoiceRead;
-  accountId?: string;
+  accountId: string;
   onSuccess?: () => void;
 }
 
@@ -96,6 +96,7 @@ export function PaymentReconciliationSheet({
       authorization: "",
       disposition: "",
       note: "",
+      account: accountId,
     },
   });
 
