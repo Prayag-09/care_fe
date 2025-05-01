@@ -23,6 +23,7 @@ import {
   TableHeader,
   TableRow,
 } from "@/components/ui/table";
+import { Tabs, TabsList, TabsTrigger } from "@/components/ui/tabs";
 
 import { Avatar } from "@/components/Common/Avatar";
 import Page from "@/components/Common/Page";
@@ -32,9 +33,9 @@ import useFilters from "@/hooks/useFilters";
 
 import query from "@/Utils/request/query";
 import {
-  AccountBillingStatus,
   type AccountRead,
-  AccountStatus,
+  billingStatusColorMap,
+  statusColorMap,
 } from "@/types/billing/account/Account";
 import accountApi from "@/types/billing/account/accountApi";
 
@@ -51,29 +52,6 @@ function EmptyState() {
     </div>
   );
 }
-
-const statusMap: Record<AccountStatus, { label: string; color: string }> = {
-  active: { label: "active", color: "primary" },
-  inactive: { label: "inactive", color: "secondary" },
-  entered_in_error: { label: "entered_in_error", color: "destructive" },
-  on_hold: { label: "on_hold", color: "outline" },
-};
-
-const billingStatusMap: Record<
-  AccountBillingStatus,
-  { label: string; color: string }
-> = {
-  open: { label: "open", color: "primary" },
-  carecomplete_notbilled: {
-    label: "carecomplete_notbilled",
-    color: "secondary",
-  },
-  billing: { label: "billing", color: "outline" },
-  closed_baddebt: { label: "closed_baddebt", color: "destructive" },
-  closed_voided: { label: "closed_voided", color: "destructive" },
-  closed_completed: { label: "closed_completed", color: "success" },
-  closed_combined: { label: "closed_combined", color: "success" },
-};
 
 function formatCurrency(amount?: number | string) {
   return Number(amount).toLocaleString("en-IN", {
@@ -128,21 +106,6 @@ export function AccountList({
     <Page title={t("accounts")}>
       <div className="container mx-auto">
         <div className="mb-4">
-          <div className="mb-6 flex items-center justify-between">
-            <div>
-              <h1 className="text-xl font-semibold">
-                {t("account_management")}
-              </h1>
-              <p className="text-gray-600 text-sm">
-                {t("view_and_manage_accounts")}
-              </p>
-            </div>
-            {patientId && (
-              <Button onClick={() => setSheetOpen(true)}>
-                {t("create_account")}
-              </Button>
-            )}
-          </div>
           <AccountSheet
             open={sheetOpen}
             onOpenChange={(open) => {
@@ -163,44 +126,52 @@ export function AccountList({
               }
               className="max-w-xs"
             />
-            <Select
+            <Tabs
               value={qParams.status ?? "all"}
               onValueChange={(value) =>
                 updateQuery({ status: value === "all" ? undefined : value })
               }
             >
-              <SelectTrigger className="w-40">
-                <SelectValue placeholder={t("all_statuses")} />
-              </SelectTrigger>
-              <SelectContent>
-                <SelectItem value="all">{t("all_statuses")}</SelectItem>
-                {Object.entries(statusMap).map(([key, { label }]) => (
-                  <SelectItem key={key} value={key}>
-                    {t(label)}
-                  </SelectItem>
+              <TabsList>
+                <TabsTrigger value="all">{t("all_statuses")}</TabsTrigger>
+                {Object.keys(statusColorMap).map((key) => (
+                  <TabsTrigger key={key} value={key}>
+                    {t(key)}
+                  </TabsTrigger>
                 ))}
-              </SelectContent>
-            </Select>
-            <Select
-              value={qParams.billing_status ?? "all"}
-              onValueChange={(value) =>
-                updateQuery({
-                  billing_status: value === "all" ? undefined : value,
-                })
-              }
-            >
-              <SelectTrigger className="w-40">
-                <SelectValue placeholder={t("all_billing_statuses")} />
-              </SelectTrigger>
-              <SelectContent>
-                <SelectItem value="all">{t("all_billing_statuses")}</SelectItem>
-                {Object.entries(billingStatusMap).map(([key, { label }]) => (
-                  <SelectItem key={key} value={key}>
-                    {t(label)}
+              </TabsList>
+            </Tabs>
+            <div className="w-64">
+              <Select
+                value={qParams.billing_status ?? "all"}
+                onValueChange={(value) =>
+                  updateQuery({
+                    billing_status: value === "all" ? undefined : value,
+                  })
+                }
+              >
+                <SelectTrigger className="w-40">
+                  <SelectValue placeholder={t("all_billing_statuses")} />
+                </SelectTrigger>
+                <SelectContent>
+                  <SelectItem value="all">
+                    {t("all_billing_statuses")}
                   </SelectItem>
-                ))}
-              </SelectContent>
-            </Select>
+                  {Object.keys(billingStatusColorMap).map((key) => (
+                    <SelectItem key={key} value={key}>
+                      {t(key)}
+                    </SelectItem>
+                  ))}
+                </SelectContent>
+              </Select>
+            </div>
+            <div>
+              {patientId && (
+                <Button onClick={() => setSheetOpen(true)}>
+                  {t("create_account")}
+                </Button>
+              )}
+            </div>
           </div>
         </div>
         {isLoading ? (
@@ -236,17 +207,17 @@ export function AccountList({
                     </TableCell>
                     <TableCell>{formatCurrency(0)}</TableCell>
                     <TableCell>
-                      <Badge variant={statusMap[account.status]?.color as any}>
-                        {t(statusMap[account.status]?.label)}
+                      <Badge variant={statusColorMap[account.status] as any}>
+                        {t(account.status)}
                       </Badge>
                     </TableCell>
                     <TableCell>
                       <Badge
                         variant={
-                          billingStatusMap[account.billing_status]?.color as any
+                          billingStatusColorMap[account.billing_status] as any
                         }
                       >
-                        {t(billingStatusMap[account.billing_status]?.label)}
+                        {t(account.billing_status)}
                       </Badge>
                     </TableCell>
                     <TableCell>

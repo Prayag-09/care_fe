@@ -164,40 +164,11 @@ export const EncounterShow = (props: Props) => {
   return (
     <Page title={t("encounter")} className="block">
       <nav className="relative flex flex-wrap items-start justify-between mt-4">
+        {/* TODO: REMOVE THIS */}
         <div
           className="flex w-full flex-col min-[1150px]:w-min min-[1150px]:flex-row min-[1150px]:items-center"
           id="consultationpage-header"
-        >
-          {/* {!consultationData.discharge_date && (
-            <>
-              <button
-                id="doctor-connect-button"
-                onClick={() => {
-                  triggerGoal("Doctor Connect Clicked", {
-                    consultationId,
-                    facilityId: patientData.facility,
-                    userId: authUser.id,
-                    page: "ConsultationDetails",
-                  });
-                  setShowDoctors(true);
-                }}
-                className="btn btn-primary m-1 w-full hover:text-white"
-              >
-                Doctor Connect
-              </button>
-              {patientData.last_consultation?.id &&
-                isCameraAttached &&
-                CameraFeedPermittedUserTypes.includes(authUser.user_type) && (
-                  <Link
-                    href={`/facility/${patientData.facility}/patient/${patientData.id}/consultation/${patientData.last_consultation?.id}/feed`}
-                    className="btn btn-primary m-1 w-full hover:text-white"
-                  >
-                    Camera Feed
-                  </Link>
-                )}
-            </>
-          )} */}
-        </div>
+        ></div>
       </nav>
       <div className="mt-4 xl:mt-0 w-full border-b-2 border-secondary-200">
         <div className="mt-2 xl:mt-0 flex w-full flex-col md:flex-row">

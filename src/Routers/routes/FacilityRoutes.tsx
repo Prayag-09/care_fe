@@ -95,7 +95,31 @@ const FacilityRoutes: AppRoutes = {
   "/facility/:facilityId/billing/account/:accountId": ({
     facilityId,
     accountId,
-  }) => <AccountShow facilityId={facilityId} accountId={accountId} />,
+  }) => (
+    <AccountShow facilityId={facilityId} accountId={accountId} tab="invoices" />
+  ),
+  "/facility/:facilityId/billing/account/:accountId/invoices": ({
+    facilityId,
+    accountId,
+  }) => (
+    <AccountShow facilityId={facilityId} accountId={accountId} tab="invoices" />
+  ),
+  "/facility/:facilityId/billing/account/:accountId/charge_items": ({
+    facilityId,
+    accountId,
+  }) => (
+    <AccountShow
+      facilityId={facilityId}
+      accountId={accountId}
+      tab="charge_items"
+    />
+  ),
+  "/facility/:facilityId/billing/account/:accountId/payments": ({
+    facilityId,
+    accountId,
+  }) => (
+    <AccountShow facilityId={facilityId} accountId={accountId} tab="payments" />
+  ),
   "/facility/:facilityId/billing/account/:accountId/invoices/create": ({
     facilityId,
     accountId,

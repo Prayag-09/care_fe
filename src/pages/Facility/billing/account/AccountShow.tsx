@@ -8,6 +8,7 @@ import CareIcon from "@/CAREUI/icons/CareIcon";
 import { Badge } from "@/components/ui/badge";
 import { Button } from "@/components/ui/button";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
+import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
 
 import { Avatar } from "@/components/Common/Avatar";
 import { TableSkeleton } from "@/components/Common/SkeletonLoading";
@@ -44,6 +45,8 @@ function formatDate(date?: string) {
   });
 }
 
+type tab = "charge_items" | "invoices" | "payments";
+
 function formatCurrency(amount: number, currency: string = "INR") {
   return new Intl.NumberFormat("en-IN", {
     style: "currency",
@@ -54,9 +57,11 @@ function formatCurrency(amount: number, currency: string = "INR") {
 export function AccountShow({
   facilityId,
   accountId,
+  tab,
 }: {
   facilityId: string;
   accountId: string;
+  tab: tab;
 }) {
   const { t } = useTranslation();
   const [sheetOpen, setSheetOpen] = useState(false);
@@ -216,29 +221,57 @@ export function AccountShow({
         </Card>
       </div>
 
-      {/* Charge Items Section */}
-      <div className="mt-8">
-        <ChargeItemsTable
-          isLoading={isLoadingChargeItems}
-          items={chargeItems?.results}
-          facilityId={facilityId}
-        />
-      </div>
+      {/* Tabs Section */}
+      <Tabs
+        value={tab}
+        onValueChange={(value) =>
+          navigate(
+            `/facility/${facilityId}/billing/account/${accountId}/${value}`,
+          )
+        }
+        className="mt-8"
+      >
+        <TabsList>
+          <TabsTrigger value="invoices">{t("invoices")}</TabsTrigger>
+          <TabsTrigger value="charge_items">{t("charge_items")}</TabsTrigger>
+          <TabsTrigger value="payments">{t("payments")}</TabsTrigger>
+        </TabsList>
 
-      {/* Invoices Section */}
-      <div className="mt-8">
-        <InvoicesTable
-          isLoading={isLoadingInvoices}
-          items={invoices?.results}
-          accountId={accountId}
-          facilityId={facilityId}
-          onCreateClick={() => {
-            navigate(
-              `/facility/${facilityId}/billing/account/${accountId}/invoices/create`,
-            );
-          }}
-        />
-      </div>
+        <TabsContent value="charge_items" className="mt-4">
+          <ChargeItemsTable
+            isLoading={isLoadingChargeItems}
+            items={chargeItems?.results}
+            facilityId={facilityId}
+          />
+        </TabsContent>
+
+        <TabsContent value="invoices" className="mt-4">
+          <InvoicesTable
+            isLoading={isLoadingInvoices}
+            items={invoices?.results}
+            accountId={accountId}
+            facilityId={facilityId}
+            onCreateClick={() => {
+              navigate(
+                `/facility/${facilityId}/billing/account/${accountId}/invoices/create`,
+              );
+            }}
+          />
+        </TabsContent>
+
+        <TabsContent value="payments" className="mt-4">
+          <Card>
+            <CardHeader>
+              <CardTitle>{t("payments")}</CardTitle>
+            </CardHeader>
+            <CardContent>
+              <p className="text-muted-foreground">
+                {t("payments_section_placeholder")}
+              </p>
+            </CardContent>
+          </Card>
+        </TabsContent>
+      </Tabs>
 
       <AccountSheet
         open={sheetOpen}

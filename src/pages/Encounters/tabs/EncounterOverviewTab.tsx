@@ -31,6 +31,10 @@ const actionLinks = [
     href: "questionnaire/symptom",
     label: "Add Symptoms",
   },
+  {
+    href: "questionnaire/charge_item",
+    label: "Add Charge Item",
+  },
 ];
 
 export const EncounterOverviewTab = ({
@@ -59,7 +63,7 @@ export const EncounterOverviewTab = ({
         <div className="flex-1 space-y-4" data-cy="encounter-overview">
           {canEdit && (
             <div className="flex justify-between gap-2">
-              <div className="grid grid-cols-2 sm:grid-cols-3 gap-2 mx-auto md:mx-0">
+              <div className="grid grid-cols-2 sm:grid-cols-4 gap-2 mx-auto md:mx-0">
                 {actionLinks.map((link) => {
                   return (
                     <Button
