@@ -1,4 +1,6 @@
+import { MonetoryComponentRead } from "@/types/base/monetoryComponent/monetoryComponent";
 import { Organization } from "@/types/organization/organization";
+import { Code } from "@/types/questionnaire/code";
 
 export interface FacilityBareMinimum {
   id: string;
@@ -39,4 +41,9 @@ export interface FacilityData {
   permissions: string[];
   root_org_permissions: string[];
   child_org_permissions: string[];
+  instance_discount_codes: Code[];
+  instance_discount_monetory_components: MonetoryComponentRead[];
+  instance_tax_codes: Code[];
+  instance_tax_monetory_components: MonetoryComponentRead[];
+  discount_codes: Code[];
 }

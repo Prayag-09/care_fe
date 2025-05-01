@@ -15,4 +15,9 @@ export default {
     TRes: Type<Record<string, never>>(),
     TBody: Type<void>(),
   },
+  getFacility: {
+    path: "/api/v1/facility/{id}/",
+    method: HttpMethod.GET,
+    TRes: Type<FacilityData>(),
+  },
 };

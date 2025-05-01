@@ -14,3 +14,7 @@ export interface MonetoryComponent {
   factor?: number | null;
   amount?: number | null;
 }
+
+export interface MonetoryComponentRead extends MonetoryComponent {
+  title: string;
+}
