@@ -34,6 +34,8 @@ import {
   AccountBillingStatus,
   type AccountRead,
   AccountStatus,
+  billingStatusColorMap,
+  statusColorMap,
 } from "@/types/billing/account/Account";
 import accountApi from "@/types/billing/account/accountApi";
 import { Patient } from "@/types/emr/newPatient";
@@ -42,16 +44,10 @@ interface AccountFormValues {
   name: string;
   description?: string;
   status: AccountStatus;
+  billing_status: AccountBillingStatus;
   id?: string;
   patient?: Patient;
 }
-
-const statusMap: Record<AccountStatus, { label: string; color: string }> = {
-  active: { label: "active", color: "primary" },
-  inactive: { label: "inactive", color: "secondary" },
-  entered_in_error: { label: "entered_in_error", color: "destructive" },
-  on_hold: { label: "on_hold", color: "outline" },
-};
 
 interface AccountSheetProps {
   open: boolean;
@@ -78,6 +74,7 @@ export function AccountSheet({
       name: "",
       description: "",
       status: AccountStatus.active,
+      billing_status: AccountBillingStatus.open,
     },
   });
 
@@ -95,11 +92,11 @@ export function AccountSheet({
         body: {
           ...data,
           patient: patientId!,
-          billing_status: AccountBillingStatus.open,
+          billing_status: data.billing_status,
           service_period: {
             start: new Date().toISOString(),
           },
-          description: data.description ?? null,
+          description: data.description,
         },
       })({ signal: new AbortController().signal }),
     onSuccess: () => {
@@ -115,9 +112,9 @@ export function AccountSheet({
         body: {
           id: data.id!,
           name: data.name,
-          description: data.description ?? null,
+          description: data.description,
           status: data.status,
-          billing_status: AccountBillingStatus.open,
+          billing_status: data.billing_status,
           service_period: {
             start: new Date().toISOString(),
           },
@@ -205,9 +202,9 @@ export function AccountSheet({
                           <SelectValue />
                         </SelectTrigger>
                         <SelectContent>
-                          {Object.entries(statusMap).map(([key, { label }]) => (
+                          {Object.keys(statusColorMap).map((key) => (
                             <SelectItem key={key} value={key}>
-                              {t(label)}
+                              {t(key)}
                             </SelectItem>
                           ))}
                         </SelectContent>
@@ -217,6 +214,34 @@ export function AccountSheet({
                   </FormItem>
                 )}
               />
+              <FormField
+                name="billing_status"
+                control={methods.control}
+                render={({ field }) => (
+                  <FormItem>
+                    <FormLabel>{t("billing_status")}</FormLabel>
+                    <FormControl>
+                      <Select
+                        value={field.value}
+                        onValueChange={field.onChange}
+                      >
+                        <SelectTrigger>
+                          <SelectValue />
+                        </SelectTrigger>
+                        <SelectContent>
+                          {Object.keys(billingStatusColorMap).map((key) => (
+                            <SelectItem key={key} value={key}>
+                              {t(key)}
+                            </SelectItem>
+                          ))}
+                        </SelectContent>
+                      </Select>
+                    </FormControl>
+                    <FormMessage />
+                  </FormItem>
+                )}
+              />
+
               <SheetFooter>
                 <Button
                   type="submit"

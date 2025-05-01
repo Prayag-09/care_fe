@@ -79,7 +79,7 @@ export function EditChargeItemPopover({
       const updateData: ChargeItemUpdate = {
         ...data,
         id: item.id,
-        unit_price_component: item.unit_price_component,
+        unit_price_components: item.unit_price_components,
         override_reason: item.override_reason,
       };
       return mutate(chargeItemApi.updateChargeItem, {

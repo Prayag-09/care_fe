@@ -244,13 +244,7 @@ export function AccountShow({
         open={sheetOpen}
         onOpenChange={setSheetOpen}
         facilityId={facilityId}
-        initialValues={{
-          id: account.id,
-          name: account.name,
-          description: account.description || undefined,
-          status: account.status,
-          patient: account.patient,
-        }}
+        initialValues={account}
         isEdit
       />
 

@@ -10,6 +10,7 @@ Do keep this updated if you have completed something, also mark your name to the
 - [ ] Add payment as transactions tab in account page
 - [ ] Build a flow for account balanceing and closing
 - [ ] Make it easy for users to mark an invoice as issued from draft state
+- [ ] Replace Charge Item Create with ChargeItemDef to ChargeItem API
 
 ## Labs
 

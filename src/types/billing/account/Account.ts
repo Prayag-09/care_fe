@@ -38,7 +38,7 @@ export interface AccountBase {
   billing_status: AccountBillingStatus;
   name: string;
   service_period: Period;
-  description: string | null;
+  description?: string;
 }
 
 export interface AccountRead extends AccountBase {
@@ -55,3 +55,20 @@ export interface AccountUpdate extends AccountBase {
 export interface AccountCreate extends Omit<AccountBase, "id"> {
   patient: string;
 }
+
+export const statusColorMap: Record<AccountStatus, string> = {
+  active: "primary",
+  inactive: "secondary",
+  entered_in_error: "destructive",
+  on_hold: "outline",
+};
+
+export const billingStatusColorMap: Record<AccountBillingStatus, string> = {
+  open: "primary",
+  carecomplete_notbilled: "secondary",
+  billing: "secondary",
+  closed_baddebt: "destructive",
+  closed_voided: "destructive",
+  closed_completed: "success",
+  closed_combined: "success",
+};

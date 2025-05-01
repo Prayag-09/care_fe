@@ -32,6 +32,7 @@ import useFilters from "@/hooks/useFilters";
 
 import query from "@/Utils/request/query";
 import {
+  AccountBillingStatus,
   type AccountRead,
   AccountStatus,
 } from "@/types/billing/account/Account";
@@ -58,8 +59,23 @@ const statusMap: Record<AccountStatus, { label: string; color: string }> = {
   on_hold: { label: "on_hold", color: "outline" },
 };
 
+const billingStatusMap: Record<
+  AccountBillingStatus,
+  { label: string; color: string }
+> = {
+  open: { label: "open", color: "primary" },
+  carecomplete_notbilled: {
+    label: "carecomplete_notbilled",
+    color: "secondary",
+  },
+  billing: { label: "billing", color: "outline" },
+  closed_baddebt: { label: "closed_baddebt", color: "destructive" },
+  closed_voided: { label: "closed_voided", color: "destructive" },
+  closed_completed: { label: "closed_completed", color: "success" },
+  closed_combined: { label: "closed_combined", color: "success" },
+};
+
 function formatCurrency(amount?: number | string) {
-  if (amount == null) return "$0.00";
   return Number(amount).toLocaleString("en-IN", {
     style: "currency",
     currency: "INR",
@@ -101,6 +117,7 @@ export function AccountList({
         offset: ((qParams.page ?? 1) - 1) * resultsPerPage,
         search: qParams.search,
         status: qParams.status,
+        billing_status: qParams.billing_status,
       },
     }),
   });
@@ -134,17 +151,7 @@ export function AccountList({
             }}
             facilityId={facilityId}
             patientId={patientId}
-            initialValues={
-              editingAccount
-                ? {
-                    id: editingAccount.id,
-                    name: editingAccount.name,
-                    description: editingAccount.description || undefined,
-                    status: editingAccount.status,
-                    patient: editingAccount.patient,
-                  }
-                : undefined
-            }
+            initialValues={editingAccount ? editingAccount : undefined}
             isEdit={!!editingAccount}
           />
           <div className="mb-4 flex flex-wrap items-center gap-4">
@@ -174,6 +181,26 @@ export function AccountList({
                 ))}
               </SelectContent>
             </Select>
+            <Select
+              value={qParams.billing_status ?? "all"}
+              onValueChange={(value) =>
+                updateQuery({
+                  billing_status: value === "all" ? undefined : value,
+                })
+              }
+            >
+              <SelectTrigger className="w-40">
+                <SelectValue placeholder={t("all_billing_statuses")} />
+              </SelectTrigger>
+              <SelectContent>
+                <SelectItem value="all">{t("all_billing_statuses")}</SelectItem>
+                {Object.entries(billingStatusMap).map(([key, { label }]) => (
+                  <SelectItem key={key} value={key}>
+                    {t(label)}
+                  </SelectItem>
+                ))}
+              </SelectContent>
+            </Select>
           </div>
         </div>
         {isLoading ? (
@@ -188,8 +215,8 @@ export function AccountList({
                   <TableHead>{t("patient")}</TableHead>
                   <TableHead>{t("balance")}</TableHead>
                   <TableHead>{t("status")}</TableHead>
-                  <TableHead>{t("start_date")}</TableHead>
-                  <TableHead>{t("end_date")}</TableHead>
+                  <TableHead>{t("billing_status")}</TableHead>
+                  <TableHead>{t("period")}</TableHead>
                   <TableHead className="text-right">{t("actions")}</TableHead>
                 </TableRow>
               </TableHeader>
@@ -214,10 +241,18 @@ export function AccountList({
                       </Badge>
                     </TableCell>
                     <TableCell>
-                      {formatDate(account.service_period?.start)}
+                      <Badge
+                        variant={
+                          billingStatusMap[account.billing_status]?.color as any
+                        }
+                      >
+                        {t(billingStatusMap[account.billing_status]?.label)}
+                      </Badge>
                     </TableCell>
                     <TableCell>
-                      {formatDate(account.service_period?.end)}
+                      {formatDate(account.service_period?.start)}
+                      {account.service_period?.end &&
+                        ` - ${formatDate(account.service_period?.end)}`}
                     </TableCell>
                     <TableCell className="text-right">
                       <div className="flex justify-end gap-2">

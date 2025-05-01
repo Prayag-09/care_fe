@@ -296,9 +296,10 @@ export function CreateInvoicePage({
                         </TableCell>
                         <TableCell>{item.title}</TableCell>
                         <TableCell>
-                          {item.unit_price_component?.[0]
-                            ? `${item.unit_price_component[0].amount} ${
-                                item.unit_price_component[0].code?.code || "INR"
+                          {item.unit_price_components?.[0]
+                            ? `${item.unit_price_components[0].amount} ${
+                                item.unit_price_components[0].code?.code ||
+                                "INR"
                               }`
                             : "-"}
                         </TableCell>

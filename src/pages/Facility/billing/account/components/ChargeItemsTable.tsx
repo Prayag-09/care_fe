@@ -80,14 +80,14 @@ export function ChargeItemsTable({
                     <TableCell>{item.quantity}</TableCell>
                     <TableCell>
                       <UnitPriceDisplay
-                        components={item.unit_price_component}
+                        components={item.unit_price_components}
                       />
                     </TableCell>
                     <TableCell>
                       {formatCurrency(
                         item.total_price ||
                           item.quantity *
-                            (item.unit_price_component.find(
+                            (item.unit_price_components?.find(
                               (p) => p.monetory_component_type === "base",
                             )?.amount || 0),
                         "INR",

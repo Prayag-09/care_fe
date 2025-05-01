@@ -31,7 +31,7 @@ export function UnitPriceDisplay({ components }: UnitPriceDisplayProps) {
 
   return (
     <div className="flex flex-wrap gap-2">
-      {components.map((price, index) => (
+      {components?.map((price, index) => (
         <Badge
           key={`${index}-${price.monetory_component_type}`}
           variant={

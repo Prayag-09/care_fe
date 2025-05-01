@@ -122,8 +122,8 @@ function ChargeItemForm({
           <div className="flex flex-col gap-1">
             <p className="text-sm font-semibold">{chargeItem.title}</p>
             <span className="text-sm text-gray-500">
-              {chargeItem.unit_price_component?.[0]?.amount || 0}{" "}
-              {chargeItem.unit_price_component?.[0]?.code?.code || "INR"}
+              {chargeItem.unit_price_components?.[0]?.amount || 0}{" "}
+              {chargeItem.unit_price_components?.[0]?.code?.code || "INR"}
             </span>
           </div>
           {onRemove && (
@@ -221,8 +221,8 @@ function ChargeItemForm({
           <div className="flex flex-col gap-1 items-start">
             <p className="text-sm font-semibold">{chargeItem.title}</p>
             <span className="text-sm text-gray-500">
-              {chargeItem.unit_price_component?.[0]?.amount || 0}{" "}
-              {chargeItem.unit_price_component?.[0]?.code?.code || "INR"}
+              {chargeItem.unit_price_components?.[0]?.amount || 0}{" "}
+              {chargeItem.unit_price_components?.[0]?.code?.code || "INR"}
             </span>
           </div>
           <div className="flex items-center gap-2">
@@ -374,7 +374,7 @@ export function ChargeItemQuestion({
         title: selectedCID.title,
         status: ChargeItemStatus.planned,
         quantity: 1,
-        unit_price_component: selectedCID.price_component,
+        unit_price_components: selectedCID.price_component,
         note: null,
         override_reason: null,
         encounter: encounterId,
