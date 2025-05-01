@@ -1,17 +1,17 @@
 import { zodResolver } from "@hookform/resolvers/zod";
 import { useMutation, useQueryClient } from "@tanstack/react-query";
+import { PencilIcon } from "lucide-react";
 import React from "react";
 import { useForm } from "react-hook-form";
 import { useTranslation } from "react-i18next";
 import { toast } from "sonner";
 import * as z from "zod";
 
-import CareIcon from "@/CAREUI/icons/CareIcon";
-
 import { Button } from "@/components/ui/button";
 import {
   Form,
   FormControl,
+  FormDescription,
   FormField,
   FormItem,
   FormLabel,
@@ -19,20 +19,27 @@ import {
 } from "@/components/ui/form";
 import { Input } from "@/components/ui/input";
 import {
-  Popover,
-  PopoverContent,
-  PopoverTrigger,
-} from "@/components/ui/popover";
-import {
   Select,
   SelectContent,
   SelectItem,
   SelectTrigger,
   SelectValue,
 } from "@/components/ui/select";
+import { Separator } from "@/components/ui/separator";
+import {
+  Sheet,
+  SheetClose,
+  SheetContent,
+  SheetDescription,
+  SheetFooter,
+  SheetHeader,
+  SheetTitle,
+  SheetTrigger,
+} from "@/components/ui/sheet";
 import { Textarea } from "@/components/ui/textarea";
 
 import mutate from "@/Utils/request/mutate";
+import { MonetoryComponentType } from "@/types/base/monetoryComponent/monetoryComponent";
 import {
   ChargeItemRead,
   ChargeItemStatus,
@@ -41,24 +48,50 @@ import {
 import chargeItemApi from "@/types/billing/chargeItem/chargeItemApi";
 
 const formSchema = z.object({
-  title: z.string().min(1, "Title is required"),
+  title: z.string().min(1, { message: "Title is required" }),
   description: z.string().optional(),
   status: z.nativeEnum(ChargeItemStatus),
-  quantity: z.number().min(1, "Quantity must be at least 1"),
+  quantity: z.coerce
+    .number()
+    .min(1, { message: "Quantity must be at least 1" }),
   note: z.string().optional(),
 });
 
 type FormValues = z.infer<typeof formSchema>;
 
-interface EditChargeItemPopoverProps {
+interface EditChargeItemSheetProps {
   facilityId: string;
   item: ChargeItemRead;
+  trigger?: React.ReactNode;
+}
+
+function formatCurrency(
+  amount: number | undefined | null,
+  currency: string = "INR",
+) {
+  if (amount === undefined || amount === null) return "-";
+  return new Intl.NumberFormat("en-IN", {
+    style: "currency",
+    currency,
+    minimumFractionDigits: 2,
+    maximumFractionDigits: 2,
+  }).format(amount);
+}
+
+function formatPercentage(factor: number | undefined | null) {
+  if (factor === undefined || factor === null) return "-";
+  return new Intl.NumberFormat("en-IN", {
+    style: "percent",
+    minimumFractionDigits: 0,
+    maximumFractionDigits: 2,
+  }).format(factor);
 }
 
 export function EditChargeItemPopover({
   facilityId,
   item,
-}: EditChargeItemPopoverProps) {
+  trigger,
+}: EditChargeItemSheetProps) {
   const { t } = useTranslation();
   const queryClient = useQueryClient();
   const [isOpen, setIsOpen] = React.useState(false);
@@ -74,6 +107,51 @@ export function EditChargeItemPopover({
     },
   });
 
+  // Filter price components by type
+  const getComponentsByType = (type: MonetoryComponentType) => {
+    return (
+      item.unit_price_components?.filter(
+        (c) => c.monetory_component_type === type,
+      ) || []
+    );
+  };
+
+  const baseComponent = getComponentsByType(MonetoryComponentType.base)[0];
+  const surcharges = getComponentsByType(MonetoryComponentType.surcharge);
+  const discounts = getComponentsByType(MonetoryComponentType.discount);
+  const taxes = getComponentsByType(MonetoryComponentType.tax);
+
+  // Calculate unit total based on components
+  const calculateUnitTotal = () => {
+    const baseAmount = baseComponent?.amount || 0;
+
+    const surchargesTotal = surcharges.reduce((sum, c) => {
+      if (c.amount !== undefined && c.amount !== null) {
+        return sum + c.amount;
+      }
+      return sum + (c.factor || 0) * baseAmount;
+    }, 0);
+
+    const discountAmount = discounts.reduce((sum, c) => {
+      if (c.amount !== undefined && c.amount !== null) {
+        return sum + c.amount;
+      }
+      return sum + (c.factor || 0) * baseAmount;
+    }, 0);
+
+    const taxAmount = taxes.reduce((sum, c) => {
+      const subtotal = baseAmount + surchargesTotal - discountAmount;
+      return sum + (c.factor || 0) * subtotal;
+    }, 0);
+
+    return baseAmount + surchargesTotal - discountAmount + taxAmount;
+  };
+
+  const currentTotal =
+    item.total_price !== null && item.total_price !== undefined
+      ? item.total_price
+      : calculateUnitTotal();
+
   const { mutate: updateChargeItem, isPending } = useMutation({
     mutationFn: (data: FormValues) => {
       const updateData: ChargeItemUpdate = {
@@ -86,146 +164,251 @@ export function EditChargeItemPopover({
         pathParams: { facilityId, chargeItemId: item.id },
       })(updateData);
     },
-    onSuccess: (response) => {
-      console.log("Mutation success:", response);
+    onSuccess: (_) => {
       toast.success(t("charge_item_updated"));
       queryClient.invalidateQueries({ queryKey: ["chargeItems"] });
       setIsOpen(false);
     },
     onError: (error) => {
-      console.error("Mutation error:", error);
       toast.error(error.message || t("error_updating_charge_item"));
     },
   });
 
   function onSubmit(data: FormValues) {
-    console.log("Form submitted with data:", data);
     updateChargeItem(data);
   }
 
   return (
-    <Popover open={isOpen} onOpenChange={setIsOpen}>
-      <PopoverTrigger asChild>
-        <Button variant="ghost" size="icon">
-          <CareIcon icon="l-pen" className="size-4" />
-        </Button>
-      </PopoverTrigger>
-      <PopoverContent className="w-96">
-        <div className="space-y-4">
-          <div>
-            <h3 className="font-medium">{t("edit_charge_item")}</h3>
-            <p className="text-sm text-muted-foreground">
-              {t("edit_charge_item_description")}
-            </p>
-          </div>
+    <Sheet open={isOpen} onOpenChange={setIsOpen}>
+      <SheetTrigger asChild>
+        {trigger || (
+          <Button variant="ghost" size="icon">
+            <PencilIcon className="h-4 w-4" />
+          </Button>
+        )}
+      </SheetTrigger>
+      <SheetContent className="sm:max-w-md md:max-w-lg">
+        <SheetHeader>
+          <SheetTitle>{t("edit_charge_item")}</SheetTitle>
+          <SheetDescription>
+            {t("edit_charge_item_description")}
+          </SheetDescription>
+        </SheetHeader>
 
+        <div className="space-y-6 py-6">
           <Form {...form}>
-            <form onSubmit={form.handleSubmit(onSubmit)} className="space-y-4">
-              <FormField
-                control={form.control}
-                name="title"
-                render={({ field }) => (
-                  <FormItem>
-                    <FormLabel>{t("title")}</FormLabel>
-                    <FormControl>
-                      <Input {...field} />
-                    </FormControl>
-                    <FormMessage />
-                  </FormItem>
-                )}
-              />
-
-              <FormField
-                control={form.control}
-                name="description"
-                render={({ field }) => (
-                  <FormItem>
-                    <FormLabel>{t("description")}</FormLabel>
-                    <FormControl>
-                      <Textarea {...field} value={field.value || ""} />
-                    </FormControl>
-                    <FormMessage />
-                  </FormItem>
-                )}
-              />
-
-              <FormField
-                control={form.control}
-                name="status"
-                render={({ field }) => (
-                  <FormItem>
-                    <FormLabel>{t("status")}</FormLabel>
-                    <Select
-                      onValueChange={field.onChange}
-                      defaultValue={field.value}
-                    >
+            <form onSubmit={form.handleSubmit(onSubmit)} className="space-y-6">
+              <div className="space-y-4">
+                <FormField
+                  control={form.control}
+                  name="title"
+                  render={({ field }) => (
+                    <FormItem>
+                      <FormLabel>{t("title")}</FormLabel>
                       <FormControl>
-                        <SelectTrigger>
-                          <SelectValue placeholder={t("select_status")} />
-                        </SelectTrigger>
+                        <Input {...field} />
                       </FormControl>
-                      <SelectContent>
-                        {Object.values(ChargeItemStatus).map((status) => (
-                          <SelectItem key={status} value={status}>
-                            {t(status)}
-                          </SelectItem>
+                      <FormMessage />
+                    </FormItem>
+                  )}
+                />
+
+                <FormField
+                  control={form.control}
+                  name="description"
+                  render={({ field }) => (
+                    <FormItem>
+                      <FormLabel>{t("description")}</FormLabel>
+                      <FormControl>
+                        <Textarea {...field} value={field.value || ""} />
+                      </FormControl>
+                      <FormMessage />
+                    </FormItem>
+                  )}
+                />
+
+                <div className="grid grid-cols-2 gap-4">
+                  <FormField
+                    control={form.control}
+                    name="status"
+                    render={({ field }) => (
+                      <FormItem>
+                        <FormLabel>{t("status")}</FormLabel>
+                        <Select
+                          onValueChange={field.onChange}
+                          defaultValue={field.value}
+                        >
+                          <FormControl>
+                            <SelectTrigger>
+                              <SelectValue placeholder={t("select_status")} />
+                            </SelectTrigger>
+                          </FormControl>
+                          <SelectContent>
+                            {Object.values(ChargeItemStatus).map((status) => (
+                              <SelectItem key={status} value={status}>
+                                {t(status)}
+                              </SelectItem>
+                            ))}
+                          </SelectContent>
+                        </Select>
+                        <FormMessage />
+                      </FormItem>
+                    )}
+                  />
+
+                  <FormField
+                    control={form.control}
+                    name="quantity"
+                    render={({ field }) => (
+                      <FormItem>
+                        <FormLabel>{t("quantity")}</FormLabel>
+                        <FormControl>
+                          <Input type="number" min={1} {...field} />
+                        </FormControl>
+                        <FormMessage />
+                      </FormItem>
+                    )}
+                  />
+                </div>
+
+                <Separator className="my-4" />
+
+                <div>
+                  <h3 className="text-sm font-medium mb-3">
+                    {t("pricing_details")}
+                  </h3>
+
+                  <div className="rounded-md border bg-card">
+                    <div className="p-4 text-sm">
+                      <h4 className="font-medium mb-2">
+                        {t("unit_price_components")}
+                      </h4>
+
+                      <div className="space-y-2">
+                        {baseComponent && (
+                          <div className="flex justify-between">
+                            <span className="font-medium">
+                              {t("base_price")}
+                            </span>
+                            <span>{formatCurrency(baseComponent.amount)}</span>
+                          </div>
+                        )}
+
+                        {surcharges.map((surcharge, index) => (
+                          <div
+                            key={`surcharge-${index}`}
+                            className="flex justify-between"
+                          >
+                            <span className="text-amber-600">
+                              {t("surcharge")}
+                            </span>
+                            <span>
+                              +
+                              {surcharge.amount !== undefined &&
+                              surcharge.amount !== null
+                                ? formatCurrency(surcharge.amount)
+                                : formatPercentage(surcharge.factor)}
+                            </span>
+                          </div>
                         ))}
-                      </SelectContent>
-                    </Select>
-                    <FormMessage />
-                  </FormItem>
-                )}
-              />
 
-              <FormField
-                control={form.control}
-                name="quantity"
-                render={({ field }) => (
-                  <FormItem>
-                    <FormLabel>{t("quantity")}</FormLabel>
-                    <FormControl>
-                      <Input
-                        type="number"
-                        {...field}
-                        onChange={(e) => field.onChange(Number(e.target.value))}
-                      />
-                    </FormControl>
-                    <FormMessage />
-                  </FormItem>
-                )}
-              />
+                        {discounts.map((discount, index) => (
+                          <div
+                            key={`discount-${index}`}
+                            className="flex justify-between"
+                          >
+                            <span className="text-green-600">
+                              {t("discount")}
+                            </span>
+                            <span>
+                              -
+                              {discount.amount !== undefined &&
+                              discount.amount !== null
+                                ? formatCurrency(discount.amount)
+                                : formatPercentage(discount.factor)}
+                            </span>
+                          </div>
+                        ))}
 
-              <FormField
-                control={form.control}
-                name="note"
-                render={({ field }) => (
-                  <FormItem>
-                    <FormLabel>{t("note")}</FormLabel>
-                    <FormControl>
-                      <Textarea {...field} value={field.value || ""} />
-                    </FormControl>
-                    <FormMessage />
-                  </FormItem>
-                )}
-              />
+                        {taxes.map((tax, index) => (
+                          <div
+                            key={`tax-${index}`}
+                            className="flex justify-between"
+                          >
+                            <span className="text-blue-600">{t("tax")}</span>
+                            <span>
+                              +
+                              {tax.amount !== undefined && tax.amount !== null
+                                ? formatCurrency(tax.amount)
+                                : formatPercentage(tax.factor)}
+                            </span>
+                          </div>
+                        ))}
 
-              <div className="flex justify-end gap-2">
-                <Button
-                  type="button"
-                  variant="outline"
-                  onClick={() => setIsOpen(false)}
-                >
-                  {t("cancel")}
-                </Button>
+                        <Separator className="my-2" />
+
+                        <div className="flex justify-between font-semibold">
+                          <span>{t("unit_total")}</span>
+                          <span>{formatCurrency(calculateUnitTotal())}</span>
+                        </div>
+                      </div>
+                    </div>
+                  </div>
+
+                  {item.quantity > 1 && (
+                    <div className="rounded-md border bg-card mt-4">
+                      <div className="p-4 text-sm">
+                        <div className="space-y-2">
+                          <div className="flex justify-between">
+                            <span className="font-medium">{t("quantity")}</span>
+                            <span>{item.quantity}</span>
+                          </div>
+
+                          <Separator className="my-2" />
+
+                          <div className="flex justify-between font-semibold">
+                            <span>{t("total_price")}</span>
+                            <span>{formatCurrency(currentTotal)}</span>
+                          </div>
+                        </div>
+                      </div>
+                    </div>
+                  )}
+                </div>
+
+                <Separator className="my-4" />
+
+                <FormField
+                  control={form.control}
+                  name="note"
+                  render={({ field }) => (
+                    <FormItem>
+                      <FormLabel>{t("note")}</FormLabel>
+                      <FormControl>
+                        <Textarea {...field} value={field.value || ""} />
+                      </FormControl>
+                      <FormDescription>{t("note_description")}</FormDescription>
+                      <FormMessage />
+                    </FormItem>
+                  )}
+                />
+              </div>
+
+              <SheetFooter className="pt-2">
+                <SheetClose asChild>
+                  <Button variant="outline" type="button">
+                    {t("cancel")}
+                  </Button>
+                </SheetClose>
                 <Button type="submit" disabled={isPending}>
                   {isPending ? t("saving") : t("save_changes")}
                 </Button>
-              </div>
+              </SheetFooter>
             </form>
           </Form>
         </div>
-      </PopoverContent>
-    </Popover>
+      </SheetContent>
+    </Sheet>
   );
 }
 
