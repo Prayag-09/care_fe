@@ -99,12 +99,19 @@ function formatCurrency(amount: number | null, currency: string = "USD") {
 
 export function PaymentReconciliationList({
   facilityId,
+  accountId,
+  hideHeader = false,
 }: {
   facilityId: string;
+  accountId?: string;
+  hideHeader?: boolean;
 }) {
   const { t } = useTranslation();
   const [urlParams] = useQueryParams();
-  const accountId = urlParams.accountId;
+  const urlAccountId = urlParams.accountId;
+
+  // Use the prop accountId if provided, otherwise use from URL params
+  const effectiveAccountId = accountId || urlAccountId;
 
   const { qParams, updateQuery, Pagination, resultsPerPage } = useFilters({
     limit: 15,
@@ -112,11 +119,11 @@ export function PaymentReconciliationList({
   });
 
   const { data: response, isLoading } = useQuery({
-    queryKey: ["paymentReconciliations", qParams, accountId],
+    queryKey: ["paymentReconciliations", qParams, effectiveAccountId],
     queryFn: query(paymentReconciliationApi.listInvoice, {
       pathParams: { facilityId },
       queryParams: {
-        account: accountId,
+        account: effectiveAccountId,
         limit: resultsPerPage,
         offset: ((qParams.page ?? 1) - 1) * resultsPerPage,
         search: qParams.search,
@@ -130,21 +137,76 @@ export function PaymentReconciliationList({
     (response?.results as PaymentReconciliationRead[]) || [];
 
   return (
-    <Page title={t("payment_reconciliations")}>
-      <div className="container mx-auto">
-        <div className="mb-4">
-          <div className="mb-6 flex items-center justify-between">
-            <div>
-              <h1 className="text-xl font-semibold">
-                {t("payment_reconciliation_management")}
-              </h1>
-              <p className="text-gray-600 text-sm">
-                {accountId
-                  ? t("view_and_manage_account_payments")
-                  : t("view_and_manage_payments")}
-              </p>
+    <Page
+      title={hideHeader ? "" : t("payment_reconciliations")}
+      hideTitleOnPage={hideHeader}
+    >
+      <div className={`${hideHeader ? "" : "container mx-auto"}`}>
+        {!hideHeader && (
+          <div className="mb-4">
+            <div className="mb-6 flex items-center justify-between">
+              <div>
+                <h1 className="text-xl font-semibold">
+                  {t("payment_reconciliation_management")}
+                </h1>
+                <p className="text-gray-600 text-sm">
+                  {effectiveAccountId
+                    ? t("view_and_manage_account_payments")
+                    : t("view_and_manage_payments")}
+                </p>
+              </div>
+            </div>
+            <div className="mb-4 flex flex-wrap items-center gap-4">
+              <Input
+                placeholder={t("search_payments")}
+                value={qParams.search || ""}
+                onChange={(e) =>
+                  updateQuery({ search: e.target.value || undefined })
+                }
+                className="max-w-xs"
+              />
+              <Select
+                value={qParams.status ?? "all"}
+                onValueChange={(value) =>
+                  updateQuery({ status: value === "all" ? undefined : value })
+                }
+              >
+                <SelectTrigger className="w-40">
+                  <SelectValue placeholder={t("all_statuses")} />
+                </SelectTrigger>
+                <SelectContent>
+                  <SelectItem value="all">{t("all_statuses")}</SelectItem>
+                  {Object.entries(statusMap).map(([key, { label }]) => (
+                    <SelectItem key={key} value={key}>
+                      {label}
+                    </SelectItem>
+                  ))}
+                </SelectContent>
+              </Select>
+              <Select
+                value={qParams.type ?? "all"}
+                onValueChange={(value) =>
+                  updateQuery({ type: value === "all" ? undefined : value })
+                }
+              >
+                <SelectTrigger className="w-40">
+                  <SelectValue placeholder={t("all_types")} />
+                </SelectTrigger>
+                <SelectContent>
+                  <SelectItem value="all">{t("all_types")}</SelectItem>
+                  {Object.entries(typeMap).map(([key, label]) => (
+                    <SelectItem key={key} value={key}>
+                      {label}
+                    </SelectItem>
+                  ))}
+                </SelectContent>
+              </Select>
             </div>
           </div>
+        )}
+
+        {/* Always show the filters for the account context */}
+        {hideHeader && (
           <div className="mb-4 flex flex-wrap items-center gap-4">
             <Input
               placeholder={t("search_payments")}
@@ -191,7 +253,8 @@ export function PaymentReconciliationList({
               </SelectContent>
             </Select>
           </div>
-        </div>
+        )}
+
         {isLoading ? (
           <TableSkeleton count={5} />
         ) : paymentReconciliations.length === 0 ? (

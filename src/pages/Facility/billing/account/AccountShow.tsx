@@ -15,6 +15,7 @@ import { TableSkeleton } from "@/components/Common/SkeletonLoading";
 
 import query from "@/Utils/request/query";
 import PaymentReconciliationSheet from "@/pages/Facility/billing/PaymentReconciliationSheet";
+import PaymentReconciliationList from "@/pages/Facility/billing/paymentReconciliation/PaymentReconciliationList";
 import {
   AccountAggregate,
   AccountStatus,
@@ -260,16 +261,18 @@ export function AccountShow({
         </TabsContent>
 
         <TabsContent value="payments" className="mt-4">
-          <Card>
-            <CardHeader>
-              <CardTitle>{t("payments")}</CardTitle>
-            </CardHeader>
-            <CardContent>
-              <p className="text-muted-foreground">
-                {t("payments_section_placeholder")}
-              </p>
-            </CardContent>
-          </Card>
+          <div className="flex justify-between items-center mb-4">
+            <h2 className="text-lg font-semibold">{t("payment_history")}</h2>
+            <Button onClick={() => setIsPaymentSheetOpen(true)}>
+              <CareIcon icon="l-plus" className="mr-2 size-4" />
+              {t("record_payment")}
+            </Button>
+          </div>
+          <PaymentReconciliationList
+            facilityId={facilityId}
+            accountId={accountId}
+            hideHeader={true}
+          />
         </TabsContent>
       </Tabs>
 
