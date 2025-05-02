@@ -1,7 +1,14 @@
 import { useMutation, useQuery, useQueryClient } from "@tanstack/react-query";
-import { t } from "i18next";
-import { ChevronDown, ChevronUp, PlusCircle, Save } from "lucide-react";
+import {
+  ChevronDown,
+  ChevronUp,
+  CloudUpload,
+  PlusCircle,
+  Save,
+  Upload,
+} from "lucide-react";
 import { useEffect, useState } from "react";
+import { useTranslation } from "react-i18next";
 import { toast } from "sonner";
 
 import { Badge } from "@/components/ui/badge";
@@ -19,8 +26,21 @@ import {
 import { Separator } from "@/components/ui/separator";
 import { Skeleton } from "@/components/ui/skeleton";
 
+import { FileListTable } from "@/components/Files/FileListTable";
+import FileUploadDialog from "@/components/Files/FileUploadDialog";
+import { FileUploadModel } from "@/components/Patient/models";
+
+import useFileUpload from "@/hooks/useFileUpload";
+
+import {
+  BACKEND_ALLOWED_EXTENSIONS,
+  FILE_EXTENSIONS,
+} from "@/common/constants";
+
+import routes from "@/Utils/request/api";
 import mutate from "@/Utils/request/mutate";
 import query from "@/Utils/request/query";
+import { PaginatedResponse } from "@/Utils/request/types";
 import {
   DiagnosticReportRead,
   DiagnosticReportStatus,
@@ -46,6 +66,7 @@ interface DiagnosticReportFormProps {
   diagnosticReports: DiagnosticReportRead[];
   activityDefinition?: {
     diagnostic_report_codes?: Code[];
+    category?: string;
   };
 }
 
@@ -72,6 +93,7 @@ export function DiagnosticReportForm({
   diagnosticReports,
   activityDefinition,
 }: DiagnosticReportFormProps) {
+  const { t } = useTranslation();
   const [observations, setObservations] = useState<
     Record<string, ObservationValue>
   >({});
@@ -79,7 +101,10 @@ export function DiagnosticReportForm({
   const [selectedReportCode, setSelectedReportCode] = useState<Code | null>(
     null,
   );
+  const [openUploadDialog, setOpenUploadDialog] = useState(false);
   const queryClient = useQueryClient();
+
+  const isImagingReport = activityDefinition?.category === "imaging";
 
   // Get the latest report if any exists
   const latestReport =
@@ -97,6 +122,21 @@ export function DiagnosticReportForm({
     }),
     enabled: !!latestReport?.id,
   });
+
+  // Query to fetch files for the diagnostic report
+  const { data: files = { results: [], count: 0 }, refetch: refetchFiles } =
+    useQuery<PaginatedResponse<FileUploadModel>>({
+      queryKey: ["files", "diagnostic_report", fullReport?.id],
+      queryFn: query(routes.viewUpload, {
+        queryParams: {
+          file_type: "diagnostic_report",
+          associating_id: fullReport?.id,
+          limit: 100,
+          offset: 0,
+        },
+      }),
+      enabled: !!fullReport?.id,
+    });
 
   // Creating a new diagnostic report
   const { mutate: createDiagnosticReport, isPending: isCreatingReport } =
@@ -147,6 +187,39 @@ export function DiagnosticReportForm({
         );
       },
     });
+
+  // Initialize file upload hook
+  const fileUpload = useFileUpload({
+    type: "diagnostic_report" as any,
+    multiple: true,
+    allowedExtensions: BACKEND_ALLOWED_EXTENSIONS,
+    allowNameFallback: false,
+    onUpload: () => {
+      queryClient.invalidateQueries({
+        queryKey: ["diagnosticReport", latestReport?.id],
+      });
+    },
+    compress: false,
+  });
+
+  // Handle file upload dialog
+  useEffect(() => {
+    if (
+      fileUpload.files.length > 0 &&
+      fileUpload.files[0] !== undefined &&
+      !fileUpload.previewing
+    ) {
+      setOpenUploadDialog(true);
+    } else {
+      setOpenUploadDialog(false);
+    }
+  }, [fileUpload.files, fileUpload.previewing]);
+
+  useEffect(() => {
+    if (!openUploadDialog) {
+      fileUpload.clearFiles();
+    }
+  }, [openUploadDialog]);
 
   // Initialize form with existing observations from the full report
   useEffect(() => {
@@ -570,12 +643,8 @@ export function DiagnosticReportForm({
     );
   }
 
-  if (fullReport?.status === DiagnosticReportStatus.final) {
-    return null;
-  }
-
   return (
-    <Card className="shadow-lg border">
+    <Card className="shadow-lg border rounded-md">
       <CardHeader className="pb-2 bg-gray-50 rounded-md">
         <div className="flex justify-between items-center rounded-md">
           <div className="flex items-center gap-2">
@@ -624,134 +693,207 @@ export function DiagnosticReportForm({
         <CardContent className="py-4">
           {hasReport && fullReport ? (
             <div className="space-y-6">
-              {observationDefinitions.map((definition) => {
-                const hasComponents =
-                  definition.component && definition.component.length > 0;
-                const observationData = observations[definition.id] || {
-                  value: "",
-                  unit: "",
-                  isNormal: true,
-                  components: {},
-                };
+              {fullReport.status !== DiagnosticReportStatus.final &&
+                observationDefinitions.map((definition) => {
+                  const hasComponents =
+                    definition.component && definition.component.length > 0;
+                  const observationData = observations[definition.id] || {
+                    value: "",
+                    unit: "",
+                    isNormal: true,
+                    components: {},
+                  };
 
-                return (
-                  <Card key={definition.id} className="mb-4">
-                    <CardContent className="p-4">
-                      <div className="grid gap-4">
-                        <div className="flex justify-between items-start">
-                          <Label className="text-base font-medium">
-                            {definition.title || definition.code?.display}
-                          </Label>
-                        </div>
+                  return (
+                    <Card key={definition.id} className="mb-4">
+                      <CardContent className="p-4">
+                        <div className="grid gap-4">
+                          <div className="flex justify-between items-start">
+                            <Label className="text-base font-medium">
+                              {definition.title || definition.code?.display}
+                            </Label>
+                          </div>
 
-                        {/* For blood pressure and similar observations with components, we may or may not need to show the main value field */}
-                        {(!hasComponents ||
-                          definition.permitted_data_type !== "quantity") && (
-                          <div className="flex space-x-4 items-center">
-                            <div className="flex-1">
-                              <Input
-                                value={observationData.value}
-                                onChange={(e) =>
-                                  handleValueChange(
-                                    definition.id,
-                                    e.target.value,
-                                  )
-                                }
-                                placeholder="Result value"
-                                type={
-                                  definition.permitted_data_type ===
-                                    "decimal" ||
-                                  definition.permitted_data_type === "integer"
-                                    ? "number"
-                                    : "text"
-                                }
-                              />
-                            </div>
+                          {/* For blood pressure and similar observations with components, we may or may not need to show the main value field */}
+                          {(!hasComponents ||
+                            definition.permitted_data_type !== "quantity") && (
+                            <div className="flex space-x-4 items-center">
+                              <div className="flex-1">
+                                <Input
+                                  value={observationData.value}
+                                  onChange={(e) =>
+                                    handleValueChange(
+                                      definition.id,
+                                      e.target.value,
+                                    )
+                                  }
+                                  placeholder="Result value"
+                                  type={
+                                    definition.permitted_data_type ===
+                                      "decimal" ||
+                                    definition.permitted_data_type === "integer"
+                                      ? "number"
+                                      : "text"
+                                  }
+                                />
+                              </div>
 
-                            {definition.permitted_unit && (
+                              {definition.permitted_unit && (
+                                <div className="w-32">
+                                  <Select
+                                    value={observationData.unit}
+                                    onValueChange={(unit) =>
+                                      handleUnitChange(definition.id, unit)
+                                    }
+                                  >
+                                    <SelectTrigger>
+                                      <SelectValue placeholder="Unit" />
+                                    </SelectTrigger>
+                                    <SelectContent>
+                                      <SelectItem
+                                        value={definition.permitted_unit.code}
+                                      >
+                                        {definition.permitted_unit.display ||
+                                          definition.permitted_unit.code}
+                                      </SelectItem>
+                                    </SelectContent>
+                                  </Select>
+                                </div>
+                              )}
+
                               <div className="w-32">
                                 <Select
-                                  value={observationData.unit}
-                                  onValueChange={(unit) =>
-                                    handleUnitChange(definition.id, unit)
+                                  value={
+                                    observationData.isNormal
+                                      ? "normal"
+                                      : "abnormal"
+                                  }
+                                  onValueChange={(value) =>
+                                    handleNormalChange(
+                                      definition.id,
+                                      value === "normal",
+                                    )
                                   }
                                 >
                                   <SelectTrigger>
-                                    <SelectValue placeholder="Unit" />
+                                    <SelectValue placeholder="Status" />
                                   </SelectTrigger>
                                   <SelectContent>
-                                    <SelectItem
-                                      value={definition.permitted_unit.code}
-                                    >
-                                      {definition.permitted_unit.display ||
-                                        definition.permitted_unit.code}
+                                    <SelectItem value="normal">
+                                      <Badge
+                                        variant="outline"
+                                        className="bg-green-50 text-green-700 border-green-200"
+                                      >
+                                        Normal
+                                      </Badge>
+                                    </SelectItem>
+                                    <SelectItem value="abnormal">
+                                      <Badge
+                                        variant="outline"
+                                        className="bg-red-50 text-red-700 border-red-200"
+                                      >
+                                        Abnormal
+                                      </Badge>
                                     </SelectItem>
                                   </SelectContent>
                                 </Select>
                               </div>
-                            )}
-
-                            <div className="w-32">
-                              <Select
-                                value={
-                                  observationData.isNormal
-                                    ? "normal"
-                                    : "abnormal"
-                                }
-                                onValueChange={(value) =>
-                                  handleNormalChange(
-                                    definition.id,
-                                    value === "normal",
-                                  )
-                                }
-                              >
-                                <SelectTrigger>
-                                  <SelectValue placeholder="Status" />
-                                </SelectTrigger>
-                                <SelectContent>
-                                  <SelectItem value="normal">
-                                    <Badge
-                                      variant="outline"
-                                      className="bg-green-50 text-green-700 border-green-200"
-                                    >
-                                      Normal
-                                    </Badge>
-                                  </SelectItem>
-                                  <SelectItem value="abnormal">
-                                    <Badge
-                                      variant="outline"
-                                      className="bg-red-50 text-red-700 border-red-200"
-                                    >
-                                      Abnormal
-                                    </Badge>
-                                  </SelectItem>
-                                </SelectContent>
-                              </Select>
                             </div>
+                          )}
+
+                          {/* Render component inputs for multi-component observations */}
+                          {hasComponents &&
+                            renderComponentInputs(definition, observationData)}
+                        </div>
+                      </CardContent>
+                    </Card>
+                  );
+                })}
+
+              <div className="space-y-4">
+                {fullReport?.status === DiagnosticReportStatus.preliminary && (
+                  <div className="flex justify-end space-x-4">
+                    <Button
+                      variant="default"
+                      onClick={handleSubmit}
+                      disabled={isSubmitting}
+                    >
+                      <Save className="h-4 w-4 mr-2" />
+                      Save Results
+                    </Button>
+                  </div>
+                )}
+
+                {isImagingReport && (
+                  <>
+                    {fullReport?.status ===
+                      DiagnosticReportStatus.preliminary && (
+                      <Card className="mt-4 bg-gray-50 border-gray-300 shadow-none">
+                        <CardContent className="p-4">
+                          <div className="space-y-4">
+                            <div className="flex flex-col items-center justify-between gap-1">
+                              <CloudUpload className="size-10 border border-gray-100 rounded-md p-2 bg-white" />
+                              <Label className="text-base font-medium">
+                                {t("choose_file_or_drag")}
+                              </Label>
+                              <div className="text-sm text-gray-500">
+                                {FILE_EXTENSIONS.DOCUMENT.map((ext) =>
+                                  t(ext),
+                                ).join(", ")}
+                              </div>
+                              <Label
+                                htmlFor="file_upload_diagnostic_report"
+                                className="inline-flex items-center px-4 py-2 cursor-pointer border rounded-md hover:bg-accent hover:text-accent-foreground border-gray-300 shadow-sm"
+                              >
+                                <Upload className="mr-2 size-4" />
+                                <span
+                                  className="truncate font-semibold"
+                                  title={fileUpload.files
+                                    .map((file) => file.name)
+                                    .join(", ")}
+                                >
+                                  {fileUpload.files.length > 0
+                                    ? fileUpload.files
+                                        .map((file) => file.name)
+                                        .join(", ")
+                                    : t("upload_files")}
+                                </span>
+                                {fileUpload.Input({ className: "hidden" })}
+                              </Label>
+                            </div>
+
+                            {fileUpload.files.length > 0 && (
+                              <Button
+                                type="button"
+                                variant="outline"
+                                className="w-full"
+                                onClick={() => fileUpload.clearFiles()}
+                              >
+                                {t("clear")}
+                              </Button>
+                            )}
                           </div>
-                        )}
-
-                        {/* Render component inputs for multi-component observations */}
-                        {hasComponents &&
-                          renderComponentInputs(definition, observationData)}
+                        </CardContent>
+                      </Card>
+                    )}
+                    {files?.results && files.results.length > 0 && (
+                      <div className="mt-6">
+                        <div className="text-lg font-medium">
+                          {t("uploaded_files")}
+                        </div>
+                        <FileListTable
+                          files={files.results}
+                          type="diagnostic_report"
+                          associatingId={fullReport.id}
+                          canEdit={true}
+                          showHeader={false}
+                          onRefetch={refetchFiles}
+                        />
                       </div>
-                    </CardContent>
-                  </Card>
-                );
-              })}
-
-              {fullReport?.status === DiagnosticReportStatus.preliminary && (
-                <div className="flex justify-end space-x-4">
-                  <Button
-                    variant="default"
-                    onClick={handleSubmit}
-                    disabled={isSubmitting}
-                  >
-                    <Save className="h-4 w-4 mr-2" />
-                    Save Results
-                  </Button>
-                </div>
-              )}
+                    )}
+                  </>
+                )}
+              </div>
             </div>
           ) : (
             <div className="space-y-4">
@@ -813,6 +955,15 @@ export function DiagnosticReportForm({
           )}
         </CardContent>
       )}
+
+      {fileUpload.Dialogues}
+      <FileUploadDialog
+        open={openUploadDialog}
+        onOpenChange={setOpenUploadDialog}
+        fileUpload={fileUpload}
+        associatingId={fullReport?.id || ""}
+        type="diagnostic_report"
+      />
     </Card>
   );
 }
