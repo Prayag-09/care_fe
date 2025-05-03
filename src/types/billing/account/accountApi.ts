@@ -31,4 +31,9 @@ export default {
     TRes: Type<AccountRead>(),
     TBody: Type<AccountUpdate>(),
   },
+  rebalanceAccount: {
+    path: "/api/v1/facility/{facilityId}/account/{accountId}/rebalance/",
+    method: HttpMethod.POST,
+    TRes: Type<AccountRead>(),
+  },
 } as const;

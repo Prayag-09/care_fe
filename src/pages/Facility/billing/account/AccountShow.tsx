@@ -1,7 +1,8 @@
-import { useQuery } from "@tanstack/react-query";
+import { useMutation, useQuery } from "@tanstack/react-query";
 import { Link, navigate } from "raviger";
 import React, { useState } from "react";
 import { useTranslation } from "react-i18next";
+import { toast } from "sonner";
 
 import CareIcon from "@/CAREUI/icons/CareIcon";
 
@@ -13,6 +14,7 @@ import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
 import { Avatar } from "@/components/Common/Avatar";
 import { TableSkeleton } from "@/components/Common/SkeletonLoading";
 
+import mutate from "@/Utils/request/mutate";
 import query from "@/Utils/request/query";
 import PaymentReconciliationSheet from "@/pages/Facility/billing/PaymentReconciliationSheet";
 import PaymentReconciliationList from "@/pages/Facility/billing/paymentReconciliation/PaymentReconciliationList";
@@ -68,11 +70,28 @@ export function AccountShow({
   const [sheetOpen, setSheetOpen] = useState(false);
   const [isPaymentSheetOpen, setIsPaymentSheetOpen] = useState(false);
 
-  const { data: account, isLoading } = useQuery({
+  const {
+    data: account,
+    isLoading,
+    refetch,
+  } = useQuery({
     queryKey: ["account", accountId],
     queryFn: query(accountApi.retrieveAccount, {
       pathParams: { facilityId, accountId },
     }),
+  });
+
+  const rebalanceMutation = useMutation({
+    mutationFn: mutate(accountApi.rebalanceAccount, {
+      pathParams: { facilityId, accountId },
+    }),
+    onSuccess: () => {
+      toast.success(t("account_rebalanced_successfully"));
+      refetch();
+    },
+    onError: (_error) => {
+      toast.error(t("failed_to_rebalance_account"));
+    },
   });
 
   const { data: chargeItems, isLoading: isLoadingChargeItems } = useQuery({
@@ -216,6 +235,17 @@ export function AccountShow({
               >
                 <CareIcon icon="l-wallet" className="mr-2 size-4" />
                 {t("record_payment")}
+              </Button>
+              <Button
+                variant="secondary"
+                className="w-full"
+                disabled={rebalanceMutation.isPending}
+                onClick={() => rebalanceMutation.mutate({})}
+              >
+                <CareIcon icon="l-refresh" className="mr-2 size-4" />
+                {rebalanceMutation.isPending
+                  ? t("rebalancing")
+                  : t("rebalance")}
               </Button>
             </div>
           </CardContent>
