@@ -86,10 +86,10 @@ const formSchema = z.object({
   title: z.string().min(1, "Title is required"),
   slug: z.string().min(1, "Slug is required"),
   status: z.nativeEnum(Status),
-  description: z.string().min(1, "Description is required"),
+  description: z.string().optional(),
   derived_from_uri: z.string().nullable(),
   type_collected: z.any().nullable(), // Code type
-  patient_preparation: z.array(z.any()), // Code type array
+  patient_preparation: z.array(z.any()).min(0), // Code type array
   collection: z.any().nullable(), // Code type
   type_tested: typeTestedSchema.nullable(),
 });

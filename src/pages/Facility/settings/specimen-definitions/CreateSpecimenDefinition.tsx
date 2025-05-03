@@ -4,6 +4,7 @@ import { useTranslation } from "react-i18next";
 import { toast } from "sonner";
 
 import mutate from "@/Utils/request/mutate";
+import { SpecimenDefinitionCreate } from "@/types/emr/specimenDefinition/specimenDefinition";
 import specimenDefinitionApi from "@/types/emr/specimenDefinition/specimenDefinitionApi";
 
 import { SpecimenDefinitionForm } from "./SpecimenDefinitionForm";
@@ -33,15 +34,19 @@ export function CreateSpecimenDefinition({
     },
   });
 
+  const handleSubmit = (data: SpecimenDefinitionCreate) => {
+    createSpecimenDefinition({
+      ...data,
+      patient_preparation:
+        data.patient_preparation?.filter((item) => item !== null) || [],
+    });
+  };
   return (
     <div className="space-y-4">
       <h1 className="text-2xl font-semibold">
         {t("create_specimen_definition")}
       </h1>
-      <SpecimenDefinitionForm
-        onSubmit={createSpecimenDefinition}
-        isLoading={isPending}
-      />
+      <SpecimenDefinitionForm onSubmit={handleSubmit} isLoading={isPending} />
     </div>
   );
 }
