@@ -665,24 +665,24 @@ export function DiagnosticReportForm({
             <div className="flex justify-between items-center rounded-md">
               <div className="flex items-center gap-2">
                 <CardTitle>
-                  {fullReport?.code ? (
-                    <p className="flex flex-col gap-1">
-                      {fullReport?.code?.display} <br />
-                      {isExpanded && (
-                        <span className="text-sm text-gray-500">
-                          {fullReport?.code?.system} {", "}{" "}
-                          {fullReport?.code?.code}
-                        </span>
-                      )}
-                    </p>
-                  ) : (
-                    <p className="flex items-center gap-1.5">
-                      <NotepadText className="size-[24px] text-gray-950 font-normal text-base stroke-[1.5px]" />{" "}
+                  <p className="flex items-center gap-1.5">
+                    <NotepadText className="size-[24px] text-gray-950 font-normal text-base stroke-[1.5px]" />{" "}
+                    {fullReport?.code ? (
+                      <p className="flex flex-col gap-1">
+                        {fullReport?.code?.display} <br />
+                        {isExpanded && (
+                          <span className="text-sm text-gray-500">
+                            {fullReport?.code?.system} {", "}{" "}
+                            {fullReport?.code?.code}
+                          </span>
+                        )}
+                      </p>
+                    ) : (
                       <span className="text-base/9 text-gray-950 font-medium">
                         {t("test_results_entry")}
                       </span>
-                    </p>
-                  )}
+                    )}
+                  </p>
                 </CardTitle>
               </div>
               <div className="flex items-center gap-5">
