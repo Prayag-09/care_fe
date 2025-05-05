@@ -219,7 +219,7 @@ export default function ServiceRequestShow({
           )}
 
           {observationRequirements.length > 0 && (
-            <div className="space-y-6">
+            <div className="space-y-4">
               <h2 className="text-xl font-semibold">Test Results</h2>
               <DiagnosticReportForm
                 facilityId={facilityId}

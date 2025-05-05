@@ -1,8 +1,9 @@
 import { useMutation, useQuery, useQueryClient } from "@tanstack/react-query";
 import {
-  ChevronDown,
-  ChevronUp,
+  ChevronsDownUp,
+  ChevronsUpDown,
   CloudUpload,
+  NotepadText,
   PlusCircle,
   Save,
   Upload,
@@ -11,9 +12,16 @@ import { useEffect, useState } from "react";
 import { useTranslation } from "react-i18next";
 import { toast } from "sonner";
 
+import { cn } from "@/lib/utils";
+
 import { Badge } from "@/components/ui/badge";
 import { Button } from "@/components/ui/button";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
+import {
+  Collapsible,
+  CollapsibleContent,
+  CollapsibleTrigger,
+} from "@/components/ui/collapsible";
 import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
 import {
@@ -26,6 +34,7 @@ import {
 import { Separator } from "@/components/ui/separator";
 import { Skeleton } from "@/components/ui/skeleton";
 
+import { Avatar } from "@/components/Common/Avatar";
 import { FileListTable } from "@/components/Files/FileListTable";
 import FileUploadDialog from "@/components/Files/FileUploadDialog";
 
@@ -630,7 +639,7 @@ export function DiagnosticReportForm({
   if (hasReport && isLoadingReport) {
     return (
       <Card className="shadow-lg border-t-4 border-t-primary">
-        <CardContent className="p-6">
+        <CardContent className="p-4">
           <div className="space-y-4">
             <Skeleton className="h-8 w-1/3" />
             <Skeleton className="h-24 w-full" />
@@ -642,317 +651,361 @@ export function DiagnosticReportForm({
   }
 
   return (
-    <Card className="shadow-lg border rounded-md">
-      <CardHeader className="pb-2 bg-gray-50 rounded-md">
-        <div className="flex justify-between items-center rounded-md">
-          <div className="flex items-center gap-2">
-            <CardTitle>
-              {fullReport?.code ? (
-                <p className="flex flex-col gap-1">
-                  {fullReport?.code?.display} <br />
-                  <span className="text-sm text-gray-500">
-                    {fullReport?.code?.system} <br />
-                    {fullReport?.code?.code}
-                  </span>
-                </p>
-              ) : (
-                <p>Test Results</p>
-              )}
-            </CardTitle>
-          </div>
-          <div className="flex items-center gap-2">
-            {hasReport && fullReport && (
-              <Badge className={"bg-amber-100 text-amber-800"}>
-                {t(fullReport.status)}
-              </Badge>
-            )}
-            <Button
-              variant="ghost"
-              size="icon"
-              onClick={() => setIsExpanded(!isExpanded)}
-            >
-              {isExpanded ? (
-                <ChevronUp className="h-4 w-4" />
-              ) : (
-                <ChevronDown className="h-4 w-4" />
-              )}
-            </Button>
-          </div>
-        </div>
-        {hasReport && fullReport?.created_by && (
-          <div className="text-sm text-gray-500 mt-1">
-            Created by {fullReport.created_by.first_name || ""}{" "}
-            {fullReport.created_by.last_name || ""}
-          </div>
-        )}
-      </CardHeader>
+    <Card
+      className={cn(
+        "shadow-none border-gray-200 rounded-lg cursor-pointer bg-gray-50",
+        isExpanded && "bg-gray-100",
+      )}
+    >
+      <Collapsible open={isExpanded} onOpenChange={setIsExpanded}>
+        <CollapsibleTrigger asChild className="px-2 py-4">
+          <CardHeader>
+            <div className="flex justify-between items-center rounded-md">
+              <div className="flex items-center gap-2">
+                <CardTitle>
+                  {fullReport?.code ? (
+                    <p className="flex flex-col gap-1">
+                      {fullReport?.code?.display} <br />
+                      {isExpanded && (
+                        <span className="text-sm text-gray-500">
+                          {fullReport?.code?.system} {", "}{" "}
+                          {fullReport?.code?.code}
+                        </span>
+                      )}
+                    </p>
+                  ) : (
+                    <p className="flex items-center gap-1.5">
+                      <NotepadText className="size-[24px] text-gray-950 font-normal text-base stroke-[1.5px]" />{" "}
+                      <span className="text-base/9 text-gray-950 font-medium">
+                        {t("test_results_entry")}
+                      </span>
+                    </p>
+                  )}
+                </CardTitle>
+              </div>
+              <div className="flex items-center gap-5">
+                {hasReport && fullReport?.created_by && (
+                  <div className="flex items-center gap-2">
+                    <Avatar
+                      name={
+                        fullReport.created_by.first_name ||
+                        fullReport.created_by.username ||
+                        ""
+                      }
+                      className="size-5"
+                      imageUrl={fullReport.created_by.profile_picture_url}
+                    />
+                    <span className="text-sm/9 text-gray-700 font-medium">
+                      {fullReport.created_by.first_name || ""}{" "}
+                      {fullReport.created_by.last_name || ""}
+                    </span>
+                  </div>
+                )}
+                {hasReport && fullReport && (
+                  <Badge
+                    className={"bg-pink-100 text-pink-800"}
+                    variant="outline"
+                  >
+                    {t(fullReport.status)}
+                  </Badge>
+                )}
+                <Button
+                  variant="ghost"
+                  size="icon"
+                  className="size-10 border border-gray-400 bg-white shadow p-4"
+                  onClick={(e) => {
+                    e.stopPropagation();
+                    setIsExpanded(!isExpanded);
+                  }}
+                >
+                  {isExpanded ? (
+                    <ChevronsDownUp className="size-5" />
+                  ) : (
+                    <ChevronsUpDown className="size-5" />
+                  )}
+                </Button>
+              </div>
+            </div>
+          </CardHeader>
+        </CollapsibleTrigger>
 
-      {isExpanded && (
-        <CardContent className="py-4">
-          {hasReport && fullReport ? (
-            <div className="space-y-6">
-              {fullReport.status !== DiagnosticReportStatus.final &&
-                observationDefinitions.map((definition) => {
-                  const hasComponents =
-                    definition.component && definition.component.length > 0;
-                  const observationData = observations[definition.id] || {
-                    value: "",
-                    unit: "",
-                    isNormal: true,
-                    components: {},
-                  };
+        <CollapsibleContent>
+          <CardContent className="px-2 bg-gray-100">
+            {hasReport && fullReport ? (
+              <div className="space-y-6">
+                {fullReport.status !== DiagnosticReportStatus.final &&
+                  observationDefinitions.map((definition) => {
+                    const hasComponents =
+                      definition.component && definition.component.length > 0;
+                    const observationData = observations[definition.id] || {
+                      value: "",
+                      unit: "",
+                      isNormal: true,
+                      components: {},
+                    };
 
-                  return (
-                    <Card key={definition.id} className="mb-4">
-                      <CardContent className="p-4">
-                        <div className="grid gap-4">
-                          <div className="flex justify-between items-start">
-                            <Label className="text-base font-medium">
-                              {definition.title || definition.code?.display}
-                            </Label>
-                          </div>
+                    return (
+                      <Card
+                        key={definition.id}
+                        className="mb-4 shadow-none rounded-lg border-gray-200 bg-gray-50"
+                      >
+                        <CardContent className="p-4">
+                          <div className="grid gap-4">
+                            <div className="flex justify-between items-start">
+                              <Label className="text-base font-medium">
+                                {definition.title || definition.code?.display}
+                              </Label>
+                            </div>
 
-                          {/* For blood pressure and similar observations with components, we may or may not need to show the main value field */}
-                          {(!hasComponents ||
-                            definition.permitted_data_type !== "quantity") && (
-                            <div className="flex space-x-4 items-center">
-                              <div className="flex-1">
-                                <Input
-                                  value={observationData.value}
-                                  onChange={(e) =>
-                                    handleValueChange(
-                                      definition.id,
-                                      e.target.value,
-                                    )
-                                  }
-                                  placeholder="Result value"
-                                  type={
-                                    definition.permitted_data_type ===
-                                      "decimal" ||
-                                    definition.permitted_data_type === "integer"
-                                      ? "number"
-                                      : "text"
-                                  }
-                                />
-                              </div>
+                            {/* For blood pressure and similar observations with components, we may or may not need to show the main value field */}
+                            {(!hasComponents ||
+                              definition.permitted_data_type !==
+                                "quantity") && (
+                              <div className="flex space-x-4 items-center">
+                                <div className="flex-1">
+                                  <Input
+                                    value={observationData.value}
+                                    onChange={(e) =>
+                                      handleValueChange(
+                                        definition.id,
+                                        e.target.value,
+                                      )
+                                    }
+                                    placeholder="Result value"
+                                    type={
+                                      definition.permitted_data_type ===
+                                        "decimal" ||
+                                      definition.permitted_data_type ===
+                                        "integer"
+                                        ? "number"
+                                        : "text"
+                                    }
+                                  />
+                                </div>
 
-                              {definition.permitted_unit && (
+                                {definition.permitted_unit && (
+                                  <div className="w-32">
+                                    <Select
+                                      value={observationData.unit}
+                                      onValueChange={(unit) =>
+                                        handleUnitChange(definition.id, unit)
+                                      }
+                                    >
+                                      <SelectTrigger>
+                                        <SelectValue placeholder="Unit" />
+                                      </SelectTrigger>
+                                      <SelectContent>
+                                        <SelectItem
+                                          value={definition.permitted_unit.code}
+                                        >
+                                          {definition.permitted_unit.display ||
+                                            definition.permitted_unit.code}
+                                        </SelectItem>
+                                      </SelectContent>
+                                    </Select>
+                                  </div>
+                                )}
+
                                 <div className="w-32">
                                   <Select
-                                    value={observationData.unit}
-                                    onValueChange={(unit) =>
-                                      handleUnitChange(definition.id, unit)
+                                    value={
+                                      observationData.isNormal
+                                        ? "normal"
+                                        : "abnormal"
+                                    }
+                                    onValueChange={(value) =>
+                                      handleNormalChange(
+                                        definition.id,
+                                        value === "normal",
+                                      )
                                     }
                                   >
                                     <SelectTrigger>
-                                      <SelectValue placeholder="Unit" />
+                                      <SelectValue placeholder="Status" />
                                     </SelectTrigger>
                                     <SelectContent>
-                                      <SelectItem
-                                        value={definition.permitted_unit.code}
-                                      >
-                                        {definition.permitted_unit.display ||
-                                          definition.permitted_unit.code}
+                                      <SelectItem value="normal">
+                                        <Badge
+                                          variant="outline"
+                                          className="bg-green-50 text-green-700 border-green-200"
+                                        >
+                                          Normal
+                                        </Badge>
+                                      </SelectItem>
+                                      <SelectItem value="abnormal">
+                                        <Badge
+                                          variant="outline"
+                                          className="bg-red-50 text-red-700 border-red-200"
+                                        >
+                                          Abnormal
+                                        </Badge>
                                       </SelectItem>
                                     </SelectContent>
                                   </Select>
                                 </div>
-                              )}
-
-                              <div className="w-32">
-                                <Select
-                                  value={
-                                    observationData.isNormal
-                                      ? "normal"
-                                      : "abnormal"
-                                  }
-                                  onValueChange={(value) =>
-                                    handleNormalChange(
-                                      definition.id,
-                                      value === "normal",
-                                    )
-                                  }
-                                >
-                                  <SelectTrigger>
-                                    <SelectValue placeholder="Status" />
-                                  </SelectTrigger>
-                                  <SelectContent>
-                                    <SelectItem value="normal">
-                                      <Badge
-                                        variant="outline"
-                                        className="bg-green-50 text-green-700 border-green-200"
-                                      >
-                                        Normal
-                                      </Badge>
-                                    </SelectItem>
-                                    <SelectItem value="abnormal">
-                                      <Badge
-                                        variant="outline"
-                                        className="bg-red-50 text-red-700 border-red-200"
-                                      >
-                                        Abnormal
-                                      </Badge>
-                                    </SelectItem>
-                                  </SelectContent>
-                                </Select>
                               </div>
-                            </div>
-                          )}
-
-                          {/* Render component inputs for multi-component observations */}
-                          {hasComponents &&
-                            renderComponentInputs(definition, observationData)}
-                        </div>
-                      </CardContent>
-                    </Card>
-                  );
-                })}
-
-              <div className="space-y-4">
-                {fullReport?.status === DiagnosticReportStatus.preliminary && (
-                  <div className="flex justify-end space-x-4">
-                    <Button
-                      variant="default"
-                      onClick={handleSubmit}
-                      disabled={isSubmitting}
-                    >
-                      <Save className="h-4 w-4 mr-2" />
-                      Save Results
-                    </Button>
-                  </div>
-                )}
-
-                {isImagingReport && (
-                  <>
-                    {fullReport?.status ===
-                      DiagnosticReportStatus.preliminary && (
-                      <Card className="mt-4 bg-gray-50 border-gray-300 shadow-none">
-                        <CardContent className="p-4">
-                          <div className="space-y-4">
-                            <div className="flex flex-col items-center justify-between gap-1">
-                              <CloudUpload className="size-10 border border-gray-100 rounded-md p-2 bg-white" />
-                              <Label className="text-base font-medium">
-                                {t("choose_file_or_drag")}
-                              </Label>
-                              <div className="text-sm text-gray-500">
-                                {FILE_EXTENSIONS.DOCUMENT.map((ext) =>
-                                  t(ext),
-                                ).join(", ")}
-                              </div>
-                              <Label
-                                htmlFor="file_upload_diagnostic_report"
-                                className="inline-flex items-center px-4 py-2 cursor-pointer border rounded-md hover:bg-accent hover:text-accent-foreground border-gray-300 shadow-sm"
-                              >
-                                <Upload className="mr-2 size-4" />
-                                <span
-                                  className="truncate font-semibold"
-                                  title={fileUpload.files
-                                    .map((file) => file.name)
-                                    .join(", ")}
-                                >
-                                  {fileUpload.files.length > 0
-                                    ? fileUpload.files
-                                        .map((file) => file.name)
-                                        .join(", ")
-                                    : t("upload_files")}
-                                </span>
-                                {fileUpload.Input({ className: "hidden" })}
-                              </Label>
-                            </div>
-
-                            {fileUpload.files.length > 0 && (
-                              <Button
-                                type="button"
-                                variant="outline"
-                                className="w-full"
-                                onClick={() => fileUpload.clearFiles()}
-                              >
-                                {t("clear")}
-                              </Button>
                             )}
+
+                            {/* Render component inputs for multi-component observations */}
+                            {hasComponents &&
+                              renderComponentInputs(
+                                definition,
+                                observationData,
+                              )}
                           </div>
                         </CardContent>
                       </Card>
-                    )}
-                    {files?.results && files.results.length > 0 && (
-                      <div className="mt-6">
-                        <div className="text-lg font-medium">
-                          {t("uploaded_files")}
-                        </div>
-                        <FileListTable
-                          files={files.results}
-                          type="diagnostic_report"
-                          associatingId={fullReport.id}
-                          canEdit={true}
-                          showHeader={false}
-                          onRefetch={refetchFiles}
-                        />
-                      </div>
-                    )}
-                  </>
-                )}
-              </div>
-            </div>
-          ) : (
-            <div className="space-y-4">
-              <div className="text-gray-500">
-                <p>No test results have been recorded yet.</p>
-                <p className="mt-2 text-sm">
-                  Click "Create Report" to add test results.
-                </p>
-              </div>
-              <div className="flex items-center gap-4">
-                {activityDefinition?.diagnostic_report_codes &&
-                  activityDefinition.diagnostic_report_codes.length > 0 && (
-                    <div className="flex-1">
-                      <Select
-                        value={selectedReportCode?.code}
-                        onValueChange={(value) => {
-                          const code =
-                            activityDefinition.diagnostic_report_codes?.find(
-                              (c) => c.code === value,
-                            );
-                          setSelectedReportCode(code || null);
-                        }}
+                    );
+                  })}
+
+                <div className="space-y-4">
+                  {fullReport?.status ===
+                    DiagnosticReportStatus.preliminary && (
+                    <div className="flex justify-end space-x-4">
+                      <Button
+                        variant="primary"
+                        onClick={handleSubmit}
+                        disabled={isSubmitting}
                       >
-                        <SelectTrigger>
-                          <SelectValue
-                            placeholder={t("select_diagnostic_report_type")}
-                          />
-                        </SelectTrigger>
-                        <SelectContent>
-                          {activityDefinition.diagnostic_report_codes.map(
-                            (code) => (
-                              <SelectItem key={code.code} value={code.code}>
-                                <div className="flex flex-col">
-                                  <span>
-                                    {code.display} ({code.code})
-                                  </span>
-                                </div>
-                              </SelectItem>
-                            ),
-                          )}
-                        </SelectContent>
-                      </Select>
+                        <Save className="h-4 w-4 mr-2" />
+                        Save Results
+                      </Button>
                     </div>
                   )}
-                <Button
-                  onClick={handleCreateReport}
-                  disabled={
-                    isCreatingReport ||
-                    (!!activityDefinition?.diagnostic_report_codes?.length &&
-                      !selectedReportCode)
-                  }
-                  className="shrink-0"
-                >
-                  <PlusCircle className="h-4 w-4 mr-2" />
-                  Create Report
-                </Button>
+
+                  {isImagingReport && (
+                    <>
+                      {fullReport?.status ===
+                        DiagnosticReportStatus.preliminary && (
+                        <Card className="mt-4 bg-gray-50 border-gray-200 shadow-none">
+                          <CardContent className="p-4">
+                            <div className="space-y-4">
+                              <div className="flex flex-col items-center justify-between gap-1">
+                                <CloudUpload className="size-10 border border-gray-100 rounded-md p-2 bg-white" />
+                                <Label className="text-base font-medium">
+                                  {t("choose_file_or_drag")}
+                                </Label>
+                                <div className="text-sm text-gray-500">
+                                  {FILE_EXTENSIONS.DOCUMENT.map((ext) =>
+                                    t(ext),
+                                  ).join(", ")}
+                                </div>
+                                <Label
+                                  htmlFor="file_upload_diagnostic_report"
+                                  className="inline-flex items-center px-4 py-2 cursor-pointer border rounded-md hover:bg-accent hover:text-accent-foreground border-gray-300 shadow-sm"
+                                >
+                                  <Upload className="mr-2 size-4" />
+                                  <span
+                                    className="truncate font-semibold"
+                                    title={fileUpload.files
+                                      .map((file) => file.name)
+                                      .join(", ")}
+                                  >
+                                    {fileUpload.files.length > 0
+                                      ? fileUpload.files
+                                          .map((file) => file.name)
+                                          .join(", ")
+                                      : t("upload_files")}
+                                  </span>
+                                  {fileUpload.Input({ className: "hidden" })}
+                                </Label>
+                              </div>
+
+                              {fileUpload.files.length > 0 && (
+                                <Button
+                                  type="button"
+                                  variant="outline"
+                                  className="w-full"
+                                  onClick={() => fileUpload.clearFiles()}
+                                >
+                                  {t("clear")}
+                                </Button>
+                              )}
+                            </div>
+                          </CardContent>
+                        </Card>
+                      )}
+                      {files?.results && files.results.length > 0 && (
+                        <div className="mt-6">
+                          <div className="text-lg font-medium">
+                            {t("uploaded_files")}
+                          </div>
+                          <FileListTable
+                            files={files.results}
+                            type="diagnostic_report"
+                            associatingId={fullReport.id}
+                            canEdit={true}
+                            showHeader={false}
+                            onRefetch={refetchFiles}
+                          />
+                        </div>
+                      )}
+                    </>
+                  )}
+                </div>
               </div>
-            </div>
-          )}
-        </CardContent>
-      )}
+            ) : (
+              <div className="space-y-4 bg-gray-50 rounded-lg">
+                <div className="text-gray-500 flex justify-center items-center">
+                  <p></p>
+                  <p className="mt-2 text-sm text-gray-500">
+                    No test results have been recorded yet. Click "Create
+                    Report" to add test results.
+                  </p>
+                </div>
+                <div className="flex items-center justify-center gap-4 p-1">
+                  {activityDefinition?.diagnostic_report_codes &&
+                    activityDefinition.diagnostic_report_codes.length > 0 && (
+                      <div className="flex-1">
+                        <Select
+                          value={selectedReportCode?.code}
+                          onValueChange={(value) => {
+                            const code =
+                              activityDefinition.diagnostic_report_codes?.find(
+                                (c) => c.code === value,
+                              );
+                            setSelectedReportCode(code || null);
+                          }}
+                        >
+                          <SelectTrigger>
+                            <SelectValue
+                              placeholder={t("select_diagnostic_report_type")}
+                            />
+                          </SelectTrigger>
+                          <SelectContent>
+                            {activityDefinition.diagnostic_report_codes.map(
+                              (code) => (
+                                <SelectItem key={code.code} value={code.code}>
+                                  <div className="flex flex-col">
+                                    <span>
+                                      {code.display} ({code.code})
+                                    </span>
+                                  </div>
+                                </SelectItem>
+                              ),
+                            )}
+                          </SelectContent>
+                        </Select>
+                      </div>
+                    )}
+                  <Button
+                    onClick={handleCreateReport}
+                    disabled={
+                      isCreatingReport ||
+                      (!!activityDefinition?.diagnostic_report_codes?.length &&
+                        !selectedReportCode)
+                    }
+                    className="shrink-0"
+                  >
+                    <PlusCircle className="h-4 w-4 mr-2" />
+                    Create Report
+                  </Button>
+                </div>
+              </div>
+            )}
+          </CardContent>
+        </CollapsibleContent>
+      </Collapsible>
 
       {fileUpload.Dialogues}
       <FileUploadDialog
