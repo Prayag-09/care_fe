@@ -764,29 +764,11 @@ export function DiagnosticReportForm({
                               definition.permitted_data_type !==
                                 "quantity") && (
                               <div className="flex space-x-4 items-center">
-                                <div className="flex-1">
-                                  <Input
-                                    value={observationData.value}
-                                    onChange={(e) =>
-                                      handleValueChange(
-                                        definition.id,
-                                        e.target.value,
-                                      )
-                                    }
-                                    placeholder="Result value"
-                                    type={
-                                      definition.permitted_data_type ===
-                                        "decimal" ||
-                                      definition.permitted_data_type ===
-                                        "integer"
-                                        ? "number"
-                                        : "text"
-                                    }
-                                  />
-                                </div>
-
                                 {definition.permitted_unit && (
                                   <div className="w-32">
+                                    <Label className="text-sm font-medium mb-1 block text-gray-700">
+                                      Unit
+                                    </Label>
                                     <Select
                                       value={observationData.unit}
                                       onValueChange={(unit) =>
@@ -807,6 +789,30 @@ export function DiagnosticReportForm({
                                     </Select>
                                   </div>
                                 )}
+
+                                <div className="flex-1">
+                                  <Label className="text-sm font-medium mb-1 block text-gray-700">
+                                    Result
+                                  </Label>
+                                  <Input
+                                    value={observationData.value}
+                                    onChange={(e) =>
+                                      handleValueChange(
+                                        definition.id,
+                                        e.target.value,
+                                      )
+                                    }
+                                    placeholder="Result value"
+                                    type={
+                                      definition.permitted_data_type ===
+                                        "decimal" ||
+                                      definition.permitted_data_type ===
+                                        "integer"
+                                        ? "number"
+                                        : "text"
+                                    }
+                                  />
+                                </div>
 
                                 <div className="flex items-center space-x-2 pt-6">
                                   <Checkbox
