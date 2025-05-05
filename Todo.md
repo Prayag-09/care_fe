@@ -22,3 +22,14 @@ Do keep this updated if you have completed something, also mark your name to the
 - [ ] Service Request - Show specimen.collection.collector details instead of UUID (After BE change)
 - [ ] Service Request - Show specimen.processing.performer details instead of UUID (After BE change)
 - [x] Add support for xray and file uploads service request - Amjith
+
+- [ ] In service request create from AD lets remove status, intent, category, do not perform and locations. (These should be shown along with the name for information purpose)
+- [x] If no specimen def is avilable then lets not empty state - Amjith
+- [ ] Lets move uploaded files list to above the Choose file Card
+- [ ] Implement barcode in service request after creating the Specimen
+- [ ] Print all Barcodes button for a service request with page setup - [hold till @bodhi confirms]
+- [ ] When you have uploaded the file the result section should always be present.
+- [ ] Link to diganostic report page should be added to the service request
+- [ ] We should have an option to capture conclusion in diagnostic report
+- [ ] workflow statuses on the right side as per design should be created.
+- [ ] Service request should show linked cahrge items along with its status [check for backend support]
