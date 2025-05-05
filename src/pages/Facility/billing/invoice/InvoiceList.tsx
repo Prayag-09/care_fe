@@ -8,6 +8,7 @@ import CareIcon from "@/CAREUI/icons/CareIcon";
 import { Badge } from "@/components/ui/badge";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
+import { MonetaryValue } from "@/components/ui/monetary-value";
 import {
   Select,
   SelectContent,
@@ -180,12 +181,10 @@ export function InvoiceList({
                     </TableCell>
                     <TableCell>
                       {invoice.total_gross ? (
-                        <div className="font-medium">
-                          {new Intl.NumberFormat("en-US", {
-                            style: "currency",
-                            currency: "USD",
-                          }).format(invoice.total_gross)}
-                        </div>
+                        <MonetaryValue
+                          className="font-medium"
+                          value={invoice.total_gross}
+                        />
                       ) : (
                         <span className="text-gray-500 text-sm">-</span>
                       )}
