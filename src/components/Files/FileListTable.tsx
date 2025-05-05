@@ -65,12 +65,8 @@ export function FileListTable({
 
   const fileManager = useFileManager({
     type,
-    onArchive: () => {
-      onRefetch?.();
-    },
-    onEdit: () => {
-      onRefetch?.();
-    },
+    onArchive: onRefetch,
+    onEdit: onRefetch,
     uploadedFiles: files
       .slice()
       .reverse()

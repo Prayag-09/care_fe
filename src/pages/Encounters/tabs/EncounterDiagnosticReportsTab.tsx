@@ -49,6 +49,7 @@ export const EncounterDiagnosticReportsTab = ({
         encounter: encounter.id,
         offset: (page - 1) * limit,
         limit,
+        status: "final",
       },
     }),
   });

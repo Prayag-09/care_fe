@@ -569,11 +569,11 @@ export function SpecimenWorkflowCard({
                     </div>
                   </AccordionTrigger>
                   <AccordionContent className="px-4 pt-1 pb-4 space-y-4 bg-gray-50/30 border-t">
-                    <h3 className="font-medium text-base mb-2 flex items-center gap-2">
+                    <p className="font-medium text-sm mb-2 flex items-center gap-2">
                       <ShieldCheck className="h-5 w-5 text-gray-600" />
                       Collected Specimen Details
-                    </h3>
-                    <Card className="p-2">
+                    </p>
+                    <Card className="rounded-xl overflow-clip">
                       <Table>
                         <TableHeader className="text-xs text-gray-700 bg-gray-100 uppercase tracking-wide">
                           <TableRow>

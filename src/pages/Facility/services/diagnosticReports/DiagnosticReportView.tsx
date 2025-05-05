@@ -12,7 +12,12 @@ import { Button } from "@/components/ui/button";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { Skeleton } from "@/components/ui/skeleton";
 
+import { FileListTable } from "@/components/Files/FileListTable";
+import { FileUploadModel } from "@/components/Patient/models";
+
+import routes from "@/Utils/request/api";
 import query from "@/Utils/request/query";
+import { PaginatedResponse } from "@/Utils/request/types";
 import { DiagnosticReportResultsTable } from "@/pages/Facility/services/diagnosticReports/components/DiagnosticReportResultsTable";
 import { PatientHeader } from "@/pages/Facility/services/serviceRequests/components/PatientHeader";
 import { DIAGNOSTIC_REPORT_STATUS_COLORS } from "@/types/emr/diagnosticReport/diagnosticReport";
@@ -36,6 +41,21 @@ export default function DiagnosticReportView({
       },
     }),
   });
+
+  // Query to fetch files for the diagnostic report
+  const { data: files = { results: [], count: 0 }, refetch: refetchFiles } =
+    useQuery<PaginatedResponse<FileUploadModel>>({
+      queryKey: ["files", "diagnostic_report", report?.id],
+      queryFn: query(routes.viewUpload, {
+        queryParams: {
+          file_type: "diagnostic_report",
+          associating_id: report?.id,
+          limit: 100,
+          offset: 0,
+        },
+      }),
+      enabled: !!report?.id,
+    });
 
   if (isLoading) {
     return (
@@ -142,7 +162,23 @@ export default function DiagnosticReportView({
             </div>
           </CardContent>
         </Card>
-
+        <Card>
+          <CardHeader>
+            <CardTitle>{t("uploaded_files")}</CardTitle>
+          </CardHeader>
+          <CardContent className="p-2">
+            {files?.results && files.results.length > 0 && (
+              <FileListTable
+                files={files.results}
+                type="diagnostic_report"
+                associatingId={report.id}
+                canEdit={true}
+                showHeader={false}
+                onRefetch={refetchFiles}
+              />
+            )}
+          </CardContent>
+        </Card>
         {/* Test Results */}
         <Card>
           <CardHeader>

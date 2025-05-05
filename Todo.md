@@ -14,11 +14,11 @@ Do keep this updated if you have completed something, also mark your name to the
 
 ## Labs
 
-- [ ] Build service request list page based on design
-- [ ] Rewamp design of service request show page based on design
+- [x] Build service request list page based on design
+- [ ] Rewamp design of service request show page based on design - Amjith
 - [ ] Add support for search by specimen ID in the UI based on design
 - [ ] Add filters for statues in service request page as of the UI
 - [ ] Add support for multiple diagnostic report for a service request
 - [ ] Service Request - Show specimen.collection.collector details instead of UUID (After BE change)
 - [ ] Service Request - Show specimen.processing.performer details instead of UUID (After BE change)
-- [ ] Add support for xray and file uploads service request
+- [x] Add support for xray and file uploads service request - Amjith
