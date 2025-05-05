@@ -17,6 +17,7 @@ import { cn } from "@/lib/utils";
 import { Badge } from "@/components/ui/badge";
 import { Button } from "@/components/ui/button";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
+import { Checkbox } from "@/components/ui/checkbox";
 import {
   Collapsible,
   CollapsibleContent,
@@ -528,9 +529,9 @@ export function DiagnosticReportForm({
     }
 
     return (
-      <div className="space-y-4 mt-4">
+      <div className="space-y-4">
         <Separator />
-        {definition.component.map((component) => {
+        {definition.component.map((component, index) => {
           const componentData = observationData.components[
             component.code.code
           ] || {
@@ -541,11 +542,52 @@ export function DiagnosticReportForm({
 
           return (
             <div key={component.code.code} className="mt-2">
-              <Label className="text-sm font-medium mb-1 block">
-                {component.code.display || component.code.code}
+              <Label className="text-sm/10 font-semibold mb-1 block text-gray-950">
+                {index + 1}. {component.code.display || component.code.code}
               </Label>
               <div className="flex space-x-4 items-center">
+                {component.permitted_unit && (
+                  <div className="w-32">
+                    <Label className="text-sm font-medium mb-1 block text-gray-700">
+                      Unit
+                    </Label>
+                    <Select
+                      value={componentData.unit}
+                      onValueChange={(unit) =>
+                        handleComponentUnitChange(
+                          definition.id,
+                          component.code.code,
+                          unit,
+                        )
+                      }
+                    >
+                      <SelectTrigger>
+                        {componentData.unit ? (
+                          componentData.unit
+                        ) : (
+                          <SelectValue placeholder="Unit" />
+                        )}
+                      </SelectTrigger>
+                      <SelectContent>
+                        <SelectItem value={component.permitted_unit.code}>
+                          <div className="flex flex-col">
+                            <span>{component.permitted_unit.code}</span>
+                            {component.permitted_unit.display && (
+                              <span className="text-xs text-gray-500">
+                                ({component.permitted_unit.display})
+                              </span>
+                            )}
+                          </div>
+                        </SelectItem>
+                      </SelectContent>
+                    </Select>
+                  </div>
+                )}
+
                 <div className="flex-1">
+                  <Label className="text-sm font-medium mb-1 block text-gray-700">
+                    Result
+                  </Label>
                   <Input
                     value={componentData.value}
                     onChange={(e) =>
@@ -566,64 +608,24 @@ export function DiagnosticReportForm({
                   />
                 </div>
 
-                {component.permitted_unit && (
-                  <div className="w-32">
-                    <Select
-                      value={componentData.unit}
-                      onValueChange={(unit) =>
-                        handleComponentUnitChange(
-                          definition.id,
-                          component.code.code,
-                          unit,
-                        )
-                      }
-                    >
-                      <SelectTrigger>
-                        <SelectValue placeholder="Unit" />
-                      </SelectTrigger>
-                      <SelectContent>
-                        <SelectItem value={component.permitted_unit.code}>
-                          {component.permitted_unit.display ||
-                            component.permitted_unit.code}
-                        </SelectItem>
-                      </SelectContent>
-                    </Select>
-                  </div>
-                )}
-
-                <div className="w-32">
-                  <Select
-                    value={componentData.isNormal ? "normal" : "abnormal"}
-                    onValueChange={(value) =>
+                <div className="flex items-center space-x-2 pt-6">
+                  <Checkbox
+                    id={`abnormal-checkbox-${definition.id}-${component.code.code}`}
+                    checked={!componentData.isNormal}
+                    onCheckedChange={(checked) =>
                       handleComponentNormalChange(
                         definition.id,
                         component.code.code,
-                        value === "normal",
+                        !checked, // isNormal is the opposite of checked (isAbnormal)
                       )
                     }
+                  />
+                  <Label
+                    htmlFor={`abnormal-checkbox-${definition.id}-${component.code.code}`}
+                    className="text-sm font-medium text-gray-950 cursor-pointer"
                   >
-                    <SelectTrigger>
-                      <SelectValue placeholder="Status" />
-                    </SelectTrigger>
-                    <SelectContent>
-                      <SelectItem value="normal">
-                        <Badge
-                          variant="outline"
-                          className="bg-green-50 text-green-700 border-green-200"
-                        >
-                          Normal
-                        </Badge>
-                      </SelectItem>
-                      <SelectItem value="abnormal">
-                        <Badge
-                          variant="outline"
-                          className="bg-red-50 text-red-700 border-red-200"
-                        >
-                          Abnormal
-                        </Badge>
-                      </SelectItem>
-                    </SelectContent>
-                  </Select>
+                    Abnormal
+                  </Label>
                 </div>
               </div>
             </div>
@@ -752,7 +754,7 @@ export function DiagnosticReportForm({
                         <CardContent className="p-4">
                           <div className="grid gap-4">
                             <div className="flex justify-between items-start">
-                              <Label className="text-base font-medium">
+                              <Label className="text-base font-semibold text-gray-950">
                                 {definition.title || definition.code?.display}
                               </Label>
                             </div>
@@ -806,42 +808,23 @@ export function DiagnosticReportForm({
                                   </div>
                                 )}
 
-                                <div className="w-32">
-                                  <Select
-                                    value={
-                                      observationData.isNormal
-                                        ? "normal"
-                                        : "abnormal"
-                                    }
-                                    onValueChange={(value) =>
+                                <div className="flex items-center space-x-2 pt-6">
+                                  <Checkbox
+                                    id={`abnormal-checkbox-${definition.id}`}
+                                    checked={!observationData.isNormal}
+                                    onCheckedChange={(checked) =>
                                       handleNormalChange(
                                         definition.id,
-                                        value === "normal",
+                                        !checked, // isNormal is the opposite of checked (isAbnormal)
                                       )
                                     }
+                                  />
+                                  <Label
+                                    htmlFor={`abnormal-checkbox-${definition.id}`}
+                                    className="text-sm font-medium text-gray-700 cursor-pointer"
                                   >
-                                    <SelectTrigger>
-                                      <SelectValue placeholder="Status" />
-                                    </SelectTrigger>
-                                    <SelectContent>
-                                      <SelectItem value="normal">
-                                        <Badge
-                                          variant="outline"
-                                          className="bg-green-50 text-green-700 border-green-200"
-                                        >
-                                          Normal
-                                        </Badge>
-                                      </SelectItem>
-                                      <SelectItem value="abnormal">
-                                        <Badge
-                                          variant="outline"
-                                          className="bg-red-50 text-red-700 border-red-200"
-                                        >
-                                          Abnormal
-                                        </Badge>
-                                      </SelectItem>
-                                    </SelectContent>
-                                  </Select>
+                                    Abnormal
+                                  </Label>
                                 </div>
                               </div>
                             )}
