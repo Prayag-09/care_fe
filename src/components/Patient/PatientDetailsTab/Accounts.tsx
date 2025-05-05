@@ -7,13 +7,15 @@ interface AccountsProps {
 
 export const Accounts = (props: AccountsProps) => {
   return (
-    <>
+    <div>
       {props.facilityId && (
         <AccountList
           facilityId={props.facilityId}
           patientId={props.patientId}
+          hideTitleOnPage
+          className="mt-2"
         />
       )}
-    </>
+    </div>
   );
 };

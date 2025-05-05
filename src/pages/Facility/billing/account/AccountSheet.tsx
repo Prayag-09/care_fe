@@ -80,9 +80,14 @@ export function AccountSheet({
 
   // Reset form when initialValues changes
   React.useEffect(() => {
-    if (initialValues) {
-      methods.reset(initialValues);
-    }
+    methods.reset(
+      initialValues || {
+        name: "",
+        description: "",
+        status: AccountStatus.active,
+        billing_status: AccountBillingStatus.open,
+      },
+    );
   }, [initialValues, methods]);
 
   const createMutation = useMutation<AccountRead, unknown, AccountFormValues>({
