@@ -9,7 +9,6 @@ import {
 
 const monetoryComponentColorMap: Record<MonetoryComponentType, string> = {
   base: "primary",
-  surcharge: "destructive",
   tax: "warning",
   discount: "success",
   informational: "secondary",

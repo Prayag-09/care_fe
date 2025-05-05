@@ -293,16 +293,6 @@ export function ChargeItemsTable({
 
                   const detailRows = [
                     <PriceComponentRow
-                      key={`${item.id}-surcharges`}
-                      label={t("surcharges")}
-                      components={getComponentsByType(
-                        item,
-                        MonetoryComponentType.surcharge,
-                      )}
-                      baseAmount={baseAmount}
-                      quantity={item.quantity}
-                    />,
-                    <PriceComponentRow
                       key={`${item.id}-discounts`}
                       label={t("discounts")}
                       components={getComponentsByType(

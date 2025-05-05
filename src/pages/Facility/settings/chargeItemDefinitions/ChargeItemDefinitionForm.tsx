@@ -401,71 +401,6 @@ export function ChargeItemDefinitionForm({
     }
   };
 
-  // Add a custom surcharge
-  const addSurcharge = () => {
-    const newComponent: MonetoryComponent & { use_factor?: boolean } = {
-      monetory_component_type: MonetoryComponentType.surcharge,
-      amount: 0,
-      factor: null,
-      code: null,
-      use_factor: false,
-    };
-
-    const updatedComponents = [...priceComponents, newComponent];
-    setPriceComponents(updatedComponents);
-    form.setValue("price_component", updatedComponents, {
-      shouldDirty: true,
-      shouldTouch: true,
-      shouldValidate: true,
-    });
-  };
-
-  // Update a surcharge
-  const updateSurcharge = (
-    index: number,
-    field: "amount" | "factor" | "use_factor",
-    value: any,
-  ) => {
-    const updatedComponents = [...priceComponents];
-
-    if (field === "use_factor") {
-      updatedComponents[index].use_factor = value;
-
-      // Initialize the appropriate field
-      if (value && updatedComponents[index].factor === null) {
-        updatedComponents[index].factor = 0;
-      } else if (!value && updatedComponents[index].amount === null) {
-        updatedComponents[index].amount = 0;
-      }
-    } else if (field === "amount") {
-      updatedComponents[index].amount = value === "" ? null : parseFloat(value);
-    } else if (field === "factor") {
-      const percentValue = value === "" ? null : parseFloat(value);
-      updatedComponents[index].factor =
-        percentValue !== null ? percentValue / 100 : null;
-    }
-
-    setPriceComponents(updatedComponents);
-    form.setValue("price_component", updatedComponents, {
-      shouldDirty: true,
-      shouldTouch: true,
-      shouldValidate: true,
-    });
-  };
-
-  // Remove a surcharge
-  const removeSurcharge = (index: number) => {
-    const updatedComponents = [...priceComponents];
-    updatedComponents.splice(index, 1);
-
-    setPriceComponents(updatedComponents);
-    form.setValue("price_component", updatedComponents, {
-      shouldDirty: true,
-      shouldTouch: true,
-      shouldValidate: true,
-    });
-  };
-
   // Check if a specific code is selected
   const isCodeSelected = (
     codeObj: Code,
@@ -493,11 +428,6 @@ export function ChargeItemDefinitionForm({
 
     return component?.factor ? component.factor * 100 : 0;
   };
-
-  // Get surcharges
-  const surcharges = priceComponents.filter(
-    (c) => c.monetory_component_type === MonetoryComponentType.surcharge,
-  );
 
   // Get base price component
   const basePrice = priceComponents.find(
@@ -567,13 +497,6 @@ export function ChargeItemDefinitionForm({
             <div className="flex flex-col items-center">
               <div className="w-10 h-10 rounded-full bg-primary/20 flex items-center justify-center text-primary"></div>
               <span className="text-xs mt-1">Discounts</span>
-            </div>
-            <div className="h-px w-6 sm:w-12 bg-primary/20"></div>
-            <div className="flex flex-col items-center">
-              <div className="w-10 h-10 rounded-full bg-primary/20 flex items-center justify-center text-primary">
-                <CareIcon icon="l-arrow-up" className="h-5 w-5" />
-              </div>
-              <span className="text-xs mt-1">Surcharges</span>
             </div>
             <div className="h-px w-6 sm:w-12 bg-primary/20"></div>
             <div className="flex flex-col items-center">
@@ -945,218 +868,8 @@ export function ChargeItemDefinitionForm({
                       );
                     })
                   )}
-
-                  {/* Surcharge Section Header */}
-                  <tr className="border-b bg-orange-50">
-                    <td colSpan={4} className="py-3 px-4">
-                      <div className="flex items-center text-orange-800 font-medium">
-                        <CareIcon
-                          icon="l-arrow-up"
-                          className="h-5 w-5 mr-2 text-orange-600"
-                        />
-                        {t("custom_surcharges")}
-                      </div>
-                    </td>
-                  </tr>
-
-                  {/* Surcharges Rows */}
-                  {surcharges.length === 0 ? (
-                    <tr className="border-b">
-                      <td colSpan={4} className="py-6 px-4 text-sm text-center">
-                        <div className="flex flex-col items-center p-6 bg-muted/5 rounded-md">
-                          <CareIcon
-                            icon="l-plus-circle"
-                            className="h-8 w-8 text-orange-300 mb-2"
-                          />
-                          <p className="text-muted-foreground">
-                            {t("no_surcharges_yet")}
-                          </p>
-                          <p className="text-xs text-muted-foreground mt-1">
-                            Use the "Add Surcharge" button below to add fixed
-                            amounts or percentages
-                          </p>
-                          <Button
-                            type="button"
-                            variant="outline"
-                            size="sm"
-                            onClick={addSurcharge}
-                            className="mt-4 border-orange-300 text-orange-700 hover:bg-orange-100"
-                          >
-                            <CareIcon icon="l-plus" className="mr-2 h-4 w-4" />
-                            {t("add_first_surcharge")}
-                          </Button>
-                        </div>
-                      </td>
-                    </tr>
-                  ) : (
-                    surcharges.map((surcharge, index) => {
-                      const componentIndex = priceComponents.indexOf(surcharge);
-                      return (
-                        <tr
-                          key={`surcharge-${index}`}
-                          className="border-b bg-white hover:bg-orange-50/20 transition-colors"
-                        >
-                          <td className="py-4 px-4">
-                            <div className="font-medium flex items-center">
-                              <div className="flex items-center justify-center w-6 h-6 rounded-full bg-orange-100 text-orange-700 mr-2 text-xs font-bold">
-                                {index + 1}
-                              </div>
-                              {t("surcharge")} #{index + 1}
-                            </div>
-                            <div className="text-xs text-muted-foreground mt-1 ml-8">
-                              {surcharge.use_factor
-                                ? "Percentage-based surcharge"
-                                : "Fixed amount surcharge"}
-                            </div>
-                          </td>
-                          <td className="py-4 px-4">
-                            <Badge
-                              variant="outline"
-                              className="bg-orange-100 text-orange-700 border-orange-200"
-                            >
-                              {surcharge.use_factor
-                                ? t("percentage")
-                                : t("fixed_amount")}
-                            </Badge>
-                          </td>
-                          <td className="py-4 px-4">
-                            <div className="flex justify-end">
-                              <div className="relative w-40">
-                                {surcharge.use_factor ? (
-                                  <>
-                                    <Input
-                                      type="number"
-                                      value={
-                                        surcharge.factor !== null &&
-                                        surcharge.factor !== undefined
-                                          ? surcharge.factor * 100
-                                          : ""
-                                      }
-                                      onChange={(e) =>
-                                        updateSurcharge(
-                                          componentIndex,
-                                          "factor",
-                                          e.target.value,
-                                        )
-                                      }
-                                      placeholder="0.00"
-                                      className="pr-7 text-right border-orange-300 focus-visible:ring-orange-500 text-orange-700 font-medium"
-                                    />
-                                    <span className="absolute right-3 top-1/2 transform -translate-y-1/2 text-orange-700">
-                                      %
-                                    </span>
-                                  </>
-                                ) : (
-                                  <>
-                                    <span className="absolute left-3 top-1/2 transform -translate-y-1/2 text-orange-700 font-bold">
-                                      ₹
-                                    </span>
-                                    <Input
-                                      type="number"
-                                      value={surcharge.amount ?? ""}
-                                      onChange={(e) =>
-                                        updateSurcharge(
-                                          componentIndex,
-                                          "amount",
-                                          e.target.value,
-                                        )
-                                      }
-                                      placeholder="0.00"
-                                      className="pl-7 text-right border-orange-300 focus-visible:ring-orange-500 text-orange-700 font-medium"
-                                    />
-                                  </>
-                                )}
-                              </div>
-                            </div>
-                            {(surcharge.use_factor
-                              ? !surcharge.factor
-                              : !surcharge.amount) && (
-                              <div className="text-xs text-right text-red-500 mt-1 bg-red-50 p-1 rounded">
-                                <CareIcon
-                                  icon="l-exclamation-circle"
-                                  className="h-3 w-3 mr-1 inline"
-                                />
-                                {surcharge.use_factor
-                                  ? t("percentage_required")
-                                  : t("amount_required")}
-                              </div>
-                            )}
-                          </td>
-                          <td className="py-4 px-4 text-right">
-                            <div className="flex justify-end space-x-1">
-                              <Select
-                                value={
-                                  surcharge.use_factor ? "percentage" : "amount"
-                                }
-                                onValueChange={(value) =>
-                                  updateSurcharge(
-                                    componentIndex,
-                                    "use_factor",
-                                    value === "percentage",
-                                  )
-                                }
-                              >
-                                <SelectTrigger className="w-24 h-8 border-orange-300 focus:ring-orange-500 focus-visible:ring-orange-500">
-                                  <SelectValue />
-                                </SelectTrigger>
-                                <SelectContent>
-                                  <SelectItem value="amount">
-                                    <span className="font-medium flex items-center">
-                                      <span className="mr-1">₹</span>{" "}
-                                      {t("amount")}
-                                    </span>
-                                  </SelectItem>
-                                  <SelectItem value="percentage">
-                                    <span className="font-medium flex items-center">
-                                      <span className="mr-1">%</span>{" "}
-                                      {t("percentage")}
-                                    </span>
-                                  </SelectItem>
-                                </SelectContent>
-                              </Select>
-
-                              <Button
-                                type="button"
-                                variant="ghost"
-                                size="icon"
-                                className="h-8 w-8 hover:bg-red-100 hover:text-red-700 transition-colors"
-                                onClick={() => removeSurcharge(componentIndex)}
-                                title={t("delete")}
-                              >
-                                <CareIcon
-                                  icon="l-trash"
-                                  className="h-4 w-4 text-red-500"
-                                />
-                              </Button>
-                            </div>
-                          </td>
-                        </tr>
-                      );
-                    })
-                  )}
                 </tbody>
               </table>
-            </div>
-
-            {/* Add Surcharge Button */}
-            <div className="p-6 border-t bg-primary/5">
-              <Button
-                type="button"
-                variant="outline"
-                size="default"
-                onClick={addSurcharge}
-                className="w-full bg-white hover:bg-primary hover:text-white transition-colors group border-primary/30 text-primary"
-              >
-                <CareIcon
-                  icon="l-plus"
-                  className="mr-2 h-5 w-5 group-hover:animate-pulse"
-                />
-                {t("add_surcharge")}
-              </Button>
-
-              <p className="text-xs text-muted-foreground text-center mt-2">
-                Add fixed amounts or percentages to the base price
-              </p>
             </div>
           </CardContent>
         </Card>
@@ -1182,26 +895,6 @@ export function ChargeItemDefinitionForm({
                     : "₹0.00"}
                 </span>
               </div>
-
-              {/* Surcharges */}
-              {surcharges.length > 0 && (
-                <div className="flex justify-between py-2 border-b">
-                  <span className="text-muted-foreground">
-                    {t("surcharges")}
-                  </span>
-                  <span>
-                    {surcharges
-                      .map((s) => {
-                        if (s.use_factor) {
-                          return `+${((s.factor || 0) * 100).toFixed(0)}%`;
-                        } else {
-                          return `+₹${(s.amount || 0).toFixed(2)}`;
-                        }
-                      })
-                      .join(", ")}
-                  </span>
-                </div>
-              )}
 
               {/* Discounts */}
               {discountCodes.some((code) =>

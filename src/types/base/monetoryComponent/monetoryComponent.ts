@@ -2,7 +2,6 @@ import { Code } from "@/types/questionnaire/code";
 
 export enum MonetoryComponentType {
   base = "base",
-  surcharge = "surcharge",
   discount = "discount",
   tax = "tax",
   informational = "informational",

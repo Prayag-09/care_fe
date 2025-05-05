@@ -117,20 +117,12 @@ export function EditChargeItemPopover({
   };
 
   const baseComponent = getComponentsByType(MonetoryComponentType.base)[0];
-  const surcharges = getComponentsByType(MonetoryComponentType.surcharge);
   const discounts = getComponentsByType(MonetoryComponentType.discount);
   const taxes = getComponentsByType(MonetoryComponentType.tax);
 
   // Calculate unit total based on components
   const calculateUnitTotal = () => {
     const baseAmount = baseComponent?.amount || 0;
-
-    const surchargesTotal = surcharges.reduce((sum, c) => {
-      if (c.amount !== undefined && c.amount !== null) {
-        return sum + c.amount;
-      }
-      return sum + (c.factor || 0) * baseAmount;
-    }, 0);
 
     const discountAmount = discounts.reduce((sum, c) => {
       if (c.amount !== undefined && c.amount !== null) {
@@ -140,11 +132,11 @@ export function EditChargeItemPopover({
     }, 0);
 
     const taxAmount = taxes.reduce((sum, c) => {
-      const subtotal = baseAmount + surchargesTotal - discountAmount;
+      const subtotal = baseAmount - discountAmount;
       return sum + (c.factor || 0) * subtotal;
     }, 0);
 
-    return baseAmount + surchargesTotal - discountAmount + taxAmount;
+    return baseAmount - discountAmount + taxAmount;
   };
 
   const currentTotal =
@@ -293,24 +285,6 @@ export function EditChargeItemPopover({
                             <span>{formatCurrency(baseComponent.amount)}</span>
                           </div>
                         )}
-
-                        {surcharges.map((surcharge, index) => (
-                          <div
-                            key={`surcharge-${index}`}
-                            className="flex justify-between"
-                          >
-                            <span className="text-amber-600">
-                              {t("surcharge")}
-                            </span>
-                            <span>
-                              +
-                              {surcharge.amount !== undefined &&
-                              surcharge.amount !== null
-                                ? formatCurrency(surcharge.amount)
-                                : formatPercentage(surcharge.factor)}
-                            </span>
-                          </div>
-                        ))}
 
                         {discounts.map((discount, index) => (
                           <div

@@ -50,7 +50,6 @@ export function ChargeItemDefinitionDetail({
   const renderPriceComponent = (component: MonetoryComponent) => {
     const typeLabels: Record<string, string> = {
       base: t("base_price"),
-      surcharge: t("surcharge"),
       discount: t("discount"),
       tax: t("tax"),
       informational: t("informational"),
