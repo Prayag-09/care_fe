@@ -26,9 +26,9 @@ export interface DiagnosticReportBase {
   id: string;
   status: DiagnosticReportStatus;
   category: Code;
-  code?: Code | null;
-  note?: string | null;
-  conclusion?: string | null;
+  code?: Code;
+  note?: string;
+  conclusion?: string;
 }
 
 export interface DiagnosticReportCreate

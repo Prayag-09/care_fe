@@ -43,8 +43,11 @@ export interface AccountBase {
 
 export interface AccountRead extends AccountBase {
   patient: Patient;
-  balances?: AccountBalance[];
   calculated_at?: string;
+  total_net: number;
+  total_gross: number;
+  total_paid: number;
+  total_balance: number;
 }
 
 export interface AccountUpdate extends AccountBase {

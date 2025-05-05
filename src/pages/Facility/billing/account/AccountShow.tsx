@@ -4,6 +4,8 @@ import React, { useState } from "react";
 import { useTranslation } from "react-i18next";
 import { toast } from "sonner";
 
+import { cn } from "@/lib/utils";
+
 import CareIcon from "@/CAREUI/icons/CareIcon";
 
 import { Badge } from "@/components/ui/badge";
@@ -18,10 +20,7 @@ import mutate from "@/Utils/request/mutate";
 import query from "@/Utils/request/query";
 import PaymentReconciliationSheet from "@/pages/Facility/billing/PaymentReconciliationSheet";
 import PaymentReconciliationList from "@/pages/Facility/billing/paymentReconciliation/PaymentReconciliationList";
-import {
-  AccountAggregate,
-  AccountStatus,
-} from "@/types/billing/account/Account";
+import { AccountStatus } from "@/types/billing/account/Account";
 import accountApi from "@/types/billing/account/accountApi";
 import { ChargeItemRead } from "@/types/billing/chargeItem/chargeItem";
 import chargeItemApi from "@/types/billing/chargeItem/chargeItemApi";
@@ -190,37 +189,78 @@ export function AccountShow({
 
         <Card>
           <CardHeader>
-            <CardTitle>{t("balance")}</CardTitle>
+            <CardTitle className="text-xl font-semibold">
+              {t("account_summary")}
+            </CardTitle>
           </CardHeader>
           <CardContent>
             <div className="space-y-2">
-              {account.balances?.map((balance) => {
-                if (balance.aggregate !== AccountAggregate.total) {
-                  return (
-                    <div
-                      key={balance.aggregate}
-                      className="flex items-center justify-between text-sm"
-                    >
-                      <span className="text-muted-foreground">
-                        {t(balance.aggregate)}
-                      </span>
-                      <span
-                        className={
-                          balance.amount.value > 0
-                            ? "text-red-500"
-                            : "text-green-500"
-                        }
-                      >
-                        {formatCurrency(
-                          balance.amount.value,
-                          balance.amount.currency,
-                        )}
-                      </span>
-                    </div>
-                  );
-                }
-                return null;
-              })}
+              <div
+                key={account.total_balance}
+                className="flex flex-col justify-between text-sm"
+              >
+                <span className="text-base font-medium text-gray-500">
+                  {t("total_balance")}
+                </span>
+                <span
+                  className={cn(
+                    account.total_balance > 0
+                      ? "text-red-600"
+                      : "text-green-600",
+                    "text-xl font-bold px-1",
+                  )}
+                >
+                  {formatCurrency(account.total_balance)}
+                </span>
+              </div>
+              <div
+                key={account.total_gross}
+                className="flex flex-col justify-between text-sm"
+              >
+                <span className="text-base font-medium text-gray-500">
+                  {t("total_gross")}
+                </span>
+                <span
+                  className={cn(
+                    account.total_net > 0 ? "text-red-600" : "text-green-600",
+                    "text-xl font-bold px-1",
+                  )}
+                >
+                  {formatCurrency(account.total_gross)}
+                </span>
+              </div>
+              <div
+                key={account.total_net}
+                className="flex flex-col justify-between text-sm"
+              >
+                <span className="text-base font-medium text-gray-500">
+                  {t("total_net")}
+                </span>
+                <span
+                  className={cn(
+                    account.total_net > 0 ? "text-red-600" : "text-green-600",
+                    "text-xl font-bold px-1",
+                  )}
+                >
+                  {formatCurrency(account.total_net)}
+                </span>
+              </div>
+              <div
+                key={account.total_paid}
+                className="flex flex-col justify-between text-sm"
+              >
+                <span className="text-base font-medium text-gray-500">
+                  {t("total_paid")}
+                </span>
+                <span
+                  className={cn(
+                    account.total_paid > 0 ? "text-red-600" : "text-green-600",
+                    "text-xl font-bold px-1",
+                  )}
+                >
+                  {formatCurrency(account.total_paid)}
+                </span>
+              </div>
             </div>
 
             <div className="space-y-2 mt-4">

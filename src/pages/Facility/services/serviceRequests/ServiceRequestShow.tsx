@@ -218,14 +218,6 @@ export default function ServiceRequestShow({
             </Card>
           )}
 
-          {specimenRequirements.length === 0 && !selectedSpecimenDefinition && (
-            <Card>
-              <CardContent className="p-4 text-center text-gray-500">
-                No specific specimen requirements defined for this request.
-              </CardContent>
-            </Card>
-          )}
-
           {observationRequirements.length > 0 && (
             <div className="space-y-6">
               <h2 className="text-xl font-semibold">Test Results</h2>
