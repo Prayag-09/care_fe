@@ -220,12 +220,7 @@ export function AccountShow({
                 <span className="text-base font-medium text-gray-500">
                   {t("total_gross")}
                 </span>
-                <span
-                  className={cn(
-                    account.total_net > 0 ? "text-red-600" : "text-green-600",
-                    "text-xl font-bold px-1",
-                  )}
-                >
+                <span className={cn("text-xl font-bold px-1")}>
                   {formatCurrency(account.total_gross)}
                 </span>
               </div>
@@ -236,12 +231,7 @@ export function AccountShow({
                 <span className="text-base font-medium text-gray-500">
                   {t("total_net")}
                 </span>
-                <span
-                  className={cn(
-                    account.total_net > 0 ? "text-red-600" : "text-green-600",
-                    "text-xl font-bold px-1",
-                  )}
-                >
+                <span className={cn("text-xl font-bold px-1")}>
                   {formatCurrency(account.total_net)}
                 </span>
               </div>
@@ -252,12 +242,7 @@ export function AccountShow({
                 <span className="text-base font-medium text-gray-500">
                   {t("total_paid")}
                 </span>
-                <span
-                  className={cn(
-                    account.total_paid > 0 ? "text-red-600" : "text-green-600",
-                    "text-xl font-bold px-1",
-                  )}
-                >
+                <span className={cn("text-xl font-bold px-1")}>
                   {formatCurrency(account.total_paid)}
                 </span>
               </div>
