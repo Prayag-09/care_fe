@@ -27,7 +27,6 @@ import {
   formatPatientAge,
   getWeeklyIntervalsFromTodayTill,
 } from "@/Utils/utils";
-import { Encounter } from "@/types/emr/encounter";
 import { MedicationAdministrationRead } from "@/types/emr/medicationAdministration/medicationAdministration";
 import medicationAdministrationApi from "@/types/emr/medicationAdministration/medicationAdministrationApi";
 
@@ -39,7 +38,7 @@ export const PrintMedicationAdministration = (props: {
   const { facilityId, encounterId, patientId } = props;
   const { t } = useTranslation();
 
-  const { data: encounter } = useQuery<Encounter>({
+  const { data: encounter } = useQuery({
     queryKey: ["encounter", encounterId],
     queryFn: query(api.encounter.get, {
       pathParams: { id: encounterId },

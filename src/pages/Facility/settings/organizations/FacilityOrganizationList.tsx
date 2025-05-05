@@ -50,7 +50,7 @@ export default function FacilityOrganizationList({
     }),
   });
 
-  const { data: org } = useQuery<FacilityOrganization>({
+  const { data: org } = useQuery({
     queryKey: ["facilityOrganization", organizationId],
     queryFn: query(facilityOrganizationApi.get, {
       pathParams: { facilityId, organizationId: organizationId! },

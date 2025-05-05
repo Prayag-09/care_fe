@@ -133,6 +133,10 @@ function generateFacilityLinks(
           url: `${baseUrl}/settings/activity_definitions`,
         },
         {
+          name: t("billing"),
+          url: `${baseUrl}/settings/billing`,
+        },
+        {
           name: t("charge_item_definitions"),
           url: `${baseUrl}/settings/charge_item_definitions`,
         },

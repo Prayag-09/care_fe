@@ -20,4 +20,4 @@ export default {
     method: HttpMethod.GET,
     TRes: Type<FacilityData>(),
   },
-};
+} as const;

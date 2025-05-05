@@ -24,7 +24,7 @@ import { formatDateTime, formatName, formatPatientAge } from "@/Utils/utils";
 import { usePermissions } from "@/context/PermissionContext";
 import allergyIntoleranceApi from "@/types/emr/allergyIntolerance/allergyIntoleranceApi";
 import diagnosisApi from "@/types/emr/diagnosis/diagnosisApi";
-import { Encounter, completedEncounterStatus } from "@/types/emr/encounter";
+import { completedEncounterStatus } from "@/types/emr/encounter";
 import medicationRequestApi from "@/types/emr/medicationRequest/medicationRequestApi";
 import medicationStatementApi from "@/types/emr/medicationStatement/medicationStatementApi";
 import symptomApi from "@/types/emr/symptom/symptomApi";
@@ -60,7 +60,7 @@ export default function TreatmentSummary({
 }: TreatmentSummaryProps) {
   const { t } = useTranslation();
 
-  const { data: encounter, isLoading: encounterLoading } = useQuery<Encounter>({
+  const { data: encounter, isLoading: encounterLoading } = useQuery({
     queryKey: ["encounter", encounterId],
     queryFn: query(api.encounter.get, {
       pathParams: { id: encounterId },

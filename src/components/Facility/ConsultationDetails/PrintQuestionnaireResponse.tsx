@@ -12,8 +12,6 @@ import {
 import api from "@/Utils/request/api";
 import routes from "@/Utils/request/api";
 import query from "@/Utils/request/query";
-import { Encounter } from "@/types/emr/encounter";
-import { Patient } from "@/types/emr/newPatient";
 
 type PrintQuestionnaireResponseProps = {
   questionnaireResponseId: string;
@@ -30,7 +28,7 @@ export function PrintQuestionnaireResponse({
 }: PrintQuestionnaireResponseProps) {
   const { t } = useTranslation();
 
-  const { data: encounter } = useQuery<Encounter>({
+  const { data: encounter } = useQuery({
     queryKey: ["encounter", encounterId, facilityId],
     queryFn: query(api.encounter.get, {
       pathParams: { id: encounterId! },
@@ -39,7 +37,7 @@ export function PrintQuestionnaireResponse({
     enabled: !!(encounterId && facilityId),
   });
 
-  const { data: patient } = useQuery<Patient>({
+  const { data: patient } = useQuery({
     queryKey: ["patient", patientId],
     queryFn: query(routes.patient.getPatient, {
       pathParams: {

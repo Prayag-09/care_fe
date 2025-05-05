@@ -37,7 +37,7 @@ export function PrintQuestionnaireQuestionnaireResponses({
 }: PrintQuestionnaireQuestionnaireResponsesProps) {
   const { t } = useTranslation();
 
-  const { data: encounter } = useQuery<Encounter>({
+  const { data: encounter } = useQuery({
     queryKey: ["encounter", encounterId, facilityId],
     queryFn: query(api.encounter.get, {
       pathParams: { id: encounterId! },
@@ -46,7 +46,7 @@ export function PrintQuestionnaireQuestionnaireResponses({
     enabled: !!encounterId && !!facilityId,
   });
 
-  const { data: patient } = useQuery<Patient>({
+  const { data: patient } = useQuery({
     queryKey: ["patient", patientId],
     queryFn: query(routes.patient.getPatient, {
       pathParams: {

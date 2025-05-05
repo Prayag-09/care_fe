@@ -123,9 +123,7 @@ export default function FacilityOrganizationNavbar({
   onOrganizationSelect,
 }: FacilityOrganizationNavbarProps) {
   const { data: allOrganizations, isLoading: isLoadingOrganizations } =
-    useQuery<{
-      results: FacilityOrganization[];
-    }>({
+    useQuery({
       queryKey: ["facilityOrganization", "list", facilityId],
       queryFn: query(facilityOrganizationApi.list, {
         pathParams: { facilityId },

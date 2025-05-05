@@ -33,7 +33,6 @@ import useFilters from "@/hooks/useFilters";
 
 import routes from "@/Utils/request/api";
 import query from "@/Utils/request/query";
-import { PaginatedResponse } from "@/Utils/request/types";
 import { Encounter, EncounterPriority } from "@/types/emr/encounter";
 
 interface EncounterListProps {
@@ -120,9 +119,7 @@ export function EncounterList({
     [status, encounterClass, priority, updateQuery],
   );
 
-  const { data: queryEncounters, isLoading } = useQuery<
-    PaginatedResponse<Encounter>
-  >({
+  const { data: queryEncounters, isLoading } = useQuery({
     queryKey: ["encounters", facilityId, qParams],
     queryFn: query.debounced(routes.encounter.list, {
       queryParams: {
@@ -136,7 +133,7 @@ export function EncounterList({
     enabled: !propEncounters && !encounter_id,
   });
 
-  const { data: queryEncounter } = useQuery<Encounter>({
+  const { data: queryEncounter } = useQuery({
     queryKey: ["encounter", encounter_id],
     queryFn: query(routes.encounter.get, {
       pathParams: { id: encounter_id },

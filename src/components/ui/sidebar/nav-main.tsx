@@ -80,7 +80,7 @@ export function NavMain({ links }: { links: NavigationLink[] }) {
                         </SidebarMenuButton>
                       </CollapsibleTrigger>
                       <CollapsibleContent>
-                        <SidebarMenuSub>
+                        <SidebarMenuSub className="border-l border-gray-300">
                           {link.children.map((subItem) => (
                             <SidebarMenuSubItem key={subItem.name}>
                               <SidebarMenuSubButton

@@ -65,7 +65,7 @@ export default function OrganizationLayout({
     ? `/organization/${navOrganizationId}/children`
     : `/organization`;
 
-  const { data: org, isLoading } = useQuery<Organization>({
+  const { data: org, isLoading } = useQuery({
     queryKey: ["organization", id],
     queryFn: query(organizationApi.get, {
       pathParams: { id },

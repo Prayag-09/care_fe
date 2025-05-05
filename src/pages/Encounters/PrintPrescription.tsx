@@ -14,7 +14,6 @@ import { formatDosage, formatSig } from "@/components/Medicine/utils";
 import api from "@/Utils/request/api";
 import query from "@/Utils/request/query";
 import { formatName, formatPatientAge } from "@/Utils/utils";
-import { Encounter } from "@/types/emr/encounter";
 import { MedicationRequestRead } from "@/types/emr/medicationRequest";
 import medicationRequestApi from "@/types/emr/medicationRequest/medicationRequestApi";
 
@@ -26,7 +25,7 @@ export const PrintPrescription = (props: {
   const { facilityId, encounterId, patientId } = props;
   const { t } = useTranslation();
 
-  const { data: encounter } = useQuery<Encounter>({
+  const { data: encounter } = useQuery({
     queryKey: ["encounter", encounterId],
     queryFn: query(api.encounter.get, {
       pathParams: { id: encounterId },

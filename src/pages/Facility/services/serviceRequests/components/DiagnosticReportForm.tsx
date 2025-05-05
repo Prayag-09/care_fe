@@ -28,7 +28,6 @@ import { Skeleton } from "@/components/ui/skeleton";
 
 import { FileListTable } from "@/components/Files/FileListTable";
 import FileUploadDialog from "@/components/Files/FileUploadDialog";
-import { FileUploadModel } from "@/components/Patient/models";
 
 import useFileUpload from "@/hooks/useFileUpload";
 
@@ -40,7 +39,6 @@ import {
 import routes from "@/Utils/request/api";
 import mutate from "@/Utils/request/mutate";
 import query from "@/Utils/request/query";
-import { PaginatedResponse } from "@/Utils/request/types";
 import {
   DiagnosticReportRead,
   DiagnosticReportStatus,
@@ -125,7 +123,7 @@ export function DiagnosticReportForm({
 
   // Query to fetch files for the diagnostic report
   const { data: files = { results: [], count: 0 }, refetch: refetchFiles } =
-    useQuery<PaginatedResponse<FileUploadModel>>({
+    useQuery({
       queryKey: ["files", "diagnostic_report", fullReport?.id],
       queryFn: query(routes.viewUpload, {
         queryParams: {

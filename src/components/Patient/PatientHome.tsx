@@ -22,7 +22,6 @@ import routes from "@/Utils/request/api";
 import query from "@/Utils/request/query";
 import { formatDateTime, formatPatientAge, relativeTime } from "@/Utils/utils";
 import { usePermissions } from "@/context/PermissionContext";
-import { Patient } from "@/types/emr/newPatient";
 
 export const PatientHome = (props: {
   facilityId?: string;
@@ -34,7 +33,7 @@ export const PatientHome = (props: {
   const { t } = useTranslation();
   const { hasPermission } = usePermissions();
 
-  const { data: patientData, isLoading } = useQuery<Patient>({
+  const { data: patientData, isLoading } = useQuery({
     queryKey: ["patient", id],
     queryFn: query(routes.patient.getPatient, {
       pathParams: {

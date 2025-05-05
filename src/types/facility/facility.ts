@@ -46,4 +46,5 @@ export interface FacilityData {
   instance_tax_codes: Code[];
   instance_tax_monetory_components: MonetoryComponentRead[];
   discount_codes: Code[];
+  discount_monetory_components: MonetoryComponentRead[];
 }
