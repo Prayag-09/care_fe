@@ -10,6 +10,7 @@ import CareIcon from "@/CAREUI/icons/CareIcon";
 import { Badge } from "@/components/ui/badge";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
+import { MonetaryValue } from "@/components/ui/monetary-value";
 import {
   Select,
   SelectContent,
@@ -53,13 +54,6 @@ function EmptyState() {
       </div>
     </div>
   );
-}
-
-function formatCurrency(amount?: number | string) {
-  return Number(amount).toLocaleString("en-IN", {
-    style: "currency",
-    currency: "INR",
-  });
 }
 
 function formatDate(date?: string) {
@@ -218,7 +212,9 @@ export function AccountList({
                         </div>
                       </div>
                     </TableCell>
-                    <TableCell>{formatCurrency(0)}</TableCell>
+                    <TableCell>
+                      <MonetaryValue value={0} />
+                    </TableCell>
                     <TableCell>
                       <Badge variant={statusColorMap[account.status] as any}>
                         {t(account.status)}

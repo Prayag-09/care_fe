@@ -1,8 +1,16 @@
+import { z } from "zod";
+
 export interface Code {
   system: string;
   code: string;
   display: string;
 }
+
+export const CodeSchema = z.object({
+  system: z.string(),
+  code: z.string(),
+  display: z.string(),
+});
 
 export type ValueSetSystem =
   | "system-allergy-code"

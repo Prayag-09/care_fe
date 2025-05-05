@@ -328,30 +328,3 @@ export function getWeeklyIntervalsFromTodayTill(pastDate?: Date | string) {
 
   return intervals;
 }
-
-export function formatCurrency(amount: number): string {
-  return new Intl.NumberFormat("en-IN", {
-    style: "currency",
-    currency: "INR",
-  }).format(amount);
-}
-
-export function formatDate(dateString: string): string {
-  const date = new Date(dateString);
-  return new Intl.DateTimeFormat("en-IN", {
-    year: "numeric",
-    month: "short",
-    day: "numeric",
-  }).format(date);
-}
-
-export function formatDateTime2(dateString: string): string {
-  const date = new Date(dateString);
-  return new Intl.DateTimeFormat("en-IN", {
-    year: "numeric",
-    month: "short",
-    day: "numeric",
-    hour: "2-digit",
-    minute: "2-digit",
-  }).format(date);
-}

@@ -203,19 +203,22 @@ export function SpecimenDefinitionForm({
   return (
     <Form {...form}>
       <form
-        onSubmit={form.handleSubmit(
-          (data) => {
-            if (specimenDefinitionId) {
-              onSubmit(data as SpecimenDefinitionUpdate);
-            } else {
-              onSubmit(data as SpecimenDefinitionCreate);
-            }
-          },
-          (errors) => {
-            // Log all form errors on submission failure
-            console.log("Form submission failed with errors:", errors);
-          },
-        )}
+        onSubmit={(e) => {
+          e.preventDefault();
+          e.stopPropagation();
+          form.handleSubmit(
+            (data) => {
+              if (specimenDefinitionId) {
+                onSubmit(data as SpecimenDefinitionUpdate);
+              } else {
+                onSubmit(data as SpecimenDefinitionCreate);
+              }
+            },
+            (errors) => {
+              console.log("Form submission failed with errors:", errors);
+            },
+          )();
+        }}
         className="space-y-4"
       >
         <Card>

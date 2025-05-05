@@ -44,14 +44,7 @@ import {
 } from "@/types/billing/chargeItemDefinition/chargeItemDefinition";
 import chargeItemDefinitionApi from "@/types/billing/chargeItemDefinition/chargeItemDefinitionApi";
 import facilityApi from "@/types/facility/facilityApi";
-import { Code } from "@/types/questionnaire/code";
-
-// Define a CodeSchema that matches the Code type
-const CodeSchema = z.object({
-  code: z.string(),
-  display: z.string(),
-  system: z.string(),
-});
+import { Code, CodeSchema } from "@/types/questionnaire/code";
 
 const priceComponentSchema = z
   .object({
