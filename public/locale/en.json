@@ -54,6 +54,7 @@
   "Diagnosis_encounter_diagnosis__description": "Specific to this visit only",
   "Diagnosis_encounter_diagnosis__title": "Diagnosis",
   "ENCOUNTER_TAB__abdm": "ABDM Records",
+  "ENCOUNTER_TAB__accounts": "Accounts",
   "ENCOUNTER_TAB__claims": "Insurance Claims",
   "ENCOUNTER_TAB__consents": "Consents",
   "ENCOUNTER_TAB__devices": "Devices",

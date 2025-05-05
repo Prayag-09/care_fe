@@ -17,6 +17,7 @@ import {
   FormMessage,
 } from "@/components/ui/form";
 import { Input } from "@/components/ui/input";
+import { MonetaryValue } from "@/components/ui/monetary-value";
 import { RadioGroup, RadioGroupItem } from "@/components/ui/radio-group";
 import {
   Select,
@@ -153,14 +154,6 @@ export function BillingSettings({ facilityId }: { facilityId: string }) {
     setIsSheetOpen(true);
   };
 
-  const formatAmount = (amount: number | null | undefined) => {
-    if (amount === null || amount === undefined) return "-";
-    return new Intl.NumberFormat("en-IN", {
-      style: "currency",
-      currency: "INR",
-    }).format(amount);
-  };
-
   const formatValue = (component: MonetoryComponentRead) => {
     if (component.factor !== null && component.factor !== undefined) {
       return (
@@ -172,7 +165,11 @@ export function BillingSettings({ facilityId }: { facilityId: string }) {
     } else if (component.amount !== null && component.amount !== undefined) {
       return (
         <div className="flex items-center gap-2">
-          <span>{formatAmount(component.amount)}</span>
+          {component.amount == null ? (
+            "-"
+          ) : (
+            <MonetaryValue value={component.amount} />
+          )}
           <Badge variant="secondary">Amount</Badge>
         </div>
       );

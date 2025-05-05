@@ -8,6 +8,7 @@ import * as z from "zod";
 
 import CareIcon from "@/CAREUI/icons/CareIcon";
 
+import { Badge } from "@/components/ui/badge";
 import { Button } from "@/components/ui/button";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { Checkbox } from "@/components/ui/checkbox";
@@ -21,7 +22,6 @@ import {
   FormMessage,
 } from "@/components/ui/form";
 import { Input } from "@/components/ui/input";
-import { Label } from "@/components/ui/label";
 import {
   Select,
   SelectContent,
@@ -44,14 +44,7 @@ import {
 } from "@/types/billing/chargeItemDefinition/chargeItemDefinition";
 import chargeItemDefinitionApi from "@/types/billing/chargeItemDefinition/chargeItemDefinitionApi";
 import facilityApi from "@/types/facility/facilityApi";
-import { Code } from "@/types/questionnaire/code";
-
-// Define a CodeSchema that matches the Code type
-const CodeSchema = z.object({
-  code: z.string(),
-  display: z.string(),
-  system: z.string(),
-});
+import { Code, CodeSchema } from "@/types/questionnaire/code";
 
 const priceComponentSchema = z
   .object({
@@ -563,6 +556,33 @@ export function ChargeItemDefinitionForm({
       )}
 
       <form onSubmit={handleSubmit} className="space-y-6">
+        {/* Visual Guide - Pricing Steps */}
+        <div className="flex items-center justify-center mb-6 pt-2">
+          <div className="flex items-center space-x-1 sm:space-x-3">
+            <div className="flex flex-col items-center">
+              <div className="w-10 h-10 rounded-full bg-primary flex items-center justify-center text-white"></div>
+              <span className="text-xs mt-1 font-medium">Base Price</span>
+            </div>
+            <div className="h-px w-6 sm:w-12 bg-primary"></div>
+            <div className="flex flex-col items-center">
+              <div className="w-10 h-10 rounded-full bg-primary/20 flex items-center justify-center text-primary"></div>
+              <span className="text-xs mt-1">Discounts</span>
+            </div>
+            <div className="h-px w-6 sm:w-12 bg-primary/20"></div>
+            <div className="flex flex-col items-center">
+              <div className="w-10 h-10 rounded-full bg-primary/20 flex items-center justify-center text-primary">
+                <CareIcon icon="l-arrow-up" className="h-5 w-5" />
+              </div>
+              <span className="text-xs mt-1">Surcharges</span>
+            </div>
+            <div className="h-px w-6 sm:w-12 bg-primary/20"></div>
+            <div className="flex flex-col items-center">
+              <div className="w-10 h-10 rounded-full bg-primary/20 flex items-center justify-center text-primary"></div>
+              <span className="text-xs mt-1">Taxes</span>
+            </div>
+          </div>
+        </div>
+
         {/* Basic Information Section */}
         <Card>
           <CardHeader>
@@ -619,218 +639,451 @@ export function ChargeItemDefinitionForm({
           </CardContent>
         </Card>
 
-        {/* Pricing Section */}
-        <Card>
-          <CardHeader>
-            <CardTitle>{t("pricing_details")}</CardTitle>
+        {/* Pricing Section - Designed as a Bill */}
+        <Card className="overflow-hidden shadow-md border-2 border-primary/10">
+          <CardHeader className="bg-primary/5 border-b">
+            <div className="flex justify-between items-center">
+              <div className="flex items-center gap-2">
+                <div className="bg-primary p-1.5 rounded text-white"></div>
+                <CardTitle>{t("pricing_details")}</CardTitle>
+              </div>
+              <div className="bg-primary/10 px-3 py-1 rounded-full text-sm font-medium">
+                {t("charge_definition")} #
+                {isUpdate ? initialData?.id : t("new")}
+              </div>
+            </div>
           </CardHeader>
-          <CardContent className="space-y-6">
-            {/* Base Price Section */}
-            <div className="bg-white rounded-md border p-4 space-y-2">
-              <h3 className="text-lg font-medium">{t("base_price")}</h3>
-              <div className="flex items-end gap-2">
-                <div className="flex-1 max-w-md">
-                  <Label htmlFor="base-price">{t("amount")}</Label>
-                  <div className="relative mt-1">
-                    <span className="absolute left-3 top-1/2 transform -translate-y-1/2 text-gray-500">
-                      ₹
-                    </span>
-                    <Input
-                      id="base-price"
-                      type="number"
-                      value={basePrice?.amount ?? ""}
-                      onChange={(e) => updateBasePrice(e.target.value)}
-                      className="pl-7"
-                      placeholder="0.00"
-                    />
-                  </div>
-                  {(!basePrice?.amount || basePrice.amount === null) && (
-                    <p className="text-xs text-red-500 mt-1">
-                      {t("base_price_requires_amount")}
-                    </p>
+          <CardContent className="p-0">
+            {/* Item Table */}
+            <div className="overflow-x-auto">
+              <table className="w-full">
+                <thead>
+                  <tr className="border-b text-sm bg-primary/10">
+                    <th className="py-4 px-4 text-left font-medium text-primary">
+                      {t("price_component")}
+                    </th>
+                    <th className="py-4 px-4 text-left font-medium text-primary">
+                      {t("type")}
+                    </th>
+                    <th className="py-4 px-4 text-right font-medium text-primary">
+                      {t("value")}
+                    </th>
+                    <th className="py-4 px-4 text-right font-medium text-primary w-24">
+                      {t("actions")}
+                    </th>
+                  </tr>
+                </thead>
+                <tbody>
+                  {/* Base Price Row */}
+                  <tr className="border-b bg-primary/5">
+                    <td className="py-6 px-4">
+                      <div className="font-medium text-primary flex items-center">
+                        {t("base_price")}
+                        <div className="ml-2 text-xs font-normal bg-primary/20 px-2 py-0.5 rounded-full text-primary/80">
+                          Required
+                        </div>
+                      </div>
+                      <div className="text-xs text-muted-foreground mt-1">
+                        This is the starting price before any adjustments
+                      </div>
+                    </td>
+                    <td className="py-6 px-4">
+                      <Badge
+                        variant="outline"
+                        className="bg-primary/10 font-semibold"
+                      >
+                        {t("fixed_amount")}
+                      </Badge>
+                    </td>
+                    <td className="py-6 px-4">
+                      <div className="flex justify-end">
+                        <div className="relative w-48">
+                          <div className="absolute left-3 top-1/2 transform -translate-y-1/2 text-primary font-bold">
+                            ₹
+                          </div>
+                          <Input
+                            id="base-price"
+                            type="number"
+                            value={basePrice?.amount ?? ""}
+                            onChange={(e) => updateBasePrice(e.target.value)}
+                            className="pl-7 text-right text-lg font-semibold bg-white focus:bg-white border-primary/30 focus-visible:ring-primary"
+                            placeholder="0.00"
+                          />
+                        </div>
+                      </div>
+                      {(!basePrice?.amount || basePrice.amount === null) && (
+                        <div className="text-xs text-right text-red-500 mt-1 bg-red-50 p-1 rounded">
+                          <CareIcon
+                            icon="l-exclamation-circle"
+                            className="h-3 w-3 mr-1 inline"
+                          />
+                          {t("base_price_requires_amount")}
+                        </div>
+                      )}
+                    </td>
+                    <td className="py-6 px-4"></td>
+                  </tr>
+
+                  {/* Discount Section Header */}
+                  <tr className="border-b bg-green-50">
+                    <td colSpan={4} className="py-3 px-4">
+                      <div className="flex items-center text-green-800 font-medium">
+                        {t("available_discounts")}
+                      </div>
+                    </td>
+                  </tr>
+
+                  {/* Discount Codes Rows */}
+                  {discountCodes.length === 0 ? (
+                    <tr className="border-b">
+                      <td colSpan={4} className="py-6 px-4 text-sm text-center">
+                        <div className="flex flex-col items-center p-4 bg-muted/10 rounded-md">
+                          <p className="text-muted-foreground">
+                            {t("no_discount_codes_available")}
+                          </p>
+                          <p className="text-xs text-muted-foreground mt-1">
+                            Configure discount codes in facility settings
+                          </p>
+                        </div>
+                      </td>
+                    </tr>
+                  ) : (
+                    discountCodes.map((code) => {
+                      const isSelected = isCodeSelected(
+                        code,
+                        MonetoryComponentType.discount,
+                      );
+                      return (
+                        <tr
+                          key={`discount-${code.system}-${code.code}`}
+                          className={`border-b ${isSelected ? "bg-white hover:bg-green-50/50" : "bg-muted/10 hover:bg-green-50/20"} transition-colors`}
+                        >
+                          <td className="py-4 px-4">
+                            <div className="flex items-center space-x-3">
+                              <Checkbox
+                                id={`discount-${code.code}`}
+                                checked={isSelected}
+                                onCheckedChange={(checked) =>
+                                  toggleDiscountCode(code, checked === true)
+                                }
+                                className="h-5 w-5 border-green-500 data-[state=checked]:bg-green-500 data-[state=checked]:text-white"
+                              />
+                              <div>
+                                <label
+                                  htmlFor={`discount-${code.code}`}
+                                  className="cursor-pointer font-medium"
+                                >
+                                  {code.display}
+                                </label>
+                                <p className="text-xs text-muted-foreground">
+                                  {code.code}
+                                </p>
+                              </div>
+                            </div>
+                          </td>
+                          <td className="py-4 px-4">
+                            <Badge
+                              variant="outline"
+                              className="bg-green-100 text-green-700 border-green-200"
+                            >
+                              {t("discount")}
+                            </Badge>
+                          </td>
+                          <td className="py-4 px-4">
+                            {isSelected ? (
+                              <div className="flex justify-end">
+                                <div className="relative w-40">
+                                  <Input
+                                    type="number"
+                                    min="0"
+                                    max="100"
+                                    value={getComponentPercentage(
+                                      code,
+                                      MonetoryComponentType.discount,
+                                    )}
+                                    onChange={(e) =>
+                                      updateComponentPercentage(
+                                        code,
+                                        MonetoryComponentType.discount,
+                                        e.target.value,
+                                      )
+                                    }
+                                    className="pr-7 text-right border-green-300 focus-visible:ring-green-500 text-green-700 font-medium"
+                                  />
+                                  <span className="absolute right-3 top-1/2 transform -translate-y-1/2 text-green-700">
+                                    %
+                                  </span>
+                                </div>
+                              </div>
+                            ) : (
+                              <div className="text-right text-muted-foreground">
+                                -
+                              </div>
+                            )}
+                          </td>
+                          <td className="py-4 px-4">
+                            {isSelected && (
+                              <div className="flex justify-end">
+                                <span className="text-xs px-2 py-1 bg-green-100 text-green-700 rounded-full">
+                                  Applied
+                                </span>
+                              </div>
+                            )}
+                          </td>
+                        </tr>
+                      );
+                    })
                   )}
-                </div>
-              </div>
-            </div>
 
-            <div className="grid grid-cols-1 lg:grid-cols-2 gap-6">
-              {/* Discount Codes Section */}
-              <div className="bg-white rounded-md border p-4 space-y-3">
-                <div className="flex items-center justify-between">
-                  <h3 className="text-lg font-medium">{t("discounts")}</h3>
-                </div>
-
-                {discountCodes.length === 0 ? (
-                  <div className="text-sm text-gray-500 italic p-2">
-                    {t("no_discount_codes_available")}
-                  </div>
-                ) : (
-                  <div className="space-y-3">
-                    {discountCodes.map((code) => (
-                      <div
-                        key={`${code.system}|${code.code}`}
-                        className="flex items-center justify-between border-b pb-2"
-                      >
-                        <div className="flex items-center space-x-2">
-                          <Checkbox
-                            id={`discount-${code.code}`}
-                            checked={isCodeSelected(
-                              code,
-                              MonetoryComponentType.discount,
-                            )}
-                            onCheckedChange={(checked) =>
-                              toggleDiscountCode(code, checked === true)
-                            }
-                          />
-                          <div>
-                            <label
-                              htmlFor={`discount-${code.code}`}
-                              className="text-sm font-medium cursor-pointer"
-                            >
-                              {code.display} -{" "}
-                              {getComponentPercentage(
-                                code,
-                                MonetoryComponentType.discount,
-                              )}
-                              %
-                            </label>
-                            <p className="text-xs text-gray-500">{code.code}</p>
-                          </div>
-                        </div>
-
-                        {isCodeSelected(
-                          code,
-                          MonetoryComponentType.discount,
-                        ) && (
-                          <div className="relative w-24">
-                            <Input
-                              type="number"
-                              min="0"
-                              max="100"
-                              value={getComponentPercentage(
-                                code,
-                                MonetoryComponentType.discount,
-                              )}
-                              onChange={(e) =>
-                                updateComponentPercentage(
-                                  code,
-                                  MonetoryComponentType.discount,
-                                  e.target.value,
-                                )
-                              }
-                              className="pr-7 h-8 text-right"
-                            />
-                            <span className="absolute right-3 top-1/2 transform -translate-y-1/2 text-gray-500">
-                              %
-                            </span>
-                          </div>
-                        )}
+                  {/* Tax Section Header */}
+                  <tr className="border-b bg-blue-50">
+                    <td colSpan={4} className="py-3 px-4">
+                      <div className="flex items-center text-blue-800 font-medium">
+                        {t("applicable_taxes")}
                       </div>
-                    ))}
-                  </div>
-                )}
-              </div>
+                    </td>
+                  </tr>
 
-              {/* Tax Codes Section */}
-              <div className="bg-white rounded-md border p-4 space-y-3">
-                <div className="flex items-center justify-between">
-                  <h3 className="text-lg font-medium">{t("taxes")}</h3>
-                </div>
-
-                {taxCodes.length === 0 ? (
-                  <div className="text-sm text-gray-500 italic p-2">
-                    {t("no_tax_codes_available")}
-                  </div>
-                ) : (
-                  <div className="space-y-3">
-                    {taxCodes.map((code) => (
-                      <div
-                        key={`${code.system}|${code.code}`}
-                        className="flex items-center justify-between border-b pb-2"
-                      >
-                        <div className="flex items-center space-x-2">
-                          <Checkbox
-                            id={`tax-${code.code}`}
-                            checked={isCodeSelected(
-                              code,
-                              MonetoryComponentType.tax,
-                            )}
-                            onCheckedChange={(checked) =>
-                              toggleTaxCode(code, checked === true)
-                            }
-                          />
-                          <div>
-                            <label
-                              htmlFor={`tax-${code.code}`}
-                              className="text-sm font-medium cursor-pointer"
-                            >
-                              {code.display}
-                            </label>
-                            <p className="text-xs text-gray-500">{code.code}</p>
-                          </div>
+                  {/* Tax Codes Rows */}
+                  {taxCodes.length === 0 ? (
+                    <tr className="border-b">
+                      <td colSpan={4} className="py-6 px-4 text-sm text-center">
+                        <div className="flex flex-col items-center p-4 bg-muted/10 rounded-md">
+                          <p className="text-muted-foreground">
+                            {t("no_tax_codes_available")}
+                          </p>
+                          <p className="text-xs text-muted-foreground mt-1">
+                            Configure tax codes in facility settings
+                          </p>
                         </div>
+                      </td>
+                    </tr>
+                  ) : (
+                    taxCodes.map((code) => {
+                      const isSelected = isCodeSelected(
+                        code,
+                        MonetoryComponentType.tax,
+                      );
+                      return (
+                        <tr
+                          key={`tax-${code.system}-${code.code}`}
+                          className={`border-b ${isSelected ? "bg-white hover:bg-blue-50/50" : "bg-muted/10 hover:bg-blue-50/20"} transition-colors`}
+                        >
+                          <td className="py-4 px-4">
+                            <div className="flex items-center space-x-3">
+                              <Checkbox
+                                id={`tax-${code.code}`}
+                                checked={isSelected}
+                                onCheckedChange={(checked) =>
+                                  toggleTaxCode(code, checked === true)
+                                }
+                                className="h-5 w-5 border-blue-500 data-[state=checked]:bg-blue-500 data-[state=checked]:text-white"
+                              />
+                              <div>
+                                <label
+                                  htmlFor={`tax-${code.code}`}
+                                  className="cursor-pointer font-medium"
+                                >
+                                  {code.display}
+                                </label>
+                                <p className="text-xs text-muted-foreground">
+                                  {code.code}
+                                </p>
+                              </div>
+                            </div>
+                          </td>
+                          <td className="py-4 px-4">
+                            <Badge
+                              variant="outline"
+                              className="bg-blue-100 text-blue-700 border-blue-200"
+                            >
+                              {t("tax")}
+                            </Badge>
+                          </td>
+                          <td className="py-4 px-4">
+                            {isSelected ? (
+                              <div className="flex justify-end">
+                                <div className="relative w-40">
+                                  <Input
+                                    type="number"
+                                    min="0"
+                                    max="100"
+                                    value={getComponentPercentage(
+                                      code,
+                                      MonetoryComponentType.tax,
+                                    )}
+                                    onChange={(e) =>
+                                      updateComponentPercentage(
+                                        code,
+                                        MonetoryComponentType.tax,
+                                        e.target.value,
+                                      )
+                                    }
+                                    className="pr-7 text-right border-blue-300 focus-visible:ring-blue-500 text-blue-700 font-medium"
+                                  />
+                                  <span className="absolute right-3 top-1/2 transform -translate-y-1/2 text-blue-700">
+                                    %
+                                  </span>
+                                </div>
+                              </div>
+                            ) : (
+                              <div className="text-right text-muted-foreground">
+                                -
+                              </div>
+                            )}
+                          </td>
+                          <td className="py-4 px-4">
+                            {isSelected && (
+                              <div className="flex justify-end">
+                                <span className="text-xs px-2 py-1 bg-blue-100 text-blue-700 rounded-full">
+                                  Applied
+                                </span>
+                              </div>
+                            )}
+                          </td>
+                        </tr>
+                      );
+                    })
+                  )}
 
-                        {isCodeSelected(code, MonetoryComponentType.tax) && (
-                          <div className="relative w-24">
-                            <Input
-                              type="number"
-                              min="0"
-                              max="100"
-                              value={getComponentPercentage(
-                                code,
-                                MonetoryComponentType.tax,
-                              )}
-                              onChange={(e) =>
-                                updateComponentPercentage(
-                                  code,
-                                  MonetoryComponentType.tax,
-                                  e.target.value,
-                                )
-                              }
-                              className="pr-7 h-8 text-right"
-                            />
-                            <span className="absolute right-3 top-1/2 transform -translate-y-1/2 text-gray-500">
-                              %
-                            </span>
-                          </div>
-                        )}
+                  {/* Surcharge Section Header */}
+                  <tr className="border-b bg-orange-50">
+                    <td colSpan={4} className="py-3 px-4">
+                      <div className="flex items-center text-orange-800 font-medium">
+                        <CareIcon
+                          icon="l-arrow-up"
+                          className="h-5 w-5 mr-2 text-orange-600"
+                        />
+                        {t("custom_surcharges")}
                       </div>
-                    ))}
-                  </div>
-                )}
-              </div>
-            </div>
+                    </td>
+                  </tr>
 
-            {/* Surcharges Section */}
-            <div className="bg-white rounded-md border p-4 space-y-3">
-              <div className="flex items-center justify-between">
-                <h3 className="text-lg font-medium">{t("surcharges")}</h3>
-                <Button
-                  type="button"
-                  variant="outline"
-                  size="sm"
-                  onClick={addSurcharge}
-                >
-                  <CareIcon icon="l-plus" className="mr-1 h-4 w-4" /> {t("add")}
-                </Button>
-              </div>
-
-              {surcharges.length === 0 ? (
-                <div className="text-sm text-gray-500 italic p-2">
-                  {t("no_surcharges")}
-                </div>
-              ) : (
-                <div className="space-y-3">
-                  {surcharges.map((surcharge, index) => {
-                    const componentIndex = priceComponents.indexOf(surcharge);
-                    return (
-                      <div
-                        key={index}
-                        className="flex items-center justify-between border rounded-md p-3"
-                      >
-                        <div className="flex-1">
-                          <div className="flex items-center gap-2 mb-2">
-                            <div className="w-32">
+                  {/* Surcharges Rows */}
+                  {surcharges.length === 0 ? (
+                    <tr className="border-b">
+                      <td colSpan={4} className="py-6 px-4 text-sm text-center">
+                        <div className="flex flex-col items-center p-6 bg-muted/5 rounded-md">
+                          <CareIcon
+                            icon="l-plus-circle"
+                            className="h-8 w-8 text-orange-300 mb-2"
+                          />
+                          <p className="text-muted-foreground">
+                            {t("no_surcharges_yet")}
+                          </p>
+                          <p className="text-xs text-muted-foreground mt-1">
+                            Use the "Add Surcharge" button below to add fixed
+                            amounts or percentages
+                          </p>
+                          <Button
+                            type="button"
+                            variant="outline"
+                            size="sm"
+                            onClick={addSurcharge}
+                            className="mt-4 border-orange-300 text-orange-700 hover:bg-orange-100"
+                          >
+                            <CareIcon icon="l-plus" className="mr-2 h-4 w-4" />
+                            {t("add_first_surcharge")}
+                          </Button>
+                        </div>
+                      </td>
+                    </tr>
+                  ) : (
+                    surcharges.map((surcharge, index) => {
+                      const componentIndex = priceComponents.indexOf(surcharge);
+                      return (
+                        <tr
+                          key={`surcharge-${index}`}
+                          className="border-b bg-white hover:bg-orange-50/20 transition-colors"
+                        >
+                          <td className="py-4 px-4">
+                            <div className="font-medium flex items-center">
+                              <div className="flex items-center justify-center w-6 h-6 rounded-full bg-orange-100 text-orange-700 mr-2 text-xs font-bold">
+                                {index + 1}
+                              </div>
+                              {t("surcharge")} #{index + 1}
+                            </div>
+                            <div className="text-xs text-muted-foreground mt-1 ml-8">
+                              {surcharge.use_factor
+                                ? "Percentage-based surcharge"
+                                : "Fixed amount surcharge"}
+                            </div>
+                          </td>
+                          <td className="py-4 px-4">
+                            <Badge
+                              variant="outline"
+                              className="bg-orange-100 text-orange-700 border-orange-200"
+                            >
+                              {surcharge.use_factor
+                                ? t("percentage")
+                                : t("fixed_amount")}
+                            </Badge>
+                          </td>
+                          <td className="py-4 px-4">
+                            <div className="flex justify-end">
+                              <div className="relative w-40">
+                                {surcharge.use_factor ? (
+                                  <>
+                                    <Input
+                                      type="number"
+                                      value={
+                                        surcharge.factor !== null &&
+                                        surcharge.factor !== undefined
+                                          ? surcharge.factor * 100
+                                          : ""
+                                      }
+                                      onChange={(e) =>
+                                        updateSurcharge(
+                                          componentIndex,
+                                          "factor",
+                                          e.target.value,
+                                        )
+                                      }
+                                      placeholder="0.00"
+                                      className="pr-7 text-right border-orange-300 focus-visible:ring-orange-500 text-orange-700 font-medium"
+                                    />
+                                    <span className="absolute right-3 top-1/2 transform -translate-y-1/2 text-orange-700">
+                                      %
+                                    </span>
+                                  </>
+                                ) : (
+                                  <>
+                                    <span className="absolute left-3 top-1/2 transform -translate-y-1/2 text-orange-700 font-bold">
+                                      ₹
+                                    </span>
+                                    <Input
+                                      type="number"
+                                      value={surcharge.amount ?? ""}
+                                      onChange={(e) =>
+                                        updateSurcharge(
+                                          componentIndex,
+                                          "amount",
+                                          e.target.value,
+                                        )
+                                      }
+                                      placeholder="0.00"
+                                      className="pl-7 text-right border-orange-300 focus-visible:ring-orange-500 text-orange-700 font-medium"
+                                    />
+                                  </>
+                                )}
+                              </div>
+                            </div>
+                            {(surcharge.use_factor
+                              ? !surcharge.factor
+                              : !surcharge.amount) && (
+                              <div className="text-xs text-right text-red-500 mt-1 bg-red-50 p-1 rounded">
+                                <CareIcon
+                                  icon="l-exclamation-circle"
+                                  className="h-3 w-3 mr-1 inline"
+                                />
+                                {surcharge.use_factor
+                                  ? t("percentage_required")
+                                  : t("amount_required")}
+                              </div>
+                            )}
+                          </td>
+                          <td className="py-4 px-4 text-right">
+                            <div className="flex justify-end space-x-1">
                               <Select
                                 value={
                                   surcharge.use_factor ? "percentage" : "amount"
@@ -843,98 +1096,170 @@ export function ChargeItemDefinitionForm({
                                   )
                                 }
                               >
-                                <SelectTrigger className="w-32">
+                                <SelectTrigger className="w-24 h-8 border-orange-300 focus:ring-orange-500 focus-visible:ring-orange-500">
                                   <SelectValue />
                                 </SelectTrigger>
                                 <SelectContent>
                                   <SelectItem value="amount">
-                                    <span className="font-medium">
-                                      ₹ {t("amount")}
+                                    <span className="font-medium flex items-center">
+                                      <span className="mr-1">₹</span>{" "}
+                                      {t("amount")}
                                     </span>
                                   </SelectItem>
                                   <SelectItem value="percentage">
-                                    <span className="font-medium">
-                                      % {t("percentage")}
+                                    <span className="font-medium flex items-center">
+                                      <span className="mr-1">%</span>{" "}
+                                      {t("percentage")}
                                     </span>
                                   </SelectItem>
                                 </SelectContent>
                               </Select>
+
+                              <Button
+                                type="button"
+                                variant="ghost"
+                                size="icon"
+                                className="h-8 w-8 hover:bg-red-100 hover:text-red-700 transition-colors"
+                                onClick={() => removeSurcharge(componentIndex)}
+                                title={t("delete")}
+                              >
+                                <CareIcon
+                                  icon="l-trash"
+                                  className="h-4 w-4 text-red-500"
+                                />
+                              </Button>
                             </div>
-                            {surcharge.use_factor ? (
-                              <div className="relative flex-1">
-                                <Input
-                                  type="number"
-                                  value={
-                                    surcharge.factor !== null &&
-                                    surcharge.factor !== undefined
-                                      ? surcharge.factor * 100
-                                      : ""
-                                  }
-                                  onChange={(e) =>
-                                    updateSurcharge(
-                                      componentIndex,
-                                      "factor",
-                                      e.target.value,
-                                    )
-                                  }
-                                  placeholder="0.00"
-                                  className="pr-7"
-                                />
-                                <span className="absolute right-3 top-1/2 transform -translate-y-1/2 text-gray-500">
-                                  %
-                                </span>
-                              </div>
-                            ) : (
-                              <div className="relative flex-1">
-                                <span className="absolute left-3 top-1/2 transform -translate-y-1/2 text-gray-500">
-                                  ₹
-                                </span>
-                                <Input
-                                  type="number"
-                                  value={surcharge.amount ?? ""}
-                                  onChange={(e) =>
-                                    updateSurcharge(
-                                      componentIndex,
-                                      "amount",
-                                      e.target.value,
-                                    )
-                                  }
-                                  placeholder="0.00"
-                                  className="pl-7"
-                                />
-                              </div>
-                            )}
+                          </td>
+                        </tr>
+                      );
+                    })
+                  )}
+                </tbody>
+              </table>
+            </div>
 
-                            <Button
-                              type="button"
-                              variant="ghost"
-                              size="icon"
-                              onClick={() => removeSurcharge(componentIndex)}
-                              title={t("delete")}
-                            >
-                              <CareIcon
-                                icon="l-trash"
-                                className="h-4 w-4 text-red-500"
-                              />
-                            </Button>
-                          </div>
+            {/* Add Surcharge Button */}
+            <div className="p-6 border-t bg-primary/5">
+              <Button
+                type="button"
+                variant="outline"
+                size="default"
+                onClick={addSurcharge}
+                className="w-full bg-white hover:bg-primary hover:text-white transition-colors group border-primary/30 text-primary"
+              >
+                <CareIcon
+                  icon="l-plus"
+                  className="mr-2 h-5 w-5 group-hover:animate-pulse"
+                />
+                {t("add_surcharge")}
+              </Button>
 
-                          {/* Validation error */}
-                          {(surcharge.use_factor
-                            ? !surcharge.factor
-                            : !surcharge.amount) && (
-                            <p className="text-xs text-red-500 mt-1">
-                              {surcharge.use_factor
-                                ? t("percentage_required")
-                                : t("amount_required")}
-                            </p>
-                          )}
-                        </div>
-                      </div>
-                    );
-                  })}
+              <p className="text-xs text-muted-foreground text-center mt-2">
+                Add fixed amounts or percentages to the base price
+              </p>
+            </div>
+          </CardContent>
+        </Card>
+
+        {/* Price Summary Card */}
+        <Card className="shadow-md border-2 border-green-100">
+          <CardHeader className="bg-green-50 border-b">
+            <div className="flex items-center gap-2">
+              <div className="bg-green-600 p-1.5 rounded text-white">
+                <CareIcon icon="l-calculator" className="h-5 w-5" />
+              </div>
+              <CardTitle>{t("price_summary")}</CardTitle>
+            </div>
+          </CardHeader>
+          <CardContent className="bg-white">
+            <div className="flex flex-col space-y-2">
+              {/* Base Price */}
+              <div className="flex justify-between py-2 border-b">
+                <span className="text-muted-foreground">{t("base_price")}</span>
+                <span>
+                  {basePrice?.amount
+                    ? `₹${basePrice.amount.toFixed(2)}`
+                    : "₹0.00"}
+                </span>
+              </div>
+
+              {/* Surcharges */}
+              {surcharges.length > 0 && (
+                <div className="flex justify-between py-2 border-b">
+                  <span className="text-muted-foreground">
+                    {t("surcharges")}
+                  </span>
+                  <span>
+                    {surcharges
+                      .map((s) => {
+                        if (s.use_factor) {
+                          return `+${((s.factor || 0) * 100).toFixed(0)}%`;
+                        } else {
+                          return `+₹${(s.amount || 0).toFixed(2)}`;
+                        }
+                      })
+                      .join(", ")}
+                  </span>
                 </div>
               )}
+
+              {/* Discounts */}
+              {discountCodes.some((code) =>
+                isCodeSelected(code, MonetoryComponentType.discount),
+              ) && (
+                <div className="flex justify-between py-2 border-b">
+                  <span className="text-muted-foreground">
+                    {t("discounts")}
+                  </span>
+                  <span>
+                    {discountCodes
+                      .filter((code) =>
+                        isCodeSelected(code, MonetoryComponentType.discount),
+                      )
+                      .map(
+                        (code) =>
+                          `-${getComponentPercentage(code, MonetoryComponentType.discount)}%`,
+                      )
+                      .join(", ")}
+                  </span>
+                </div>
+              )}
+
+              {/* Taxes */}
+              {taxCodes.some((code) =>
+                isCodeSelected(code, MonetoryComponentType.tax),
+              ) && (
+                <div className="flex justify-between py-2 border-b">
+                  <span className="text-muted-foreground">{t("taxes")}</span>
+                  <span>
+                    {taxCodes
+                      .filter((code) =>
+                        isCodeSelected(code, MonetoryComponentType.tax),
+                      )
+                      .map(
+                        (code) =>
+                          `+${getComponentPercentage(code, MonetoryComponentType.tax)}%`,
+                      )
+                      .join(", ")}
+                  </span>
+                </div>
+              )}
+
+              {/* Total */}
+              <div className="flex justify-between pt-4 mt-2 font-bold border-t-2 border-green-200">
+                <span className="text-green-700">{t("estimated_total")}</span>
+                <span className="text-xl text-green-700 tabular-nums">
+                  {/* This is just an estimate since actual calculation depends on implementation */}
+                  ₹{basePrice?.amount ? basePrice.amount.toFixed(2) : "0.00"}
+                </span>
+              </div>
+              <div className="flex items-center mt-4 p-3 bg-yellow-50 rounded-md border border-yellow-200 text-sm text-yellow-700">
+                <CareIcon
+                  icon="l-info-circle"
+                  className="h-5 w-5 mr-2 text-yellow-500"
+                />
+                {t("final_price_depends_on_actual_implementation")}
+              </div>
             </div>
           </CardContent>
         </Card>
@@ -1007,20 +1332,39 @@ export function ChargeItemDefinitionForm({
         </Card>
 
         {/* Action buttons */}
-        <div className="flex justify-end gap-2">
-          <Button type="button" variant="outline" onClick={() => onSuccess?.()}>
-            {t("cancel")}
-          </Button>
-          <Button type="submit" disabled={isPending}>
-            {isPending ? (
-              <>
-                <CareIcon icon="l-spinner" className="mr-2 animate-spin" />
-                {t("saving")}
-              </>
-            ) : (
-              t(isUpdate ? "update" : "create")
-            )}
-          </Button>
+        <div className="sticky bottom-0 bg-white p-4 mt-8 border-t flex justify-between items-center shadow-md rounded-b-md z-10">
+          <div className="text-sm">
+            <span className="text-muted-foreground">
+              {t("all_fields_saved_automatically")}
+            </span>
+          </div>
+          <div className="flex gap-3">
+            <Button
+              type="button"
+              variant="outline"
+              onClick={() => onSuccess?.()}
+              className="border-gray-300 hover:bg-gray-100 hover:text-gray-900"
+            >
+              {t("cancel")}
+            </Button>
+            <Button
+              type="submit"
+              disabled={isPending}
+              className="bg-primary hover:bg-primary/90 text-white px-8 gap-2 shadow-md"
+            >
+              {isPending ? (
+                <>
+                  <CareIcon icon="l-spinner" className="animate-spin" />
+                  <span>{t("saving")}</span>
+                </>
+              ) : (
+                <>
+                  <CareIcon icon="l-check" />
+                  <span>{t(isUpdate ? "update" : "create")}</span>
+                </>
+              )}
+            </Button>
+          </div>
         </div>
       </form>
     </Form>

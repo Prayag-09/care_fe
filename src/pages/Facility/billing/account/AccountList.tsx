@@ -3,11 +3,14 @@ import { navigate } from "raviger";
 import React from "react";
 import { useTranslation } from "react-i18next";
 
+import { cn } from "@/lib/utils";
+
 import CareIcon from "@/CAREUI/icons/CareIcon";
 
 import { Badge } from "@/components/ui/badge";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
+import { MonetaryValue } from "@/components/ui/monetary-value";
 import {
   Select,
   SelectContent,
@@ -53,13 +56,6 @@ function EmptyState() {
   );
 }
 
-function formatCurrency(amount?: number | string) {
-  return Number(amount).toLocaleString("en-IN", {
-    style: "currency",
-    currency: "INR",
-  });
-}
-
 function formatDate(date?: string) {
   if (!date) return "-";
   return new Date(date).toLocaleDateString("en-IN", {
@@ -72,9 +68,13 @@ function formatDate(date?: string) {
 export function AccountList({
   facilityId,
   patientId,
+  hideTitleOnPage = false,
+  className,
 }: {
   facilityId: string;
   patientId?: string;
+  hideTitleOnPage?: boolean;
+  className?: string;
 }) {
   const { t } = useTranslation();
   const [sheetOpen, setSheetOpen] = React.useState(false);
@@ -103,8 +103,12 @@ export function AccountList({
   const accounts = (response?.results as AccountRead[]) || [];
 
   return (
-    <Page title={t("accounts")}>
-      <div className="container mx-auto">
+    <Page
+      title={t("accounts")}
+      hideTitleOnPage={hideTitleOnPage}
+      className={cn(hideTitleOnPage && "md:px-0", className)}
+    >
+      <div className={cn("container mx-auto", !hideTitleOnPage && "mt-2")}>
         <div className="mb-4">
           <AccountSheet
             open={sheetOpen}
@@ -124,13 +128,14 @@ export function AccountList({
               onChange={(e) =>
                 updateQuery({ search: e.target.value || undefined })
               }
-              className="max-w-xs"
+              className="sm:max-w-xs w-[calc(100%)]"
             />
             <Tabs
               value={qParams.status ?? "all"}
               onValueChange={(value) =>
                 updateQuery({ status: value === "all" ? undefined : value })
               }
+              className="overflow-y-auto max-w-[calc(100%)]"
             >
               <TabsList>
                 <TabsTrigger value="all">{t("all_statuses")}</TabsTrigger>
@@ -141,6 +146,8 @@ export function AccountList({
                 ))}
               </TabsList>
             </Tabs>
+          </div>
+          <div className="flex flex-wrap gap-4">
             <div className="w-64">
               <Select
                 value={qParams.billing_status ?? "all"}
@@ -205,7 +212,9 @@ export function AccountList({
                         </div>
                       </div>
                     </TableCell>
-                    <TableCell>{formatCurrency(0)}</TableCell>
+                    <TableCell>
+                      <MonetaryValue value={0} />
+                    </TableCell>
                     <TableCell>
                       <Badge variant={statusColorMap[account.status] as any}>
                         {t(account.status)}
