@@ -2,16 +2,18 @@ import { useMutation, useQueryClient } from "@tanstack/react-query";
 import { t } from "i18next";
 import {
   Barcode,
+  CheckCheck,
+  CheckCircle2,
   ChevronsDownUp,
   ChevronsUpDown,
   CircleDashed,
   Droplet,
+  Eye,
   FileText,
   MoreVertical,
   PackageSearch,
   Plus,
   Receipt,
-  ShieldCheck,
   TestTubeDiagonal,
   Trash2,
   User,
@@ -215,11 +217,7 @@ export function SpecimenWorkflowCard({
     collectedSpecimen?.status === SpecimenStatus.entered_in_error;
 
   // Define badge styles
-  const instructionsBadgeVariant = hasCollected ? "default" : "outline";
-  const instructionsBadgeColor = hasCollected
-    ? "bg-green-100 text-green-800 border-green-200"
-    : "";
-  const collectionBadgeVariant = "default"; // Always default variant for success
+  const collectionBadgeVariant = "outline"; // Always default variant for success
   const collectionBadgeColor = "bg-green-100 text-green-800 border-green-200";
   const [isOpen, setIsOpen] = useState(!hasCollected);
 
@@ -237,7 +235,7 @@ export function SpecimenWorkflowCard({
         >
           {/* === Header: Changes based on collection status === */}
           <CardHeader
-            className="p-4 border-b bg-white"
+            className={cn("p-4  bg-white", isOpen && "bg-gray-100")}
             onClick={() => hasCollected && setIsOpen(!isOpen)}
           >
             {hasCollected && collectedSpecimen ? (
@@ -266,10 +264,12 @@ export function SpecimenWorkflowCard({
                           <Droplet className="h-4 w-4" />
                           Container Cap:{" "}
                         </span>
-                        {
-                          collectedSpecimen.specimen_definition.type_tested
-                            .container.cap.display
-                        }
+                        <span className="ml-6">
+                          {
+                            collectedSpecimen.specimen_definition.type_tested
+                              .container.cap.display
+                          }
+                        </span>
                       </span>
                     )}
                     {collectedSpecimen.specimen_type?.display && (
@@ -278,7 +278,9 @@ export function SpecimenWorkflowCard({
                           <TestTubeDiagonal className="h-4 w-4" />
                           Specimen:{" "}
                         </span>
-                        {collectedSpecimen.specimen_type.display}
+                        <span className="font-semibold ml-6">
+                          {collectedSpecimen.specimen_type.display}
+                        </span>
                       </span>
                     )}
                     {collectedSpecimen.collection?.collector && (
@@ -287,7 +289,9 @@ export function SpecimenWorkflowCard({
                           <User className="h-4 w-4" />
                           Collector:{" "}
                         </span>
-                        {collectedSpecimen.collection.collector}
+                        <span className="ml-6">
+                          {collectedSpecimen.collection.collector}
+                        </span>
                       </span>
                     )}
                   </div>
@@ -305,13 +309,17 @@ export function SpecimenWorkflowCard({
                         statusColorMap[collectedSpecimen.status],
                       )}
                     >
+                      {collectedSpecimen.status ===
+                        SpecimenStatus.available && (
+                        <CheckCircle2 className="h-4 w-4 mr-1" />
+                      )}
                       {collectedSpecimen.status?.replace(/_/g, " ") ||
                         "Unknown Status"}
                     </Badge>
                     {isOpen ? (
-                      <ChevronsDownUp className="size-7 border border-gray-300 rounded-md p-1 shadow-sm transition-transform duration-200" />
+                      <ChevronsDownUp className="size-7 bg-white border border-gray-300 rounded-md p-1 shadow-sm transition-transform duration-200" />
                     ) : (
-                      <ChevronsUpDown className="size-7 border border-gray-300 rounded-md p-1 shadow-sm transition-transform duration-200" />
+                      <ChevronsUpDown className="size-7 bg-white border border-gray-300 rounded-md p-1 shadow-sm transition-transform duration-200" />
                     )}
                   </div>
                   <div className="flex self-end gap-2">
@@ -385,33 +393,38 @@ export function SpecimenWorkflowCard({
         </CollapsibleTrigger>
         <CollapsibleContent className="data-[state=open]:animate-collapsible-down data-[state=closed]:animate-collapsible-up overflow-hidden">
           {/* === Accordion for Instructions, Collection Details, Processing, Discard === */}
-          <CardContent className="p-0">
-            <Accordion type="multiple" className="w-full" defaultValue={[]}>
+          <CardContent className="p-2 bg-gray-100">
+            <Accordion
+              type="multiple"
+              className="w-full space-y-2"
+              defaultValue={[]}
+            >
               {/* 1. Instructions */}
-              <AccordionItem value="instructions">
-                <AccordionTrigger className="px-4 py-3 text-sm hover:bg-gray-50/50">
+              <AccordionItem value="instructions" className="border-none">
+                <AccordionTrigger
+                  className={cn(
+                    "px-4 py-2 text-sm hover:bg-gray-50/50 data-[state=closed]:bg-white data-[state=open]:bg-gray-50 data-[state=open]:rounded-b-none",
+                  )}
+                >
                   <div className="flex items-center gap-2 flex-1 mr-4">
                     <FileText className="h-4 w-4 text-gray-500" />
-                    <span className="font-medium">
+                    <span className="font-medium flex items-center gap-2 underline">
                       Specimen Collection Instructions
+                      {hasCollected ? (
+                        <CheckCheck className="h-4 w-4 text-blue-500" />
+                      ) : (
+                        <Eye className="h-4 w-4 text-gray-500" />
+                      )}
                     </span>
                   </div>
-                  <div className="flex items-center gap-2">
-                    <Badge
-                      variant={instructionsBadgeVariant}
-                      className={cn(instructionsBadgeColor)}
-                    >
-                      {hasCollected ? "Instructions Viewed" : "Pending View"}
-                    </Badge>
-                  </div>
                 </AccordionTrigger>
-                <AccordionContent className="px-4 pt-1 pb-4 space-y-4 bg-gray-50/30 border-t bg-gray-100">
+                <AccordionContent className="px-4 pt-1 pb-4 space-y-4 bg-gray-50 rounded-b-lg">
                   <div className="space-y-1">
                     <p className="font-medium text-xs text-gray-950 uppercase tracking-wide">
                       Specimen & Collection
                     </p>
-                    <Card className="p-2">
-                      <Table className="rounded-md">
+                    <Card className="rounded-xl overflow-clip">
+                      <Table>
                         <TableHeader className="text-xs text-gray-700 bg-gray-100 uppercase tracking-wide">
                           <TableRow>
                             <TableHead className="w-[150px] text-gray-700 ">
@@ -461,7 +474,7 @@ export function SpecimenWorkflowCard({
                       <p className="font-medium text-xs text-gray-950 uppercase tracking-wide">
                         Required Container
                       </p>
-                      <Card className="p-2">
+                      <Card className="rounded-xl overflow-clip">
                         <Table>
                           <TableHeader className="text-xs text-gray-700 bg-gray-100 uppercase tracking-wide">
                             <TableRow>
@@ -521,7 +534,7 @@ export function SpecimenWorkflowCard({
                     <p className="font-medium text-xs text-gray-950 uppercase tracking-wide">
                       Required Processing & Storage
                     </p>
-                    <Card className="p-2">
+                    <Card className="rounded-xl overflow-clip border">
                       <Table>
                         <TableHeader className="text-xs text-gray-700 bg-gray-100 uppercase tracking-wide">
                           <TableRow>
@@ -553,11 +566,20 @@ export function SpecimenWorkflowCard({
 
               {/* 2. Collection Details (Only if collected) */}
               {hasCollected && collectedSpecimen && (
-                <AccordionItem value="collection-details">
-                  <AccordionTrigger className="px-4 py-3 text-sm hover:bg-gray-50/50">
+                <AccordionItem
+                  value="collection-details"
+                  className="border-none"
+                >
+                  <AccordionTrigger
+                    className={cn(
+                      "px-4 py-2 text-sm hover:bg-gray-50/50 data-[state=closed]:bg-white data-[state=open]:bg-gray-50 data-[state=open]:rounded-b-none",
+                    )}
+                  >
                     <div className="flex items-center gap-2 flex-1 mr-4">
                       <Receipt className="h-4 w-4 text-gray-500" />
-                      <span className="font-medium">Specimen Collection</span>
+                      <span className="font-medium underline">
+                        Specimen Collection
+                      </span>
                     </div>
                     <div className="flex items-center gap-2">
                       <Badge
@@ -568,12 +590,11 @@ export function SpecimenWorkflowCard({
                       </Badge>
                     </div>
                   </AccordionTrigger>
-                  <AccordionContent className="px-4 pt-1 pb-4 space-y-4 bg-gray-50/30 border-t">
-                    <p className="font-medium text-sm mb-2 flex items-center gap-2">
-                      <ShieldCheck className="h-5 w-5 text-gray-600" />
+                  <AccordionContent className="px-4 pt-1 pb-4 space-y-4 bg-gray-50 rounded-b-lg">
+                    <p className="font-semibold text-xs mb-2 flex items-center gap-2">
                       Collected Specimen Details
                     </p>
-                    <Card className="rounded-xl overflow-clip">
+                    <Card className="rounded-xl overflow-clip border-none shadow-md">
                       <Table>
                         <TableHeader className="text-xs text-gray-700 bg-gray-100 uppercase tracking-wide">
                           <TableRow>
@@ -658,7 +679,7 @@ export function SpecimenWorkflowCard({
 
               {/* 3. Processing (Only if collected and not discarded) */}
               {hasCollected && !isDiscarded && (
-                <div className="px-4 pt-3 pb-4 border-t">
+                <div className="px-1 pt-3 pb-4">
                   <ProcessSpecimen
                     existingProcessing={collectedSpecimen?.processing ?? []}
                     onAddProcessing={handleAddProcessing}
