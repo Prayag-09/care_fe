@@ -1,4 +1,5 @@
 import { format } from "date-fns";
+import dayjs from "dayjs";
 import { useState } from "react";
 import "react-day-picker/style.css";
 import { useTranslation } from "react-i18next";
@@ -27,6 +28,9 @@ interface CombinedDatePickerProps {
   defaultTab?: "absolute" | "relative";
   classes?: string;
   dateFormat?: string;
+
+  min?: Date;
+  max?: Date;
 }
 
 export function CombinedDatePicker({
@@ -39,6 +43,8 @@ export function CombinedDatePicker({
   defaultTab = "absolute",
   classes,
   dateFormat = "PPP",
+  min,
+  max,
 }: CombinedDatePickerProps) {
   const { t } = useTranslation();
 
@@ -89,6 +95,11 @@ export function CombinedDatePicker({
                 mode="single"
                 selected={value}
                 onSelect={handleSelect}
+                disabled={(date) => {
+                  if (min && dayjs(date).isBefore(min, "day")) return true;
+                  if (max && dayjs(date).isAfter(max, "day")) return true;
+                  return false;
+                }}
               />
             </TabsContent>
             <TabsContent value="relative" className="p-0">

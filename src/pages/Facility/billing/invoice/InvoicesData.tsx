@@ -1,11 +1,14 @@
+import { useQuery } from "@tanstack/react-query";
 import { Link } from "raviger";
+import React from "react";
 import { useTranslation } from "react-i18next";
 
 import CareIcon from "@/CAREUI/icons/CareIcon";
 
 import { Badge } from "@/components/ui/badge";
 import { Button } from "@/components/ui/button";
-import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
+import { Input } from "@/components/ui/input";
+import { MonetaryValue } from "@/components/ui/monetary-value";
 import {
   Table,
   TableBody,
@@ -14,17 +17,15 @@ import {
   TableHeader,
   TableRow,
 } from "@/components/ui/table";
+import { Tabs, TabsList, TabsTrigger } from "@/components/ui/tabs";
 
 import { TableSkeleton } from "@/components/Common/SkeletonLoading";
 
-import { InvoiceRead, InvoiceStatus } from "@/types/billing/invoice/invoice";
+import useFilters from "@/hooks/useFilters";
 
-function formatCurrency(amount: number, currency: string = "INR") {
-  return new Intl.NumberFormat("en-IN", {
-    style: "currency",
-    currency,
-  }).format(amount);
-}
+import query from "@/Utils/request/query";
+import { InvoiceRead, InvoiceStatus } from "@/types/billing/invoice/invoice";
+import invoiceApi from "@/types/billing/invoice/invoiceApi";
 
 const statusMap: Record<
   InvoiceStatus,
@@ -43,51 +44,69 @@ const statusMap: Record<
   },
 };
 
-export interface InvoicesTableProps {
-  isLoading: boolean;
-  items?: InvoiceRead[];
-  onCreateClick: () => void;
-  facilityId: string;
-  accountId: string;
-}
-
-export function InvoicesTable({
-  isLoading,
-  items,
-  onCreateClick,
+export default function InvoicesData({
   facilityId,
   accountId,
-}: InvoicesTableProps) {
+  className,
+}: {
+  facilityId: string;
+  accountId?: string;
+  className?: string;
+}) {
   const { t } = useTranslation();
+  const { qParams, updateQuery, Pagination, resultsPerPage } = useFilters({
+    limit: 15,
+    disableCache: true,
+  });
+
+  const { data: response, isLoading } = useQuery({
+    queryKey: ["invoices", qParams, accountId],
+    queryFn: query(
+      invoiceApi.retrieveInvoice.method === "GET"
+        ? invoiceApi.listInvoice
+        : invoiceApi.listInvoice,
+      {
+        pathParams: { facilityId },
+        queryParams: {
+          account: accountId,
+          limit: resultsPerPage,
+          offset: ((qParams.page ?? 1) - 1) * resultsPerPage,
+          search: qParams.search,
+          status: qParams.status,
+        },
+      },
+    ),
+  });
+
+  const invoices = (response?.results as InvoiceRead[]) || [];
 
   return (
-    <Card>
-      <CardHeader className="flex flex-row items-center justify-between">
-        <div>
-          <CardTitle>{t("invoices")}</CardTitle>
-          <p className="text-sm text-muted-foreground">
-            {t("billing_statements")}
-          </p>
-        </div>
-        <div className="flex gap-2">
-          <Button variant="ghost" asChild>
-            <Link
-              href={`/facility/${facilityId}/billing/payments?accountId=${accountId}`}
-            >
-              <CareIcon icon="l-wallet" className="mr-2 size-4" />
-              {t("view_payments")}
-            </Link>
-          </Button>
-          <Button variant="outline" onClick={onCreateClick}>
-            <CareIcon icon="l-plus" className="mr-2 size-4" />
-            {t("create_invoice")}
-          </Button>
-        </div>
-      </CardHeader>
-      <CardContent>
-        {isLoading ? (
-          <TableSkeleton count={3} />
-        ) : (
+    <>
+      <div className="flex flex-row justify-between items-center gap-2">
+        <Input
+          placeholder={t("search_invoices")}
+          value={qParams.search || ""}
+          onChange={(e) => updateQuery({ search: e.target.value || undefined })}
+          className="max-w-xs"
+        />
+        <Tabs
+          defaultValue={InvoiceStatus.draft}
+          onValueChange={(value) => updateQuery({ invoice_status: value })}
+          className="mx-4 mb-4"
+        >
+          <TabsList>
+            {Object.values(InvoiceStatus).map((status) => (
+              <TabsTrigger key={status} value={status}>
+                {t(statusMap[status].label)}
+              </TabsTrigger>
+            ))}
+          </TabsList>
+        </Tabs>
+      </div>
+      {isLoading ? (
+        <TableSkeleton count={3} />
+      ) : (
+        <div className={className}>
           <Table>
             <TableHeader>
               <TableRow>
@@ -98,7 +117,7 @@ export function InvoicesTable({
               </TableRow>
             </TableHeader>
             <TableBody>
-              {!items?.length ? (
+              {!invoices?.length ? (
                 <TableRow>
                   <TableCell
                     colSpan={5}
@@ -108,7 +127,7 @@ export function InvoicesTable({
                   </TableCell>
                 </TableRow>
               ) : (
-                items.map((invoice) => (
+                invoices.map((invoice) => (
                   <TableRow key={invoice.id}>
                     <TableCell className="font-medium">
                       <div> {invoice.title}</div>
@@ -122,7 +141,12 @@ export function InvoicesTable({
                         {t(statusMap[invoice.status].label)}
                       </Badge>
                     </TableCell>
-                    <TableCell>{formatCurrency(invoice.total_gross)}</TableCell>
+                    <TableCell>
+                      <MonetaryValue
+                        className="font-medium"
+                        value={invoice.total_gross}
+                      />
+                    </TableCell>
                     <TableCell>
                       <div className="flex gap-2">
                         <Button variant="ghost" size="icon" asChild>
@@ -146,10 +170,9 @@ export function InvoicesTable({
               )}
             </TableBody>
           </Table>
-        )}
-      </CardContent>
-    </Card>
+        </div>
+      )}
+      {<Pagination totalCount={invoices.length} />}
+    </>
   );
 }
-
-export default InvoicesTable;

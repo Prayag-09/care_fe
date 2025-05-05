@@ -1,3 +1,4 @@
+import { useQuery } from "@tanstack/react-query";
 import {
   ChevronDown,
   ChevronUp,
@@ -26,14 +27,22 @@ import {
   TableHeader,
   TableRow,
 } from "@/components/ui/table";
+import { Tabs, TabsList, TabsTrigger } from "@/components/ui/tabs";
 
 import { TableSkeleton } from "@/components/Common/SkeletonLoading";
 
+import useFilters from "@/hooks/useFilters";
+
+import query from "@/Utils/request/query";
 import {
   MonetoryComponent,
   MonetoryComponentType,
 } from "@/types/base/monetoryComponent/monetoryComponent";
-import { ChargeItemRead } from "@/types/billing/chargeItem/chargeItem";
+import {
+  ChargeItemRead,
+  ChargeItemStatus,
+} from "@/types/billing/chargeItem/chargeItem";
+import chargeItemApi from "@/types/billing/chargeItem/chargeItemApi";
 
 import EditChargeItemPopover from "./EditChargeItemPopover";
 
@@ -118,20 +127,33 @@ function PriceComponentRow({
 }
 
 export interface ChargeItemsTableProps {
-  isLoading: boolean;
-  items?: ChargeItemRead[];
   facilityId: string;
+  accountId: string;
 }
 
 export function ChargeItemsTable({
-  isLoading,
-  items,
   facilityId,
+  accountId,
 }: ChargeItemsTableProps) {
   const { t } = useTranslation();
   const [expandedItems, setExpandedItems] = useState<Record<string, boolean>>(
     {},
   );
+  const { qParams, updateQuery } = useFilters({
+    limit: 15,
+    disableCache: true,
+  });
+
+  const { data: chargeItems, isLoading } = useQuery({
+    queryKey: ["chargeItems", accountId, qParams.charge_item_status],
+    queryFn: query(chargeItemApi.listChargeItem, {
+      pathParams: { facilityId },
+      queryParams: {
+        account: accountId,
+        status: qParams.charge_item_status,
+      },
+    }),
+  }) as { data: { results: ChargeItemRead[] } | undefined; isLoading: boolean };
 
   const toggleItemExpand = (itemId: string) => {
     setExpandedItems((prev) => ({
@@ -167,6 +189,19 @@ export function ChargeItemsTable({
           </p>
         </div>
       </CardHeader>
+      <Tabs
+        defaultValue={ChargeItemStatus.planned}
+        onValueChange={(value) => updateQuery({ charge_item_status: value })}
+        className="mx-4 mb-4"
+      >
+        <TabsList>
+          {Object.values(ChargeItemStatus).map((status) => (
+            <TabsTrigger key={status} value={status}>
+              {t(status)}
+            </TabsTrigger>
+          ))}
+        </TabsList>
+      </Tabs>
       <CardContent>
         {isLoading ? (
           <TableSkeleton count={3} />
@@ -184,7 +219,7 @@ export function ChargeItemsTable({
               </TableRow>
             </TableHeader>
             <TableBody>
-              {!items?.length ? (
+              {!chargeItems?.results?.length ? (
                 <TableRow>
                   <TableCell
                     colSpan={7}
@@ -194,7 +229,7 @@ export function ChargeItemsTable({
                   </TableCell>
                 </TableRow>
               ) : (
-                items.flatMap((item) => {
+                chargeItems.results.flatMap((item) => {
                   const isExpanded = expandedItems[item.id] || false;
                   const baseComponent = getBaseComponent(item);
                   const baseAmount = baseComponent?.amount || 0;

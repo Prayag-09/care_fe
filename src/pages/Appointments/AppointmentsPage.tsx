@@ -11,6 +11,7 @@ import {
   isYesterday,
   subDays,
 } from "date-fns";
+import dayjs from "dayjs";
 import { Edit3Icon } from "lucide-react";
 import { Link, navigate } from "raviger";
 import { useEffect } from "react";
@@ -23,6 +24,7 @@ import CareIcon from "@/CAREUI/icons/CareIcon";
 
 import { Button } from "@/components/ui/button";
 import { Card } from "@/components/ui/card";
+import { CombinedDatePicker } from "@/components/ui/combined-date-picker";
 import {
   Command,
   CommandEmpty,
@@ -32,7 +34,6 @@ import {
   CommandList,
   CommandSeparator,
 } from "@/components/ui/command";
-import { DateRangePicker } from "@/components/ui/date-range-picker";
 import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
 import {
@@ -505,25 +506,41 @@ export default function AppointmentsPage({
                       </Button>
                     </div>
 
-                    <DateRangePicker
-                      date={{
-                        from: qParams.date_from
-                          ? new Date(qParams.date_from)
-                          : undefined,
-                        to: qParams.date_to
-                          ? new Date(qParams.date_to)
-                          : undefined,
-                      }}
-                      onChange={(date) =>
-                        updateQuery({
-                          date_from: date?.from
-                            ? dateQueryString(date.from)
-                            : null,
-                          date_to: date?.to ? dateQueryString(date?.to) : null,
-                          slot: null,
-                        })
-                      }
-                    />
+                    <div className="flex flex-col gap-2">
+                      <CombinedDatePicker
+                        value={qParams.date_from}
+                        onChange={(date) =>
+                          updateQuery({
+                            date_from: date ? dateQueryString(date) : null,
+                            date_to:
+                              qParams.date_to &&
+                              dayjs(qParams.date_to).isBefore(date)
+                                ? dateQueryString(date)
+                                : qParams.date_to,
+                            slot: null,
+                          })
+                        }
+                      />
+                      <CombinedDatePicker
+                        min={
+                          qParams.date_from
+                            ? new Date(qParams.date_from)
+                            : undefined
+                        }
+                        value={qParams.date_to}
+                        onChange={(date) =>
+                          updateQuery({
+                            date_from:
+                              qParams.date_from &&
+                              dayjs(qParams.date_from).isAfter(date)
+                                ? dateQueryString(date)
+                                : qParams.date_from,
+                            date_to: date ? dateQueryString(date) : null,
+                            slot: null,
+                          })
+                        }
+                      />
+                    </div>
                   </div>
                 </PopoverContent>
               </Popover>

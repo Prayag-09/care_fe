@@ -1,6 +1,6 @@
 import { useMutation, useQuery } from "@tanstack/react-query";
 import { Link, navigate } from "raviger";
-import React, { useState } from "react";
+import { useState } from "react";
 import { useTranslation } from "react-i18next";
 import { toast } from "sonner";
 
@@ -11,6 +11,7 @@ import CareIcon from "@/CAREUI/icons/CareIcon";
 import { Badge } from "@/components/ui/badge";
 import { Button } from "@/components/ui/button";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
+import { MonetaryValue } from "@/components/ui/monetary-value";
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
 
 import { Avatar } from "@/components/Common/Avatar";
@@ -19,17 +20,13 @@ import { TableSkeleton } from "@/components/Common/SkeletonLoading";
 import mutate from "@/Utils/request/mutate";
 import query from "@/Utils/request/query";
 import PaymentReconciliationSheet from "@/pages/Facility/billing/PaymentReconciliationSheet";
-import PaymentReconciliationList from "@/pages/Facility/billing/paymentReconciliation/PaymentReconciliationList";
+import InvoicesData from "@/pages/Facility/billing/invoice/InvoicesData";
+import PaymentsData from "@/pages/Facility/billing/paymentReconciliation/PaymentsData";
 import { AccountStatus } from "@/types/billing/account/Account";
 import accountApi from "@/types/billing/account/accountApi";
-import { ChargeItemRead } from "@/types/billing/chargeItem/chargeItem";
-import chargeItemApi from "@/types/billing/chargeItem/chargeItemApi";
-import { InvoiceRead } from "@/types/billing/invoice/invoice";
-import invoiceApi from "@/types/billing/invoice/invoiceApi";
 
 import AccountSheet from "./AccountSheet";
 import ChargeItemsTable from "./components/ChargeItemsTable";
-import InvoicesTable from "./components/InvoicesTable";
 
 const statusMap: Record<AccountStatus, { label: string; color: string }> = {
   active: { label: "active", color: "primary" },
@@ -48,13 +45,6 @@ function formatDate(date?: string) {
 }
 
 type tab = "charge_items" | "invoices" | "payments";
-
-function formatCurrency(amount: number, currency: string = "INR") {
-  return new Intl.NumberFormat("en-IN", {
-    style: "currency",
-    currency,
-  }).format(amount);
-}
 
 export function AccountShow({
   facilityId,
@@ -92,22 +82,6 @@ export function AccountShow({
       toast.error(t("failed_to_rebalance_account"));
     },
   });
-
-  const { data: chargeItems, isLoading: isLoadingChargeItems } = useQuery({
-    queryKey: ["chargeItems", accountId],
-    queryFn: query(chargeItemApi.listChargeItem, {
-      pathParams: { facilityId },
-      queryParams: { account: accountId },
-    }),
-  }) as { data: { results: ChargeItemRead[] } | undefined; isLoading: boolean };
-
-  const { data: invoices, isLoading: isLoadingInvoices } = useQuery({
-    queryKey: ["invoices", accountId],
-    queryFn: query(invoiceApi.listInvoice, {
-      pathParams: { facilityId },
-      queryParams: { account: accountId },
-    }),
-  }) as { data: { results: InvoiceRead[] } | undefined; isLoading: boolean };
 
   if (isLoading) {
     return <TableSkeleton count={5} />;
@@ -210,7 +184,7 @@ export function AccountShow({
                     "text-xl font-bold px-1",
                   )}
                 >
-                  {formatCurrency(account.total_balance)}
+                  <MonetaryValue value={account.total_balance} />
                 </span>
               </div>
               <div
@@ -221,7 +195,7 @@ export function AccountShow({
                   {t("total_gross")}
                 </span>
                 <span className={cn("text-xl font-bold px-1")}>
-                  {formatCurrency(account.total_gross)}
+                  <MonetaryValue value={account.total_gross} />
                 </span>
               </div>
               <div
@@ -232,7 +206,7 @@ export function AccountShow({
                   {t("total_net")}
                 </span>
                 <span className={cn("text-xl font-bold px-1")}>
-                  {formatCurrency(account.total_net)}
+                  <MonetaryValue value={account.total_net} />
                 </span>
               </div>
               <div
@@ -243,7 +217,7 @@ export function AccountShow({
                   {t("total_paid")}
                 </span>
                 <span className={cn("text-xl font-bold px-1")}>
-                  {formatCurrency(account.total_paid)}
+                  <MonetaryValue value={account.total_paid} />
                 </span>
               </div>
             </div>
@@ -294,25 +268,48 @@ export function AccountShow({
         </TabsList>
 
         <TabsContent value="charge_items" className="mt-4">
-          <ChargeItemsTable
-            isLoading={isLoadingChargeItems}
-            items={chargeItems?.results}
-            facilityId={facilityId}
-          />
+          <ChargeItemsTable facilityId={facilityId} accountId={accountId} />
         </TabsContent>
 
         <TabsContent value="invoices" className="mt-4">
-          <InvoicesTable
-            isLoading={isLoadingInvoices}
-            items={invoices?.results}
-            accountId={accountId}
-            facilityId={facilityId}
-            onCreateClick={() => {
-              navigate(
-                `/facility/${facilityId}/billing/account/${accountId}/invoices/create`,
-              );
-            }}
-          />
+          <Card>
+            <CardHeader className="flex flex-row items-center justify-between">
+              <div>
+                <CardTitle>{t("invoices")}</CardTitle>
+                <p className="text-sm text-muted-foreground">
+                  {accountId
+                    ? t("billing_statements")
+                    : t("view_and_manage_invoices")}
+                </p>
+              </div>
+              {accountId && (
+                <div className="flex gap-2">
+                  <Button variant="ghost" asChild>
+                    <Link
+                      href={`/facility/${facilityId}/billing/payments?accountId=${accountId}`}
+                    >
+                      <CareIcon icon="l-wallet" className="mr-2 size-4" />
+                      {t("view_payments")}
+                    </Link>
+                  </Button>
+                  <Button
+                    variant="outline"
+                    onClick={() =>
+                      navigate(
+                        `/facility/${facilityId}/billing/account/${accountId}/invoices/create`,
+                      )
+                    }
+                  >
+                    <CareIcon icon="l-plus" className="mr-2 size-4" />
+                    {t("create_invoice")}
+                  </Button>
+                </div>
+              )}
+            </CardHeader>
+            <CardContent>
+              <InvoicesData facilityId={facilityId} accountId={accountId} />
+            </CardContent>
+          </Card>
         </TabsContent>
 
         <TabsContent value="payments" className="mt-4">
@@ -323,11 +320,21 @@ export function AccountShow({
               {t("record_payment")}
             </Button>
           </div>
-          <PaymentReconciliationList
-            facilityId={facilityId}
-            accountId={accountId}
-            hideHeader={true}
-          />
+          <Card>
+            <CardHeader className="flex flex-row items-center justify-between">
+              <div>
+                <CardTitle>{t("payments")}</CardTitle>
+                <p className="text-sm text-muted-foreground">
+                  {accountId
+                    ? t("payment_transactions")
+                    : t("view_and_manage_payments")}
+                </p>
+              </div>
+            </CardHeader>
+            <CardContent>
+              <PaymentsData facilityId={facilityId} accountId={accountId} />
+            </CardContent>
+          </Card>
         </TabsContent>
       </Tabs>
 
