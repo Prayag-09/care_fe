@@ -30,7 +30,7 @@ import {
   DropdownMenuSeparator,
   DropdownMenuTrigger,
 } from "@/components/ui/dropdown-menu";
-import { MonetaryValue } from "@/components/ui/monetory-display";
+import { MonetoryDisplay } from "@/components/ui/monetory-display";
 import { Separator } from "@/components/ui/separator";
 import {
   Table,
@@ -46,7 +46,6 @@ import { TableSkeleton } from "@/components/Common/SkeletonLoading";
 import mutate from "@/Utils/request/mutate";
 import query from "@/Utils/request/query";
 import PaymentReconciliationSheet from "@/pages/Facility/billing/PaymentReconciliationSheet";
-import { formatPercentage } from "@/pages/Facility/billing/account/components/ChargeItemsTable";
 import EditInvoiceSheet from "@/pages/Facility/billing/invoice/EditInvoiceSheet";
 import {
   MonetoryComponent,
@@ -98,17 +97,18 @@ function PriceComponentRow({
               {component.code && `${component.code.display} `}({label})
             </TableCell>
             <TableCell>
-              {component.amount !== undefined && component.amount !== null ? (
-                <MonetaryValue value={component.amount} />
-              ) : (
-                formatPercentage(component.factor)
-              )}
+              <MonetoryDisplay {...component} />
             </TableCell>
             <TableCell>{quantity}</TableCell>
             <TableCell>
-              {component.monetory_component_type ===
-                MonetoryComponentType.discount && `-`}
-              <MonetaryValue value={value} />
+              <MonetoryDisplay
+                amount={
+                  component.monetory_component_type ===
+                  MonetoryComponentType.discount
+                    ? -value
+                    : value
+                }
+              />
             </TableCell>
             <TableCell></TableCell>
           </TableRow>
@@ -353,11 +353,11 @@ export function InvoiceShow({
                               </div>
                             </TableCell>
                             <TableCell>
-                              <MonetaryValue value={baseAmount} />
+                              <MonetoryDisplay amount={baseAmount} />
                             </TableCell>
                             <TableCell>{item.quantity}</TableCell>
                             <TableCell>
-                              <MonetaryValue value={item.total_price} />
+                              <MonetoryDisplay amount={item.total_price} />
                             </TableCell>
                             <TableCell>
                               <Badge
@@ -441,7 +441,7 @@ export function InvoiceShow({
                             <TableCell></TableCell>
                             <TableCell></TableCell>
                             <TableCell>
-                              <MonetaryValue value={item.total_price} />
+                              <MonetoryDisplay amount={item.total_price} />
                             </TableCell>
                             <TableCell></TableCell>
                             <TableCell></TableCell>
@@ -472,7 +472,7 @@ export function InvoiceShow({
                         <span className="text-gray-500">
                           {component.code?.display || t("base_amount")}
                         </span>
-                        <MonetaryValue value={component.amount || 0} />
+                        <MonetoryDisplay amount={component.amount} />
                       </div>
                     ))}
 
@@ -493,13 +493,7 @@ export function InvoiceShow({
                           {t("surcharge")})
                         </span>
                         <span>
-                          +
-                          {component.amount !== undefined &&
-                          component.amount !== null ? (
-                            <MonetaryValue value={component.amount} />
-                          ) : (
-                            formatPercentage(component.factor)
-                          )}
+                          + <MonetoryDisplay {...component} />
                         </span>
                       </div>
                     ))}
@@ -521,13 +515,7 @@ export function InvoiceShow({
                           {t("discount")})
                         </span>
                         <span>
-                          -
-                          {component.amount !== undefined &&
-                          component.amount !== null ? (
-                            <MonetaryValue value={component.amount} />
-                          ) : (
-                            formatPercentage(component.factor)
-                          )}
+                          - <MonetoryDisplay {...component} />
                         </span>
                       </div>
                     ))}
@@ -548,13 +536,7 @@ export function InvoiceShow({
                           {t("tax")})
                         </span>
                         <span>
-                          +
-                          {component.amount !== undefined &&
-                          component.amount !== null ? (
-                            <MonetaryValue value={component.amount} />
-                          ) : (
-                            formatPercentage(component.factor)
-                          )}
+                          + <MonetoryDisplay {...component} />
                         </span>
                       </div>
                     ))}
@@ -564,13 +546,13 @@ export function InvoiceShow({
                   {/* Subtotal */}
                   <div className="flex w-64 justify-between">
                     <span className="text-gray-500">{t("net_amount")}</span>
-                    <MonetaryValue value={invoice.total_net} />
+                    <MonetoryDisplay amount={invoice.total_net} />
                   </div>
 
                   {/* Total */}
                   <div className="flex w-64 justify-between font-bold">
                     <span>{t("total")}</span>
-                    <MonetaryValue value={invoice.total_gross} />
+                    <MonetoryDisplay amount={invoice.total_gross} />
                   </div>
                 </div>
               </div>

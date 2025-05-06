@@ -19,7 +19,7 @@ import {
   DropdownMenuSeparator,
   DropdownMenuTrigger,
 } from "@/components/ui/dropdown-menu";
-import { MonetaryValue } from "@/components/ui/monetory-display";
+import { MonetoryDisplay } from "@/components/ui/monetory-display";
 import {
   Table,
   TableBody,
@@ -58,15 +58,6 @@ export function formatCurrency(
     minimumFractionDigits: 2,
     maximumFractionDigits: 2,
   }).format(amount);
-}
-
-export function formatPercentage(factor: number | undefined | null) {
-  if (factor === undefined || factor === null) return "-";
-  return new Intl.NumberFormat("en-IN", {
-    style: "percent",
-    minimumFractionDigits: 0,
-    maximumFractionDigits: 2,
-  }).format(factor);
 }
 
 function getStatusVariant(status: string) {
@@ -112,17 +103,18 @@ function PriceComponentRow({
               {component.code && `${component.code.display} `}({label})
             </TableCell>
             <TableCell>
-              {component.amount !== undefined && component.amount !== null ? (
-                <MonetaryValue value={component.amount} />
-              ) : (
-                formatPercentage(component.factor)
-              )}
+              <MonetoryDisplay {...component} />
             </TableCell>
             <TableCell></TableCell>
             <TableCell>
-              {component.monetory_component_type ===
-                MonetoryComponentType.discount && `-`}
-              <MonetaryValue value={value} />
+              <MonetoryDisplay
+                amount={
+                  component.monetory_component_type ===
+                  MonetoryComponentType.discount
+                    ? -value
+                    : value
+                }
+              />
             </TableCell>
             <TableCell></TableCell>
           </TableRow>

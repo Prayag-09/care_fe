@@ -16,7 +16,7 @@ import {
 } from "@/components/ui/alert-dialog";
 import { Button } from "@/components/ui/button";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
-import { MonetaryValue } from "@/components/ui/monetory-display";
+import { MonetoryDisplay } from "@/components/ui/monetory-display";
 
 import Loading from "@/components/Common/Loading";
 import Page from "@/components/Common/Page";
@@ -183,18 +183,6 @@ export function BillingSettings({ facilityId }: { facilityId: string }) {
   );
 }
 
-const DiscountValue = ({ component }: { component: MonetoryComponentRead }) => {
-  if (component.factor != null) {
-    return `${component.factor}%`;
-  }
-
-  if (component.amount != null) {
-    return <MonetaryValue value={component.amount} />;
-  }
-
-  return "-";
-};
-
 const DiscountComponentGrid = ({
   components,
   canEdit = false,
@@ -294,7 +282,7 @@ const DiscountCouponCard = ({
               {t("billing.value")}
             </span>
             <span className="text-2xl font-bold">
-              <DiscountValue component={component} />
+              <MonetoryDisplay {...component} fallback="-" />
             </span>
           </div>
 

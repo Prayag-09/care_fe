@@ -6,13 +6,12 @@ import { formatPhoneNumberIntl } from "react-phone-number-input";
 
 import PrintPreview from "@/CAREUI/misc/PrintPreview";
 
-import { MonetaryValue } from "@/components/ui/monetory-display";
+import { MonetoryDisplay } from "@/components/ui/monetory-display";
 import { Separator } from "@/components/ui/separator";
 
 import Loading from "@/components/Common/Loading";
 
 import query from "@/Utils/request/query";
-import { formatPercentage } from "@/pages/Facility/billing/account/components/ChargeItemsTable";
 import { MonetoryComponentType } from "@/types/base/monetoryComponent/monetoryComponent";
 import invoiceApi from "@/types/billing/invoice/invoiceApi";
 
@@ -143,10 +142,10 @@ export function PrintInvoice({ facilityId, invoiceId }: PrintInvoiceProps) {
                     <td className="py-4 capitalize">{t(item.status)}</td>
                     <td className="py-4 text-right">{item.quantity}</td>
                     <td className="py-4 text-right">
-                      <MonetaryValue value={baseAmount} />
+                      <MonetoryDisplay amount={baseAmount} />
                     </td>
                     <td className="py-4 text-right">
-                      <MonetaryValue value={item.total_price} />
+                      <MonetoryDisplay amount={item.total_price} />
                     </td>
                   </tr>
                 );
@@ -167,7 +166,7 @@ export function PrintInvoice({ facilityId, invoiceId }: PrintInvoiceProps) {
                 <span className="text-gray-500">
                   {component.code?.display || t("base_amount")}
                 </span>
-                <MonetaryValue value={component.amount || 0} />
+                <MonetoryDisplay amount={component.amount} fallback="-" />
               </div>
             ))}
 
@@ -187,13 +186,7 @@ export function PrintInvoice({ facilityId, invoiceId }: PrintInvoiceProps) {
                   {t("surcharge")})
                 </span>
                 <span>
-                  +
-                  {component.amount !== undefined &&
-                  component.amount !== null ? (
-                    <MonetaryValue value={component.amount} />
-                  ) : (
-                    formatPercentage(component.factor)
-                  )}
+                  + <MonetoryDisplay {...component} />
                 </span>
               </div>
             ))}
@@ -214,13 +207,7 @@ export function PrintInvoice({ facilityId, invoiceId }: PrintInvoiceProps) {
                   {t("discount")})
                 </span>
                 <span>
-                  -
-                  {component.amount !== undefined &&
-                  component.amount !== null ? (
-                    <MonetaryValue value={component.amount} />
-                  ) : (
-                    formatPercentage(component.factor)
-                  )}
+                  - <MonetoryDisplay {...component} />
                 </span>
               </div>
             ))}
@@ -239,13 +226,7 @@ export function PrintInvoice({ facilityId, invoiceId }: PrintInvoiceProps) {
                   {component.code && `${component.code.display} `}({t("tax")})
                 </span>
                 <span>
-                  +
-                  {component.amount !== undefined &&
-                  component.amount !== null ? (
-                    <MonetaryValue value={component.amount} />
-                  ) : (
-                    formatPercentage(component.factor)
-                  )}
+                  + <MonetoryDisplay {...component} />
                 </span>
               </div>
             ))}
@@ -255,13 +236,13 @@ export function PrintInvoice({ facilityId, invoiceId }: PrintInvoiceProps) {
           {/* Subtotal */}
           <div className="flex w-64 justify-between">
             <span className="text-gray-500">{t("net_amount")}</span>
-            <MonetaryValue value={invoice.total_net} />
+            <MonetoryDisplay amount={invoice.total_net} />
           </div>
 
           {/* Total */}
           <div className="flex w-64 justify-between font-bold">
             <span>{t("total")}</span>
-            <MonetaryValue value={invoice.total_gross} />
+            <MonetoryDisplay amount={invoice.total_gross} />
           </div>
         </div>
 

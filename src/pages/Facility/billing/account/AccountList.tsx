@@ -10,7 +10,7 @@ import CareIcon from "@/CAREUI/icons/CareIcon";
 import { Badge } from "@/components/ui/badge";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
-import { MonetaryValue } from "@/components/ui/monetory-display";
+import { MonetoryDisplay } from "@/components/ui/monetory-display";
 import {
   Select,
   SelectContent,
@@ -219,7 +219,7 @@ export function AccountList({
                           : "text-green-700",
                       )}
                     >
-                      <MonetaryValue value={account.total_balance} />
+                      <MonetoryDisplay amount={account.total_balance} />
                     </TableCell>
                     <TableCell>
                       <Badge variant={statusColorMap[account.status] as any}>

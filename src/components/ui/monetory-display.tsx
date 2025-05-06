@@ -10,11 +10,13 @@ const numberFormatter = new Intl.NumberFormat("en-IN", {
 function MonetoryDisplay({
   amount,
   factor,
+  fallback,
   ...props
-}: Pick<MonetoryComponent, "amount" | "factor"> &
-  React.ComponentProps<"data">) {
-  if (!(amount || factor)) {
-    return null;
+}: Pick<MonetoryComponent, "amount" | "factor"> & {
+  fallback?: React.ReactNode;
+} & React.ComponentProps<"data">) {
+  if ((amount ?? factor) == null) {
+    return fallback ?? "-";
   }
 
   return (
