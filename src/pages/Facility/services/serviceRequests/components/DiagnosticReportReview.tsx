@@ -36,9 +36,13 @@ import { Label } from "@/components/ui/label";
 import { Skeleton } from "@/components/ui/skeleton";
 
 import { Avatar } from "@/components/Common/Avatar";
+import { FileListTable } from "@/components/Files/FileListTable";
+import { FileUploadModel } from "@/components/Patient/models";
 
+import routes from "@/Utils/request/api";
 import mutate from "@/Utils/request/mutate";
 import query from "@/Utils/request/query";
+import { PaginatedResponse } from "@/Utils/request/types";
 import { DiagnosticReportResultsTable } from "@/pages/Facility/services/diagnosticReports/components/DiagnosticReportResultsTable";
 import {
   DiagnosticReportRead,
@@ -74,6 +78,20 @@ export function DiagnosticReportReview({
     }),
     enabled: !!latestReport?.id,
   });
+
+  const { data: files = { results: [], count: 0 }, refetch: refetchFiles } =
+    useQuery<PaginatedResponse<FileUploadModel>>({
+      queryKey: ["files", "diagnostic_report", fullReport?.id],
+      queryFn: query(routes.viewUpload, {
+        queryParams: {
+          file_type: "diagnostic_report",
+          associating_id: fullReport?.id,
+          limit: 100,
+          offset: 0,
+        },
+      }),
+      enabled: !!fullReport?.id,
+    });
 
   const { mutate: updateDiagnosticReport, isPending: isUpdatingReport } =
     useMutation({
@@ -249,6 +267,26 @@ export function DiagnosticReportReview({
                     )}
                   </CardContent>
                 </Card>
+
+                {files?.results && files.results.length > 0 && (
+                  <Card className="shadow-none rounded-lg border-gray-200 bg-gray-50">
+                    <CardHeader className="p-4 pb-0">
+                      <CardTitle className="text-base font-medium">
+                        {t("uploaded_files")}
+                      </CardTitle>
+                    </CardHeader>
+                    <CardContent className="p-4">
+                      <FileListTable
+                        files={files.results}
+                        type="diagnostic_report"
+                        associatingId={fullReport.id}
+                        canEdit={true}
+                        showHeader={false}
+                        onRefetch={refetchFiles}
+                      />
+                    </CardContent>
+                  </Card>
+                )}
 
                 {fullReport?.status === DiagnosticReportStatus.final && (
                   <div className="flex justify-end">
