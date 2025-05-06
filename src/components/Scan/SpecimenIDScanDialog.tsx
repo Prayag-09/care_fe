@@ -1,4 +1,3 @@
-import { useQuery } from "@tanstack/react-query";
 import { Camera, QrCode, X } from "lucide-react";
 import { navigate } from "raviger";
 import { useEffect, useState } from "react";
@@ -56,14 +55,6 @@ export function QRScanDialog({
     }
   }, [open]);
 
-  const { refetch } = useQuery({
-    queryKey: ["specimen", facilityId, specimenId],
-    queryFn: query(specimenApi.getSpecimen, {
-      pathParams: { facilityId, specimenId: specimenId },
-    }),
-    enabled: false,
-  });
-
   function handleScan(_: any, result: any) {
     if (result?.text) {
       const scannedCode = result.text.trim();
@@ -86,14 +77,19 @@ export function QRScanDialog({
   async function handleContinue(scannedId?: string) {
     const idToUse = (scannedId || specimenId).trim();
     if (!idToUse) return;
+
     setLoading(true);
+    const signal = new AbortController().signal;
+
     try {
-      const result = await refetch();
-      if (!result.data) throw new Error(t("specimen_not_found"));
-      setSpecimenData(result.data);
+      const result = await query(specimenApi.getSpecimen, {
+        pathParams: { facilityId, specimenId: idToUse },
+      })({ signal });
+
+      setSpecimenData(result);
       setShowSuccess(true);
-    } catch (err: any) {
-      toast.error(err.message || t("specimen_not_found"));
+    } catch {
+      toast.error(t("specimen_not_found"));
     } finally {
       setLoading(false);
     }
@@ -207,6 +203,11 @@ export function QRScanDialog({
                         if (e.key === "Enter" && !loading) {
                           handleContinue();
                         }
+                      }}
+                      onPaste={(e) => {
+                        const pasted = e.clipboardData.getData("text").trim();
+                        setSpecimenId(pasted);
+                        if (pasted) handleContinue(pasted);
                       }}
                       className={cn(
                         "mt-1.5 transition-all text-sm",
