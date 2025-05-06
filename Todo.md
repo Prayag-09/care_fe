@@ -1,24 +1,24 @@
 # Todo
 
 Do keep this updated if you have completed something, also mark your name to the issue if you have working on something.
-x : Done
 
+x : Done
 - : In Progress/Assigned/Blocked
 
 ## Billing
 
 - [x] Wire the actual amounts in all payment pages once backend is done - Amjith
 - [ ] Make currency configurable
-- [-] Add paymenthistory in invoices page
+- [x] Add paymenthistory in invoices page - Amjith
 - [ ] Add payment as transactions tab in account page
 - [ ] Build a flow for account balanceing and closing
 - [ ] Make it easy for users to mark an invoice as issued from draft state
 - [ ] Replace Charge Item Create with ChargeItemDef to ChargeItem API
 - [x] Account balance
 - [x] Invoice list cleanup - Amjith
-- [ ] Invoice View cleanup
-- [ ] Invoice Print Screen
-- [ ] Invoice update statuses- Call different APIs
+- [x] Invoice View cleanup - Amjith
+- [x] Invoice Print Screen - Amjith
+- [ ] Invoice update statuses - Call different APIs
 - [-] Invoice - Add charge items when draft - Jeevan
 - [ ] Invoice - Payment history filter by invoice
 - [x] Account - Payments tab - filter by Account - BE
@@ -58,5 +58,6 @@ x : Done
 - [ ] Service Request - Show specimen.collection.collector details instead of UUID (After BE change)
 - [ ] Service Request - Show specimen.processing.performer details instead of UUID (After BE change)
 - [ ] Patient - There shouldn't be more than one active account at any point in time
-
+- [ ] BE need to sort by internal id by default, all apis has jumping issue
+- [ ] Need sort by payment_datetime for Payment Reconciliation list
 

@@ -2,7 +2,7 @@ import * as React from "react";
 
 import { MonetoryComponent } from "@/types/base/monetoryComponent/monetoryComponent";
 
-const numberFormatter = new Intl.NumberFormat("en-IN", {
+export const numberFormatter = new Intl.NumberFormat("en-IN", {
   style: "currency",
   currency: "INR",
 });

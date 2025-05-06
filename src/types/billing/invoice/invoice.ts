@@ -1,6 +1,7 @@
 import { MonetoryComponent } from "@/types/base/monetoryComponent/monetoryComponent";
 import { AccountRead } from "@/types/billing/account/Account";
 import { ChargeItemRead } from "@/types/billing/chargeItem/chargeItem";
+import { PaymentReconciliationRead } from "@/types/billing/paymentReconciliation/paymentReconciliation";
 
 export enum InvoiceStatus {
   draft = "draft",
@@ -38,6 +39,7 @@ export interface InvoiceRead extends InvoiceBase {
   total_price_components: MonetoryComponent[];
   total_net: number;
   total_gross: number;
+  payment_reconciliations?: PaymentReconciliationRead[];
 }
 
 export interface InvoiceCancel {

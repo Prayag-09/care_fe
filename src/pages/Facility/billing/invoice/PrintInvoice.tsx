@@ -1,6 +1,7 @@
 import careConfig from "@careConfig";
 import { useQuery } from "@tanstack/react-query";
 import { differenceInYears, format } from "date-fns";
+import React from "react";
 import { useTranslation } from "react-i18next";
 import { formatPhoneNumberIntl } from "react-phone-number-input";
 
@@ -12,13 +13,68 @@ import { Separator } from "@/components/ui/separator";
 import Loading from "@/components/Common/Loading";
 
 import query from "@/Utils/request/query";
-import { MonetoryComponentType } from "@/types/base/monetoryComponent/monetoryComponent";
+import {
+  MonetoryComponent,
+  MonetoryComponentType,
+} from "@/types/base/monetoryComponent/monetoryComponent";
 import invoiceApi from "@/types/billing/invoice/invoiceApi";
 
 type PrintInvoiceProps = {
   facilityId: string;
   invoiceId: string;
 };
+
+interface PriceComponentRowProps {
+  label: string;
+  components: MonetoryComponent[];
+  baseAmount: number;
+  quantity: number;
+}
+
+function PriceComponentRow({
+  label,
+  components,
+  baseAmount,
+  quantity,
+}: PriceComponentRowProps) {
+  if (!components.length) return null;
+
+  return (
+    <>
+      {components.map((component, index) => {
+        const value =
+          component.amount !== undefined && component.amount !== null
+            ? component.amount * quantity
+            : (component.factor || 0) * baseAmount * quantity;
+
+        return (
+          <tr
+            key={`${label}-${index}`}
+            className="text-xs text-gray-500 bg-muted/30"
+          >
+            <td className="py-2 pl-8">
+              {component.code && `${component.code.display} `}({label})
+            </td>
+            <td className="py-2 text-right"></td>
+            <td className="py-2 text-right">
+              <MonetoryDisplay {...component} />
+            </td>
+            <td className="py-2 text-right">
+              <MonetoryDisplay
+                amount={
+                  component.monetory_component_type ===
+                  MonetoryComponentType.discount
+                    ? -value
+                    : value
+                }
+              />
+            </td>
+          </tr>
+        );
+      })}
+    </>
+  );
+}
 
 export function PrintInvoice({ facilityId, invoiceId }: PrintInvoiceProps) {
   const { t } = useTranslation();
@@ -109,9 +165,6 @@ export function PrintInvoice({ facilityId, invoiceId }: PrintInvoiceProps) {
                 <th className="pb-2 text-left font-medium text-gray-500">
                   {t("item")}
                 </th>
-                <th className="pb-2 text-left font-medium text-gray-500">
-                  {t("status")}
-                </th>
                 <th className="pb-2 text-right font-medium text-gray-500">
                   {t("qty")}
                 </th>
@@ -131,23 +184,64 @@ export function PrintInvoice({ facilityId, invoiceId }: PrintInvoiceProps) {
                 );
                 const baseAmount = baseComponent?.amount || 0;
 
+                const getComponentsByType = (type: MonetoryComponentType) => {
+                  return (
+                    item.unit_price_components?.filter(
+                      (c) => c.monetory_component_type === type,
+                    ) || []
+                  );
+                };
+
                 return (
-                  <tr key={item.id} className="border-b last:border-0">
-                    <td className="py-4">
-                      <div>
-                        <div>{item.title}</div>
-                        <div className="text-xs text-gray-500">{item.id}</div>
-                      </div>
-                    </td>
-                    <td className="py-4 capitalize">{t(item.status)}</td>
-                    <td className="py-4 text-right">{item.quantity}</td>
-                    <td className="py-4 text-right">
-                      <MonetoryDisplay amount={baseAmount} />
-                    </td>
-                    <td className="py-4 text-right">
-                      <MonetoryDisplay amount={item.total_price} />
-                    </td>
-                  </tr>
+                  <React.Fragment key={item.id}>
+                    <tr className="border-b">
+                      <td className="py-4">
+                        <div>
+                          <div>{item.title}</div>
+                          <div className="text-xs text-gray-500">{item.id}</div>
+                        </div>
+                      </td>
+                      <td className="py-4 text-right">{item.quantity}</td>
+                      <td className="py-4 text-right">
+                        <MonetoryDisplay amount={baseAmount} />
+                      </td>
+                      <td className="py-4 text-right">
+                        <MonetoryDisplay amount={item.total_price} />
+                      </td>
+                    </tr>
+                    <PriceComponentRow
+                      label={t("surcharges")}
+                      components={getComponentsByType(
+                        MonetoryComponentType.surcharge,
+                      )}
+                      baseAmount={baseAmount}
+                      quantity={item.quantity}
+                    />
+                    <PriceComponentRow
+                      label={t("discounts")}
+                      components={getComponentsByType(
+                        MonetoryComponentType.discount,
+                      )}
+                      baseAmount={baseAmount}
+                      quantity={item.quantity}
+                    />
+                    <PriceComponentRow
+                      label={t("taxes")}
+                      components={getComponentsByType(
+                        MonetoryComponentType.tax,
+                      )}
+                      baseAmount={baseAmount}
+                      quantity={item.quantity}
+                    />
+                    <tr className="bg-muted/30 font-medium">
+                      <td className="py-2 pl-8">{t("total")}</td>
+                      <td></td>
+                      <td></td>
+                      <td className="py-2 text-right">
+                        <MonetoryDisplay amount={item.total_price} />
+                      </td>
+                    </tr>
+                  </React.Fragment>
                 );
               })}
             </tbody>

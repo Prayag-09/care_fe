@@ -136,9 +136,15 @@ export function PaymentReconciliationSheet({
       // Invalidate relevant queries
       if (invoice) {
         queryClient.invalidateQueries({ queryKey: ["invoice", invoice.id] });
+        queryClient.invalidateQueries({
+          queryKey: ["payments", invoice.id],
+        });
       }
       if (accountId) {
         queryClient.invalidateQueries({ queryKey: ["account", accountId] });
+        queryClient.invalidateQueries({
+          queryKey: ["payments", accountId],
+        });
       }
 
       // Close sheet and call success callback

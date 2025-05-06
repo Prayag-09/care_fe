@@ -58,6 +58,12 @@ import { CHARGE_ITEM_STATUS_STYLES } from "@/types/billing/chargeItem/chargeItem
 import chargeItemApi from "@/types/billing/chargeItem/chargeItemApi";
 import { InvoiceStatus } from "@/types/billing/invoice/invoice";
 import invoiceApi from "@/types/billing/invoice/invoiceApi";
+import {
+  PaymentReconciliationPaymentMethod,
+  PaymentReconciliationStatus,
+  PaymentReconciliationType,
+} from "@/types/billing/paymentReconciliation/paymentReconciliation";
+import paymentReconciliationApi from "@/types/billing/paymentReconciliation/paymentReconciliationApi";
 
 const statusMap: Record<InvoiceStatus, { label: string; color: string }> = {
   draft: { label: "Draft", color: "secondary" },
@@ -65,6 +71,26 @@ const statusMap: Record<InvoiceStatus, { label: string; color: string }> = {
   balanced: { label: "Balanced", color: "success" },
   cancelled: { label: "Cancelled", color: "destructive" },
   entered_in_error: { label: "Error", color: "destructive" },
+};
+
+const paymentStatusMap: Record<
+  PaymentReconciliationStatus,
+  { label: string; color: string }
+> = {
+  active: { label: "active", color: "primary" },
+  cancelled: { label: "cancelled", color: "destructive" },
+  draft: { label: "draft", color: "secondary" },
+  entered_in_error: { label: "entered_in_error", color: "destructive" },
+};
+
+const paymentMethodMap: Record<PaymentReconciliationPaymentMethod, string> = {
+  cash: "Cash",
+  ccca: "Credit Card",
+  cchk: "Credit Check",
+  cdac: "Credit Account",
+  chck: "Check",
+  ddpo: "Direct Deposit",
+  debc: "Debit Card",
 };
 
 interface PriceComponentRowProps {
@@ -142,6 +168,18 @@ export function InvoiceShow({
     queryKey: ["invoice", invoiceId],
     queryFn: query(invoiceApi.retrieveInvoice, {
       pathParams: { facilityId, invoiceId },
+    }),
+  });
+
+  const { data: payments, isLoading: isPaymentsLoading } = useQuery({
+    queryKey: ["payments", invoiceId],
+    queryFn: query(paymentReconciliationApi.listPaymentReconciliation, {
+      pathParams: { facilityId },
+      queryParams: {
+        target_invoice: invoiceId,
+        limit: 100,
+        reconciliation_type: PaymentReconciliationType.payment,
+      },
     }),
   });
 
@@ -597,10 +635,56 @@ export function InvoiceShow({
               <CardTitle>{t("payment_history")}</CardTitle>
             </CardHeader>
             <CardContent>
-              {/* Payment history will be implemented when the API is available */}
-              <div className="text-center text-sm text-gray-500">
-                {t("no_payments_recorded")}
-              </div>
+              <Table>
+                <TableHeader>
+                  <TableRow>
+                    <TableHead>{t("method")}</TableHead>
+                    <TableHead>{t("date")}</TableHead>
+                    <TableHead>{t("amount")}</TableHead>
+                    <TableHead>{t("status")}</TableHead>
+                  </TableRow>
+                </TableHeader>
+                <TableBody>
+                  {!payments?.results?.length || isPaymentsLoading ? (
+                    <TableRow>
+                      <TableCell
+                        colSpan={5}
+                        className="text-center text-sm text-gray-500"
+                      >
+                        {t("no_payments_recorded")}
+                      </TableCell>
+                    </TableRow>
+                  ) : (
+                    payments.results.map((payment) => (
+                      <TableRow key={payment.id}>
+                        <TableCell>
+                          {paymentMethodMap[payment.method]}
+                        </TableCell>
+                        <TableCell>
+                          {payment.payment_datetime
+                            ? format(
+                                new Date(payment.payment_datetime),
+                                "MMM d, yyyy hh:mm a",
+                              )
+                            : "-"}
+                        </TableCell>
+                        <TableCell>
+                          <MonetoryDisplay amount={payment.amount || 0} />
+                        </TableCell>
+                        <TableCell>
+                          <Badge
+                            variant={
+                              paymentStatusMap[payment.status].color as any
+                            }
+                          >
+                            {t(paymentStatusMap[payment.status].label)}
+                          </Badge>
+                        </TableCell>
+                      </TableRow>
+                    ))
+                  )}
+                </TableBody>
+              </Table>
             </CardContent>
           </Card>
 
