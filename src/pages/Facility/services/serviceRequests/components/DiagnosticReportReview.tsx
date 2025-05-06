@@ -7,7 +7,7 @@ import {
   FileCheck2,
 } from "lucide-react";
 import { navigate } from "raviger";
-import { useState } from "react";
+import { useEffect, useState } from "react";
 import { useTranslation } from "react-i18next";
 import { toast } from "sonner";
 
@@ -79,6 +79,12 @@ export function DiagnosticReportReview({
     enabled: !!latestReport?.id,
   });
 
+  useEffect(() => {
+    if (fullReport?.conclusion) {
+      setConclusion(fullReport.conclusion);
+    }
+  }, [fullReport]);
+
   const { data: files = { results: [], count: 0 }, refetch: refetchFiles } =
     useQuery<PaginatedResponse<FileUploadModel>>({
       queryKey: ["files", "diagnostic_report", fullReport?.id],
@@ -145,10 +151,6 @@ export function DiagnosticReportReview({
         </CardContent>
       </Card>
     );
-  }
-
-  if (fullReport?.observations.length === 0) {
-    return null;
   }
 
   return (
@@ -240,6 +242,11 @@ export function DiagnosticReportReview({
               <div className="space-y-6">
                 <Card className="shadow-none rounded-lg border-gray-200 bg-gray-50">
                   <CardContent className="p-4">
+                    {fullReport.observations.length == 0 && (
+                      <p className="text-gray-800 whitespace-pre-wrap p-2 rounded-lg bg-white border cursor-default text-center">
+                        {t("no") + " " + t("observations") + " " + t("entered")}
+                      </p>
+                    )}
                     <DiagnosticReportResultsTable
                       observations={fullReport.observations}
                     />
