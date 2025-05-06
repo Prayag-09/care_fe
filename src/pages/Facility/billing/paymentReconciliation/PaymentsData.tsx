@@ -100,7 +100,7 @@ export default function PaymentsData({
 
   const { data: response, isLoading } = useQuery({
     queryKey: ["payments", qParams, accountId],
-    queryFn: query(paymentReconciliationApi.listInvoice, {
+    queryFn: query(paymentReconciliationApi.listPaymentReconciliation, {
       pathParams: { facilityId },
       queryParams: {
         account: accountId,
