@@ -4,6 +4,7 @@ import { useForm } from "react-hook-form";
 import { useTranslation } from "react-i18next";
 import { z } from "zod";
 
+import Autocomplete from "@/components/ui/autocomplete";
 import { Button } from "@/components/ui/button";
 import {
   Form,
@@ -40,7 +41,17 @@ const formSchema = z
   .refine((data) => data.factor != null || data.amount != null, {
     message: "Either factor or amount must be provided",
     path: ["factor", "amount"],
-  });
+  })
+  .refine(
+    (data) => {
+      // If there's a code, it must have a display value
+      return data.code == null || data.code.display.length > 0;
+    },
+    {
+      message: "Display text is required for custom codes",
+      path: ["code"],
+    },
+  );
 
 interface DiscountMonetoryComponentFormProps {
   defaultValues?: MonetoryComponentRead;
@@ -52,6 +63,8 @@ interface DiscountMonetoryComponentFormProps {
 export function DiscountMonetoryComponentForm({
   defaultValues,
   onSubmit,
+  systemCodes,
+  facilityCodes,
 }: DiscountMonetoryComponentFormProps) {
   const { t } = useTranslation();
   const [valueType, setValueType] = useState<"factor" | "amount">(
@@ -77,6 +90,16 @@ export function DiscountMonetoryComponentForm({
       form.setValue("factor", null);
     }
   };
+
+  const isExistingCode = (code: Code) => {
+    return (
+      (systemCodes.find((c) => c.code === code.code) ??
+        facilityCodes.find((c) => c.code === code.code)) != null
+    );
+  };
+
+  const currentCode = form.watch("code");
+  const isCustomCode = currentCode != null && !isExistingCode(currentCode);
 
   return (
     <Form {...form}>
@@ -178,8 +201,76 @@ export function DiscountMonetoryComponentForm({
           <FormMessage />
         </FormItem>
 
+        <div className="space-y-2">
+          <FormField
+            control={form.control}
+            name="code"
+            render={({ field }) => (
+              <FormItem>
+                <FormLabel>{t("billing.component_code")}</FormLabel>
+                <FormControl>
+                  <Autocomplete
+                    options={[...systemCodes, ...facilityCodes].map((code) => ({
+                      label: code.display,
+                      value: code.code,
+                    }))}
+                    value={field.value?.code ?? ""}
+                    onChange={(value) => {
+                      if (value === "") {
+                        form.setValue("code", null);
+                        return;
+                      }
+
+                      // Check if the code is already in the system or facility codes
+                      const existingCode =
+                        systemCodes.find((code) => code.code === value) ??
+                        facilityCodes.find((code) => code.code === value);
+
+                      if (existingCode) {
+                        form.setValue("code", existingCode);
+                        return;
+                      }
+
+                      // If the code is not in the system or facility codes, it's a custom code
+                      form.setValue("code", {
+                        code: value,
+                        display: "",
+                        system: "http://ohc.network/codes/monetory/discount",
+                      });
+                    }}
+                    noOptionsMessage={`Create a new code for '${form.getValues("code.code")}'`}
+                    freeInput
+                    className="w-full"
+                  />
+                </FormControl>
+                <FormMessage />
+              </FormItem>
+            )}
+          />
+
+          {isCustomCode && (
+            <FormField
+              control={form.control}
+              name="code.display"
+              render={({ field }) => (
+                <FormItem>
+                  <FormControl>
+                    <Input
+                      {...field}
+                      placeholder="Display label for the code"
+                    />
+                  </FormControl>
+                  <FormMessage />
+                </FormItem>
+              )}
+            />
+          )}
+        </div>
+
         <div className="pt-2">
-          <Button type="submit">{t("save")}</Button>
+          <Button type="submit" className="w-full">
+            {isCustomCode ? t("save_and_create_discount_code") : t("save")}
+          </Button>
         </div>
       </form>
     </Form>

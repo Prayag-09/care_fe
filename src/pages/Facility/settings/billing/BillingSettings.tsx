@@ -59,27 +59,35 @@ export function BillingSettings({ facilityId }: { facilityId: string }) {
     return <Loading />;
   }
 
-  const handleSaveNewComponent = (data: MonetoryComponentRead) => {
-    updateMonetoryComponents({
-      discount_monetory_components: [
-        ...facility.discount_monetory_components,
-        data,
-      ],
-      discount_codes: facility.discount_codes,
-    });
-  };
-
-  const handleUpdateComponent = (
+  const handleSaveComponent = (
     data: MonetoryComponentRead,
-    index: number,
+    replaceIndex?: number,
   ) => {
-    const updatedComponents = facility.discount_monetory_components.map(
-      (existing, i) => (i === index ? data : existing),
-    );
+    const discountComponents = [...facility.discount_monetory_components];
+    const discountCodes = [...facility.discount_codes];
+    const allCodes = [
+      ...facility.instance_discount_codes,
+      ...facility.discount_codes,
+    ];
+
+    // Replace existing component if index is provided (edit workflow)
+    if (replaceIndex != null) {
+      discountComponents[replaceIndex] = data;
+    } else {
+      discountComponents.push(data);
+    }
+
+    const discountCode = data.code;
+    if (
+      discountCode &&
+      !allCodes.find((code) => code.code === discountCode.code)
+    ) {
+      discountCodes.push(discountCode);
+    }
 
     updateMonetoryComponents({
-      discount_monetory_components: updatedComponents,
-      discount_codes: facility.discount_codes,
+      discount_monetory_components: discountComponents,
+      discount_codes: discountCodes,
     });
   };
 
@@ -108,7 +116,7 @@ export function BillingSettings({ facilityId }: { facilityId: string }) {
           <CardHeader className="flex flex-row items-center justify-between">
             <CardTitle>{t("billing.discount_components")}</CardTitle>
             <CreateDiscountMonetaryComponentPopover
-              onSubmit={handleSaveNewComponent}
+              onSubmit={handleSaveComponent}
               systemCodes={facility.instance_discount_codes}
               facilityCodes={facility.discount_codes}
             />
@@ -117,7 +125,7 @@ export function BillingSettings({ facilityId }: { facilityId: string }) {
             <DiscountComponentGrid
               components={facility.discount_monetory_components || []}
               canEdit={true}
-              onEdit={handleUpdateComponent}
+              onEdit={handleSaveComponent}
               onDelete={setComponentToDelete}
               facility={facility}
             />
