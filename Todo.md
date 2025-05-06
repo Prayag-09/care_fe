@@ -33,16 +33,16 @@ x : Done
 
 ## Labs
 
-- [x] Build service request list page based on design
+- [x] Build service request list page based on design - Manyu
 - [-] Rewamp design of service request show page based on design - Yaswanth
 - [-] Add support for search by specimen ID in the UI based on design - Manyu
-- [x] Add filters for statues in service request page as of the UI
+- [x] Add filters for statues in service request page as of the UI - Manyu
 - [-] Add support for multiple diagnostic report for a service request - [hold till @bodhi confirms]
 - [-] Service Request - Show specimen.collection.collector details instead of UUID (After BE change) - Vignesh
 - [-] Service Request - Show specimen.processing.performer details instead of UUID (After BE change) - Vignesh
 - [x] Add support for xray and file uploads service request - Amjith
 
-- [-] In service request create from AD lets remove status, intent, category, do not perform and locations. (These should be shown along with the name for information purpose) - Manyu
+- [-] In service request create from AD lets remove status, intent, category, do not perform and locations. (These should be shown along with the name for information purpose) - Manyu 
 - [x] If no specimen def is avilable then lets not empty state - Amjith
 - [-] Lets move uploaded files list to above the Choose file Card - Yash
 - [ ] Implement barcode in service request after creating the Specimen
