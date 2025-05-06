@@ -11,7 +11,7 @@ Do keep this updated if you have completed something, also mark your name to the
 - [ ] Build a flow for account balanceing and closing
 - [ ] Make it easy for users to mark an invoice as issued from draft state
 - [ ] Replace Charge Item Create with ChargeItemDef to ChargeItem API
-- [ ] Account balance
+- [x] Account balance
 - [ ] Invoice list
 - [ ] Invoice View
 - [ ] Invoice Print
@@ -19,11 +19,11 @@ Do keep this updated if you have completed something, also mark your name to the
 - [ ] Invoice - Add charge items when draft
 - [ ] Invoice - Payment history filter by invoice
 - [ ] Account - Payments tab - filter by Account
-- [ ] Invoice View & Print - Show tax split up & Discounts
+- [ ] Invoice View & Print - Show tax split up & Discounts (code with group in brackets)
 - [ ] Invoice - Cancel button (API) & Mark as entered-in-error
-- [ ] View for Cancelled invoices list (Tab - by invoice Status) - Jeevan
-- [ ] Charge items list (Tab - by Charge item Status) - Jeevan
-- [ ] Payments list (Tab - by Charge item Status) - Jeevan
+- [x] View for Cancelled invoices list (Tab - by invoice Status) - Jeevan
+- [x] Charge items list (Tab - by Charge item Status) - Jeevan
+- [x] Payments list (Tab - by Charge item Status) - Jeevan
 - [ ] Show page for cancelled invoice (render charge items from cache)
 - [ ] Create invoice inside Account charge item list
 

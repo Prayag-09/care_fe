@@ -19,6 +19,7 @@ import {
   DropdownMenuSeparator,
   DropdownMenuTrigger,
 } from "@/components/ui/dropdown-menu";
+import { MonetaryValue } from "@/components/ui/monetary-value";
 import {
   Table,
   TableBody,
@@ -110,14 +111,22 @@ function PriceComponentRow({
             className="text-xs text-muted-foreground"
           >
             <TableCell></TableCell>
-            <TableCell>{label}</TableCell>
             <TableCell>
-              {component.amount !== undefined && component.amount !== null
-                ? formatCurrency(component.amount)
-                : formatPercentage(component.factor)}
+              {component.code && `${component.code.display} `}({label})
+            </TableCell>
+            <TableCell>
+              {component.amount !== undefined && component.amount !== null ? (
+                <MonetaryValue value={component.amount} />
+              ) : (
+                formatPercentage(component.factor)
+              )}
             </TableCell>
             <TableCell></TableCell>
-            <TableCell>{formatCurrency(value)}</TableCell>
+            <TableCell>
+              {component.monetory_component_type ===
+                MonetoryComponentType.discount && `-`}
+              <MonetaryValue value={value} />
+            </TableCell>
             <TableCell></TableCell>
           </TableRow>
         );

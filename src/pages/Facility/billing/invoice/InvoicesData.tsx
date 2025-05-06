@@ -91,7 +91,7 @@ export default function InvoicesData({
         />
         <Tabs
           defaultValue={InvoiceStatus.draft}
-          onValueChange={(value) => updateQuery({ invoice_status: value })}
+          onValueChange={(value) => updateQuery({ status: value })}
           className="mx-4 mb-4"
         >
           <TabsList>
