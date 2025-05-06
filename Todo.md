@@ -14,19 +14,19 @@ x : Done
 - [ ] Make it easy for users to mark an invoice as issued from draft state
 - [ ] Replace Charge Item Create with ChargeItemDef to ChargeItem API
 - [x] Account balance
-- [ ] Invoice list
-- [ ] Invoice View
-- [ ] Invoice Print
+- [x] Invoice list cleanup - Amjith
+- [ ] Invoice View cleanup
+- [ ] Invoice Print Screen
 - [ ] Invoice update statuses- Call different APIs
-- [ ] Invoice - Add charge items when draft
+- [-] Invoice - Add charge items when draft - Jeevan
 - [ ] Invoice - Payment history filter by invoice
-- [-] Account - Payments tab - filter by Account - Vignesh
-- [ ] Invoice View & Print - Show tax split up & Discounts (code with group in brackets)
+- [x] Account - Payments tab - filter by Account - BE
+- [-] Invoice View & Print - Show tax split up & Discounts (code with group in brackets) - Amjith
 - [ ] Invoice - Cancel button (API) & Mark as entered-in-error
 - [x] View for Cancelled invoices list (Tab - by invoice Status) - Jeevan
 - [x] Charge items list (Tab - by Charge item Status) - Jeevan
 - [x] Payments list (Tab - by Charge item Status) - Jeevan
-- [ ] Show page for cancelled invoice (render charge items from cache)
+- [-] Show page for cancelled invoice (render charge items from cache) - Jeevan
 - [x] Create invoice inside Account charge item list - Jeevan
 - [-] Charge Item Definition Update - Rithvik
 

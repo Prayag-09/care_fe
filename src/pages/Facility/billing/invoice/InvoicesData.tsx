@@ -130,10 +130,7 @@ export default function InvoicesData({
                 invoices.map((invoice) => (
                   <TableRow key={invoice.id}>
                     <TableCell className="font-medium">
-                      <div> {invoice.title}</div>
-                      <div className="text-xs text-muted-foreground mt-px">
-                        {invoice.id}
-                      </div>
+                      <div>{invoice.title}</div>
                     </TableCell>
 
                     <TableCell>
