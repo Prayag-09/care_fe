@@ -129,6 +129,7 @@ export function BarcodeScanDialog({
                         formats={[
                           BarcodeFormat.CODE_128,
                           BarcodeFormat.CODE_39,
+                          BarcodeFormat.PDF_417,
                         ]}
                       />
                     </div>
