@@ -41,10 +41,7 @@ import FileUploadDialog from "@/components/Files/FileUploadDialog";
 
 import useFileUpload from "@/hooks/useFileUpload";
 
-import {
-  BACKEND_ALLOWED_EXTENSIONS,
-  FILE_EXTENSIONS,
-} from "@/common/constants";
+import { FILE_EXTENSIONS } from "@/common/constants";
 
 import routes from "@/Utils/request/api";
 import mutate from "@/Utils/request/mutate";
@@ -200,7 +197,7 @@ export function DiagnosticReportForm({
   const fileUpload = useFileUpload({
     type: "diagnostic_report" as any,
     multiple: true,
-    allowedExtensions: BACKEND_ALLOWED_EXTENSIONS,
+    allowedExtensions: ["pdf", "doc", "docx"],
     allowNameFallback: false,
     onUpload: () => {
       queryClient.invalidateQueries({
@@ -888,7 +885,7 @@ export function DiagnosticReportForm({
                               <div className="flex flex-col items-center justify-between gap-1">
                                 <CloudUpload className="size-10 border border-gray-100 rounded-md p-2 bg-white" />
                                 <Label className="text-base font-medium">
-                                  {t("choose_file_or_drag")}
+                                  {t("choose_file")}
                                 </Label>
                                 <div className="text-sm text-gray-500">
                                   {FILE_EXTENSIONS.DOCUMENT.map((ext) =>
@@ -910,7 +907,7 @@ export function DiagnosticReportForm({
                                       ? fileUpload.files
                                           .map((file) => file.name)
                                           .join(", ")
-                                      : t("upload_files")}
+                                      : t("select") + " " + t("files")}
                                   </span>
                                   {fileUpload.Input({ className: "hidden" })}
                                 </Label>
