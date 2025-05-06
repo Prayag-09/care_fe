@@ -13,6 +13,7 @@ import { Skeleton } from "@/components/ui/skeleton";
 import mutate from "@/Utils/request/mutate";
 import query from "@/Utils/request/query";
 import activityDefinitionApi from "@/types/emr/activityDefinition/activityDefinitionApi";
+import { DiagnosticReportStatus } from "@/types/emr/diagnosticReport/diagnosticReport";
 import serviceRequestApi from "@/types/emr/serviceRequest/serviceRequestApi";
 import { SpecimenFromDefinitionCreate } from "@/types/emr/specimen/specimen";
 import specimenApi from "@/types/emr/specimen/specimenApi";
@@ -221,13 +222,17 @@ export default function ServiceRequestShow({
           {observationRequirements.length > 0 && (
             <div className="space-y-4">
               <h2 className="text-xl font-semibold">Test Results</h2>
-              <DiagnosticReportForm
-                facilityId={facilityId}
-                serviceRequestId={serviceRequestId}
-                observationDefinitions={observationRequirements}
-                diagnosticReports={diagnosticReports}
-                activityDefinition={activityDefinition}
-              />
+              {(!diagnosticReports.length ||
+                diagnosticReports[0]?.status !==
+                  DiagnosticReportStatus.final) && (
+                <DiagnosticReportForm
+                  facilityId={facilityId}
+                  serviceRequestId={serviceRequestId}
+                  observationDefinitions={observationRequirements}
+                  diagnosticReports={diagnosticReports}
+                  activityDefinition={activityDefinition}
+                />
+              )}
             </div>
           )}
 
