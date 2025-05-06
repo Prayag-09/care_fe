@@ -107,8 +107,9 @@ export default function PaymentsData({
         limit: resultsPerPage,
         offset: ((qParams.page ?? 1) - 1) * resultsPerPage,
         search: qParams.search,
-        status: qParams.status,
-        reconciliation_type: qParams.reconciliation_type,
+        status: qParams.status ?? PaymentReconciliationStatus.active,
+        reconciliation_type:
+          qParams.reconciliation_type ?? PaymentReconciliationType.payment,
       },
     }),
   });
