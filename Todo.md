@@ -2,6 +2,7 @@
 
 Do keep this updated if you have completed something, also mark your name to the issue if you have working on something.
 x : Done
+
 - : In Progress/Assigned/Blocked
 
 ## Billing
@@ -30,7 +31,6 @@ x : Done
 - [x] Create invoice inside Account charge item list - Jeevan
 - [-] Charge Item Definition Update - Rithvik
 
-
 ## Labs
 
 - [x] Build service request list page based on design - Manyu
@@ -44,12 +44,12 @@ x : Done
 
 - [-] In service request create from AD lets remove status, intent, category, do not perform and locations. (These should be shown along with the name for information purpose) - Manyu 
 - [x] If no specimen def is avilable then lets not empty state - Amjith
-- [-] Lets move uploaded files list to above the Choose file Card - Yash
+- [x] Lets move uploaded files list to above the Choose file Card - Yash
 - [ ] Implement barcode in service request after creating the Specimen
 - [-] Print all Barcodes button for a service request with page setup - [hold till @bodhi confirms]
-- [-] When you have uploaded the file the result section should always be present. - Yash
-- [-] Link to diganostic report page should be added to the service request - Yash
-- [-] We should have an option to capture conclusion in diagnostic report- Yash
+- [x] When you have uploaded the file the result section should always be present. - Yash
+- [x] Link to diganostic report page should be added to the service request - Yash
+- [x] We should have an option to capture conclusion in diagnostic report- Yash
 - [ ] workflow statuses on the right side as per design should be created.
 - [ ] Service request should show linked cahrge items along with its status [check for backend support]
 
