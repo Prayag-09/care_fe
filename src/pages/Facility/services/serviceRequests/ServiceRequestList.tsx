@@ -30,7 +30,7 @@ import {
   CardGridSkeleton,
   TableSkeleton,
 } from "@/components/Common/SkeletonLoading";
-import BarcodeScanDialog from "@/components/barcode/BarcodeScanDialog";
+import SpecimenIDScanDialog from "@/components/Scan/SpecimenIDScanDialog";
 
 import useFilters from "@/hooks/useFilters";
 
@@ -354,10 +354,10 @@ export default function ServiceRequestList({
           onClick={() => setBarcodeOpen(true)}
         >
           <ScanBarcode className="size-4" />
-          {t("scan_barcode")}
+          {t("scan_qr")}
         </Button>
       </div>
-      <BarcodeScanDialog
+      <SpecimenIDScanDialog
         open={isBarcodeOpen}
         onOpenChange={setBarcodeOpen}
         facilityId={facilityId}
