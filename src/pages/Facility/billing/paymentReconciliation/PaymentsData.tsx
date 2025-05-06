@@ -9,6 +9,7 @@ import CareIcon from "@/CAREUI/icons/CareIcon";
 import { Badge } from "@/components/ui/badge";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
+import { MonetoryDisplay } from "@/components/ui/monetory-display";
 import {
   Table,
   TableBody,
@@ -32,14 +33,6 @@ import {
   PaymentReconciliationType,
 } from "@/types/billing/paymentReconciliation/paymentReconciliation";
 import paymentReconciliationApi from "@/types/billing/paymentReconciliation/paymentReconciliationApi";
-
-function formatCurrency(amount: number | null, currency: string = "INR") {
-  if (amount === null) return "-";
-  return new Intl.NumberFormat("en-IN", {
-    style: "currency",
-    currency,
-  }).format(amount);
-}
 
 const statusMap: Record<
   PaymentReconciliationStatus,
@@ -204,7 +197,7 @@ export default function PaymentsData({
                         : "-"}
                     </TableCell>
                     <TableCell>
-                      {formatCurrency(payment.amount ?? null)}
+                      <MonetoryDisplay amount={payment.amount} />
                     </TableCell>
                     <TableCell>
                       <Badge variant={statusMap[payment.status].variant}>
@@ -234,7 +227,7 @@ export default function PaymentsData({
           </Table>
         </div>
       )}
-      {<Pagination totalCount={payments.length} />}
+      <Pagination totalCount={payments.length} />
     </>
   );
 }

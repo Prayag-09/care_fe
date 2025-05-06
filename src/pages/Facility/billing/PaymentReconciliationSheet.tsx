@@ -18,6 +18,7 @@ import {
   FormMessage,
 } from "@/components/ui/form";
 import { Input } from "@/components/ui/input";
+import { MonetoryDisplay } from "@/components/ui/monetory-display";
 import {
   Select,
   SelectContent,
@@ -48,14 +49,6 @@ import {
   PaymentReconciliationType,
 } from "@/types/billing/paymentReconciliation/paymentReconciliation";
 import paymentReconciliationApi from "@/types/billing/paymentReconciliation/paymentReconciliationApi";
-
-// Helper function to format currency
-function formatCurrency(amount: number, currency: string = "INR") {
-  return new Intl.NumberFormat("en-IN", {
-    style: "currency",
-    currency,
-  }).format(amount);
-}
 
 interface PaymentReconciliationSheetProps {
   open: boolean;
@@ -188,7 +181,7 @@ export function PaymentReconciliationSheet({
                   <div className="text-right">
                     <p className="text-sm text-gray-500">{t("total_amount")}</p>
                     <p className="text-lg font-semibold">
-                      {formatCurrency(invoice.total_gross)}
+                      <MonetoryDisplay amount={invoice.total_gross} />
                     </p>
                   </div>
                 )}
@@ -311,9 +304,10 @@ export function PaymentReconciliationSheet({
                         <span className="text-sm font-medium">
                           {t("change_to_return")}
                         </span>
-                        <span className="font-semibold">
-                          {formatCurrency(returnedAmount)}
-                        </span>
+                        <MonetoryDisplay
+                          className="font-semibold"
+                          amount={returnedAmount}
+                        />
                       </div>
                     </div>
                   )}

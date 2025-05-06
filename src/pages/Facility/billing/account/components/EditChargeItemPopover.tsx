@@ -18,6 +18,7 @@ import {
   FormMessage,
 } from "@/components/ui/form";
 import { Input } from "@/components/ui/input";
+import { MonetoryDisplay } from "@/components/ui/monetory-display";
 import { ScrollArea } from "@/components/ui/scroll-area";
 import {
   Select,
@@ -64,28 +65,6 @@ interface EditChargeItemSheetProps {
   facilityId: string;
   item: ChargeItemRead;
   trigger?: React.ReactNode;
-}
-
-function formatCurrency(
-  amount: number | undefined | null,
-  currency: string = "INR",
-) {
-  if (amount === undefined || amount === null) return "-";
-  return new Intl.NumberFormat("en-IN", {
-    style: "currency",
-    currency,
-    minimumFractionDigits: 2,
-    maximumFractionDigits: 2,
-  }).format(amount);
-}
-
-function formatPercentage(factor: number | undefined | null) {
-  if (factor === undefined || factor === null) return "-";
-  return new Intl.NumberFormat("en-IN", {
-    style: "percent",
-    minimumFractionDigits: 0,
-    maximumFractionDigits: 2,
-  }).format(factor);
 }
 
 export function EditChargeItemPopover({
@@ -163,7 +142,7 @@ export function EditChargeItemPopover({
         pathParams: { facilityId, chargeItemId: item.id },
       })(updateData);
     },
-    onSuccess: (_) => {
+    onSuccess: () => {
       toast.success(t("charge_item_updated"));
       queryClient.invalidateQueries({ queryKey: ["chargeItems"] });
       setIsOpen(false);
@@ -293,9 +272,8 @@ export function EditChargeItemPopover({
                               <span className="font-medium">
                                 {t("base_price")}
                               </span>
-                              <span>
-                                {formatCurrency(baseComponent.amount)}
-                              </span>
+
+                              <MonetoryDisplay amount={baseComponent.amount} />
                             </div>
                           )}
 
@@ -308,11 +286,7 @@ export function EditChargeItemPopover({
                                 {t("discount")}
                               </span>
                               <span>
-                                -
-                                {discount.amount !== undefined &&
-                                discount.amount !== null
-                                  ? formatCurrency(discount.amount)
-                                  : formatPercentage(discount.factor)}
+                                - <MonetoryDisplay {...discount} />
                               </span>
                             </div>
                           ))}
@@ -324,10 +298,7 @@ export function EditChargeItemPopover({
                             >
                               <span className="text-blue-600">{t("tax")}</span>
                               <span>
-                                +
-                                {tax.amount !== undefined && tax.amount !== null
-                                  ? formatCurrency(tax.amount)
-                                  : formatPercentage(tax.factor)}
+                                + <MonetoryDisplay {...tax} />
                               </span>
                             </div>
                           ))}
@@ -336,7 +307,7 @@ export function EditChargeItemPopover({
 
                           <div className="flex justify-between font-semibold">
                             <span>{t("unit_total")}</span>
-                            <span>{formatCurrency(calculateUnitTotal())}</span>
+                            <MonetoryDisplay amount={calculateUnitTotal()} />
                           </div>
                         </div>
                       </div>
@@ -357,7 +328,7 @@ export function EditChargeItemPopover({
 
                             <div className="flex justify-between font-semibold">
                               <span>{t("total_price")}</span>
-                              <span>{formatCurrency(currentTotal)}</span>
+                              <MonetoryDisplay amount={currentTotal} />
                             </div>
                           </div>
                         </div>
@@ -392,7 +363,7 @@ export function EditChargeItemPopover({
                     </Button>
                   </SheetClose>
                   <Button type="submit" disabled={isPending}>
-                    {isPending ? t("saving") : t("save_changes")}
+                    {isPending ? t("saving") : t("save")}
                   </Button>
                 </SheetFooter>
               </form>

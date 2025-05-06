@@ -47,19 +47,6 @@ import chargeItemApi from "@/types/billing/chargeItem/chargeItemApi";
 
 import EditChargeItemPopover from "./EditChargeItemPopover";
 
-export function formatCurrency(
-  amount: number | undefined | null,
-  currency: string = "INR",
-) {
-  if (amount === undefined || amount === null) return "-";
-  return new Intl.NumberFormat("en-IN", {
-    style: "currency",
-    currency,
-    minimumFractionDigits: 2,
-    maximumFractionDigits: 2,
-  }).format(amount);
-}
-
 function getStatusVariant(status: string) {
   switch (status) {
     case "billed":
@@ -253,10 +240,12 @@ export function ChargeItemsTable({
                           </p>
                         )}
                       </TableCell>
-                      <TableCell>{formatCurrency(baseAmount)}</TableCell>
+                      <TableCell>
+                        <MonetoryDisplay amount={baseAmount} />
+                      </TableCell>
                       <TableCell>{item.quantity}</TableCell>
                       <TableCell className="font-medium">
-                        {formatCurrency(item.total_price)}
+                        <MonetoryDisplay amount={item.total_price} />
                       </TableCell>
                       <TableCell>
                         <div className="flex items-center space-x-2">
@@ -354,7 +343,9 @@ export function ChargeItemsTable({
                       <TableCell>{t("total")}</TableCell>
                       <TableCell></TableCell>
                       <TableCell></TableCell>
-                      <TableCell>{formatCurrency(item.total_price)}</TableCell>
+                      <TableCell>
+                        <MonetoryDisplay amount={item.total_price} />
+                      </TableCell>
                       <TableCell></TableCell>
                       <TableCell></TableCell>
                     </TableRow>

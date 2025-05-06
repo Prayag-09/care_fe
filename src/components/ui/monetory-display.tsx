@@ -32,14 +32,4 @@ function MonetoryDisplay({
   );
 }
 
-/**
- * @deprecated Use `MonetoryDisplay` instead
- */
-function MonetaryValue({
-  value,
-  ...props
-}: React.ComponentProps<"data"> & { value: number }) {
-  return <MonetoryDisplay amount={value} {...props} />;
-}
-
-export { MonetaryValue, MonetoryDisplay };
+export { MonetoryDisplay };

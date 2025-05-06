@@ -9,6 +9,7 @@ import CareIcon from "@/CAREUI/icons/CareIcon";
 import { Badge } from "@/components/ui/badge";
 import { Button } from "@/components/ui/button";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
+import { MonetoryDisplay } from "@/components/ui/monetory-display";
 import { Separator } from "@/components/ui/separator";
 
 import { TableSkeleton } from "@/components/Common/SkeletonLoading";
@@ -55,14 +56,6 @@ const methodMap: Record<PaymentReconciliationPaymentMethod, string> = {
 function humanize(str: string): string {
   if (!str) return "";
   return str.replace(/_/g, " ").replace(/\b\w/g, (char) => char.toUpperCase());
-}
-
-function formatCurrency(amount: number | null, currency: string = "INR") {
-  if (amount === null) return "-";
-  return new Intl.NumberFormat("en-IN", {
-    style: "currency",
-    currency,
-  }).format(amount);
 }
 
 function InfoItem({ label, value }: { label: string; value: React.ReactNode }) {
@@ -163,9 +156,10 @@ export function PaymentReconciliationShow({
                 <div className="md:col-span-3">
                   <div className="flex justify-between items-center py-3 border-b">
                     <div className="text-gray-500">{t("amount")}</div>
-                    <div className="text-xl font-bold">
-                      {formatCurrency(payment.amount ?? null)}
-                    </div>
+                    <MonetoryDisplay
+                      className="text-xl font-bold"
+                      amount={payment.amount}
+                    />
                   </div>
                 </div>
 
@@ -247,13 +241,21 @@ export function PaymentReconciliationShow({
                         {payment.tendered_amount != null && (
                           <InfoItem
                             label={t("amount_tendered")}
-                            value={formatCurrency(payment.tendered_amount)}
+                            value={
+                              <MonetoryDisplay
+                                amount={payment.tendered_amount}
+                              />
+                            }
                           />
                         )}
                         {payment.returned_amount != null && (
                           <InfoItem
                             label={t("change_returned")}
-                            value={formatCurrency(payment.returned_amount)}
+                            value={
+                              <MonetoryDisplay
+                                amount={payment.returned_amount}
+                              />
+                            }
                           />
                         )}
                       </div>
@@ -305,9 +307,9 @@ export function PaymentReconciliationShow({
                       {t("invoice_amount")}
                     </div>
                     <div className="font-bold">
-                      {formatCurrency(
-                        payment.target_invoice.total_gross ?? null,
-                      )}
+                      <MonetoryDisplay
+                        amount={payment.target_invoice.total_gross}
+                      />
                     </div>
                   </div>
                 </div>
