@@ -16,7 +16,7 @@ import {
 } from "@/components/ui/alert-dialog";
 import { Button } from "@/components/ui/button";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
-import { MonetaryValue } from "@/components/ui/monetary-value";
+import { MonetaryValue } from "@/components/ui/monetory-display";
 
 import Loading from "@/components/Common/Loading";
 import Page from "@/components/Common/Page";

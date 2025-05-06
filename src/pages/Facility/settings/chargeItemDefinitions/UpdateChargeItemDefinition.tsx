@@ -93,8 +93,11 @@ export function UpdateChargeItemDefinition({
   };
 
   return (
-    <Page title={t("update_charge_item_definition")}>
-      <div className="container mx-auto">
+    <Page
+      title={t("update_charge_item_definition")}
+      className="mx-auto max-w-screen-lg"
+    >
+      <div className="container">
         <div className="mb-4">
           <p className="text-gray-600">
             {t("update_charge_item_definition_description")}

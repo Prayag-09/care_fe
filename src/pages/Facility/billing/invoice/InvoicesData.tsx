@@ -8,7 +8,7 @@ import CareIcon from "@/CAREUI/icons/CareIcon";
 import { Badge } from "@/components/ui/badge";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
-import { MonetaryValue } from "@/components/ui/monetary-value";
+import { MonetaryValue } from "@/components/ui/monetory-display";
 import {
   Table,
   TableBody,

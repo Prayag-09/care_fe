@@ -63,7 +63,7 @@ export const formatName = (
 };
 
 export const relativeTime = (time?: DateLike) => {
-  return `${dayjs(time).fromNow()}`;
+  return dayjs(time).fromNow();
 };
 
 export const dateQueryString = (date: DateLike) => {

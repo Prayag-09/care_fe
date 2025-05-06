@@ -30,7 +30,7 @@ import {
   DropdownMenuSeparator,
   DropdownMenuTrigger,
 } from "@/components/ui/dropdown-menu";
-import { MonetaryValue } from "@/components/ui/monetary-value";
+import { MonetaryValue } from "@/components/ui/monetory-display";
 import { Separator } from "@/components/ui/separator";
 import {
   Table,

@@ -6,7 +6,7 @@ import { formatPhoneNumberIntl } from "react-phone-number-input";
 
 import PrintPreview from "@/CAREUI/misc/PrintPreview";
 
-import { MonetaryValue } from "@/components/ui/monetary-value";
+import { MonetaryValue } from "@/components/ui/monetory-display";
 import { Separator } from "@/components/ui/separator";
 
 import Loading from "@/components/Common/Loading";

@@ -32,6 +32,8 @@ import {
 } from "@/components/ui/select";
 import { Textarea } from "@/components/ui/textarea";
 
+import Loading from "@/components/Common/Loading";
+
 import mutate from "@/Utils/request/mutate";
 import query from "@/Utils/request/query";
 import {
@@ -129,8 +131,7 @@ export function ChargeItemDefinitionForm({
     getInitialPriceComponents(),
   );
 
-  // Fetch facility data for discount and tax codes
-  const { data: facilityData, isLoading: isFacilityLoading } = useQuery({
+  const { data: facilityData } = useQuery({
     queryKey: ["facility", facilityId],
     queryFn: query(facilityApi.getFacility, {
       pathParams: { id: facilityId },
@@ -150,12 +151,10 @@ export function ChargeItemDefinitionForm({
     },
   });
 
-  // Watch form values
   const watchedValues = useWatch({
     control: form.control,
   });
 
-  // Update price components when form values change
   useEffect(() => {
     if (
       watchedValues.price_component &&
@@ -215,30 +214,15 @@ export function ChargeItemDefinitionForm({
 
   const handleSubmit = form.handleSubmit(onSubmit);
 
-  // Helper function to get available codes for a component type
-  const getAvailableCodesForType = (type: MonetoryComponentType): Code[] => {
-    if (!facilityData) return [];
+  if (!facilityData) {
+    return <Loading />;
+  }
 
-    switch (type) {
-      case MonetoryComponentType.discount:
-        return [
-          ...(facilityData.discount_codes || []),
-          ...(facilityData.instance_discount_codes || []),
-        ];
-      case MonetoryComponentType.tax:
-        return [...(facilityData.instance_tax_codes || [])];
-      default:
-        return [];
-    }
-  };
-
-  // Get all available discount codes
-  const discountCodes = getAvailableCodesForType(
-    MonetoryComponentType.discount,
-  );
-
-  // Get all available tax codes
-  const taxCodes = getAvailableCodesForType(MonetoryComponentType.tax);
+  const discountCodes = [
+    ...facilityData.discount_codes,
+    ...facilityData.instance_discount_codes,
+  ];
+  const taxCodes = facilityData.instance_tax_codes;
 
   // Update base price
   const updateBasePrice = (value: string) => {
@@ -423,16 +407,6 @@ export function ChargeItemDefinitionForm({
     }
   };
 
-  // Show loading state while fetching facility data
-  if (isFacilityLoading) {
-    return (
-      <div className="flex items-center justify-center py-12">
-        <CareIcon icon="l-spinner" className="animate-spin mr-2" />
-        <span>{t("loading_facility_data")}</span>
-      </div>
-    );
-  }
-
   return (
     <Form {...form}>
       {error && (
@@ -442,26 +416,6 @@ export function ChargeItemDefinitionForm({
       )}
 
       <form onSubmit={handleSubmit} className="space-y-6">
-        {/* Visual Guide - Pricing Steps */}
-        <div className="flex items-center justify-center mb-6 pt-2">
-          <div className="flex items-center space-x-1 sm:space-x-3">
-            <div className="flex flex-col items-center">
-              <div className="w-10 h-10 rounded-full bg-primary flex items-center justify-center text-white"></div>
-              <span className="text-xs mt-1 font-medium">Base Price</span>
-            </div>
-            <div className="h-px w-6 sm:w-12 bg-primary"></div>
-            <div className="flex flex-col items-center">
-              <div className="w-10 h-10 rounded-full bg-primary/20 flex items-center justify-center text-primary"></div>
-              <span className="text-xs mt-1">Discounts</span>
-            </div>
-            <div className="h-px w-6 sm:w-12 bg-primary/20"></div>
-            <div className="flex flex-col items-center">
-              <div className="w-10 h-10 rounded-full bg-primary/20 flex items-center justify-center text-primary"></div>
-              <span className="text-xs mt-1">Taxes</span>
-            </div>
-          </div>
-        </div>
-
         {/* Basic Information Section */}
         <Card>
           <CardHeader>

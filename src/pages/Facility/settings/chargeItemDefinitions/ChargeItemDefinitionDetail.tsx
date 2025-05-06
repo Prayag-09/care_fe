@@ -69,9 +69,7 @@ export function ChargeItemDefinitionDetail({
           {component.amount ? (
             <p className="font-medium">₹{component.amount.toFixed(2)}</p>
           ) : component.factor ? (
-            <p className="font-medium">
-              {(component.factor * 100).toFixed(0)}%
-            </p>
+            <p className="font-medium">{component.factor.toFixed(0)}%</p>
           ) : (
             <p className="text-sm text-gray-500">{t("not_specified")}</p>
           )}
