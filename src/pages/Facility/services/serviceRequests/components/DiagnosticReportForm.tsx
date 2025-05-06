@@ -864,6 +864,22 @@ export function DiagnosticReportForm({
 
                   {isImagingReport && (
                     <>
+                      {files?.results && files.results.length > 0 && (
+                        <div className="mt-6">
+                          <div className="text-lg font-medium">
+                            {t("uploaded_files")}
+                          </div>
+                          <FileListTable
+                            files={files.results}
+                            type="diagnostic_report"
+                            associatingId={fullReport.id}
+                            canEdit={true}
+                            showHeader={false}
+                            onRefetch={refetchFiles}
+                          />
+                        </div>
+                      )}
+
                       {fullReport?.status ===
                         DiagnosticReportStatus.preliminary && (
                         <Card className="mt-4 bg-gray-50 border-gray-200 shadow-none">
@@ -913,21 +929,6 @@ export function DiagnosticReportForm({
                             </div>
                           </CardContent>
                         </Card>
-                      )}
-                      {files?.results && files.results.length > 0 && (
-                        <div className="mt-6">
-                          <div className="text-lg font-medium">
-                            {t("uploaded_files")}
-                          </div>
-                          <FileListTable
-                            files={files.results}
-                            type="diagnostic_report"
-                            associatingId={fullReport.id}
-                            canEdit={true}
-                            showHeader={false}
-                            onRefetch={refetchFiles}
-                          />
-                        </div>
                       )}
                     </>
                   )}
