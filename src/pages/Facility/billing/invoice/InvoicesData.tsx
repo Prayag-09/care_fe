@@ -90,7 +90,7 @@ export default function InvoicesData({
           className="max-w-xs"
         />
         <Tabs
-          defaultValue={InvoiceStatus.draft}
+          defaultValue={qParams.status ?? InvoiceStatus.draft}
           onValueChange={(value) => updateQuery({ status: value })}
           className="mx-4 mb-4"
         >

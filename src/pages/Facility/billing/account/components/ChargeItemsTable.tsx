@@ -199,7 +199,7 @@ export function ChargeItemsTable({
         </div>
       </CardHeader>
       <Tabs
-        defaultValue={ChargeItemStatus.planned}
+        defaultValue={qParams.charge_item_status ?? ChargeItemStatus.planned}
         onValueChange={(value) => updateQuery({ charge_item_status: value })}
         className="mx-4 mb-4"
       >
