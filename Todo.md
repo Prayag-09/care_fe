@@ -20,7 +20,7 @@ x : Done
 - [x] Invoice Print Screen - Amjith
 - [ ] Invoice update statuses - Call different APIs
 - [-] Invoice - Add charge items when draft - Jeevan
-- [ ] Invoice - Payment history filter by invoice
+- [x] Invoice - Payment history filter by invoice - Amjith
 - [x] Account - Payments tab - filter by Account - BE
 - [x] Invoice View & Print - Show tax split up & Discounts (code with group in brackets) - Amjith
 - [ ] Invoice - Cancel button (API) & Mark as entered-in-error
