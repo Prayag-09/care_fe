@@ -4,6 +4,7 @@ export enum MonetoryComponentType {
   base = "base",
   discount = "discount",
   tax = "tax",
+  surcharge = "surcharge",
   informational = "informational",
 }
 
