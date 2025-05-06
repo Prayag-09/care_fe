@@ -1,6 +1,7 @@
 import { t } from "i18next";
 
-import { Badge } from "@/components/ui/badge";
+import { cn } from "@/lib/utils";
+
 import {
   Table,
   TableBody,
@@ -39,19 +40,19 @@ export function DiagnosticReportResultsTable({
     return components.map((component, index) => (
       <TableRow
         key={component.code?.code}
-        className={`
-          bg-gray-50/50 
-          border-0
-          ${index === components.length - 1 ? "border-b" : ""}
-        `}
+        className={cn(
+          "bg-gray-50/50 border-0 text-sm text-gray-950",
+          index === components.length - 1 && "border-b",
+          component.interpretation == "abnormal" && "font-semibold",
+        )}
       >
-        <TableCell className="pl-4 font-medium">
+        <TableCell className="pl-4 border-r border-b border-gray-300">
           <div className="flex items-center gap-1">
-            <div className="w-2 h-px bg-gray-300" />
+            <div className="w-2 h-px bg-gray-400" />
             {component.code?.display}
           </div>
         </TableCell>
-        <TableCell>
+        <TableCell className="border-r border-b border-gray-300">
           <div className="flex items-center gap-2">
             <span>{component.value.value}</span>
             {component.value.unit && (
@@ -61,18 +62,13 @@ export function DiagnosticReportResultsTable({
             )}
           </div>
         </TableCell>
-        <TableCell>{renderReferenceRange(component.reference_range)}</TableCell>
-        <TableCell>
-          <Badge
-            variant="outline"
-            className={
-              component.interpretation === "normal"
-                ? "bg-green-50 text-green-700 border-green-200"
-                : "bg-red-50 text-red-700 border-red-200"
-            }
-          >
+        <TableCell className="border-r border-b border-gray-300">
+          {renderReferenceRange(component.reference_range)}
+        </TableCell>
+        <TableCell className="border-b border-gray-300">
+          <span className="capitalize">
             {t(component.interpretation || "")}
-          </Badge>
+          </span>
         </TableCell>
       </TableRow>
     ));
@@ -86,9 +82,13 @@ export function DiagnosticReportResultsTable({
       <>
         <TableRow
           key={observation.id}
-          className={hasComponents ? "border-b-0" : ""}
+          className={cn(
+            "divide-x divide-gray-300 text-sm text-gray-950",
+            hasComponents && "border-b-0",
+            observation.interpretation == "abnormal" && "font-semibold",
+          )}
         >
-          <TableCell className="font-medium">
+          <TableCell>
             {observation.observation_definition?.title ||
               observation.observation_definition?.code?.display}
           </TableCell>
@@ -110,16 +110,9 @@ export function DiagnosticReportResultsTable({
           </TableCell>
           <TableCell>
             {!hasComponents && observation.interpretation && (
-              <Badge
-                variant="outline"
-                className={
-                  observation.interpretation === "normal"
-                    ? "bg-green-50 text-green-700 border-green-200"
-                    : "bg-red-50 text-red-700 border-red-200"
-                }
-              >
+              <span className="capitalize">
                 {t(observation.interpretation)}
-              </Badge>
+              </span>
             )}
           </TableCell>
         </TableRow>
@@ -136,15 +129,19 @@ export function DiagnosticReportResultsTable({
 
   return (
     <div className="rounded-md border">
-      <Table>
-        <TableHeader>
-          <TableRow>
-            <TableHead className="font-semibold">{t("test")}</TableHead>
-            <TableHead className="font-semibold">{t("result")}</TableHead>
-            <TableHead className="font-semibold">
+      <Table className="border-collapse bg-white shadow-sm">
+        <TableHeader className="bg-gray-100">
+          <TableRow className="divide-x-1 divide-gray-300">
+            <TableHead className="font-medium text-sm text-gray-700">
+              {t("test")}
+            </TableHead>
+            <TableHead className="font-medium text-sm text-gray-700">
+              {t("result")}
+            </TableHead>
+            <TableHead className="font-medium text-sm text-gray-700">
               {t("reference_range")}
             </TableHead>
-            <TableHead className="font-semibold">
+            <TableHead className="font-medium text-sm text-gray-700">
               {t("interpretation")}
             </TableHead>
           </TableRow>

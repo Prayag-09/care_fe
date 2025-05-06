@@ -131,7 +131,7 @@ export function DiagnosticReportReview({
   return (
     <Card
       className={cn(
-        "shadow-none border-gray-200 rounded-lg cursor-pointer bg-gray-50",
+        "shadow-none border-gray-300 rounded-lg cursor-pointer bg-white",
         isExpanded && "bg-gray-100",
       )}
     >
