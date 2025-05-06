@@ -72,7 +72,7 @@ export default function InvoicesData({
           limit: resultsPerPage,
           offset: ((qParams.page ?? 1) - 1) * resultsPerPage,
           search: qParams.search,
-          status: qParams.status,
+          status: qParams.status ?? InvoiceStatus.draft,
         },
       },
     ),
