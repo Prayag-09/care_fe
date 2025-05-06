@@ -3,8 +3,10 @@ import {
   CheckCircle2,
   ChevronsDownUp,
   ChevronsUpDown,
+  ExternalLink,
   FileCheck2,
 } from "lucide-react";
+import { navigate } from "raviger";
 import { useState } from "react";
 import { useTranslation } from "react-i18next";
 import { toast } from "sonner";
@@ -247,6 +249,23 @@ export function DiagnosticReportReview({
                     )}
                   </CardContent>
                 </Card>
+
+                {fullReport?.status === DiagnosticReportStatus.final && (
+                  <div className="flex justify-end">
+                    <Button
+                      variant="primary"
+                      className="gap-2"
+                      onClick={() =>
+                        navigate(
+                          `/facility/${facilityId}/diagnostic_reports/${fullReport?.id}`,
+                        )
+                      }
+                    >
+                      <ExternalLink className="h-4 w-4" />
+                      {t("view") + " " + t("report")}
+                    </Button>
+                  </div>
+                )}
 
                 {fullReport?.status === DiagnosticReportStatus.preliminary && (
                   <div className="flex justify-end">
