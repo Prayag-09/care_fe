@@ -27,7 +27,8 @@ function MonetoryDisplay({
       data-factor={factor}
       {...props}
     >
-      {amount ? numberFormatter.format(amount) : `${factor?.toFixed(2)}%`}
+      {amount != null && numberFormatter.format(amount)}
+      {factor != null && `${factor?.toFixed(2)}%`}
     </data>
   );
 }
