@@ -8,7 +8,7 @@ x : Done
 
 - [x] Wire the actual amounts in all payment pages once backend is done - Amjith
 - [ ] Make currency configurable
-- [ ] Add paymenthistory in invoices page
+- [-] Add paymenthistory in invoices page
 - [ ] Add payment as transactions tab in account page
 - [ ] Build a flow for account balanceing and closing
 - [ ] Make it easy for users to mark an invoice as issued from draft state
@@ -42,7 +42,7 @@ x : Done
 - [-] Service Request - Show specimen.processing.performer details instead of UUID (After BE change) - Vignesh
 - [x] Add support for xray and file uploads service request - Amjith
 
-- [ ] In service request create from AD lets remove status, intent, category, do not perform and locations. (These should be shown along with the name for information purpose)
+- [-] In service request create from AD lets remove status, intent, category, do not perform and locations. (These should be shown along with the name for information purpose) - Manyu
 - [x] If no specimen def is avilable then lets not empty state - Amjith
 - [-] Lets move uploaded files list to above the Choose file Card - Yash
 - [ ] Implement barcode in service request after creating the Specimen
