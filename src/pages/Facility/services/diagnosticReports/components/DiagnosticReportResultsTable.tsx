@@ -129,7 +129,7 @@ export function DiagnosticReportResultsTable({
 
   return (
     <div className="rounded-md border">
-      <Table className="border-collapse bg-white shadow-sm">
+      <Table className="border-collapse bg-white shadow-sm cursor-default">
         <TableHeader className="bg-gray-100">
           <TableRow className="divide-x-1 divide-gray-300">
             <TableHead className="font-medium text-sm text-gray-700">
