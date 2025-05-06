@@ -20,14 +20,14 @@ x : Done
 - [ ] Invoice update statuses- Call different APIs
 - [ ] Invoice - Add charge items when draft
 - [ ] Invoice - Payment history filter by invoice
-- [ ] Account - Payments tab - filter by Account
+- [-] Account - Payments tab - filter by Account - Vignesh
 - [ ] Invoice View & Print - Show tax split up & Discounts (code with group in brackets)
 - [ ] Invoice - Cancel button (API) & Mark as entered-in-error
 - [x] View for Cancelled invoices list (Tab - by invoice Status) - Jeevan
 - [x] Charge items list (Tab - by Charge item Status) - Jeevan
 - [x] Payments list (Tab - by Charge item Status) - Jeevan
 - [ ] Show page for cancelled invoice (render charge items from cache)
-- [-] Create invoice inside Account charge item list - Jeevan
+- [x] Create invoice inside Account charge item list - Jeevan
 - [-] Charge Item Definition Update - Rithvik
 
 
