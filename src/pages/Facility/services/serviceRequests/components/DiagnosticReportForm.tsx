@@ -107,6 +107,7 @@ export function DiagnosticReportForm({
     null,
   );
   const [openUploadDialog, setOpenUploadDialog] = useState(false);
+  const [conclusion, setConclusion] = useState<string>("");
   const queryClient = useQueryClient();
 
   const isImagingReport = activityDefinition?.category === "imaging";
@@ -193,6 +194,25 @@ export function DiagnosticReportForm({
       },
     });
 
+  const { mutate: updateDiagnosticReport, isPending: isUpdatingReport } =
+    useMutation({
+      mutationFn: mutate(diagnosticReportApi.updateDiagnosticReport, {
+        pathParams: {
+          facility_external_id: facilityId,
+          external_id: latestReport?.id || "",
+        },
+      }),
+      onSuccess: () => {
+        toast.success(t("conclusion_updated_successfully"));
+        queryClient.invalidateQueries({
+          queryKey: ["diagnosticReport", latestReport?.id],
+        });
+      },
+      onError: () => {
+        toast.success(t("failed_to_update_conclusion"));
+      },
+    });
+
   // Initialize file upload hook
   const fileUpload = useFileUpload({
     type: "diagnostic_report" as any,
@@ -260,7 +280,9 @@ export function DiagnosticReportForm({
 
       setObservations(initialObservations);
 
-      // Set report status from the full report
+      if (fullReport.conclusion) {
+        setConclusion(fullReport.conclusion);
+      }
     }
   }, [fullReport]);
 
@@ -513,6 +535,15 @@ export function DiagnosticReportForm({
           observations: formattedObservations,
         });
       }
+
+      updateDiagnosticReport({
+        id: fullReport.id,
+        status: fullReport.status,
+        category: fullReport.category,
+        code: fullReport.code,
+        note: fullReport.note,
+        conclusion,
+      });
     }
   }
 
@@ -632,7 +663,8 @@ export function DiagnosticReportForm({
     );
   }
 
-  const isSubmitting = isCreatingReport || isUpsertingObservations;
+  const isSubmitting =
+    isCreatingReport || isUpsertingObservations || isUpdatingReport;
 
   // Show loading state while fetching the report
   if (hasReport && isLoadingReport) {
@@ -843,6 +875,27 @@ export function DiagnosticReportForm({
                       </Card>
                     );
                   })}
+
+                {fullReport.status !== DiagnosticReportStatus.final && (
+                  <Card className="mb-4 shadow-none rounded-lg border-gray-200 bg-gray-50">
+                    <CardContent className="p-4 space-y-2">
+                      <Label
+                        htmlFor="conclusion"
+                        className="text-base font-semibold text-gray-950"
+                      >
+                        {t("conclusion")}
+                      </Label>
+                      <textarea
+                        id="conclusion"
+                        className="w-full field-sizing-content focus:outline-none focus:ring-1 focus:ring-primary-500 focus:border-primary-500 rounded-lg border border-gray-300 p-2"
+                        placeholder={t("enter") + " " + t("conclusion")}
+                        value={conclusion}
+                        onChange={(e) => setConclusion(e.target.value)}
+                        rows={3}
+                      />
+                    </CardContent>
+                  </Card>
+                )}
 
                 <div className="space-y-4">
                   {fullReport?.status ===

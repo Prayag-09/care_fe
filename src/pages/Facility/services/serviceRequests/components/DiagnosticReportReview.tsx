@@ -3,9 +3,11 @@ import {
   CheckCircle2,
   ChevronsDownUp,
   ChevronsUpDown,
+  ExternalLink,
   FileCheck2,
 } from "lucide-react";
-import { useState } from "react";
+import { navigate } from "raviger";
+import { useEffect, useState } from "react";
 import { useTranslation } from "react-i18next";
 import { toast } from "sonner";
 
@@ -34,9 +36,13 @@ import { Label } from "@/components/ui/label";
 import { Skeleton } from "@/components/ui/skeleton";
 
 import { Avatar } from "@/components/Common/Avatar";
+import { FileListTable } from "@/components/Files/FileListTable";
+import { FileUploadModel } from "@/components/Patient/models";
 
+import routes from "@/Utils/request/api";
 import mutate from "@/Utils/request/mutate";
 import query from "@/Utils/request/query";
+import { PaginatedResponse } from "@/Utils/request/types";
 import { DiagnosticReportResultsTable } from "@/pages/Facility/services/diagnosticReports/components/DiagnosticReportResultsTable";
 import {
   DiagnosticReportRead,
@@ -72,6 +78,26 @@ export function DiagnosticReportReview({
     }),
     enabled: !!latestReport?.id,
   });
+
+  useEffect(() => {
+    if (fullReport?.conclusion) {
+      setConclusion(fullReport.conclusion);
+    }
+  }, [fullReport]);
+
+  const { data: files = { results: [], count: 0 }, refetch: refetchFiles } =
+    useQuery<PaginatedResponse<FileUploadModel>>({
+      queryKey: ["files", "diagnostic_report", fullReport?.id],
+      queryFn: query(routes.viewUpload, {
+        queryParams: {
+          file_type: "diagnostic_report",
+          associating_id: fullReport?.id,
+          limit: 100,
+          offset: 0,
+        },
+      }),
+      enabled: !!fullReport?.id,
+    });
 
   const { mutate: updateDiagnosticReport, isPending: isUpdatingReport } =
     useMutation({
@@ -125,10 +151,6 @@ export function DiagnosticReportReview({
         </CardContent>
       </Card>
     );
-  }
-
-  if (fullReport?.observations.length === 0) {
-    return null;
   }
 
   return (
@@ -220,6 +242,11 @@ export function DiagnosticReportReview({
               <div className="space-y-6">
                 <Card className="shadow-none rounded-lg border-gray-200 bg-gray-50">
                   <CardContent className="p-4">
+                    {fullReport.observations.length == 0 && (
+                      <p className="text-gray-800 whitespace-pre-wrap p-2 rounded-lg bg-white border cursor-default text-center">
+                        {t("no") + " " + t("observations") + " " + t("entered")}
+                      </p>
+                    )}
                     <DiagnosticReportResultsTable
                       observations={fullReport.observations}
                     />
@@ -247,6 +274,43 @@ export function DiagnosticReportReview({
                     )}
                   </CardContent>
                 </Card>
+
+                {files?.results && files.results.length > 0 && (
+                  <Card className="shadow-none rounded-lg border-gray-200 bg-gray-50">
+                    <CardHeader className="p-4 pb-0">
+                      <CardTitle className="text-base font-medium">
+                        {t("uploaded_files")}
+                      </CardTitle>
+                    </CardHeader>
+                    <CardContent className="p-4">
+                      <FileListTable
+                        files={files.results}
+                        type="diagnostic_report"
+                        associatingId={fullReport.id}
+                        canEdit={true}
+                        showHeader={false}
+                        onRefetch={refetchFiles}
+                      />
+                    </CardContent>
+                  </Card>
+                )}
+
+                {fullReport?.status === DiagnosticReportStatus.final && (
+                  <div className="flex justify-end">
+                    <Button
+                      variant="primary"
+                      className="gap-2"
+                      onClick={() =>
+                        navigate(
+                          `/facility/${facilityId}/diagnostic_reports/${fullReport?.id}`,
+                        )
+                      }
+                    >
+                      <ExternalLink className="h-4 w-4" />
+                      {t("view") + " " + t("report")}
+                    </Button>
+                  </div>
+                )}
 
                 {fullReport?.status === DiagnosticReportStatus.preliminary && (
                   <div className="flex justify-end">
