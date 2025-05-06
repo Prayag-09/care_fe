@@ -186,9 +186,7 @@ export function PaymentReconciliationSheet({
                 </div>
                 {invoice && (
                   <div className="text-right">
-                    <p className="text-sm text-muted-foreground">
-                      {t("total_amount")}
-                    </p>
+                    <p className="text-sm text-gray-500">{t("total_amount")}</p>
                     <p className="text-lg font-semibold">
                       {formatCurrency(invoice.total_gross)}
                     </p>
@@ -283,7 +281,7 @@ export function PaymentReconciliationSheet({
                           >
                             <CareIcon
                               icon="l-info-circle"
-                              className="ml-1 size-4 text-muted-foreground"
+                              className="ml-1 size-4 text-gray-500"
                             />
                           </TooltipComponent>
                         </FormLabel>

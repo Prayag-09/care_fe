@@ -173,10 +173,7 @@ export default function PaymentsData({
             <TableBody>
               {!payments?.length ? (
                 <TableRow>
-                  <TableCell
-                    colSpan={7}
-                    className="text-center text-muted-foreground"
-                  >
+                  <TableCell colSpan={7} className="text-center text-gray-500">
                     {t("no_payments")}
                   </TableCell>
                 </TableRow>
@@ -190,7 +187,7 @@ export default function PaymentsData({
                       <div className="font-medium">
                         #{payment.target_invoice?.id}
                       </div>
-                      <div className="text-xs text-muted-foreground mt-px">
+                      <div className="text-xs text-gray-500 mt-px">
                         {payment.target_invoice?.title}
                       </div>
                     </TableCell>

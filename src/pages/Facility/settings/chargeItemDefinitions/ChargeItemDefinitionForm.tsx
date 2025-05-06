@@ -606,7 +606,7 @@ export function ChargeItemDefinitionForm({
                           Required
                         </div>
                       </div>
-                      <div className="text-xs text-muted-foreground mt-1">
+                      <div className="text-xs text-gray-500 mt-1">
                         This is the starting price before any adjustments
                       </div>
                     </td>
@@ -661,10 +661,10 @@ export function ChargeItemDefinitionForm({
                     <tr className="border-b">
                       <td colSpan={4} className="py-6 px-4 text-sm text-center">
                         <div className="flex flex-col items-center p-4 bg-muted/10 rounded-md">
-                          <p className="text-muted-foreground">
+                          <p className="text-gray-500">
                             {t("no_discount_codes_available")}
                           </p>
-                          <p className="text-xs text-muted-foreground mt-1">
+                          <p className="text-xs text-gray-500 mt-1">
                             Configure discount codes in facility settings
                           </p>
                         </div>
@@ -698,7 +698,7 @@ export function ChargeItemDefinitionForm({
                                 >
                                   {code.display}
                                 </label>
-                                <p className="text-xs text-muted-foreground">
+                                <p className="text-xs text-gray-500">
                                   {code.code}
                                 </p>
                               </div>
@@ -739,9 +739,7 @@ export function ChargeItemDefinitionForm({
                                 </div>
                               </div>
                             ) : (
-                              <div className="text-right text-muted-foreground">
-                                -
-                              </div>
+                              <div className="text-right text-gray-500">-</div>
                             )}
                           </td>
                           <td className="py-4 px-4">
@@ -772,10 +770,10 @@ export function ChargeItemDefinitionForm({
                     <tr className="border-b">
                       <td colSpan={4} className="py-6 px-4 text-sm text-center">
                         <div className="flex flex-col items-center p-4 bg-muted/10 rounded-md">
-                          <p className="text-muted-foreground">
+                          <p className="text-gray-500">
                             {t("no_tax_codes_available")}
                           </p>
-                          <p className="text-xs text-muted-foreground mt-1">
+                          <p className="text-xs text-gray-500 mt-1">
                             Configure tax codes in facility settings
                           </p>
                         </div>
@@ -809,7 +807,7 @@ export function ChargeItemDefinitionForm({
                                 >
                                   {code.display}
                                 </label>
-                                <p className="text-xs text-muted-foreground">
+                                <p className="text-xs text-gray-500">
                                   {code.code}
                                 </p>
                               </div>
@@ -850,9 +848,7 @@ export function ChargeItemDefinitionForm({
                                 </div>
                               </div>
                             ) : (
-                              <div className="text-right text-muted-foreground">
-                                -
-                              </div>
+                              <div className="text-right text-gray-500">-</div>
                             )}
                           </td>
                           <td className="py-4 px-4">
@@ -888,7 +884,7 @@ export function ChargeItemDefinitionForm({
             <div className="flex flex-col space-y-2">
               {/* Base Price */}
               <div className="flex justify-between py-2 border-b">
-                <span className="text-muted-foreground">{t("base_price")}</span>
+                <span className="text-gray-500">{t("base_price")}</span>
                 <span>
                   {basePrice?.amount
                     ? `₹${basePrice.amount.toFixed(2)}`
@@ -901,9 +897,7 @@ export function ChargeItemDefinitionForm({
                 isCodeSelected(code, MonetoryComponentType.discount),
               ) && (
                 <div className="flex justify-between py-2 border-b">
-                  <span className="text-muted-foreground">
-                    {t("discounts")}
-                  </span>
+                  <span className="text-gray-500">{t("discounts")}</span>
                   <span>
                     {discountCodes
                       .filter((code) =>
@@ -923,7 +917,7 @@ export function ChargeItemDefinitionForm({
                 isCodeSelected(code, MonetoryComponentType.tax),
               ) && (
                 <div className="flex justify-between py-2 border-b">
-                  <span className="text-muted-foreground">{t("taxes")}</span>
+                  <span className="text-gray-500">{t("taxes")}</span>
                   <span>
                     {taxCodes
                       .filter((code) =>
@@ -1027,7 +1021,7 @@ export function ChargeItemDefinitionForm({
         {/* Action buttons */}
         <div className="sticky bottom-0 bg-white p-4 mt-8 border-t flex justify-between items-center shadow-md rounded-b-md z-10">
           <div className="text-sm">
-            <span className="text-muted-foreground">
+            <span className="text-gray-500">
               {t("all_fields_saved_automatically")}
             </span>
           </div>

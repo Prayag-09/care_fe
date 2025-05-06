@@ -47,18 +47,18 @@ export function SpecimenCard({ specimen }: SpecimenCardProps) {
           {/* Specimen Details */}
           <div className="grid grid-cols-1 md:grid-cols-2 gap-2 text-sm">
             <div>
-              <span className="text-muted-foreground">Type:</span>{" "}
+              <span className="text-gray-500">Type:</span>{" "}
               <span>{specimen.specimen_type?.display}</span>
             </div>
             {specimen.type_tested?.container && (
               <div>
-                <span className="text-muted-foreground">Container:</span>{" "}
+                <span className="text-gray-500">Container:</span>{" "}
                 <span>{specimen.type_tested.container.description}</span>
               </div>
             )}
             {specimen.type_tested?.container?.minimum_volume && (
               <div>
-                <span className="text-muted-foreground">Minimum Volume:</span>{" "}
+                <span className="text-gray-500">Minimum Volume:</span>{" "}
                 <span>
                   {specimen.type_tested.container.minimum_volume.quantity
                     ? `${specimen.type_tested.container.minimum_volume.quantity.value} ${specimen.type_tested.container.minimum_volume.quantity.unit.display}`
@@ -68,7 +68,7 @@ export function SpecimenCard({ specimen }: SpecimenCardProps) {
             )}
             {specimen.type_tested?.container?.cap && (
               <div>
-                <span className="text-muted-foreground">Cap:</span>{" "}
+                <span className="text-gray-500">Cap:</span>{" "}
                 <span>{specimen.type_tested.container.cap.display}</span>
               </div>
             )}
@@ -83,7 +83,7 @@ export function SpecimenCard({ specimen }: SpecimenCardProps) {
                 <div className="grid grid-cols-1 md:grid-cols-2 gap-2 text-sm">
                   {specimen.collection.collected_date_time && (
                     <div>
-                      <span className="text-muted-foreground">Collected:</span>{" "}
+                      <span className="text-gray-500">Collected:</span>{" "}
                       <span>
                         {format(
                           new Date(specimen.collection.collected_date_time),
@@ -94,19 +94,19 @@ export function SpecimenCard({ specimen }: SpecimenCardProps) {
                   )}
                   {specimen.collection.collector && (
                     <div>
-                      <span className="text-muted-foreground">Collector:</span>{" "}
+                      <span className="text-gray-500">Collector:</span>{" "}
                       <span>{specimen.collection.collector}</span>
                     </div>
                   )}
                   {specimen.collection.method && (
                     <div>
-                      <span className="text-muted-foreground">Method:</span>{" "}
+                      <span className="text-gray-500">Method:</span>{" "}
                       <span>{specimen.collection.method.display}</span>
                     </div>
                   )}
                   {specimen.collection.body_site && (
                     <div>
-                      <span className="text-muted-foreground">Body Site:</span>{" "}
+                      <span className="text-gray-500">Body Site:</span>{" "}
                       <span>{specimen.collection.body_site.display}</span>
                     </div>
                   )}
@@ -127,14 +127,12 @@ export function SpecimenCard({ specimen }: SpecimenCardProps) {
                     className="grid grid-cols-1 md:grid-cols-2 gap-2 text-sm"
                   >
                     <div>
-                      <span className="text-muted-foreground">
-                        Description:
-                      </span>{" "}
+                      <span className="text-gray-500">Description:</span>{" "}
                       <span>{process.description}</span>
                     </div>
                     {process.time_date_time && (
                       <div>
-                        <span className="text-muted-foreground">Time:</span>{" "}
+                        <span className="text-gray-500">Time:</span>{" "}
                         <span>
                           {format(new Date(process.time_date_time), "PPp")}
                         </span>
@@ -142,15 +140,13 @@ export function SpecimenCard({ specimen }: SpecimenCardProps) {
                     )}
                     {process.performer && (
                       <div>
-                        <span className="text-muted-foreground">
-                          Performer:
-                        </span>{" "}
+                        <span className="text-gray-500">Performer:</span>{" "}
                         <span>{process.performer}</span>
                       </div>
                     )}
                     {process.method && (
                       <div>
-                        <span className="text-muted-foreground">Method:</span>{" "}
+                        <span className="text-gray-500">Method:</span>{" "}
                         <span>{process.method.display}</span>
                       </div>
                     )}

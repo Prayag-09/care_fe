@@ -198,7 +198,7 @@ export function BillingSettings({ facilityId }: { facilityId: string }) {
           <TableRow>
             <TableCell
               colSpan={canEdit ? 5 : 4}
-              className="text-center text-muted-foreground"
+              className="text-center text-gray-500"
             >
               {t("billing.no_components")}
             </TableCell>
@@ -270,7 +270,7 @@ export function BillingSettings({ facilityId }: { facilityId: string }) {
         <Card>
           <CardHeader>
             <CardTitle>{t("billing.instance_discount_components")}</CardTitle>
-            <p className="text-sm text-muted-foreground">
+            <p className="text-sm text-gray-500">
               {t("billing.instance_components_description")}
             </p>
           </CardHeader>

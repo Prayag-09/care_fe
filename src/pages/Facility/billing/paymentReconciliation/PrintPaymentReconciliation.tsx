@@ -114,7 +114,7 @@ export function PrintPaymentReconciliation({
           {/* Payment Information */}
           <div className="grid grid-cols-1 sm:grid-cols-2 gap-4 mb-6 text-sm">
             <div>
-              <div className="font-medium font-semibold text-muted-foreground mb-1">
+              <div className="font-medium font-semibold text-gray-500 mb-1">
                 {t("payment_date")}
               </div>
               <div>
@@ -126,7 +126,7 @@ export function PrintPaymentReconciliation({
               </div>
             </div>
             <div className="text-right">
-              <div className="font-medium font-semibold text-muted-foreground mb-1">
+              <div className="font-medium font-semibold text-gray-500 mb-1">
                 {t("payment_method")}
               </div>
               <div>
@@ -135,7 +135,7 @@ export function PrintPaymentReconciliation({
             </div>
             {(payment.reference_number || payment.authorization) && (
               <div>
-                <div className="font-semibold text-muted-foreground mb-1">
+                <div className="font-semibold text-gray-500 mb-1">
                   {t("reference_details")}
                 </div>
                 <div>
@@ -166,16 +166,16 @@ export function PrintPaymentReconciliation({
                 <table className="w-full">
                   <thead>
                     <tr className="border-b text-sm">
-                      <th className="pb-2 text-left font-medium text-muted-foreground">
+                      <th className="pb-2 text-left font-medium text-gray-500">
                         {t("invoice_number")}
                       </th>
-                      <th className="pb-2 text-left font-medium text-muted-foreground">
+                      <th className="pb-2 text-left font-medium text-gray-500">
                         {t("title")}
                       </th>
-                      <th className="pb-2 text-left font-medium text-muted-foreground">
+                      <th className="pb-2 text-left font-medium text-gray-500">
                         {t("status")}
                       </th>
-                      <th className="pb-2 text-right font-medium text-muted-foreground">
+                      <th className="pb-2 text-right font-medium text-gray-500">
                         {t("amount")}
                       </th>
                     </tr>
@@ -208,16 +208,16 @@ export function PrintPaymentReconciliation({
               <table className="w-full">
                 <thead>
                   <tr className="border-b text-sm">
-                    <th className="pb-2 text-left font-medium text-muted-foreground">
+                    <th className="pb-2 text-left font-medium text-gray-500">
                       {t("type")}
                     </th>
-                    <th className="pb-2 text-left font-medium text-muted-foreground">
+                    <th className="pb-2 text-left font-medium text-gray-500">
                       {t("kind")}
                     </th>
-                    <th className="pb-2 text-left font-medium text-muted-foreground">
+                    <th className="pb-2 text-left font-medium text-gray-500">
                       {t("issuer_type")}
                     </th>
-                    <th className="pb-2 text-right font-medium text-muted-foreground">
+                    <th className="pb-2 text-right font-medium text-gray-500">
                       {t("amount")}
                     </th>
                   </tr>
@@ -248,17 +248,17 @@ export function PrintPaymentReconciliation({
           {/* Totals */}
           <div className="flex flex-col items-end space-y-2 mt-6">
             <div className="flex w-48 justify-between">
-              <span className="text-muted-foreground">{t("amount")}</span>
+              <span className="text-gray-500">{t("amount")}</span>
               <span>{formatCurrency(payment.amount ?? null)}</span>
             </div>
             {payment.method === "cash" && (
               <>
                 <div className="flex w-48 justify-between">
-                  <span className="text-muted-foreground">{t("tendered")}</span>
+                  <span className="text-gray-500">{t("tendered")}</span>
                   <span>{formatCurrency(payment.tendered_amount ?? null)}</span>
                 </div>
                 <div className="flex w-48 justify-between">
-                  <span className="text-muted-foreground">{t("returned")}</span>
+                  <span className="text-gray-500">{t("returned")}</span>
                   <span>{formatCurrency(payment.returned_amount ?? null)}</span>
                 </div>
               </>

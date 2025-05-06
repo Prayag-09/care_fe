@@ -1,8 +1,10 @@
 import { useMutation, useQuery, useQueryClient } from "@tanstack/react-query";
 import { format } from "date-fns";
+import { ChevronDown, ChevronUp, MoreHorizontal } from "lucide-react";
 import { Link } from "raviger";
 import React, { useState } from "react";
 import { useTranslation } from "react-i18next";
+import { formatPhoneNumberIntl } from "react-phone-number-input";
 import { toast } from "sonner";
 
 import CareIcon from "@/CAREUI/icons/CareIcon";
@@ -20,15 +22,37 @@ import {
 import { Badge } from "@/components/ui/badge";
 import { Button } from "@/components/ui/button";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
+import {
+  DropdownMenu,
+  DropdownMenuContent,
+  DropdownMenuItem,
+  DropdownMenuLabel,
+  DropdownMenuSeparator,
+  DropdownMenuTrigger,
+} from "@/components/ui/dropdown-menu";
+import { MonetaryValue } from "@/components/ui/monetary-value";
 import { Separator } from "@/components/ui/separator";
+import {
+  Table,
+  TableBody,
+  TableCell,
+  TableHead,
+  TableHeader,
+  TableRow,
+} from "@/components/ui/table";
 
 import { TableSkeleton } from "@/components/Common/SkeletonLoading";
 
 import mutate from "@/Utils/request/mutate";
 import query from "@/Utils/request/query";
-// import { formatDate } from "@/Utils/utils";
 import PaymentReconciliationSheet from "@/pages/Facility/billing/PaymentReconciliationSheet";
+import { formatPercentage } from "@/pages/Facility/billing/account/components/ChargeItemsTable";
 import EditInvoiceSheet from "@/pages/Facility/billing/invoice/EditInvoiceSheet";
+import {
+  MonetoryComponent,
+  MonetoryComponentType,
+} from "@/types/base/monetoryComponent/monetoryComponent";
+import { CHARGE_ITEM_STATUS_STYLES } from "@/types/billing/chargeItem/chargeItem";
 import chargeItemApi from "@/types/billing/chargeItem/chargeItemApi";
 import { InvoiceStatus } from "@/types/billing/invoice/invoice";
 import invoiceApi from "@/types/billing/invoice/invoiceApi";
@@ -41,11 +65,57 @@ const statusMap: Record<InvoiceStatus, { label: string; color: string }> = {
   entered_in_error: { label: "Error", color: "destructive" },
 };
 
-function formatCurrency(amount: number, currency: string = "INR") {
-  return new Intl.NumberFormat("en-IN", {
-    style: "currency",
-    currency,
-  }).format(amount);
+interface PriceComponentRowProps {
+  label: string;
+  components: MonetoryComponent[];
+  baseAmount: number;
+  quantity: number;
+}
+
+function PriceComponentRow({
+  label,
+  components,
+  baseAmount,
+  quantity,
+}: PriceComponentRowProps) {
+  if (!components.length) return null;
+
+  return (
+    <>
+      {components.map((component, index) => {
+        const value =
+          component.amount !== undefined && component.amount !== null
+            ? component.amount * quantity
+            : (component.factor || 0) * baseAmount * quantity;
+
+        return (
+          <TableRow
+            key={`${label}-${index}`}
+            className="text-xs text-gray-500 bg-muted/30"
+          >
+            <TableCell></TableCell>
+            <TableCell>
+              {component.code && `${component.code.display} `}({label})
+            </TableCell>
+            <TableCell>
+              {component.amount !== undefined && component.amount !== null ? (
+                <MonetaryValue value={component.amount} />
+              ) : (
+                formatPercentage(component.factor)
+              )}
+            </TableCell>
+            <TableCell>{quantity}</TableCell>
+            <TableCell>
+              {component.monetory_component_type ===
+                MonetoryComponentType.discount && `-`}
+              <MonetaryValue value={value} />
+            </TableCell>
+            <TableCell></TableCell>
+          </TableRow>
+        );
+      })}
+    </>
+  );
 }
 
 export function InvoiceShow({
@@ -59,6 +129,9 @@ export function InvoiceShow({
   const [isPaymentSheetOpen, setIsPaymentSheetOpen] = useState(false);
   const [chargeItemToRemove, setChargeItemToRemove] = useState<string | null>(
     null,
+  );
+  const [expandedItems, setExpandedItems] = useState<Record<string, boolean>>(
+    {},
   );
   const queryClient = useQueryClient();
 
@@ -87,6 +160,27 @@ export function InvoiceShow({
     if (chargeItemToRemove) {
       removeChargeItem({ charge_item: chargeItemToRemove });
     }
+  };
+
+  const toggleItemExpand = (itemId: string) => {
+    setExpandedItems((prev) => ({
+      ...prev,
+      [itemId]: !prev[itemId],
+    }));
+  };
+
+  const getComponentsByType = (item: any, type: MonetoryComponentType) => {
+    return (
+      item.unit_price_components?.filter(
+        (c: any) => c.monetory_component_type === type,
+      ) || []
+    );
+  };
+
+  const getBaseComponent = (item: any) => {
+    return item.unit_price_components?.find(
+      (c: any) => c.monetory_component_type === MonetoryComponentType.base,
+    );
   };
 
   if (isLoading) {
@@ -169,18 +263,21 @@ export function InvoiceShow({
             <CardContent>
               <div className="grid gap-6 md:grid-cols-2">
                 <div>
-                  <div className="font-semibold text-muted-foreground mb-2">
+                  <div className="font-semibold text-gray-500 mb-2">
                     {t("bill_to")}
                   </div>
                   <div>
                     <p className="font-medium">
                       {invoice.account.patient.name}
                     </p>
-                    <p className="font-normal">
+                    <p className="font-normal whitespace-pre-wrap">
                       {invoice.account.patient.address}
                     </p>
-                    <p className="text-sm text-muted-foreground">
-                      {t("phone")}: {invoice.account.patient.phone_number}
+                    <p className="text-sm text-gray-500">
+                      {t("phone")}:{" "}
+                      {formatPhoneNumberIntl(
+                        invoice.account.patient.phone_number,
+                      )}
                     </p>
                   </div>
                   <div className="mt-2">
@@ -190,116 +287,290 @@ export function InvoiceShow({
               </div>
               <div className="grid grid-cols-3 gap-4 mb-6 mt-4">
                 <div>
-                  <h3 className="text-sm font-medium text-muted-foreground mb-1">
+                  <h3 className="text-sm font-medium text-gray-500 mb-1">
                     Invoice Number
                   </h3>
                   <p className="text-sm">{invoice.title || invoice.id}</p>
                 </div>
                 <div>
-                  <h3 className="text-sm font-medium text-muted-foreground mb-1">
+                  <h3 className="text-sm font-medium text-gray-500 mb-1">
                     Issue Date
                   </h3>
                   {/* <p className="text-sm">{formatDate(invoice.created_at)}</p> */}
-                </div>
-                <div>
-                  <h3 className="text-sm font-medium text-muted-foreground mb-1">
-                    Due Date
-                  </h3>
-                  {/* <p className="text-sm">{formatDate(invoice.dueDate)}</p> */}
                 </div>
               </div>
               <Separator className="my-6" />
 
               <div className="space-y-4">
-                <table className="w-full">
-                  <thead>
-                    <tr className="border-b text-sm">
-                      <th className="pb-2 text-left font-medium text-muted-foreground">
-                        {t("item")}
-                      </th>
-                      <th className="pb-2 text-left font-medium text-muted-foreground">
-                        {t("status")}
-                      </th>
-                      <th className="pb-2 text-right font-medium text-muted-foreground">
-                        {t("qty")}
-                      </th>
-                      <th className="pb-2 text-right font-medium text-muted-foreground">
-                        {t("unit_price")}
-                      </th>
-                      <th className="pb-2 text-right font-medium text-muted-foreground">
-                        {t("amount")}
-                      </th>
-                      <th className="pb-2 text-right font-medium text-muted-foreground">
-                        {t("actions")}
-                      </th>
-                    </tr>
-                  </thead>
-                  <tbody>
+                <Table>
+                  <TableHeader>
+                    <TableRow>
+                      <TableHead className="w-[40px]"></TableHead>
+                      <TableHead>{t("item")}</TableHead>
+                      <TableHead>{t("unit_price")}</TableHead>
+                      <TableHead>{t("quantity")}</TableHead>
+                      <TableHead>{t("total")}</TableHead>
+                      <TableHead className="w-[120px]">{t("status")}</TableHead>
+                      <TableHead className="w-[60px]">{t("actions")}</TableHead>
+                    </TableRow>
+                  </TableHeader>
+                  <TableBody>
                     {invoice.charge_items.length === 0 ? (
-                      <tr>
-                        <td
-                          colSpan={6}
-                          className="py-8 text-center text-muted-foreground"
+                      <TableRow>
+                        <TableCell
+                          colSpan={7}
+                          className="text-center text-gray-500"
                         >
                           {t("no_charge_items")}
-                        </td>
-                      </tr>
+                        </TableCell>
+                      </TableRow>
                     ) : (
-                      invoice.charge_items.map((item) => (
-                        <tr key={item.id} className="border-b last:border-0">
-                          <td className="py-4">
-                            <div className="">
-                              <div>{item.title}</div>
-                              <div className="text-xs">{item.id}</div>
-                            </div>
-                          </td>
-                          <td className="py-4">{item.status}</td>
-                          <td className="py-4 text-right">{item.quantity}</td>
-                          <td className="py-4 text-right">
-                            {formatCurrency(item.total_price / item.quantity)}
-                          </td>
-                          <td className="py-4 text-right">
-                            {formatCurrency(item.total_price)}
-                          </td>
-                          <td className="py-4 text-right">
-                            {invoice.status !== InvoiceStatus.balanced &&
-                              invoice.status !== InvoiceStatus.cancelled && (
-                                <Button
-                                  variant="ghost"
-                                  size="icon"
-                                  onClick={() => setChargeItemToRemove(item.id)}
-                                >
-                                  <CareIcon
-                                    icon="l-trash"
-                                    className="size-4 text-destructive"
-                                  />
-                                </Button>
-                              )}
-                          </td>
-                        </tr>
-                      ))
+                      invoice.charge_items.flatMap((item) => {
+                        const isExpanded = expandedItems[item.id] || false;
+                        const baseComponent = getBaseComponent(item);
+                        const baseAmount = baseComponent?.amount || 0;
+
+                        const mainRow = (
+                          <TableRow key={item.id} className="hover:bg-muted/50">
+                            <TableCell>
+                              <Button
+                                variant="ghost"
+                                size="icon"
+                                className="h-6 w-6"
+                                onClick={() => toggleItemExpand(item.id)}
+                              >
+                                {isExpanded ? (
+                                  <ChevronUp className="h-4 w-4" />
+                                ) : (
+                                  <ChevronDown className="h-4 w-4" />
+                                )}
+                              </Button>
+                            </TableCell>
+                            <TableCell className="font-medium">
+                              {item.title}
+                              <div className="text-xs text-gray-500">
+                                {item.id}
+                              </div>
+                            </TableCell>
+                            <TableCell>
+                              <MonetaryValue value={baseAmount} />
+                            </TableCell>
+                            <TableCell>{item.quantity}</TableCell>
+                            <TableCell>
+                              <MonetaryValue value={item.total_price} />
+                            </TableCell>
+                            <TableCell>
+                              <Badge
+                                variant="outline"
+                                className={
+                                  CHARGE_ITEM_STATUS_STYLES[item.status]
+                                }
+                              >
+                                {t(item.status)}
+                              </Badge>
+                            </TableCell>
+                            <TableCell>
+                              {invoice.status !== InvoiceStatus.balanced &&
+                                invoice.status !== InvoiceStatus.cancelled && (
+                                  <DropdownMenu>
+                                    <DropdownMenuTrigger asChild>
+                                      <Button
+                                        variant="ghost"
+                                        size="icon"
+                                        className="h-8 w-8"
+                                      >
+                                        <MoreHorizontal className="h-4 w-4" />
+                                      </Button>
+                                    </DropdownMenuTrigger>
+                                    <DropdownMenuContent align="end">
+                                      <DropdownMenuLabel>
+                                        {t("actions")}
+                                      </DropdownMenuLabel>
+                                      <DropdownMenuSeparator />
+                                      <DropdownMenuItem
+                                        onClick={() =>
+                                          setChargeItemToRemove(item.id)
+                                        }
+                                        className="text-destructive"
+                                      >
+                                        <CareIcon
+                                          icon="l-trash"
+                                          className="mr-2 size-4"
+                                        />
+                                        <span>{t("remove")}</span>
+                                      </DropdownMenuItem>
+                                    </DropdownMenuContent>
+                                  </DropdownMenu>
+                                )}
+                            </TableCell>
+                          </TableRow>
+                        );
+
+                        if (!isExpanded) return [mainRow];
+
+                        const detailRows = [
+                          <PriceComponentRow
+                            key={`${item.id}-discounts`}
+                            label={t("discounts")}
+                            components={getComponentsByType(
+                              item,
+                              MonetoryComponentType.discount,
+                            )}
+                            baseAmount={baseAmount}
+                            quantity={item.quantity}
+                          />,
+                          <PriceComponentRow
+                            key={`${item.id}-taxes`}
+                            label={t("taxes")}
+                            components={getComponentsByType(
+                              item,
+                              MonetoryComponentType.tax,
+                            )}
+                            baseAmount={baseAmount}
+                            quantity={item.quantity}
+                          />,
+                        ];
+
+                        const summaryRow = (
+                          <TableRow
+                            key={`${item.id}-summary`}
+                            className="bg-muted/30 font-medium"
+                          >
+                            <TableCell></TableCell>
+                            <TableCell>{t("total")}</TableCell>
+                            <TableCell></TableCell>
+                            <TableCell></TableCell>
+                            <TableCell>
+                              <MonetaryValue value={item.total_price} />
+                            </TableCell>
+                            <TableCell></TableCell>
+                            <TableCell></TableCell>
+                          </TableRow>
+                        );
+
+                        return [mainRow, ...detailRows, summaryRow].filter(
+                          Boolean,
+                        );
+                      })
                     )}
-                  </tbody>
-                </table>
+                  </TableBody>
+                </Table>
 
                 <div className="flex flex-col items-end space-y-2">
-                  <div className="flex w-48 justify-between">
-                    <span className="text-muted-foreground">
-                      {t("subtotal")}
-                    </span>
-                    <span>{formatCurrency(invoice.total_net)}</span>
+                  {/* Base Amount */}
+                  {invoice.total_price_components
+                    ?.filter(
+                      (c) =>
+                        c.monetory_component_type ===
+                        MonetoryComponentType.base,
+                    )
+                    .map((component, index) => (
+                      <div
+                        key={`base-${index}`}
+                        className="flex w-64 justify-between"
+                      >
+                        <span className="text-gray-500">
+                          {component.code?.display || t("base_amount")}
+                        </span>
+                        <MonetaryValue value={component.amount || 0} />
+                      </div>
+                    ))}
+
+                  {/* Surcharges */}
+                  {invoice.total_price_components
+                    ?.filter(
+                      (c) =>
+                        c.monetory_component_type ===
+                        MonetoryComponentType.surcharge,
+                    )
+                    .map((component, index) => (
+                      <div
+                        key={`discount-${index}`}
+                        className="flex w-64 justify-between text-gray-500 text-sm"
+                      >
+                        <span>
+                          {component.code && `${component.code.display} `}(
+                          {t("surcharge")})
+                        </span>
+                        <span>
+                          +
+                          {component.amount !== undefined &&
+                          component.amount !== null ? (
+                            <MonetaryValue value={component.amount} />
+                          ) : (
+                            formatPercentage(component.factor)
+                          )}
+                        </span>
+                      </div>
+                    ))}
+
+                  {/* Discounts */}
+                  {invoice.total_price_components
+                    ?.filter(
+                      (c) =>
+                        c.monetory_component_type ===
+                        MonetoryComponentType.discount,
+                    )
+                    .map((component, index) => (
+                      <div
+                        key={`discount-${index}`}
+                        className="flex w-64 justify-between text-gray-500 text-sm"
+                      >
+                        <span>
+                          {component.code && `${component.code.display} `}(
+                          {t("discount")})
+                        </span>
+                        <span>
+                          -
+                          {component.amount !== undefined &&
+                          component.amount !== null ? (
+                            <MonetaryValue value={component.amount} />
+                          ) : (
+                            formatPercentage(component.factor)
+                          )}
+                        </span>
+                      </div>
+                    ))}
+
+                  {/* Taxes */}
+                  {invoice.total_price_components
+                    ?.filter(
+                      (c) =>
+                        c.monetory_component_type === MonetoryComponentType.tax,
+                    )
+                    .map((component, index) => (
+                      <div
+                        key={`tax-${index}`}
+                        className="flex w-64 justify-between text-gray-500 text-sm"
+                      >
+                        <span>
+                          {component.code && `${component.code.display} `}(
+                          {t("tax")})
+                        </span>
+                        <span>
+                          +
+                          {component.amount !== undefined &&
+                          component.amount !== null ? (
+                            <MonetaryValue value={component.amount} />
+                          ) : (
+                            formatPercentage(component.factor)
+                          )}
+                        </span>
+                      </div>
+                    ))}
+
+                  <Separator className="my-2" />
+
+                  {/* Subtotal */}
+                  <div className="flex w-64 justify-between">
+                    <span className="text-gray-500">{t("net_amount")}</span>
+                    <MonetaryValue value={invoice.total_net} />
                   </div>
-                  <div className="flex w-48 justify-between">
-                    <span className="text-muted-foreground">{t("tax")}</span>
-                    <span>
-                      {formatCurrency(invoice.total_gross - invoice.total_net)}
-                    </span>
-                  </div>
-                  <div className="flex w-48 justify-between">
-                    <span className="text-muted-foreground">{t("total")}</span>
-                    <span className="font-bold">
-                      {formatCurrency(invoice.total_gross)}
-                    </span>
+
+                  {/* Total */}
+                  <div className="flex w-64 justify-between font-bold">
+                    <span>{t("total")}</span>
+                    <MonetaryValue value={invoice.total_gross} />
                   </div>
                 </div>
               </div>
@@ -326,7 +597,7 @@ export function InvoiceShow({
             </CardHeader>
             <CardContent>
               {/* Payment history will be implemented when the API is available */}
-              <div className="text-center text-sm text-muted-foreground">
+              <div className="text-center text-sm text-gray-500">
                 {t("no_payments_recorded")}
               </div>
             </CardContent>
@@ -341,7 +612,7 @@ export function InvoiceShow({
                 <div className="relative pl-6">
                   <div className="absolute left-0 top-2 size-2 rounded-full bg-primary" />
                   <p className="font-medium">{t("invoice_created")}</p>
-                  <p className="text-sm text-muted-foreground">
+                  <p className="text-sm text-gray-500">
                     {format(new Date(), "MMM dd, yyyy")}
                   </p>
                 </div>
@@ -349,7 +620,7 @@ export function InvoiceShow({
                   <div className="relative pl-6">
                     <div className="absolute left-0 top-2 size-2 rounded-full bg-primary" />
                     <p className="font-medium">{t("invoice_issued")}</p>
-                    <p className="text-sm text-muted-foreground">
+                    <p className="text-sm text-gray-500">
                       {format(new Date(), "MMM dd, yyyy")}
                     </p>
                   </div>

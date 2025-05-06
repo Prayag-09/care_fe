@@ -119,10 +119,7 @@ export default function InvoicesData({
             <TableBody>
               {!invoices?.length ? (
                 <TableRow>
-                  <TableCell
-                    colSpan={5}
-                    className="text-center text-muted-foreground"
-                  >
+                  <TableCell colSpan={5} className="text-center text-gray-500">
                     {t("no_invoices")}
                   </TableCell>
                 </TableRow>

@@ -111,7 +111,7 @@ export function AccountShow({
           <CardHeader className="flex flex-row items-center justify-between">
             <div>
               <CardTitle>{account.name}</CardTitle>
-              <p className="text-sm text-muted-foreground">
+              <p className="text-sm text-gray-500">
                 {account.description || t("no_description")}
               </p>
             </div>
@@ -128,7 +128,7 @@ export function AccountShow({
                   <Avatar name={account.patient.name} className="size-12" />
                   <div>
                     <div className="font-medium">{account.patient.name}</div>
-                    <div className="text-sm text-muted-foreground">
+                    <div className="text-sm text-gray-500">
                       {account.patient.phone_number}
                     </div>
                   </div>
@@ -138,21 +138,17 @@ export function AccountShow({
                 <h3 className="font-semibold">{t("account_details")}</h3>
                 <div className="mt-2 space-y-1">
                   <div className="flex items-center justify-between text-sm">
-                    <span className="text-muted-foreground">{t("status")}</span>
+                    <span className="text-gray-500">{t("status")}</span>
                     <Badge variant={statusMap[account.status].color as any}>
                       {t(statusMap[account.status].label)}
                     </Badge>
                   </div>
                   <div className="flex items-center justify-between text-sm">
-                    <span className="text-muted-foreground">
-                      {t("start_date")}
-                    </span>
+                    <span className="text-gray-500">{t("start_date")}</span>
                     <span>{formatDate(account.service_period?.start)}</span>
                   </div>
                   <div className="flex items-center justify-between text-sm">
-                    <span className="text-muted-foreground">
-                      {t("end_date")}
-                    </span>
+                    <span className="text-gray-500">{t("end_date")}</span>
                     <span>{formatDate(account.service_period?.end)}</span>
                   </div>
                 </div>
@@ -290,7 +286,7 @@ export function AccountShow({
             <CardHeader className="flex flex-row items-center justify-between">
               <div>
                 <CardTitle>{t("invoices")}</CardTitle>
-                <p className="text-sm text-muted-foreground">
+                <p className="text-sm text-gray-500">
                   {accountId
                     ? t("billing_statements")
                     : t("view_and_manage_invoices")}
@@ -320,7 +316,7 @@ export function AccountShow({
             <CardHeader className="flex flex-row items-center justify-between">
               <div>
                 <CardTitle>{t("payments")}</CardTitle>
-                <p className="text-sm text-muted-foreground">
+                <p className="text-sm text-gray-500">
                   {accountId
                     ? t("payment_transactions")
                     : t("view_and_manage_payments")}

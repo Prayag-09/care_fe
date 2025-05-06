@@ -193,7 +193,7 @@ export function ProcessSpecimen({
                 placeholder="Describe the processing step in detail..."
                 className="min-h-[100px]"
               />
-              <p className="text-sm text-muted-foreground">
+              <p className="text-sm text-gray-500">
                 Add specific details about how this processing step was
                 performed.
               </p>

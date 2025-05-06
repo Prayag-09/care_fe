@@ -10,6 +10,14 @@ export enum InvoiceStatus {
   entered_in_error = "entered_in_error",
 }
 
+export const INVOICE_STATUS_STYLES = {
+  draft: "bg-gray-100 text-gray-800 border-gray-200",
+  issued: "bg-blue-100 text-blue-800 border-blue-200",
+  balanced: "bg-green-100 text-green-800 border-green-200",
+  cancelled: "bg-red-100 text-red-800 border-red-200",
+  entered_in_error: "bg-red-100 text-red-800 border-red-200",
+} as const;
+
 export interface InvoiceBase {
   id: string;
   title: string;
@@ -27,7 +35,7 @@ export interface InvoiceCreate extends Omit<InvoiceBase, "id"> {
 export interface InvoiceRead extends InvoiceBase {
   account: AccountRead;
   charge_items: ChargeItemRead[];
-  total_price_component: MonetoryComponent[];
+  total_price_components: MonetoryComponent[];
   total_net: number;
   total_gross: number;
 }

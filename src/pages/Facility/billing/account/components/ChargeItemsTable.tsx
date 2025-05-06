@@ -47,7 +47,7 @@ import chargeItemApi from "@/types/billing/chargeItem/chargeItemApi";
 
 import EditChargeItemPopover from "./EditChargeItemPopover";
 
-function formatCurrency(
+export function formatCurrency(
   amount: number | undefined | null,
   currency: string = "INR",
 ) {
@@ -60,7 +60,7 @@ function formatCurrency(
   }).format(amount);
 }
 
-function formatPercentage(factor: number | undefined | null) {
+export function formatPercentage(factor: number | undefined | null) {
   if (factor === undefined || factor === null) return "-";
   return new Intl.NumberFormat("en-IN", {
     style: "percent",
@@ -106,10 +106,7 @@ function PriceComponentRow({
             : (component.factor || 0) * baseAmount * quantity;
 
         return (
-          <TableRow
-            key={`${label}-${index}`}
-            className="text-xs text-muted-foreground"
-          >
+          <TableRow key={`${label}-${index}`} className="text-xs text-gray-500">
             <TableCell></TableCell>
             <TableCell>
               {component.code && `${component.code.display} `}({label})
@@ -193,7 +190,7 @@ export function ChargeItemsTable({
       <CardHeader className="flex flex-row items-center justify-between">
         <div>
           <CardTitle>{t("charge_items")}</CardTitle>
-          <p className="text-sm text-muted-foreground">
+          <p className="text-sm text-gray-500">
             {t("billable_items_for_account")}
           </p>
         </div>
@@ -230,10 +227,7 @@ export function ChargeItemsTable({
             <TableBody>
               {!chargeItems?.results?.length ? (
                 <TableRow>
-                  <TableCell
-                    colSpan={7}
-                    className="text-center text-muted-foreground"
-                  >
+                  <TableCell colSpan={7} className="text-center text-gray-500">
                     {t("no_charge_items")}
                   </TableCell>
                 </TableRow>
@@ -262,7 +256,7 @@ export function ChargeItemsTable({
                       <TableCell className="font-medium">
                         {item.title}
                         {item.description && (
-                          <p className="text-xs text-muted-foreground">
+                          <p className="text-xs text-gray-500">
                             {item.description}
                           </p>
                         )}

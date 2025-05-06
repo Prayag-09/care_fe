@@ -11,6 +11,7 @@ const monetoryComponentColorMap: Record<MonetoryComponentType, string> = {
   base: "primary",
   tax: "warning",
   discount: "success",
+  surcharge: "secondary",
   informational: "secondary",
 };
 

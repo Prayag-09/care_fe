@@ -248,7 +248,7 @@ export function SpecimenWorkflowCard({
                       collectedSpecimen.specimen_definition.title}
                   </CardTitle>
                   {/* Mimic original UI structure */}
-                  <div className="flex flex-wrap gap-x-8 gap-y-1 text-sm text-muted-foreground mt-4">
+                  <div className="flex flex-wrap gap-x-8 gap-y-1 text-sm text-gray-500 mt-4">
                     {collectedSpecimen.accession_identifier && (
                       <span className="flex  gap-1.5 flex-col">
                         <span className="text-xs text-gray-500 flex items-center gap-1.5">

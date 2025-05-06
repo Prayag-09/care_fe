@@ -68,7 +68,7 @@ function formatCurrency(amount: number | null, currency: string = "INR") {
 function InfoItem({ label, value }: { label: string; value: React.ReactNode }) {
   return (
     <div className="mb-3">
-      <div className="text-xs text-muted-foreground mb-1">{label}</div>
+      <div className="text-xs text-gray-500 mb-1">{label}</div>
       <div className="font-medium">{value || "-"}</div>
     </div>
   );
@@ -162,7 +162,7 @@ export function PaymentReconciliationShow({
                 {/* Amount section */}
                 <div className="md:col-span-3">
                   <div className="flex justify-between items-center py-3 border-b">
-                    <div className="text-muted-foreground">{t("amount")}</div>
+                    <div className="text-gray-500">{t("amount")}</div>
                     <div className="text-xl font-bold">
                       {formatCurrency(payment.amount ?? null)}
                     </div>
@@ -296,12 +296,12 @@ export function PaymentReconciliationShow({
                         {payment.target_invoice.status}
                       </Badge>
                     </div>
-                    <p className="text-sm text-muted-foreground mt-1">
+                    <p className="text-sm text-gray-500 mt-1">
                       {payment.target_invoice.title}
                     </p>
                   </div>
                   <div className="text-right">
-                    <div className="text-sm text-muted-foreground mb-1">
+                    <div className="text-sm text-gray-500 mb-1">
                       {t("invoice_amount")}
                     </div>
                     <div className="font-bold">
@@ -347,7 +347,7 @@ export function PaymentReconciliationShow({
                 <div className="relative pl-6">
                   <div className="absolute left-0 top-2 size-2 rounded-full bg-primary" />
                   <p className="font-medium">{t("payment_recorded")}</p>
-                  <p className="text-sm text-muted-foreground">
+                  <p className="text-sm text-gray-500">
                     {payment.payment_datetime
                       ? format(new Date(payment.payment_datetime), "PPP")
                       : format(new Date(), "PPP")}
@@ -357,7 +357,7 @@ export function PaymentReconciliationShow({
                   <div className="relative pl-6">
                     <div className="absolute left-0 top-2 size-2 rounded-full bg-destructive" />
                     <p className="font-medium">{t("payment_cancelled")}</p>
-                    <p className="text-sm text-muted-foreground">
+                    <p className="text-sm text-gray-500">
                       {format(new Date(), "PPP")}
                     </p>
                   </div>

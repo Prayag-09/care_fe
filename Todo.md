@@ -21,7 +21,7 @@ x : Done
 - [-] Invoice - Add charge items when draft - Jeevan
 - [ ] Invoice - Payment history filter by invoice
 - [x] Account - Payments tab - filter by Account - BE
-- [-] Invoice View & Print - Show tax split up & Discounts (code with group in brackets) - Amjith
+- [x] Invoice View & Print - Show tax split up & Discounts (code with group in brackets) - Amjith
 - [ ] Invoice - Cancel button (API) & Mark as entered-in-error
 - [x] View for Cancelled invoices list (Tab - by invoice Status) - Jeevan
 - [x] Charge items list (Tab - by Charge item Status) - Jeevan

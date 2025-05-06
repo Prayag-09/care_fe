@@ -155,11 +155,11 @@ export default function EditInvoiceSheet({
 
         {isLoading ? (
           <div className="py-8 text-center">
-            <p className="text-muted-foreground">{t("loading")}</p>
+            <p className="text-gray-500">{t("loading")}</p>
           </div>
         ) : !invoice ? (
           <div className="py-8 text-center">
-            <p className="text-muted-foreground">{t("invoice_not_found")}</p>
+            <p className="text-gray-500">{t("invoice_not_found")}</p>
           </div>
         ) : (
           <Form {...form}>
