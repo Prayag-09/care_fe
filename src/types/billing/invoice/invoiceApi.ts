@@ -1,7 +1,12 @@
 import { HttpMethod, Type } from "@/Utils/request/api";
 import { PaginatedResponse } from "@/Utils/request/types";
 
-import { InvoiceBase, InvoiceCreate, InvoiceRead } from "./invoice";
+import {
+  InvoiceBase,
+  InvoiceCancel,
+  InvoiceCreate,
+  InvoiceRead,
+} from "./invoice";
 
 export default {
   listInvoice: {
@@ -25,5 +30,11 @@ export default {
     method: HttpMethod.PUT,
     TRes: Type<InvoiceRead>(),
     TBody: Type<InvoiceCreate>(),
+  },
+  cancelInvoice: {
+    path: "/api/v1/facility/{facilityId}/invoice/{invoiceId}/cancel_invoice/",
+    method: HttpMethod.POST,
+    TRes: Type<InvoiceRead>(),
+    TBody: Type<InvoiceCancel>(),
   },
 } as const;

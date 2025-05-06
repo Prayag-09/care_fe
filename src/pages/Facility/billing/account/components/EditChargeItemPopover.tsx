@@ -1,7 +1,7 @@
 import { zodResolver } from "@hookform/resolvers/zod";
 import { useMutation, useQueryClient } from "@tanstack/react-query";
 import { PencilIcon } from "lucide-react";
-import React from "react";
+import React, { useEffect } from "react";
 import { useForm } from "react-hook-form";
 import { useTranslation } from "react-i18next";
 import { toast } from "sonner";
@@ -18,6 +18,7 @@ import {
   FormMessage,
 } from "@/components/ui/form";
 import { Input } from "@/components/ui/input";
+import { ScrollArea } from "@/components/ui/scroll-area";
 import {
   Select,
   SelectContent,
@@ -107,6 +108,12 @@ export function EditChargeItemPopover({
     },
   });
 
+  useEffect(() => {
+    if (!isOpen) {
+      form.reset();
+    }
+  }, [isOpen, form]);
+
   // Filter price components by type
   const getComponentsByType = (type: MonetoryComponentType) => {
     return (
@@ -187,200 +194,211 @@ export function EditChargeItemPopover({
           </SheetDescription>
         </SheetHeader>
 
-        <div className="space-y-6 py-6">
-          <Form {...form}>
-            <form onSubmit={form.handleSubmit(onSubmit)} className="space-y-6">
-              <div className="space-y-4">
-                <FormField
-                  control={form.control}
-                  name="title"
-                  render={({ field }) => (
-                    <FormItem>
-                      <FormLabel>{t("title")}</FormLabel>
-                      <FormControl>
-                        <Input {...field} />
-                      </FormControl>
-                      <FormMessage />
-                    </FormItem>
-                  )}
-                />
-
-                <FormField
-                  control={form.control}
-                  name="description"
-                  render={({ field }) => (
-                    <FormItem>
-                      <FormLabel>{t("description")}</FormLabel>
-                      <FormControl>
-                        <Textarea {...field} value={field.value || ""} />
-                      </FormControl>
-                      <FormMessage />
-                    </FormItem>
-                  )}
-                />
-
-                <div className="grid grid-cols-2 gap-4">
+        <ScrollArea className="h-[calc(100vh-4rem)] scroll-y-auto py-2 px-4 border rounded-md mt-2">
+          <div className="space-y-6 py-6">
+            <Form {...form}>
+              <form
+                onSubmit={form.handleSubmit(onSubmit)}
+                className="space-y-6"
+              >
+                <div className="space-y-4">
                   <FormField
                     control={form.control}
-                    name="status"
+                    name="title"
                     render={({ field }) => (
                       <FormItem>
-                        <FormLabel>{t("status")}</FormLabel>
-                        <Select
-                          onValueChange={field.onChange}
-                          defaultValue={field.value}
-                        >
-                          <FormControl>
-                            <SelectTrigger>
-                              <SelectValue placeholder={t("select_status")} />
-                            </SelectTrigger>
-                          </FormControl>
-                          <SelectContent>
-                            {Object.values(ChargeItemStatus).map((status) => (
-                              <SelectItem key={status} value={status}>
-                                {t(status)}
-                              </SelectItem>
-                            ))}
-                          </SelectContent>
-                        </Select>
-                        <FormMessage />
-                      </FormItem>
-                    )}
-                  />
-
-                  <FormField
-                    control={form.control}
-                    name="quantity"
-                    render={({ field }) => (
-                      <FormItem>
-                        <FormLabel>{t("quantity")}</FormLabel>
+                        <FormLabel>{t("title")}</FormLabel>
                         <FormControl>
-                          <Input type="number" min={1} {...field} />
+                          <Input {...field} />
                         </FormControl>
                         <FormMessage />
                       </FormItem>
                     )}
                   />
-                </div>
 
-                <Separator className="my-4" />
+                  <FormField
+                    control={form.control}
+                    name="description"
+                    render={({ field }) => (
+                      <FormItem>
+                        <FormLabel>{t("description")}</FormLabel>
+                        <FormControl>
+                          <Textarea {...field} value={field.value || ""} />
+                        </FormControl>
+                        <FormMessage />
+                      </FormItem>
+                    )}
+                  />
 
-                <div>
-                  <h3 className="text-sm font-medium mb-3">
-                    {t("pricing_details")}
-                  </h3>
-
-                  <div className="rounded-md border bg-card">
-                    <div className="p-4 text-sm">
-                      <h4 className="font-medium mb-2">
-                        {t("unit_price_components")}
-                      </h4>
-
-                      <div className="space-y-2">
-                        {baseComponent && (
-                          <div className="flex justify-between">
-                            <span className="font-medium">
-                              {t("base_price")}
-                            </span>
-                            <span>{formatCurrency(baseComponent.amount)}</span>
-                          </div>
-                        )}
-
-                        {discounts.map((discount, index) => (
-                          <div
-                            key={`discount-${index}`}
-                            className="flex justify-between"
+                  <div className="grid grid-cols-2 gap-4">
+                    <FormField
+                      control={form.control}
+                      name="status"
+                      render={({ field }) => (
+                        <FormItem>
+                          <FormLabel>{t("status")}</FormLabel>
+                          <Select
+                            onValueChange={field.onChange}
+                            defaultValue={field.value}
                           >
-                            <span className="text-green-600">
-                              {t("discount")}
-                            </span>
-                            <span>
-                              -
-                              {discount.amount !== undefined &&
-                              discount.amount !== null
-                                ? formatCurrency(discount.amount)
-                                : formatPercentage(discount.factor)}
-                            </span>
-                          </div>
-                        ))}
+                            <FormControl>
+                              <SelectTrigger>
+                                <SelectValue placeholder={t("select_status")} />
+                              </SelectTrigger>
+                            </FormControl>
+                            <SelectContent>
+                              {Object.values(ChargeItemStatus).map((status) => (
+                                <SelectItem key={status} value={status}>
+                                  {t(status)}
+                                </SelectItem>
+                              ))}
+                            </SelectContent>
+                          </Select>
+                          <FormMessage />
+                        </FormItem>
+                      )}
+                    />
 
-                        {taxes.map((tax, index) => (
-                          <div
-                            key={`tax-${index}`}
-                            className="flex justify-between"
-                          >
-                            <span className="text-blue-600">{t("tax")}</span>
-                            <span>
-                              +
-                              {tax.amount !== undefined && tax.amount !== null
-                                ? formatCurrency(tax.amount)
-                                : formatPercentage(tax.factor)}
-                            </span>
-                          </div>
-                        ))}
-
-                        <Separator className="my-2" />
-
-                        <div className="flex justify-between font-semibold">
-                          <span>{t("unit_total")}</span>
-                          <span>{formatCurrency(calculateUnitTotal())}</span>
-                        </div>
-                      </div>
-                    </div>
+                    <FormField
+                      control={form.control}
+                      name="quantity"
+                      render={({ field }) => (
+                        <FormItem>
+                          <FormLabel>{t("quantity")}</FormLabel>
+                          <FormControl>
+                            <Input type="number" min={1} {...field} />
+                          </FormControl>
+                          <FormMessage />
+                        </FormItem>
+                      )}
+                    />
                   </div>
 
-                  {item.quantity > 1 && (
-                    <div className="rounded-md border bg-card mt-4">
+                  <Separator className="my-4" />
+
+                  <div>
+                    <h3 className="text-sm font-medium mb-3">
+                      {t("pricing_details")}
+                    </h3>
+
+                    <div className="rounded-md border bg-card">
                       <div className="p-4 text-sm">
+                        <h4 className="font-medium mb-2">
+                          {t("unit_price_components")}
+                        </h4>
+
                         <div className="space-y-2">
-                          <div className="flex justify-between">
-                            <span className="font-medium">{t("quantity")}</span>
-                            <span>{item.quantity}</span>
-                          </div>
+                          {baseComponent && (
+                            <div className="flex justify-between">
+                              <span className="font-medium">
+                                {t("base_price")}
+                              </span>
+                              <span>
+                                {formatCurrency(baseComponent.amount)}
+                              </span>
+                            </div>
+                          )}
+
+                          {discounts.map((discount, index) => (
+                            <div
+                              key={`discount-${index}`}
+                              className="flex justify-between"
+                            >
+                              <span className="text-green-600">
+                                {t("discount")}
+                              </span>
+                              <span>
+                                -
+                                {discount.amount !== undefined &&
+                                discount.amount !== null
+                                  ? formatCurrency(discount.amount)
+                                  : formatPercentage(discount.factor)}
+                              </span>
+                            </div>
+                          ))}
+
+                          {taxes.map((tax, index) => (
+                            <div
+                              key={`tax-${index}`}
+                              className="flex justify-between"
+                            >
+                              <span className="text-blue-600">{t("tax")}</span>
+                              <span>
+                                +
+                                {tax.amount !== undefined && tax.amount !== null
+                                  ? formatCurrency(tax.amount)
+                                  : formatPercentage(tax.factor)}
+                              </span>
+                            </div>
+                          ))}
 
                           <Separator className="my-2" />
 
                           <div className="flex justify-between font-semibold">
-                            <span>{t("total_price")}</span>
-                            <span>{formatCurrency(currentTotal)}</span>
+                            <span>{t("unit_total")}</span>
+                            <span>{formatCurrency(calculateUnitTotal())}</span>
                           </div>
                         </div>
                       </div>
                     </div>
-                  )}
+
+                    {item.quantity > 1 && (
+                      <div className="rounded-md border bg-card mt-4">
+                        <div className="p-4 text-sm">
+                          <div className="space-y-2">
+                            <div className="flex justify-between">
+                              <span className="font-medium">
+                                {t("quantity")}
+                              </span>
+                              <span>{item.quantity}</span>
+                            </div>
+
+                            <Separator className="my-2" />
+
+                            <div className="flex justify-between font-semibold">
+                              <span>{t("total_price")}</span>
+                              <span>{formatCurrency(currentTotal)}</span>
+                            </div>
+                          </div>
+                        </div>
+                      </div>
+                    )}
+                  </div>
+
+                  <Separator className="my-4" />
+
+                  <FormField
+                    control={form.control}
+                    name="note"
+                    render={({ field }) => (
+                      <FormItem>
+                        <FormLabel>{t("note")}</FormLabel>
+                        <FormControl>
+                          <Textarea {...field} value={field.value || ""} />
+                        </FormControl>
+                        <FormDescription>
+                          {t("note_description")}
+                        </FormDescription>
+                        <FormMessage />
+                      </FormItem>
+                    )}
+                  />
                 </div>
 
-                <Separator className="my-4" />
-
-                <FormField
-                  control={form.control}
-                  name="note"
-                  render={({ field }) => (
-                    <FormItem>
-                      <FormLabel>{t("note")}</FormLabel>
-                      <FormControl>
-                        <Textarea {...field} value={field.value || ""} />
-                      </FormControl>
-                      <FormDescription>{t("note_description")}</FormDescription>
-                      <FormMessage />
-                    </FormItem>
-                  )}
-                />
-              </div>
-
-              <SheetFooter className="pt-2">
-                <SheetClose asChild>
-                  <Button variant="outline" type="button">
-                    {t("cancel")}
+                <SheetFooter className="pt-2">
+                  <SheetClose asChild>
+                    <Button variant="outline" type="button">
+                      {t("cancel")}
+                    </Button>
+                  </SheetClose>
+                  <Button type="submit" disabled={isPending}>
+                    {isPending ? t("saving") : t("save_changes")}
                   </Button>
-                </SheetClose>
-                <Button type="submit" disabled={isPending}>
-                  {isPending ? t("saving") : t("save_changes")}
-                </Button>
-              </SheetFooter>
-            </form>
-          </Form>
-        </div>
+                </SheetFooter>
+              </form>
+            </Form>
+          </div>
+        </ScrollArea>
       </SheetContent>
     </Sheet>
   );

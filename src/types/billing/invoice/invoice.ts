@@ -22,7 +22,7 @@ export interface InvoiceBase {
   id: string;
   title: string;
   status: InvoiceStatus;
-  cancalled_reason?: string | null;
+  cancelled_reason?: (typeof INVOICE_CANCEL_REASONS)[number] | null;
   payment_terms?: string | null;
   note?: string | null;
 }
@@ -39,3 +39,12 @@ export interface InvoiceRead extends InvoiceBase {
   total_net: number;
   total_gross: number;
 }
+
+export interface InvoiceCancel {
+  reason: string;
+}
+
+export const INVOICE_CANCEL_REASONS = [
+  InvoiceStatus.cancelled,
+  InvoiceStatus.entered_in_error,
+] as const;

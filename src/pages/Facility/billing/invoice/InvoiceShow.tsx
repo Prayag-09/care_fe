@@ -7,6 +7,8 @@ import { useTranslation } from "react-i18next";
 import { formatPhoneNumberIntl } from "react-phone-number-input";
 import { toast } from "sonner";
 
+import { cn } from "@/lib/utils";
+
 import CareIcon from "@/CAREUI/icons/CareIcon";
 
 import {
@@ -20,7 +22,7 @@ import {
   AlertDialogTitle,
 } from "@/components/ui/alert-dialog";
 import { Badge } from "@/components/ui/badge";
-import { Button } from "@/components/ui/button";
+import { Button, buttonVariants } from "@/components/ui/button";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import {
   DropdownMenu,
@@ -41,6 +43,7 @@ import {
   TableRow,
 } from "@/components/ui/table";
 
+import AddChargeItemSheet from "@/components/Billing/Invoice/AddChargeItemSheet";
 import { TableSkeleton } from "@/components/Common/SkeletonLoading";
 
 import mutate from "@/Utils/request/mutate";
@@ -252,12 +255,25 @@ export function InvoiceShow({
         <div className="md:col-span-2">
           <Card>
             <CardHeader>
-              <CardTitle>
+              <CardTitle className="flex flex-row justify-between items-center">
                 <div className="space-y-1">
                   <div className="font-medium text-xl">
                     {t("invoice_details")}
                   </div>
                 </div>
+                {invoice.status === InvoiceStatus.draft && (
+                  <AddChargeItemSheet
+                    facilityId={facilityId}
+                    invoiceId={invoiceId}
+                    accountId={invoice.account.id}
+                    trigger={
+                      <Button variant="primary">
+                        <CareIcon icon="l-plus" className="mr-2 size-4" />
+                        {t("add_charge_item")}
+                      </Button>
+                    }
+                  />
+                )}
               </CardTitle>
             </CardHeader>
             <CardContent>
@@ -311,7 +327,11 @@ export function InvoiceShow({
                       <TableHead>{t("quantity")}</TableHead>
                       <TableHead>{t("total")}</TableHead>
                       <TableHead className="w-[120px]">{t("status")}</TableHead>
-                      <TableHead className="w-[60px]">{t("actions")}</TableHead>
+                      {invoice?.status === InvoiceStatus.draft && (
+                        <TableHead className="w-[60px]">
+                          {t("actions")}
+                        </TableHead>
+                      )}
                     </TableRow>
                   </TableHeader>
                   <TableBody>
@@ -370,38 +390,37 @@ export function InvoiceShow({
                               </Badge>
                             </TableCell>
                             <TableCell>
-                              {invoice.status !== InvoiceStatus.balanced &&
-                                invoice.status !== InvoiceStatus.cancelled && (
-                                  <DropdownMenu>
-                                    <DropdownMenuTrigger asChild>
-                                      <Button
-                                        variant="ghost"
-                                        size="icon"
-                                        className="h-8 w-8"
-                                      >
-                                        <MoreHorizontal className="h-4 w-4" />
-                                      </Button>
-                                    </DropdownMenuTrigger>
-                                    <DropdownMenuContent align="end">
-                                      <DropdownMenuLabel>
-                                        {t("actions")}
-                                      </DropdownMenuLabel>
-                                      <DropdownMenuSeparator />
-                                      <DropdownMenuItem
-                                        onClick={() =>
-                                          setChargeItemToRemove(item.id)
-                                        }
-                                        className="text-destructive"
-                                      >
-                                        <CareIcon
-                                          icon="l-trash"
-                                          className="mr-2 size-4"
-                                        />
-                                        <span>{t("remove")}</span>
-                                      </DropdownMenuItem>
-                                    </DropdownMenuContent>
-                                  </DropdownMenu>
-                                )}
+                              {invoice.status === InvoiceStatus.draft && (
+                                <DropdownMenu>
+                                  <DropdownMenuTrigger asChild>
+                                    <Button
+                                      variant="ghost"
+                                      size="icon"
+                                      className="h-8 w-8"
+                                    >
+                                      <MoreHorizontal className="h-4 w-4" />
+                                    </Button>
+                                  </DropdownMenuTrigger>
+                                  <DropdownMenuContent align="end">
+                                    <DropdownMenuLabel>
+                                      {t("actions")}
+                                    </DropdownMenuLabel>
+                                    <DropdownMenuSeparator />
+                                    <DropdownMenuItem
+                                      onClick={() =>
+                                        setChargeItemToRemove(item.id)
+                                      }
+                                      className="text-destructive"
+                                    >
+                                      <CareIcon
+                                        icon="l-trash"
+                                        className="mr-2 size-4"
+                                      />
+                                      <span>{t("remove")}</span>
+                                    </DropdownMenuItem>
+                                  </DropdownMenuContent>
+                                </DropdownMenu>
+                              )}
                             </TableCell>
                           </TableRow>
                         );
@@ -635,6 +654,7 @@ export function InvoiceShow({
           <AlertDialogFooter>
             <AlertDialogCancel>{t("cancel")}</AlertDialogCancel>
             <AlertDialogAction
+              className={cn(buttonVariants({ variant: "destructive" }))}
               onClick={handleRemoveChargeItem}
               disabled={isRemoving}
             >
