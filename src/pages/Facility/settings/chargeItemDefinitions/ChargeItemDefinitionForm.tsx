@@ -1,5 +1,6 @@
 import { zodResolver } from "@hookform/resolvers/zod";
 import { useMutation, useQuery } from "@tanstack/react-query";
+import { CheckIcon, Loader2 } from "lucide-react";
 import { navigate } from "raviger";
 import { useEffect, useState } from "react";
 import { useForm, useWatch } from "react-hook-form";
@@ -50,21 +51,18 @@ const priceComponentSchema = z
   .object({
     monetory_component_type: z.nativeEnum(MonetoryComponentType),
     code: CodeSchema.nullable().optional(),
-    amount: z.number().nullable().optional(),
-    factor: z.number().nullable().optional(),
-    use_factor: z.boolean().optional(),
+    factor: z.number().min(0).max(100).nullable().optional(),
+    amount: z.number().min(0).nullable().optional(),
   })
   .refine(
     (data) => {
+      // Base price must have amount, not factor
       if (data.monetory_component_type === MonetoryComponentType.base) {
-        // Base price must have amount, not factor
-        return data.amount !== undefined && data.amount !== null;
-      } else {
-        // Other types need either amount or factor based on use_factor toggle
-        return data.use_factor
-          ? data.factor !== undefined && data.factor !== null
-          : data.amount !== undefined && data.amount !== null;
+        return data.amount != null;
       }
+
+      // Other types need either amount or factor
+      return data.factor != null || data.amount != null;
     },
     {
       message:
@@ -74,7 +72,7 @@ const priceComponentSchema = z
   );
 
 const formSchema = z.object({
-  title: z.string().min(1, { message: "Title is required" }),
+  title: z.string().min(1, { message: "field_required" }),
   status: z.nativeEnum(ChargeItemDefinitionStatus),
   description: z.string().nullable(),
   purpose: z.string().nullable(),
@@ -93,9 +91,6 @@ const formSchema = z.object({
   ),
 });
 
-// Define extended form schema type
-type FormValues = z.infer<typeof formSchema>;
-
 interface ChargeItemDefinitionFormProps {
   facilityId: string;
   initialData?: ChargeItemDefinitionRead;
@@ -112,32 +107,27 @@ export function ChargeItemDefinitionForm({
 }: ChargeItemDefinitionFormProps) {
   const { t } = useTranslation();
 
-  // Initialize price components with base price
   const getInitialPriceComponents = () => {
     if (
       initialData?.price_component &&
       initialData.price_component.length > 0
     ) {
-      return initialData.price_component.map((comp) => ({
-        ...comp,
-        use_factor: comp.factor !== null && comp.factor !== undefined,
-      }));
-    } else {
-      return [
-        {
-          monetory_component_type: MonetoryComponentType.base,
-          amount: 0,
-          factor: null,
-          code: null,
-          use_factor: false,
-        },
-      ];
+      return initialData.price_component;
     }
+
+    return [
+      {
+        monetory_component_type: MonetoryComponentType.base,
+        amount: 0,
+        factor: null,
+        code: null,
+      },
+    ];
   };
 
-  const [priceComponents, setPriceComponents] = useState<
-    (MonetoryComponent & { use_factor?: boolean })[]
-  >(getInitialPriceComponents());
+  const [priceComponents, setPriceComponents] = useState(
+    getInitialPriceComponents(),
+  );
 
   // Fetch facility data for discount and tax codes
   const { data: facilityData, isLoading: isFacilityLoading } = useQuery({
@@ -147,22 +137,7 @@ export function ChargeItemDefinitionForm({
     }),
   });
 
-  // Log facility data when loaded (for debugging)
-  useEffect(() => {
-    if (facilityData) {
-      console.log("Facility discount codes:", facilityData.discount_codes);
-      console.log(
-        "Facility instance discount codes:",
-        facilityData.instance_discount_codes,
-      );
-      console.log(
-        "Facility instance tax codes:",
-        facilityData.instance_tax_codes,
-      );
-    }
-  }, [facilityData]);
-
-  const form = useForm<FormValues>({
+  const form = useForm({
     resolver: zodResolver(formSchema),
     defaultValues: {
       ...initialData,
@@ -186,73 +161,56 @@ export function ChargeItemDefinitionForm({
       watchedValues.price_component &&
       watchedValues.price_component.length > 0
     ) {
-      setPriceComponents(
-        watchedValues.price_component as (MonetoryComponent & {
-          use_factor?: boolean;
-        })[],
-      );
+      setPriceComponents(watchedValues.price_component as MonetoryComponent[]);
     }
   }, [watchedValues.price_component]);
 
   // Form submission handler
   const {
-    mutate: submitForm,
+    mutate: upsert,
     isPending,
     error,
   } = useMutation({
-    mutationFn: (data: FormValues) => {
-      // Prepare the final submission data
-      const cleanedPriceComponents = data.price_component.map((comp) => {
-        // Remove UI-only fields
-        const { use_factor, ...componentData } = comp;
-
-        // For base price type, ensure we only use amount (not factor)
-        if (
-          componentData.monetory_component_type === MonetoryComponentType.base
-        ) {
-          return {
-            monetory_component_type: componentData.monetory_component_type,
-            amount: componentData.amount,
-            ...(componentData.code && { code: componentData.code }),
-          };
-        }
-
-        // For other types, use either amount or factor based on selection
-        return {
-          monetory_component_type: componentData.monetory_component_type,
-          ...(componentData.code && { code: componentData.code }),
-          ...(use_factor
-            ? { factor: componentData.factor }
-            : { amount: componentData.amount }),
-        };
-      });
-
-      const submissionData: ChargeItemDefinitionCreate = {
-        ...data,
-        price_component: cleanedPriceComponents,
-        slug: data.title.toLowerCase().replace(/\s+/g, "-"),
-      };
-
-      if (isUpdate && initialData) {
-        return mutate(chargeItemDefinitionApi.updateChargeItemDefinition, {
-          pathParams: { facilityId, chargeItemDefinitionId: initialData.id },
-        })(submissionData);
-      } else {
-        return mutate(chargeItemDefinitionApi.createChargeItemDefinition, {
-          pathParams: { facilityId },
-        })(submissionData);
-      }
-    },
-    onSuccess: () => {
-      onSuccess();
-    },
-    onError: (err) => {
-      console.error("Mutation error:", err);
-    },
+    mutationFn:
+      isUpdate && initialData
+        ? mutate(chargeItemDefinitionApi.updateChargeItemDefinition, {
+            pathParams: { facilityId, id: initialData.id },
+          })
+        : mutate(chargeItemDefinitionApi.createChargeItemDefinition, {
+            pathParams: { facilityId },
+          }),
+    onSuccess: () => onSuccess(),
   });
 
-  const onSubmit = (values: FormValues) => {
-    submitForm(values);
+  const onSubmit = (values: z.infer<typeof formSchema>) => {
+    // Prepare the final submission data
+    const cleanedPriceComponents = values.price_component.map((comp) => {
+      // For base price type, ensure we only use amount (not factor)
+      if (comp.monetory_component_type === MonetoryComponentType.base) {
+        return {
+          monetory_component_type: comp.monetory_component_type,
+          amount: comp.amount,
+          ...(comp.code && { code: comp.code }),
+        };
+      }
+
+      // For other types, use either amount or factor based on which is set
+      return {
+        monetory_component_type: comp.monetory_component_type,
+        ...(comp.code && { code: comp.code }),
+        ...(comp.factor !== null
+          ? { factor: comp.factor }
+          : { amount: comp.amount }),
+      };
+    });
+
+    const submissionData: ChargeItemDefinitionCreate = {
+      ...values,
+      price_component: cleanedPriceComponents,
+      slug: values.title.toLowerCase().replace(/\s+/g, "-"),
+    };
+
+    upsert(submissionData);
   };
 
   const handleSubmit = form.handleSubmit(onSubmit);
@@ -320,12 +278,11 @@ export function ChargeItemDefinitionForm({
 
     if (isChecked && !existingComponent) {
       // Add a new discount component
-      const newComponent: MonetoryComponent & { use_factor?: boolean } = {
+      const newComponent: MonetoryComponent = {
         monetory_component_type: MonetoryComponentType.discount,
         code: codeObj,
         amount: null,
-        factor: 0.1, // Default 10% discount
-        use_factor: true,
+        factor: 10, // Default 10% discount (using 0-100 scale)
       };
 
       const updatedComponents = [...priceComponents, newComponent];
@@ -366,12 +323,11 @@ export function ChargeItemDefinitionForm({
 
     if (isChecked && !existingComponent) {
       // Add a new tax component
-      const newComponent: MonetoryComponent & { use_factor?: boolean } = {
+      const newComponent: MonetoryComponent = {
         monetory_component_type: MonetoryComponentType.tax,
         code: codeObj,
         amount: null,
-        factor: 0.18, // Default 18% tax (like GST)
-        use_factor: true,
+        factor: 18, // Default 18% tax (like GST) (using 0-100 scale)
       };
 
       const updatedComponents = [...priceComponents, newComponent];
@@ -426,7 +382,7 @@ export function ChargeItemDefinitionForm({
         c.code?.system === codeObj.system,
     );
 
-    return component?.factor ? component.factor * 100 : 0;
+    return component?.factor || 0;
   };
 
   // Get base price component
@@ -454,8 +410,8 @@ export function ChargeItemDefinitionForm({
 
       updatedComponents[index] = {
         ...component,
-        factor: percentValue !== null ? percentValue / 100 : null,
-        use_factor: true,
+        factor: percentValue !== null ? percentValue : null,
+        amount: null,
       };
 
       setPriceComponents(updatedComponents);
@@ -603,7 +559,7 @@ export function ChargeItemDefinitionForm({
                       <div className="font-medium text-primary flex items-center">
                         {t("base_price")}
                         <div className="ml-2 text-xs font-normal bg-primary/20 px-2 py-0.5 rounded-full text-primary/80">
-                          Required
+                          {t("required")}
                         </div>
                       </div>
                       <div className="text-xs text-muted-foreground mt-1">
@@ -628,6 +584,7 @@ export function ChargeItemDefinitionForm({
                             id="base-price"
                             type="number"
                             value={basePrice?.amount ?? ""}
+                            min={0}
                             onChange={(e) => updateBasePrice(e.target.value)}
                             className="pl-7 text-right text-lg font-semibold bg-white focus:bg-white border-primary/30 focus-visible:ring-primary"
                             placeholder="0.00"
@@ -896,47 +853,55 @@ export function ChargeItemDefinitionForm({
                 </span>
               </div>
 
-              {/* Discounts */}
-              {discountCodes.some((code) =>
-                isCodeSelected(code, MonetoryComponentType.discount),
-              ) && (
-                <div className="flex justify-between py-2 border-b">
-                  <span className="text-muted-foreground">
-                    {t("discounts")}
-                  </span>
-                  <span>
-                    {discountCodes
-                      .filter((code) =>
-                        isCodeSelected(code, MonetoryComponentType.discount),
-                      )
-                      .map(
-                        (code) =>
-                          `-${getComponentPercentage(code, MonetoryComponentType.discount)}%`,
-                      )
-                      .join(", ")}
-                  </span>
-                </div>
-              )}
+              {/* Total Discounts */}
+              <div className="flex justify-between py-2 border-b">
+                <span className="text-muted-foreground">
+                  {t("total_discounts")}
+                </span>
+                <span className="text-red-600">
+                  {discountCodes.some((code) =>
+                    isCodeSelected(code, MonetoryComponentType.discount),
+                  )
+                    ? `-${discountCodes
+                        .filter((code) =>
+                          isCodeSelected(code, MonetoryComponentType.discount),
+                        )
+                        .reduce(
+                          (sum, code) =>
+                            sum +
+                            getComponentPercentage(
+                              code,
+                              MonetoryComponentType.discount,
+                            ),
+                          0,
+                        )}%`
+                    : "₹0.00"}
+                </span>
+              </div>
 
               {/* Taxes */}
-              {taxCodes.some((code) =>
-                isCodeSelected(code, MonetoryComponentType.tax),
-              ) && (
-                <div className="flex justify-between py-2 border-b">
-                  <span className="text-muted-foreground">{t("taxes")}</span>
-                  <span>
-                    {taxCodes
-                      .filter((code) =>
-                        isCodeSelected(code, MonetoryComponentType.tax),
-                      )
-                      .map(
-                        (code) =>
-                          `+${getComponentPercentage(code, MonetoryComponentType.tax)}%`,
-                      )
-                      .join(", ")}
-                  </span>
-                </div>
-              )}
+              <div className="flex justify-between py-2 border-b">
+                <span className="text-muted-foreground">{t("taxes")}</span>
+                <span>
+                  {taxCodes.some((code) =>
+                    isCodeSelected(code, MonetoryComponentType.tax),
+                  )
+                    ? `+${taxCodes
+                        .filter((code) =>
+                          isCodeSelected(code, MonetoryComponentType.tax),
+                        )
+                        .reduce(
+                          (sum, code) =>
+                            sum +
+                            getComponentPercentage(
+                              code,
+                              MonetoryComponentType.tax,
+                            ),
+                          0,
+                        )}%`
+                    : "₹0.00"}
+                </span>
+              </div>
 
               {/* Total */}
               <div className="flex justify-between pt-4 mt-2 font-bold border-t-2 border-green-200">
@@ -1025,7 +990,7 @@ export function ChargeItemDefinitionForm({
         </Card>
 
         {/* Action buttons */}
-        <div className="sticky bottom-0 bg-white p-4 mt-8 border-t flex justify-between items-center shadow-md rounded-b-md z-10">
+        <div className="sticky bottom-0 bg-white p-4 mt-8 border flex justify-between items-center shadow-md rounded-md z-10">
           <div className="text-sm">
             <span className="text-muted-foreground">
               {t("all_fields_saved_automatically")}
@@ -1043,16 +1008,16 @@ export function ChargeItemDefinitionForm({
             <Button
               type="submit"
               disabled={isPending}
-              className="bg-primary hover:bg-primary/90 text-white px-8 gap-2 shadow-md"
+              className="bg-primary hover:bg-primary/90 text-white px-8 shadow-md"
             >
               {isPending ? (
                 <>
-                  <CareIcon icon="l-spinner" className="animate-spin" />
+                  <Loader2 className="size-4 animate-spin" />
                   <span>{t("saving")}</span>
                 </>
               ) : (
                 <>
-                  <CareIcon icon="l-check" />
+                  <CheckIcon className="size-4" />
                   <span>{t(isUpdate ? "update" : "create")}</span>
                 </>
               )}

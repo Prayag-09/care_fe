@@ -48,3 +48,8 @@ export interface FacilityData {
   discount_codes: Code[];
   discount_monetory_components: MonetoryComponentRead[];
 }
+
+export interface FacilityMonetoryComponentsWrite {
+  discount_codes: Code[];
+  discount_monetory_components: MonetoryComponentRead[];
+}
