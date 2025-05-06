@@ -212,8 +212,14 @@ export function AccountList({
                         </div>
                       </div>
                     </TableCell>
-                    <TableCell>
-                      <MonetaryValue value={0} />
+                    <TableCell
+                      className={cn(
+                        account.total_balance > 0
+                          ? "text-red-600"
+                          : "text-green-700",
+                      )}
+                    >
+                      <MonetaryValue value={account.total_balance} />
                     </TableCell>
                     <TableCell>
                       <Badge variant={statusColorMap[account.status] as any}>

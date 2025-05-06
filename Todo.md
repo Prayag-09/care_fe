@@ -6,7 +6,7 @@ x : Done
 
 ## Billing
 
-- [ ] Wire the actual amounts in all payment pages once backend is done
+- [x] Wire the actual amounts in all payment pages once backend is done - Amjith
 - [ ] Make currency configurable
 - [ ] Add paymenthistory in invoices page
 - [ ] Add payment as transactions tab in account page
@@ -52,3 +52,11 @@ x : Done
 - [-] We should have an option to capture conclusion in diagnostic report- Yash
 - [ ] workflow statuses on the right side as per design should be created.
 - [ ] Service request should show linked cahrge items along with its status [check for backend support]
+
+## Back End
+
+- [ ] Service Request - Show specimen.collection.collector details instead of UUID (After BE change)
+- [ ] Service Request - Show specimen.processing.performer details instead of UUID (After BE change)
+- [ ] Patient - There shouldn't be more than one active account at any point in time
+
+
