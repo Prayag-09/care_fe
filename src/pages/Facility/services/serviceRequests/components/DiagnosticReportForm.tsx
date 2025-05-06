@@ -41,10 +41,7 @@ import FileUploadDialog from "@/components/Files/FileUploadDialog";
 
 import useFileUpload from "@/hooks/useFileUpload";
 
-import {
-  BACKEND_ALLOWED_EXTENSIONS,
-  FILE_EXTENSIONS,
-} from "@/common/constants";
+import { FILE_EXTENSIONS } from "@/common/constants";
 
 import routes from "@/Utils/request/api";
 import mutate from "@/Utils/request/mutate";
@@ -200,7 +197,7 @@ export function DiagnosticReportForm({
   const fileUpload = useFileUpload({
     type: "diagnostic_report" as any,
     multiple: true,
-    allowedExtensions: BACKEND_ALLOWED_EXTENSIONS,
+    allowedExtensions: ["pdf", "doc", "docx"],
     allowNameFallback: false,
     onUpload: () => {
       queryClient.invalidateQueries({
@@ -655,7 +652,7 @@ export function DiagnosticReportForm({
   return (
     <Card
       className={cn(
-        "shadow-none border-gray-200 rounded-lg cursor-pointer bg-gray-50",
+        "shadow-none border-gray-300 rounded-lg cursor-pointer bg-white",
         isExpanded && "bg-gray-100",
       )}
     >
@@ -864,6 +861,22 @@ export function DiagnosticReportForm({
 
                   {isImagingReport && (
                     <>
+                      {files?.results && files.results.length > 0 && (
+                        <div className="mt-6">
+                          <div className="text-lg font-medium">
+                            {t("uploaded_files")}
+                          </div>
+                          <FileListTable
+                            files={files.results}
+                            type="diagnostic_report"
+                            associatingId={fullReport.id}
+                            canEdit={true}
+                            showHeader={false}
+                            onRefetch={refetchFiles}
+                          />
+                        </div>
+                      )}
+
                       {fullReport?.status ===
                         DiagnosticReportStatus.preliminary && (
                         <Card className="mt-4 bg-gray-50 border-gray-200 shadow-none">
@@ -872,7 +885,7 @@ export function DiagnosticReportForm({
                               <div className="flex flex-col items-center justify-between gap-1">
                                 <CloudUpload className="size-10 border border-gray-100 rounded-md p-2 bg-white" />
                                 <Label className="text-base font-medium">
-                                  {t("choose_file_or_drag")}
+                                  {t("choose_file")}
                                 </Label>
                                 <div className="text-sm text-gray-500">
                                   {FILE_EXTENSIONS.DOCUMENT.map((ext) =>
@@ -894,7 +907,7 @@ export function DiagnosticReportForm({
                                       ? fileUpload.files
                                           .map((file) => file.name)
                                           .join(", ")
-                                      : t("upload_files")}
+                                      : t("select") + " " + t("files")}
                                   </span>
                                   {fileUpload.Input({ className: "hidden" })}
                                 </Label>
@@ -913,21 +926,6 @@ export function DiagnosticReportForm({
                             </div>
                           </CardContent>
                         </Card>
-                      )}
-                      {files?.results && files.results.length > 0 && (
-                        <div className="mt-6">
-                          <div className="text-lg font-medium">
-                            {t("uploaded_files")}
-                          </div>
-                          <FileListTable
-                            files={files.results}
-                            type="diagnostic_report"
-                            associatingId={fullReport.id}
-                            canEdit={true}
-                            showHeader={false}
-                            onRefetch={refetchFiles}
-                          />
-                        </div>
                       )}
                     </>
                   )}

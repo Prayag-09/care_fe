@@ -25,7 +25,7 @@ export default {
     TBody: Type<ChargeItemDefinitionCreate>(),
   },
   updateChargeItemDefinition: {
-    path: "/api/v1/facility/{facilityId}/charge_item_definition/{chargeItemDefinitionId}/",
+    path: "/api/v1/facility/{facilityId}/charge_item_definition/{id}/",
     method: HttpMethod.PUT,
     TRes: Type<ChargeItemDefinitionRead>(),
     TBody: Type<ChargeItemDefinitionCreate>(),

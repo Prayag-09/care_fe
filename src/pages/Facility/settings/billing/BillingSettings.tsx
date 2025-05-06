@@ -1,47 +1,22 @@
-import { useMutation, useQuery } from "@tanstack/react-query";
-import { PencilIcon, PlusIcon } from "lucide-react";
+import { useMutation, useQuery, useQueryClient } from "@tanstack/react-query";
+import { TrashIcon } from "lucide-react";
 import { useState } from "react";
-import { useForm } from "react-hook-form";
 import { useTranslation } from "react-i18next";
+import { toast } from "sonner";
 
-import { Badge } from "@/components/ui/badge";
+import {
+  AlertDialog,
+  AlertDialogAction,
+  AlertDialogCancel,
+  AlertDialogContent,
+  AlertDialogDescription,
+  AlertDialogFooter,
+  AlertDialogHeader,
+  AlertDialogTitle,
+} from "@/components/ui/alert-dialog";
 import { Button } from "@/components/ui/button";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
-import {
-  Form,
-  FormControl,
-  FormDescription,
-  FormField,
-  FormItem,
-  FormLabel,
-  FormMessage,
-} from "@/components/ui/form";
-import { Input } from "@/components/ui/input";
 import { MonetaryValue } from "@/components/ui/monetary-value";
-import { RadioGroup, RadioGroupItem } from "@/components/ui/radio-group";
-import {
-  Select,
-  SelectContent,
-  SelectItem,
-  SelectTrigger,
-  SelectValue,
-} from "@/components/ui/select";
-import {
-  Sheet,
-  SheetContent,
-  SheetDescription,
-  SheetFooter,
-  SheetHeader,
-  SheetTitle,
-} from "@/components/ui/sheet";
-import {
-  Table,
-  TableBody,
-  TableCell,
-  TableHead,
-  TableHeader,
-  TableRow,
-} from "@/components/ui/table";
 
 import Loading from "@/components/Common/Loading";
 import Page from "@/components/Common/Page";
@@ -49,37 +24,18 @@ import Page from "@/components/Common/Page";
 import routes from "@/Utils/request/api";
 import mutate from "@/Utils/request/mutate";
 import query from "@/Utils/request/query";
-import {
-  MonetoryComponentRead,
-  MonetoryComponentType,
-} from "@/types/base/monetoryComponent/monetoryComponent";
-import { Code } from "@/types/questionnaire/code";
+import { MonetoryComponentRead } from "@/types/base/monetoryComponent/monetoryComponent";
+import { FacilityData } from "@/types/facility/facility";
+import facilityApi from "@/types/facility/facilityApi";
 
-interface MonetoryComponentFormValues {
-  monetory_component_type: MonetoryComponentType;
-  code: Code | null;
-  factor: number | null;
-  amount: number | null;
-  title: string;
-  valueType: "factor" | "amount";
-}
+import { CreateDiscountMonetaryComponentPopover } from "./CreateDiscountMonetaryComponentPopover";
+import { EditDiscountMonetoryPopover } from "./EditDiscountMonetoryPopover";
 
 export function BillingSettings({ facilityId }: { facilityId: string }) {
   const { t } = useTranslation();
-  const [isEditingComponent, setIsEditingComponent] =
-    useState<MonetoryComponentRead | null>(null);
-  const [isSheetOpen, setIsSheetOpen] = useState(false);
+  const queryClient = useQueryClient();
 
-  const form = useForm<MonetoryComponentFormValues>({
-    defaultValues: {
-      monetory_component_type: MonetoryComponentType.discount,
-      code: null,
-      factor: null,
-      amount: null,
-      title: "",
-      valueType: "factor",
-    },
-  });
+  const [componentToDelete, setComponentToDelete] = useState<number>();
 
   const { data: facility, isLoading } = useQuery({
     queryKey: ["facility", facilityId],
@@ -88,162 +44,67 @@ export function BillingSettings({ facilityId }: { facilityId: string }) {
     }),
   });
 
-  const { mutate: updateFacility, isPending } = useMutation({
-    mutationFn: mutate(routes.updateFacility, {
-      pathParams: { id: facilityId },
-    }),
-    onSuccess: () => {
-      setIsSheetOpen(false);
-      setIsEditingComponent(null);
-      form.reset();
-    },
-  });
+  const { mutate: updateMonetoryComponents, isPending: _isPending } =
+    useMutation({
+      mutationFn: mutate(facilityApi.updateMonetoryComponents, {
+        pathParams: { facilityId },
+      }),
+      onSuccess: () => {
+        queryClient.invalidateQueries({ queryKey: ["facility", facilityId] });
+        toast.success(t("billing.components_updated"));
+      },
+    });
 
-  if (!facility || isLoading || isPending) {
+  if (!facility || isLoading) {
     return <Loading />;
   }
 
-  const handleSaveComponent = (data: MonetoryComponentFormValues) => {
-    const componentData = {
-      ...data,
-      factor: data.valueType === "factor" ? data.factor : null,
-      amount: data.valueType === "amount" ? data.amount : null,
-    };
+  const handleSaveComponent = (
+    data: MonetoryComponentRead,
+    replaceIndex?: number,
+  ) => {
+    const discountComponents = [...facility.discount_monetory_components];
+    const discountCodes = [...facility.discount_codes];
+    const allCodes = [
+      ...facility.instance_discount_codes,
+      ...facility.discount_codes,
+    ];
 
-    delete (componentData as any).valueType;
-
-    const updatedComponents = isEditingComponent
-      ? facility.discount_monetory_components.map((comp) =>
-          comp.title === isEditingComponent.title ? componentData : comp,
-        )
-      : [...facility.discount_monetory_components, componentData];
-
-    updateFacility({
-      discount_monetory_components: updatedComponents,
-    } as any);
-  };
-
-  const handleEditComponent = (component: MonetoryComponentRead) => {
-    const valueType =
-      component.factor !== null && component.factor !== undefined
-        ? "factor"
-        : "amount";
-
-    setIsEditingComponent(component);
-    form.reset({
-      monetory_component_type: component.monetory_component_type,
-      code: component.code || null,
-      factor: component.factor || null,
-      amount: component.amount || null,
-      title: component.title,
-      valueType,
-    });
-    setIsSheetOpen(true);
-  };
-
-  const handleAddNewComponent = () => {
-    setIsEditingComponent(null);
-    form.reset({
-      monetory_component_type: MonetoryComponentType.discount,
-      code: null,
-      factor: null,
-      amount: null,
-      title: "",
-      valueType: "factor",
-    });
-    setIsSheetOpen(true);
-  };
-
-  const formatValue = (component: MonetoryComponentRead) => {
-    if (component.factor !== null && component.factor !== undefined) {
-      return (
-        <div className="flex items-center gap-2">
-          <span>{component.factor}%</span>
-          <Badge variant="secondary">Factor</Badge>
-        </div>
-      );
-    } else if (component.amount !== null && component.amount !== undefined) {
-      return (
-        <div className="flex items-center gap-2">
-          {component.amount == null ? (
-            "-"
-          ) : (
-            <MonetaryValue value={component.amount} />
-          )}
-          <Badge variant="secondary">Amount</Badge>
-        </div>
-      );
+    // Replace existing component if index is provided (edit workflow)
+    if (replaceIndex != null) {
+      discountComponents[replaceIndex] = data;
+    } else {
+      discountComponents.push(data);
     }
-    return "-";
+
+    const discountCode = data.code;
+    if (
+      discountCode &&
+      !allCodes.find((code) => code.code === discountCode.code)
+    ) {
+      discountCodes.push(discountCode);
+    }
+
+    updateMonetoryComponents({
+      discount_monetory_components: discountComponents,
+      discount_codes: discountCodes,
+    });
   };
 
-  const renderMonetoryComponents = (
-    components: MonetoryComponentRead[],
-    canEdit = false,
-  ) => (
-    <Table>
-      <TableHeader>
-        <TableRow>
-          <TableHead>{t("billing.component_title")}</TableHead>
-          <TableHead>{t("billing.component_type")}</TableHead>
-          <TableHead>{t("billing.value")}</TableHead>
-          <TableHead>{t("billing.component_code")}</TableHead>
-          {canEdit && (
-            <TableHead className="w-16">{t("common.actions")}</TableHead>
-          )}
-        </TableRow>
-      </TableHeader>
-      <TableBody>
-        {components.length === 0 ? (
-          <TableRow>
-            <TableCell
-              colSpan={canEdit ? 5 : 4}
-              className="text-center text-gray-500"
-            >
-              {t("billing.no_components")}
-            </TableCell>
-          </TableRow>
-        ) : (
-          components.map((component, index) => (
-            <TableRow key={`${component.title}-${index}`}>
-              <TableCell>{component.title}</TableCell>
-              <TableCell>
-                <Badge
-                  variant={
-                    component.monetory_component_type ===
-                    MonetoryComponentType.discount
-                      ? "primary"
-                      : "default"
-                  }
-                >
-                  {component.monetory_component_type}
-                </Badge>
-              </TableCell>
-              <TableCell>{formatValue(component)}</TableCell>
-              <TableCell>
-                {component.code
-                  ? `${component.code.code} (${component.code.display})`
-                  : "-"}
-              </TableCell>
-              {canEdit && (
-                <TableCell>
-                  <Button
-                    variant="ghost"
-                    size="icon"
-                    onClick={() => handleEditComponent(component)}
-                  >
-                    <PencilIcon className="h-4 w-4" />
-                  </Button>
-                </TableCell>
-              )}
-            </TableRow>
-          ))
-        )}
-      </TableBody>
-    </Table>
-  );
+  const confirmDeleteComponent = () => {
+    if (componentToDelete == null) return;
 
-  const valueType = form.watch("valueType");
+    const updatedComponents = facility.discount_monetory_components.filter(
+      (_, index) => index !== componentToDelete,
+    );
+
+    updateMonetoryComponents({
+      discount_monetory_components: updatedComponents,
+      discount_codes: facility.discount_codes,
+    });
+
+    setComponentToDelete(undefined);
+  };
 
   return (
     <Page title={t("billing.settings_title")}>
@@ -254,16 +115,20 @@ export function BillingSettings({ facilityId }: { facilityId: string }) {
         <Card>
           <CardHeader className="flex flex-row items-center justify-between">
             <CardTitle>{t("billing.discount_components")}</CardTitle>
-            <Button variant="outline" size="sm" onClick={handleAddNewComponent}>
-              <PlusIcon className="h-4 w-4 mr-2" />
-              {t("billing.add_component")}
-            </Button>
+            <CreateDiscountMonetaryComponentPopover
+              onSubmit={handleSaveComponent}
+              systemCodes={facility.instance_discount_codes}
+              facilityCodes={facility.discount_codes}
+            />
           </CardHeader>
           <CardContent>
-            {renderMonetoryComponents(
-              facility.discount_monetory_components || [],
-              true,
-            )}
+            <DiscountComponentGrid
+              components={facility.discount_monetory_components || []}
+              canEdit={true}
+              onEdit={handleSaveComponent}
+              onDelete={setComponentToDelete}
+              facility={facility}
+            />
           </CardContent>
         </Card>
 
@@ -275,184 +140,179 @@ export function BillingSettings({ facilityId }: { facilityId: string }) {
             </p>
           </CardHeader>
           <CardContent>
-            {renderMonetoryComponents(
-              facility.instance_discount_monetory_components || [],
-            )}
+            <DiscountComponentGrid
+              components={facility.instance_discount_monetory_components || []}
+              canEdit={false}
+              onEdit={() => {}}
+              onDelete={() => {}}
+              facility={facility}
+            />
           </CardContent>
         </Card>
       </div>
 
-      <Sheet open={isSheetOpen} onOpenChange={setIsSheetOpen}>
-        <SheetContent className="sm:max-w-md">
-          <SheetHeader>
-            <SheetTitle>
-              {isEditingComponent
-                ? t("billing.edit_component")
-                : t("billing.add_component")}
-            </SheetTitle>
-            <SheetDescription>
-              {t("billing.component_form_description")}
-            </SheetDescription>
-          </SheetHeader>
-
-          <div className="py-4">
-            <Form {...form}>
-              <form
-                onSubmit={form.handleSubmit(handleSaveComponent)}
-                className="space-y-4"
-              >
-                <FormField
-                  control={form.control}
-                  name="title"
-                  render={({ field }) => (
-                    <FormItem>
-                      <FormLabel>{t("billing.component_title")}</FormLabel>
-                      <FormControl>
-                        <Input {...field} />
-                      </FormControl>
-                      <FormMessage />
-                    </FormItem>
-                  )}
-                />
-
-                <FormField
-                  control={form.control}
-                  name="monetory_component_type"
-                  render={({ field }) => (
-                    <FormItem>
-                      <FormLabel>{t("billing.component_type")}</FormLabel>
-                      <Select
-                        onValueChange={field.onChange}
-                        defaultValue={field.value}
-                      >
-                        <FormControl>
-                          <SelectTrigger>
-                            <SelectValue
-                              placeholder={t("billing.select_component_type")}
-                            />
-                          </SelectTrigger>
-                        </FormControl>
-                        <SelectContent>
-                          <SelectItem value={MonetoryComponentType.discount}>
-                            {t("billing.discount")}
-                          </SelectItem>
-                        </SelectContent>
-                      </Select>
-                      <FormMessage />
-                    </FormItem>
-                  )}
-                />
-
-                <FormField
-                  control={form.control}
-                  name="valueType"
-                  render={({ field }) => (
-                    <FormItem className="space-y-3">
-                      <FormLabel>{t("billing.value_type")}</FormLabel>
-                      <FormControl>
-                        <RadioGroup
-                          onValueChange={field.onChange}
-                          defaultValue={field.value}
-                          className="flex space-x-4"
-                        >
-                          <FormItem className="flex items-center space-x-2 space-y-0">
-                            <FormControl>
-                              <RadioGroupItem value="factor" />
-                            </FormControl>
-                            <FormLabel className="font-normal cursor-pointer">
-                              {t("billing.factor")}
-                            </FormLabel>
-                          </FormItem>
-                          <FormItem className="flex items-center space-x-2 space-y-0">
-                            <FormControl>
-                              <RadioGroupItem value="amount" />
-                            </FormControl>
-                            <FormLabel className="font-normal cursor-pointer">
-                              {t("billing.amount")}
-                            </FormLabel>
-                          </FormItem>
-                        </RadioGroup>
-                      </FormControl>
-                      <FormMessage />
-                    </FormItem>
-                  )}
-                />
-
-                {valueType === "factor" ? (
-                  <FormField
-                    control={form.control}
-                    name="factor"
-                    render={({ field }) => (
-                      <FormItem>
-                        <FormLabel>
-                          {t("billing.discount_factor")} (%)
-                        </FormLabel>
-                        <FormControl>
-                          <Input
-                            type="number"
-                            min="0"
-                            max="100"
-                            step="0.01"
-                            {...field}
-                            onChange={(e) =>
-                              field.onChange(
-                                e.target.value
-                                  ? parseFloat(e.target.value)
-                                  : null,
-                              )
-                            }
-                            value={field.value === null ? "" : field.value}
-                          />
-                        </FormControl>
-                        <FormDescription>
-                          {t("billing.factor_range_description")}
-                        </FormDescription>
-                        <FormMessage />
-                      </FormItem>
-                    )}
-                  />
-                ) : (
-                  <FormField
-                    control={form.control}
-                    name="amount"
-                    render={({ field }) => (
-                      <FormItem>
-                        <FormLabel>{t("billing.discount_amount")}</FormLabel>
-                        <FormControl>
-                          <Input
-                            type="number"
-                            min="0"
-                            step="0.01"
-                            {...field}
-                            onChange={(e) =>
-                              field.onChange(
-                                e.target.value
-                                  ? parseFloat(e.target.value)
-                                  : null,
-                              )
-                            }
-                            value={field.value === null ? "" : field.value}
-                          />
-                        </FormControl>
-                        <FormDescription>
-                          {t("billing.amount_min_description")}
-                        </FormDescription>
-                        <FormMessage />
-                      </FormItem>
-                    )}
-                  />
-                )}
-
-                <SheetFooter>
-                  <Button type="submit">
-                    {isEditingComponent ? t("common.save") : t("common.add")}
-                  </Button>
-                </SheetFooter>
-              </form>
-            </Form>
-          </div>
-        </SheetContent>
-      </Sheet>
+      <AlertDialog
+        open={componentToDelete !== undefined}
+        onOpenChange={(open) => !open && setComponentToDelete(undefined)}
+      >
+        <AlertDialogContent>
+          <AlertDialogHeader>
+            <AlertDialogTitle>{t("billing.delete_component")}</AlertDialogTitle>
+            <AlertDialogDescription>
+              {t("billing.delete_component_confirmation", {
+                title:
+                  componentToDelete !== undefined
+                    ? facility.discount_monetory_components[componentToDelete]
+                        ?.title
+                    : "",
+              })}
+            </AlertDialogDescription>
+          </AlertDialogHeader>
+          <AlertDialogFooter>
+            <AlertDialogCancel>{t("common.cancel")}</AlertDialogCancel>
+            <AlertDialogAction
+              onClick={confirmDeleteComponent}
+              className="bg-destructive text-destructive-foreground hover:bg-destructive/90"
+            >
+              {t("common.delete")}
+            </AlertDialogAction>
+          </AlertDialogFooter>
+        </AlertDialogContent>
+      </AlertDialog>
     </Page>
   );
 }
+
+const DiscountValue = ({ component }: { component: MonetoryComponentRead }) => {
+  if (component.factor != null) {
+    return `${component.factor}%`;
+  }
+
+  if (component.amount != null) {
+    return <MonetaryValue value={component.amount} />;
+  }
+
+  return "-";
+};
+
+const DiscountComponentGrid = ({
+  components,
+  canEdit = false,
+  onEdit,
+  onDelete,
+  facility,
+}: {
+  components: MonetoryComponentRead[];
+  canEdit?: boolean;
+  onEdit?: (data: MonetoryComponentRead, index: number) => void;
+  onDelete?: (index: number) => void;
+  // TODO: Skip passing facility so that discount codes can be obtained from current facility context
+  facility: FacilityData;
+}) => {
+  const { t } = useTranslation();
+
+  if (components.length === 0) {
+    return (
+      <div className="text-center py-8 text-muted-foreground">
+        {t("billing.no_components")}
+      </div>
+    );
+  }
+
+  return (
+    <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-4">
+      {components.map((component, index) => (
+        <DiscountCouponCard
+          key={`${component.title}-${index}`}
+          component={component}
+          index={index}
+          canEdit={canEdit}
+          onEdit={onEdit}
+          onDelete={onDelete}
+          facility={facility}
+        />
+      ))}
+    </div>
+  );
+};
+
+const DiscountCouponCard = ({
+  component,
+  index,
+  canEdit,
+  onEdit,
+  onDelete,
+  facility,
+}: {
+  component: MonetoryComponentRead;
+  index: number;
+  canEdit: boolean;
+  onEdit?: (data: MonetoryComponentRead, index: number) => void;
+  onDelete?: (index: number) => void;
+  facility: FacilityData;
+}) => {
+  const { t } = useTranslation();
+
+  return (
+    <div className="relative rounded-lg p-4 shadow bg-gradient-to-r from-gray-50/40 to-gray-100/40 overflow-hidden border-2 border-dashed border-gray-300/70">
+      {/* Decorative elements */}
+      <div className="absolute top-0 left-0 w-16 h-16 rounded-full -translate-x-1/2 -translate-y-1/2 bg-white/10"></div>
+      <div className="absolute bottom-0 right-0 w-24 h-24 rounded-full translate-x-1/3 translate-y-1/3 bg-white/10"></div>
+
+      {/* Content */}
+      <div className="relative z-10">
+        <div className="flex justify-between items-start mb-4">
+          <h3 className="text-lg font-medium truncate" title={component.title}>
+            {component.title}
+          </h3>
+          {canEdit && (
+            <div className="flex space-x-1">
+              {onEdit && (
+                <EditDiscountMonetoryPopover
+                  component={component}
+                  onSubmit={(data) => onEdit(data, index)}
+                  systemCodes={facility.instance_discount_codes}
+                  facilityCodes={facility.discount_codes}
+                />
+              )}
+              {onDelete && (
+                <Button
+                  variant="ghost"
+                  size="icon"
+                  onClick={() => onDelete(index)}
+                >
+                  <TrashIcon className="h-4 w-4 text-destructive" />
+                </Button>
+              )}
+            </div>
+          )}
+        </div>
+
+        <div className="space-y-2">
+          <div className="flex flex-col">
+            <span className="text-sm text-muted-foreground">
+              {t("billing.value")}
+            </span>
+            <span className="text-2xl font-bold">
+              <DiscountValue component={component} />
+            </span>
+          </div>
+
+          {component.code && (
+            <div className="flex flex-col mt-2">
+              <span className="text-sm text-muted-foreground">
+                {t("billing.component_code")}
+              </span>
+              <span className="text-sm font-mono bg-white/50 rounded px-2 py-1 inline-block">
+                {component.code.code}
+              </span>
+              <span className="text-xs text-muted-foreground mt-1">
+                {component.code.display}
+              </span>
+            </div>
+          )}
+        </div>
+      </div>
+    </div>
+  );
+};

@@ -1,7 +1,7 @@
 import { HttpMethod, Type } from "@/Utils/request/api";
 import { PaginatedResponse } from "@/Utils/request/types";
 
-import { FacilityData } from "./facility";
+import { FacilityData, FacilityMonetoryComponentsWrite } from "./facility";
 
 export default {
   getAllFacilities: {
@@ -19,5 +19,11 @@ export default {
     path: "/api/v1/facility/{id}/",
     method: HttpMethod.GET,
     TRes: Type<FacilityData>(),
+  },
+  updateMonetoryComponents: {
+    path: "/api/v1/facility/{facilityId}/set_monetary_codes/",
+    method: HttpMethod.POST,
+    TRes: Type<FacilityData>(),
+    TBody: Type<FacilityMonetoryComponentsWrite>(),
   },
 } as const;

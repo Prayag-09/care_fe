@@ -30,6 +30,7 @@ import {
   CollapsibleContent,
   CollapsibleTrigger,
 } from "@/components/ui/collapsible";
+import { Label } from "@/components/ui/label";
 import { Skeleton } from "@/components/ui/skeleton";
 
 import { Avatar } from "@/components/Common/Avatar";
@@ -56,6 +57,7 @@ export function DiagnosticReportReview({
 }: DiagnosticReportReviewProps) {
   const { t } = useTranslation();
   const [isExpanded, setIsExpanded] = useState(true);
+  const [conclusion, setConclusion] = useState<string>("");
   const queryClient = useQueryClient();
   const latestReport = diagnosticReports[0];
 
@@ -101,6 +103,7 @@ export function DiagnosticReportReview({
       updateDiagnosticReport({
         ...latestReport,
         status: DiagnosticReportStatus.final,
+        conclusion,
       });
     }
   };
@@ -131,7 +134,7 @@ export function DiagnosticReportReview({
   return (
     <Card
       className={cn(
-        "shadow-none border-gray-200 rounded-lg cursor-pointer bg-gray-50",
+        "shadow-none border-gray-300 rounded-lg cursor-pointer bg-white",
         isExpanded && "bg-gray-100",
       )}
     >
@@ -220,6 +223,28 @@ export function DiagnosticReportReview({
                     <DiagnosticReportResultsTable
                       observations={fullReport.observations}
                     />
+                  </CardContent>
+                </Card>
+
+                <Card className="shadow-none rounded-lg border-gray-200 bg-gray-50">
+                  <CardContent className="p-4 space-y-2">
+                    <Label htmlFor="conclusion" className="font-medium">
+                      {t("conclusion")}
+                    </Label>
+                    {fullReport?.status === DiagnosticReportStatus.final ? (
+                      <p className="text-gray-800 whitespace-pre-wrap p-2 rounded-lg bg-white border border-gray-200 cursor-default">
+                        {fullReport?.conclusion ||
+                          t("no") + " " + t("conclusion") + " " + t("entered")}
+                      </p>
+                    ) : (
+                      <textarea
+                        id="conclusion"
+                        className="w-full field-sizing-content focus:outline-none focus:ring-1 focus:ring-primary-500 focus:border-primary-500 rounded-lg"
+                        placeholder={t("enter") + " " + t("conclusion")}
+                        value={conclusion || fullReport?.conclusion || ""}
+                        onChange={(e) => setConclusion(e.target.value)}
+                      />
+                    )}
                   </CardContent>
                 </Card>
 
