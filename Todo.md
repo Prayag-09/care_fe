@@ -19,7 +19,10 @@ x : Done
 - [x] Invoice list cleanup - Amjith
 - [x] Invoice View cleanup - Amjith
 - [x] Invoice Print Screen - Amjith
-- [ ] Invoice update statuses - Call different APIs
+- [ ] Invoice update statuses - Call different APIs (Balanced, Entered in error)
+- [-] Invoice - Show record payment button only when in issued status - Jeevan
+- [-] Invoice - Show Issue Invoice button when in draft status, remove from status dropdown  - Jeevan
+- [-] Invoice - Remove status dropdown in Invoice create, remove from request - Jeevan
 - [x] Invoice - Add charge items when draft - Jeevan
 - [x] Invoice - Payment history filter by invoice - Amjith
 - [x] Account - Payments tab - filter by Account - BE
