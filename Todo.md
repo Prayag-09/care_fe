@@ -33,7 +33,7 @@ x : Done
 - [x] Payments list (Tab - by Charge item Status) - Jeevan
 - [x] Show page for cancelled invoice (render charge items from cache)
 - [x] Create invoice inside Account charge item list - Jeevan
-- [-] Charge Item Definition Update - Rithvik
+- [x] Charge Item Definition Update - Rithvik
 - [-] Charge Item Update - Jeevan & Rithvik
 - [ ] Consider disabling onWheelChange for input[type=number] fields.
 
