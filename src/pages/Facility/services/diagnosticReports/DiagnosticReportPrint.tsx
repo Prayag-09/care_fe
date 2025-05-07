@@ -2,15 +2,49 @@ import careConfig from "@careConfig";
 import { useQuery } from "@tanstack/react-query";
 import { format } from "date-fns";
 import { Loader } from "lucide-react";
+import { useEffect, useState } from "react";
 import { useTranslation } from "react-i18next";
+import { Document, Page, pdfjs } from "react-pdf";
 
 import PrintPreview from "@/CAREUI/misc/PrintPreview";
 
+import { FileUploadModel } from "@/components/Patient/models";
+
+import routes from "@/Utils/request/api";
 import query from "@/Utils/request/query";
+import { PaginatedResponse } from "@/Utils/request/types";
 import { formatName } from "@/Utils/utils";
 import diagnosticReportApi from "@/types/emr/diagnosticReport/diagnosticReportApi";
 
 import { DiagnosticReportResultsTable } from "./components/DiagnosticReportResultsTable";
+
+pdfjs.GlobalWorkerOptions.workerSrc = "/pdf.worker.min.mjs";
+
+// TODO: Replace with PDFViewer or extract this to a component
+function PDFRenderer({ fileUrl }: { fileUrl: string }) {
+  const [numPages, setNumPages] = useState<number>(0);
+  const { t } = useTranslation();
+
+  return (
+    <Document
+      file={fileUrl}
+      onLoadSuccess={({ numPages }) => setNumPages(numPages)}
+      error={<div className="text-red-500">{t("error_loading_pdf")}</div>}
+      loading={<div className="text-gray-500">{t("loading")}</div>}
+    >
+      <div className="flex flex-col justify-center w-full">
+        {Array.from(new Array(numPages), (_, index) => (
+          <Page
+            key={`page_${index + 1}`}
+            pageNumber={index + 1}
+            width={Math.min(window.innerWidth * 0.9, 600)}
+            scale={1.2}
+          />
+        ))}
+      </div>
+    </Document>
+  );
+}
 
 export default function DiagnosticReportPrint({
   facilityId,
@@ -31,6 +65,66 @@ export default function DiagnosticReportPrint({
     }),
   });
 
+  // Query to fetch files for the diagnostic report
+  const { data: files = { results: [], count: 0 } } = useQuery<
+    PaginatedResponse<FileUploadModel>
+  >({
+    queryKey: ["files", "diagnostic_report", report?.id],
+    queryFn: query(routes.viewUpload, {
+      queryParams: {
+        file_type: "diagnostic_report",
+        associating_id: report?.id,
+        limit: 100,
+        offset: 0,
+      },
+    }),
+    enabled: !!report?.id,
+  });
+
+  // Function to get signed URL for a file
+  const getFileUrl = async (file: FileUploadModel) => {
+    if (!file.id || !report?.id) return null;
+
+    try {
+      const data = await query(routes.retrieveUpload, {
+        queryParams: {
+          file_type: "diagnostic_report",
+          associating_id: report.id,
+        },
+        pathParams: { id: file.id },
+      })({} as any);
+
+      return data?.read_signed_url as string;
+    } catch (error) {
+      console.error("Error fetching signed URL:", error);
+      return null;
+    }
+  };
+
+  // Store file URLs
+  const [fileUrls, setFileUrls] = useState<Record<string, string>>({});
+
+  // Fetch signed URLs for all files
+  useEffect(() => {
+    if (!files.results.length) return;
+
+    const fetchAllUrls = async () => {
+      const urls: Record<string, string> = {};
+
+      for (const file of files.results) {
+        if (!file.id) continue;
+        const url = await getFileUrl(file);
+        if (url) {
+          urls[file.id] = url;
+        }
+      }
+
+      setFileUrls(urls);
+    };
+
+    fetchAllUrls();
+  }, [files.results, report?.id]);
+
   if (isLoading) {
     return (
       <div className="flex items-center justify-center h-full">
@@ -48,6 +142,12 @@ export default function DiagnosticReportPrint({
       </div>
     );
   }
+
+  // Filter files - only include PDFs with URLs
+  const pdfFiles = files.results.filter((file) => {
+    if (!file.id || !fileUrls[file.id] || !file.extension) return false;
+    return file.extension.toLowerCase().endsWith("pdf");
+  });
 
   return (
     <div className="flex justify-center items-center">
@@ -150,6 +250,22 @@ export default function DiagnosticReportPrint({
               </div>
             )}
           </div>
+
+          {files.results.length > 0 && (
+            <div className="mt-8">
+              {pdfFiles.length > 0 && (
+                <div className="mt-8">
+                  <div className="space-y-12">
+                    {pdfFiles.map((file) => (
+                      <div key={`content-${file.id}`}>
+                        <PDFRenderer fileUrl={fileUrls[file.id!]} />
+                      </div>
+                    ))}
+                  </div>
+                </div>
+              )}
+            </div>
+          )}
 
           {/* Footer */}
           <div className="mt-12 pt-4 border-t text-[10px] text-gray-500 flex justify-between">
