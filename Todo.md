@@ -12,13 +12,13 @@ x : Done
 - [x] Make currency configurable - Rithvik
 - [x] Add paymenthistory in invoices page - Amjith
 - [x] Account - Record payment without invoice - Jeevan
-- [ ] Build a flow for account balanceing and closing (Close button - mark as inactive and select close reason dropdown)
+- [-] Build a flow for account balanceing and closing (Close button - mark as inactive and select close reason dropdown) - Jeevan
 - [-] Replace Charge Item Create with ChargeItemDef to ChargeItem API - Vignesh
 - [x] Account balance
 - [x] Invoice list cleanup - Amjith
 - [x] Invoice View cleanup - Amjith
 - [x] Invoice Print Screen - Amjith
-- [ ] Invoice - Entered in error in action menu
+- [-] Invoice - Entered in error in action menu - Jeevan
 - [x] Invoice - Show record payment button only when in issued status - Jeevan
 - [x] Invoice - Show Issue Invoice button when in draft status - Jeevan
 - [x] Invoice - Remove status dropdown in Invoice create & edit - Jeevan
