@@ -1,5 +1,5 @@
 import { useQuery } from "@tanstack/react-query";
-import { ScanBarcode, X } from "lucide-react";
+import { ScanQrCode, X } from "lucide-react";
 import { navigate } from "raviger";
 import { useState } from "react";
 import { useTranslation } from "react-i18next";
@@ -353,7 +353,7 @@ export default function ServiceRequestList({
           size="sm"
           onClick={() => setBarcodeOpen(true)}
         >
-          <ScanBarcode className="size-4" />
+          <ScanQrCode className="size-4" />
           {t("scan_qr")}
         </Button>
       </div>

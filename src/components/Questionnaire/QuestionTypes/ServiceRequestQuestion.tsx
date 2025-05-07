@@ -5,6 +5,7 @@ import { useTranslation } from "react-i18next";
 
 import { cn } from "@/lib/utils";
 
+import { Badge } from "@/components/ui/badge";
 import { Button } from "@/components/ui/button";
 import {
   Collapsible,
@@ -34,13 +35,10 @@ import {
 import { Skeleton } from "@/components/ui/skeleton";
 import { Textarea } from "@/components/ui/textarea";
 
-import RequirementsSelector from "@/components/Common/RequirementsSelector";
-import LocationMultiSelect from "@/components/Location/LocationMultiSelect";
 import { FieldError } from "@/components/Questionnaire/QuestionTypes/FieldError";
 import ValueSetSelect from "@/components/Questionnaire/ValueSetSelect";
 
 import query from "@/Utils/request/query";
-import { Category } from "@/types/emr/activityDefinition/activityDefinition";
 import activityDefinitionApi from "@/types/emr/activityDefinition/activityDefinitionApi";
 import {
   Intent,
@@ -139,8 +137,8 @@ function ServiceRequestForm({
   isPreview = false,
 }: ServiceRequestFormProps) {
   const { t } = useTranslation();
-  const [locationSearch, setLocationSearch] = useState("");
-  const { data: locations, isLoading: isLoadingLocations } = useQuery({
+  const [locationSearch] = useState("");
+  const { data: locations } = useQuery({
     queryKey: ["locations", locationSearch],
     queryFn: query(locationApi.list, {
       pathParams: {
@@ -153,87 +151,110 @@ function ServiceRequestForm({
     }),
   });
 
+  const renderInfoSection = () => (
+    <div className="grid grid-cols-1 sm:grid-cols-2 xl:grid-cols-4 gap-x-4 gap-y-2 w-full">
+      <div className="flex items-center gap-2">
+        <span className="font-medium text-sm text-gray-700">
+          {t("status")}:
+        </span>
+        <Badge
+          variant="outline"
+          className="bg-blue-50 text-blue-700 border-blue-200"
+        >
+          {t(serviceRequest.service_request.status)}
+        </Badge>
+      </div>
+      <div className="flex items-center gap-2">
+        <span className="font-medium text-sm text-gray-700">
+          {t("intent")}:
+        </span>
+        <Badge
+          variant="outline"
+          className="bg-purple-50 text-purple-700 border-purple-200"
+        >
+          {t(serviceRequest.service_request.intent)}
+        </Badge>
+      </div>
+      <div className="flex items-center gap-2">
+        <span className="font-medium text-sm text-gray-700">
+          {t("category")}:
+        </span>
+        <Badge
+          variant="outline"
+          className="bg-green-50 text-green-700 border-green-200"
+        >
+          {t(serviceRequest.service_request.category)}
+        </Badge>
+      </div>
+      {serviceRequest.service_request.do_not_perform && (
+        <div className="flex items-center gap-2">
+          <span className="font-medium text-sm text-gray-700">
+            {t("do_not_perform")}:
+          </span>
+          <Badge
+            variant="outline"
+            className="bg-red-50 text-red-700 border-red-200"
+          >
+            {t("yes")}
+          </Badge>
+        </div>
+      )}
+      <div className="flex items-center gap-2 flex-wrap col-span-1 sm:col-span-2 xl:col-span-4">
+        <span className="font-medium text-sm text-gray-700">
+          {t("locations")}:
+        </span>
+        {serviceRequest.service_request.locations &&
+          serviceRequest.service_request.locations.length > 0 &&
+          serviceRequest.service_request.locations.map((locId) => {
+            const location = locations?.results.find((loc) => loc.id === locId);
+            return (
+              <Badge
+                key={locId}
+                variant="outline"
+                className="bg-gray-50 text-gray-700 border-gray-200"
+              >
+                {location?.name || locId}
+              </Badge>
+            );
+          })}
+      </div>
+    </div>
+  );
+
   if (isPreview) {
     return (
-      <div className="rounded-md border border-primary-500 p-4 space-y-4">
-        <div className="flex items-center justify-between">
-          <div className="flex flex-col gap-1">
-            <p className="text-sm font-semibold">
+      <div className="rounded-lg border border-primary-500 p-4 space-y-4 bg-white shadow-sm">
+        <div className="flex flex-col gap-2 items-start w-full">
+          <div className="flex gap-2 items-center">
+            <p className="text-sm font-semibold text-gray-900">
               {serviceRequest.service_request.title}
             </p>
-            <span className="text-sm text-gray-500">
-              {serviceRequest.service_request.code.display} {" | "}
-              {serviceRequest.service_request.code.system} {" | "}
+            <Badge
+              variant="outline"
+              className="bg-primary-50 text-primary-700 border-primary-200"
+            >
               {serviceRequest.service_request.code.code}
-            </span>
+            </Badge>
           </div>
-          {onRemove && (
-            <Button variant="ghost" size="icon" onClick={onRemove}>
-              <Trash2 className="h-4 w-4" />
-            </Button>
-          )}
+          <span className="text-sm text-gray-500">
+            {serviceRequest.service_request.code.display} {" | "}
+            {serviceRequest.service_request.code.system}
+          </span>
+          {renderInfoSection()}
+          <div className="flex w-full justify-end items-center mt-2 gap-2">
+            {onRemove && (
+              <Button
+                variant="ghost"
+                size="icon"
+                onClick={onRemove}
+                data-cy="remove-service-request"
+              >
+                <Trash2 className="h-4 w-4" />
+              </Button>
+            )}
+          </div>
         </div>
         <div className="grid gap-4 grid-cols-1 lg:grid-cols-2">
-          <div className="space-y-2">
-            <Label>
-              {t("status")} <span className="text-red-500">*</span>
-            </Label>
-            <Select
-              value={serviceRequest.service_request.status}
-              onValueChange={(value: Status) => onUpdate?.({ status: value })}
-              disabled={disabled}
-            >
-              <SelectTrigger>
-                <SelectValue placeholder={t("select_status")} />
-              </SelectTrigger>
-              <SelectContent>
-                {Object.values(Status).map((status) => (
-                  <SelectItem key={status} value={status}>
-                    {t(status)}
-                  </SelectItem>
-                ))}
-              </SelectContent>
-            </Select>
-            {questionId && index !== undefined && (
-              <FieldError
-                fieldKey={SERVICE_REQUEST_FIELDS.STATUS.key}
-                questionId={questionId}
-                errors={errors}
-                index={index}
-              />
-            )}
-          </div>
-
-          <div className="space-y-2">
-            <Label>
-              {t("intent")} <span className="text-red-500">*</span>
-            </Label>
-            <Select
-              value={serviceRequest.service_request.intent}
-              onValueChange={(value: Intent) => onUpdate?.({ intent: value })}
-              disabled={disabled}
-            >
-              <SelectTrigger>
-                <SelectValue placeholder={t("select_intent")} />
-              </SelectTrigger>
-              <SelectContent>
-                {Object.values(Intent).map((intent) => (
-                  <SelectItem key={intent} value={intent}>
-                    {t(intent)}
-                  </SelectItem>
-                ))}
-              </SelectContent>
-            </Select>
-            {questionId && index !== undefined && (
-              <FieldError
-                fieldKey={SERVICE_REQUEST_FIELDS.INTENT.key}
-                questionId={questionId}
-                errors={errors}
-                index={index}
-              />
-            )}
-          </div>
-
           <div className="space-y-2">
             <Label>
               {t("priority")} <span className="text-red-500">*</span>
@@ -267,38 +288,6 @@ function ServiceRequestForm({
           </div>
 
           <div className="space-y-2">
-            <Label>
-              {t("category")} <span className="text-red-500">*</span>
-            </Label>
-            <Select
-              value={serviceRequest.service_request.category}
-              onValueChange={(value: Category) =>
-                onUpdate?.({ category: value })
-              }
-              disabled={disabled}
-            >
-              <SelectTrigger>
-                <SelectValue placeholder={t("select_category")} />
-              </SelectTrigger>
-              <SelectContent>
-                {Object.values(Category).map((category) => (
-                  <SelectItem key={category} value={category}>
-                    {t(category)}
-                  </SelectItem>
-                ))}
-              </SelectContent>
-            </Select>
-            {questionId && index !== undefined && (
-              <FieldError
-                fieldKey={SERVICE_REQUEST_FIELDS.CATEGORY.key}
-                questionId={questionId}
-                errors={errors}
-                index={index}
-              />
-            )}
-          </div>
-
-          <div className="space-y-2">
             <Label>{t("body_site")}</Label>
             <ValueSetSelect
               system="system-body-site"
@@ -307,27 +296,6 @@ function ServiceRequestForm({
               placeholder={t("select_body_site")}
               disabled={disabled}
             />
-          </div>
-
-          <div className="space-y-2">
-            <Label>{t("do_not_perform")}</Label>
-            <Select
-              value={
-                serviceRequest.service_request.do_not_perform ? "true" : "false"
-              }
-              onValueChange={(value) =>
-                onUpdate?.({ do_not_perform: value === "true" })
-              }
-              disabled={disabled}
-            >
-              <SelectTrigger>
-                <SelectValue placeholder={t("select_option")} />
-              </SelectTrigger>
-              <SelectContent>
-                <SelectItem value="true">{t("yes")}</SelectItem>
-                <SelectItem value="false">{t("no")}</SelectItem>
-              </SelectContent>
-            </Select>
           </div>
 
           <div className="space-y-2">
@@ -351,76 +319,6 @@ function ServiceRequestForm({
               placeholder={t("add_notes")}
             />
           </div>
-
-          <div className="rounded-lg border col-span-2 space-y-2 border-gray-200 shadow-sm p-4">
-            <Label>{t("locations")}</Label>
-            <RequirementsSelector
-              title={t("location_requirements")}
-              description={t("location_requirements_description")}
-              value={
-                serviceRequest.service_request.locations?.map((locationId) => {
-                  const location = locations?.results.find(
-                    (loc) => loc.id === locationId,
-                  );
-                  return {
-                    value: locationId,
-                    label: location?.name || locationId,
-                    details: [],
-                  };
-                }) || []
-              }
-              onChange={(values) => {
-                onUpdate?.({
-                  locations: values.map((item) => ({
-                    id: item.value,
-                    has_children: false,
-                    status: "active",
-                    operational_status: "O",
-                    name:
-                      locations?.results.find((loc) => loc.id === item.value)
-                        ?.name || item.value,
-                    description: "",
-                    form: "si",
-                    mode: "instance",
-                    availability_status: "available",
-                  })) as LocationList[],
-                });
-              }}
-              options={
-                locations?.results.map((location) => ({
-                  label: location.name,
-                  value: location.id,
-                  details: [],
-                })) || []
-              }
-              isLoading={isLoadingLocations}
-              placeholder={t("select_locations")}
-              onSearch={setLocationSearch}
-              customSelector={
-                <LocationMultiSelect
-                  facilityId={facilityId}
-                  value={serviceRequest.service_request.locations || []}
-                  onChange={(values) => {
-                    onUpdate?.({
-                      locations: values.map((id) => ({
-                        id,
-                        has_children: false,
-                        status: "active",
-                        operational_status: "O",
-                        name:
-                          locations?.results.find((loc) => loc.id === id)
-                            ?.name || id,
-                        description: "",
-                        form: "si",
-                        mode: "instance",
-                        availability_status: "available",
-                      })) as LocationList[],
-                    });
-                  }}
-                />
-              }
-            />
-          </div>
         </div>
         {isPreview && (
           <div className="flex justify-end">
@@ -435,19 +333,25 @@ function ServiceRequestForm({
 
   return (
     <Collapsible defaultOpen={false}>
-      <div className="rounded-md border border-gray-200">
-        <CollapsibleTrigger className="flex w-full items-center justify-between p-2 hover:bg-gray-50 cursor-pointer">
-          <div className="flex flex-col gap-1 items-start">
-            <p className="text-sm font-semibold">
+      <div className="rounded-lg border border-gray-200 bg-white shadow-sm">
+        <CollapsibleTrigger className="flex flex-col gap-2 w-full items-start text-left p-4 hover:bg-gray-50 cursor-pointer">
+          <div className="flex gap-2 items-center">
+            <p className="text-sm font-semibold text-gray-900">
               {serviceRequest.service_request.title}
             </p>
-            <span className="text-sm text-gray-500">
-              {serviceRequest.service_request.code.display} {" | "}
-              {serviceRequest.service_request.code.system} {" | "}
+            <Badge
+              variant="outline"
+              className="bg-primary-50 text-primary-700 border-primary-200"
+            >
               {serviceRequest.service_request.code.code}
-            </span>
+            </Badge>
           </div>
-          <div className="flex items-center gap-2">
+          <span className="text-sm text-gray-500">
+            {serviceRequest.service_request.code.display} {" | "}
+            {serviceRequest.service_request.code.system}
+          </span>
+          {renderInfoSection()}
+          <div className="flex w-full justify-end items-center mt-2 gap-2">
             {onRemove && (
               <Button
                 variant="ghost"
@@ -467,72 +371,8 @@ function ServiceRequestForm({
           </div>
         </CollapsibleTrigger>
         <CollapsibleContent>
-          <div className="p-4 space-y-4">
+          <div className="p-4 space-y-4 border-t border-gray-100">
             <div className="grid gap-4 grid-cols-1 lg:grid-cols-2">
-              <div className="space-y-2">
-                <Label>
-                  {t("status")} <span className="text-red-500">*</span>
-                </Label>
-                <Select
-                  value={serviceRequest.service_request.status}
-                  onValueChange={(value: Status) =>
-                    onUpdate?.({ status: value })
-                  }
-                  disabled={disabled}
-                >
-                  <SelectTrigger>
-                    <SelectValue placeholder={t("select_status")} />
-                  </SelectTrigger>
-                  <SelectContent>
-                    {Object.values(Status).map((status) => (
-                      <SelectItem key={status} value={status}>
-                        {t(status)}
-                      </SelectItem>
-                    ))}
-                  </SelectContent>
-                </Select>
-                {questionId && index !== undefined && (
-                  <FieldError
-                    fieldKey={SERVICE_REQUEST_FIELDS.STATUS.key}
-                    questionId={questionId}
-                    errors={errors}
-                    index={index}
-                  />
-                )}
-              </div>
-
-              <div className="space-y-2">
-                <Label>
-                  {t("intent")} <span className="text-red-500">*</span>
-                </Label>
-                <Select
-                  value={serviceRequest.service_request.intent}
-                  onValueChange={(value: Intent) =>
-                    onUpdate?.({ intent: value })
-                  }
-                  disabled={disabled}
-                >
-                  <SelectTrigger>
-                    <SelectValue placeholder={t("select_intent")} />
-                  </SelectTrigger>
-                  <SelectContent>
-                    {Object.values(Intent).map((intent) => (
-                      <SelectItem key={intent} value={intent}>
-                        {t(intent)}
-                      </SelectItem>
-                    ))}
-                  </SelectContent>
-                </Select>
-                {questionId && index !== undefined && (
-                  <FieldError
-                    fieldKey={SERVICE_REQUEST_FIELDS.INTENT.key}
-                    questionId={questionId}
-                    errors={errors}
-                    index={index}
-                  />
-                )}
-              </div>
-
               <div className="space-y-2">
                 <Label>
                   {t("priority")} <span className="text-red-500">*</span>
@@ -566,38 +406,6 @@ function ServiceRequestForm({
               </div>
 
               <div className="space-y-2">
-                <Label>
-                  {t("category")} <span className="text-red-500">*</span>
-                </Label>
-                <Select
-                  value={serviceRequest.service_request.category}
-                  onValueChange={(value: Category) =>
-                    onUpdate?.({ category: value })
-                  }
-                  disabled={disabled}
-                >
-                  <SelectTrigger>
-                    <SelectValue placeholder={t("select_category")} />
-                  </SelectTrigger>
-                  <SelectContent>
-                    {Object.values(Category).map((category) => (
-                      <SelectItem key={category} value={category}>
-                        {t(category)}
-                      </SelectItem>
-                    ))}
-                  </SelectContent>
-                </Select>
-                {questionId && index !== undefined && (
-                  <FieldError
-                    fieldKey={SERVICE_REQUEST_FIELDS.CATEGORY.key}
-                    questionId={questionId}
-                    errors={errors}
-                    index={index}
-                  />
-                )}
-              </div>
-
-              <div className="space-y-2">
                 <Label>{t("body_site")}</Label>
                 <ValueSetSelect
                   system="system-body-site"
@@ -606,29 +414,6 @@ function ServiceRequestForm({
                   placeholder={t("select_body_site")}
                   disabled={disabled}
                 />
-              </div>
-
-              <div className="space-y-2">
-                <Label>{t("do_not_perform")}</Label>
-                <Select
-                  value={
-                    serviceRequest.service_request.do_not_perform
-                      ? "true"
-                      : "false"
-                  }
-                  onValueChange={(value) =>
-                    onUpdate?.({ do_not_perform: value === "true" })
-                  }
-                  disabled={disabled}
-                >
-                  <SelectTrigger>
-                    <SelectValue placeholder={t("select_option")} />
-                  </SelectTrigger>
-                  <SelectContent>
-                    <SelectItem value="true">{t("yes")}</SelectItem>
-                    <SelectItem value="false">{t("no")}</SelectItem>
-                  </SelectContent>
-                </Select>
               </div>
 
               <div className="space-y-2">
@@ -652,79 +437,6 @@ function ServiceRequestForm({
                   onChange={(e) => onUpdate?.({ note: e.target.value })}
                   disabled={disabled}
                   placeholder={t("add_notes")}
-                />
-              </div>
-
-              <div className="space-y-2 col-span-2">
-                <Label>{t("locations")}</Label>
-                <RequirementsSelector
-                  title={t("location_requirements")}
-                  description={t("location_requirements_description")}
-                  value={
-                    serviceRequest.service_request.locations?.map(
-                      (locationId) => {
-                        const location = locations?.results.find(
-                          (loc) => loc.id === locationId,
-                        );
-                        return {
-                          value: locationId,
-                          label: location?.name || locationId,
-                          details: [],
-                        };
-                      },
-                    ) || []
-                  }
-                  onChange={(values) => {
-                    onUpdate?.({
-                      locations: values.map((item) => ({
-                        id: item.value,
-                        has_children: false,
-                        status: "active",
-                        operational_status: "O",
-                        name:
-                          locations?.results.find(
-                            (loc) => loc.id === item.value,
-                          )?.name || item.value,
-                        description: "",
-                        form: "si",
-                        mode: "instance",
-                        availability_status: "available",
-                      })) as LocationList[],
-                    });
-                  }}
-                  options={
-                    locations?.results.map((location) => ({
-                      label: location.name,
-                      value: location.id,
-                      details: [],
-                    })) || []
-                  }
-                  isLoading={isLoadingLocations}
-                  placeholder={t("select_locations")}
-                  onSearch={setLocationSearch}
-                  customSelector={
-                    <LocationMultiSelect
-                      facilityId={facilityId}
-                      value={serviceRequest.service_request.locations || []}
-                      onChange={(values) => {
-                        onUpdate?.({
-                          locations: values.map((id) => ({
-                            id,
-                            has_children: false,
-                            status: "active",
-                            operational_status: "O",
-                            name:
-                              locations?.results.find((loc) => loc.id === id)
-                                ?.name || id,
-                            description: "",
-                            form: "si",
-                            mode: "instance",
-                            availability_status: "available",
-                          })) as LocationList[],
-                        });
-                      }}
-                    />
-                  }
                 />
               </div>
             </div>
@@ -984,7 +696,7 @@ export function ServiceRequestQuestion({
 
       {isLoadingSelectedAD && (
         <div className="rounded-md border border-gray-200 p-4 space-y-4">
-          <div className="flex items-center justify-between">
+          <div className="flex items-start justify-between">
             <div className="space-y-2">
               <Skeleton className="h-4 w-[200px]" />
               <Skeleton className="h-3 w-[150px]" />
