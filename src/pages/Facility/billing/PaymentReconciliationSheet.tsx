@@ -84,7 +84,7 @@ export function PaymentReconciliationSheet({
       amount: invoice?.total_gross || 0,
       tendered_amount: 0,
       returned_amount: 0,
-      target_invoice: invoice?.id || "",
+      target_invoice: invoice?.id,
       reference_number: "",
       authorization: "",
       disposition: "",
@@ -145,8 +145,11 @@ export function PaymentReconciliationSheet({
         queryClient.invalidateQueries({
           queryKey: ["payments", accountId],
         });
+      } else {
+        queryClient.invalidateQueries({
+          queryKey: ["payments"],
+        });
       }
-
       // Close sheet and call success callback
       onOpenChange(false);
       form.reset();

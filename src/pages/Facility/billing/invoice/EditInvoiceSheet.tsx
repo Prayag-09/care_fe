@@ -19,13 +19,6 @@ import {
 } from "@/components/ui/form";
 import { Input } from "@/components/ui/input";
 import {
-  Select,
-  SelectContent,
-  SelectItem,
-  SelectTrigger,
-  SelectValue,
-} from "@/components/ui/select";
-import {
   Sheet,
   SheetContent,
   SheetDescription,
@@ -37,12 +30,7 @@ import { Textarea } from "@/components/ui/textarea";
 
 import mutate from "@/Utils/request/mutate";
 import query from "@/Utils/request/query";
-import {
-  INVOICE_CANCEL_REASONS,
-  InvoiceCancel,
-  InvoiceCreate,
-  InvoiceStatus,
-} from "@/types/billing/invoice/invoice";
+import { InvoiceCreate } from "@/types/billing/invoice/invoice";
 import invoiceApi from "@/types/billing/invoice/invoiceApi";
 
 interface EditInvoiceSheetProps {
@@ -70,32 +58,16 @@ export default function EditInvoiceSheet({
     enabled: open,
   });
 
-  const formSchema = z
-    .object({
-      title: z.string().min(1, { message: t("field_required") }),
-      status: z.nativeEnum(InvoiceStatus),
-      payment_terms: z.string().optional(),
-      note: z.string().optional(),
-      reason: z.enum(INVOICE_CANCEL_REASONS).optional(),
-    })
-    .refine(
-      (data) => {
-        if (data.status === InvoiceStatus.cancelled) {
-          return data.reason !== undefined;
-        }
-        return true;
-      },
-      {
-        message: t("field_required"),
-        path: ["reason"],
-      },
-    );
+  const formSchema = z.object({
+    title: z.string().min(1, { message: t("field_required") }),
+    payment_terms: z.string().optional(),
+    note: z.string().optional(),
+  });
 
   const form = useForm<z.infer<typeof formSchema>>({
     resolver: zodResolver(formSchema),
     defaultValues: {
       title: "",
-      status: InvoiceStatus.draft,
       payment_terms: "",
       note: "",
     },
@@ -105,10 +77,8 @@ export default function EditInvoiceSheet({
     if (invoice) {
       form.reset({
         title: invoice.title,
-        status: invoice.status,
         payment_terms: invoice.payment_terms || "",
         note: invoice.note || "",
-        reason: invoice.cancelled_reason || undefined,
       });
     }
   }, [invoice, form]);
@@ -134,52 +104,28 @@ export default function EditInvoiceSheet({
     },
   });
 
-  const { mutate: cancelInvoice, isPending: isCancelPending } = useMutation({
-    mutationFn: mutate(invoiceApi.cancelInvoice, {
-      pathParams: { facilityId, invoiceId },
-    }),
-    onSuccess: () => {
-      toast.success(t("invoice_cancelled_successfully"));
-      queryClient.invalidateQueries({ queryKey: ["invoice", invoiceId] });
-      setOpen(false);
-      onSuccess?.();
-    },
-  });
-
   const onSubmit = (values: z.infer<typeof formSchema>) => {
     if (!invoice) return;
 
-    if (values.status === InvoiceStatus.cancelled) {
-      const data: InvoiceCancel = {
-        reason: values.reason || "",
-      };
-      cancelInvoice(data);
-    } else {
-      // Get the charge item IDs from the current invoice
-      const chargeItemIds = invoice.charge_items.map((item) => item.id);
+    // Get the charge item IDs from the current invoice
+    const chargeItemIds = invoice.charge_items.map((item) => item.id);
 
-      // Create the update payload
-      // Note: For account, we need to send a string ID representing the account
-      // Since this value isn't directly available in the invoice data structure,
-      // we'd typically get it from the URL or a parent component
-      // For this example, we're using a dummy value that would need to be replaced
-      // with the actual account ID in a real implementation
-      const data: InvoiceCreate = {
-        title: values.title.trim(),
-        status: values.status,
-        payment_terms: values.payment_terms?.trim() || null,
-        note: values.note?.trim() || null,
-        // In a real implementation, get the account ID from a parent component or URL
-        account: "placeholder-account-id",
-        charge_items: chargeItemIds,
-      };
-      updateInvoice(data);
-    }
+    // Create the update payload
+    // Note: For account, we need to send a string ID representing the account
+    // Since this value isn't directly available in the invoice data structure,
+    // we'd typically get it from the URL or a parent component
+    // For this example, we're using a dummy value that would need to be replaced
+    // with the actual account ID in a real implementation
+    const data: InvoiceCreate = {
+      title: values.title.trim(),
+      status: invoice.status,
+      payment_terms: values.payment_terms?.trim() || null,
+      note: values.note?.trim() || null,
+      account: invoice.account.id,
+      charge_items: chargeItemIds,
+    };
+    updateInvoice(data);
   };
-
-  const canEdit =
-    invoice?.status !== InvoiceStatus.balanced &&
-    invoice?.status !== InvoiceStatus.cancelled;
 
   return (
     <Sheet open={open} onOpenChange={setOpen}>
@@ -191,7 +137,7 @@ export default function EditInvoiceSheet({
           </Button>
         )}
       </SheetTrigger>
-      <SheetContent className="overflow-y-auto">
+      <SheetContent className="w-full max-w-md sm:max-w-lg overflow-y-auto">
         <SheetHeader>
           <SheetTitle>{t("edit_invoice")}</SheetTitle>
           <SheetDescription>{t("edit_invoice_details")}</SheetDescription>
@@ -230,121 +176,42 @@ export default function EditInvoiceSheet({
 
               <FormField
                 control={form.control}
-                name="status"
+                name="payment_terms"
                 render={({ field }) => (
                   <FormItem>
-                    <FormLabel>{t("status")}</FormLabel>
-                    <Select
-                      onValueChange={field.onChange}
-                      defaultValue={field.value}
-                      disabled={!canEdit}
-                    >
-                      <FormControl>
-                        <SelectTrigger>
-                          <SelectValue placeholder={t("select_status")} />
-                        </SelectTrigger>
-                      </FormControl>
-                      <SelectContent>
-                        <SelectItem value={InvoiceStatus.draft}>
-                          {t("status_draft")}
-                        </SelectItem>
-                        <SelectItem value={InvoiceStatus.issued}>
-                          {t("status_issued")}
-                        </SelectItem>
-                        <SelectItem value={InvoiceStatus.balanced}>
-                          {t("status_balanced")}
-                        </SelectItem>
-                        <SelectItem value={InvoiceStatus.cancelled}>
-                          {t("status_cancelled")}
-                        </SelectItem>
-                        <SelectItem value={InvoiceStatus.entered_in_error}>
-                          {t("status_entered_in_error")}
-                        </SelectItem>
-                      </SelectContent>
-                    </Select>
+                    <FormLabel>{t("payment_terms")}</FormLabel>
+                    <FormControl>
+                      <Input
+                        {...field}
+                        placeholder={t("payment_terms_placeholder")}
+                      />
+                    </FormControl>
                     <FormMessage />
                   </FormItem>
                 )}
               />
 
-              {form.watch("status") !== InvoiceStatus.cancelled &&
-              form.watch("status") !== InvoiceStatus.entered_in_error ? (
-                <>
-                  <FormField
-                    control={form.control}
-                    name="payment_terms"
-                    render={({ field }) => (
-                      <FormItem>
-                        <FormLabel>{t("payment_terms")}</FormLabel>
-                        <FormControl>
-                          <Input
-                            {...field}
-                            placeholder={t("payment_terms_placeholder")}
-                          />
-                        </FormControl>
-                        <FormMessage />
-                      </FormItem>
-                    )}
-                  />
-
-                  <FormField
-                    control={form.control}
-                    name="note"
-                    render={({ field }) => (
-                      <FormItem>
-                        <FormLabel>{t("note")}</FormLabel>
-                        <FormControl>
-                          <Textarea
-                            {...field}
-                            placeholder={t("invoice_note_placeholder")}
-                            className="min-h-[100px]"
-                          />
-                        </FormControl>
-                        <FormMessage />
-                      </FormItem>
-                    )}
-                  />
-                </>
-              ) : (
-                <FormField
-                  control={form.control}
-                  name="reason"
-                  render={({ field }) => (
-                    <FormItem>
-                      <FormLabel>{t("reason")}</FormLabel>
-                      <FormControl>
-                        <Select
-                          onValueChange={field.onChange}
-                          defaultValue={field.value}
-                        >
-                          <FormControl>
-                            <SelectTrigger>
-                              <SelectValue placeholder={t("select_reason")} />
-                            </SelectTrigger>
-                          </FormControl>
-                          <SelectContent>
-                            {INVOICE_CANCEL_REASONS.map((reason) => (
-                              <SelectItem key={reason} value={reason}>
-                                {t(reason)}
-                              </SelectItem>
-                            ))}
-                          </SelectContent>
-                        </Select>
-                      </FormControl>
-                      <FormMessage />
-                    </FormItem>
-                  )}
-                />
-              )}
+              <FormField
+                control={form.control}
+                name="note"
+                render={({ field }) => (
+                  <FormItem>
+                    <FormLabel>{t("note")}</FormLabel>
+                    <FormControl>
+                      <Textarea
+                        {...field}
+                        placeholder={t("invoice_note_placeholder")}
+                        className="min-h-[100px]"
+                      />
+                    </FormControl>
+                    <FormMessage />
+                  </FormItem>
+                )}
+              />
 
               <div className="flex justify-end gap-2 pt-4">
-                <Button
-                  type="submit"
-                  disabled={isPending || !canEdit || isCancelPending}
-                >
-                  {isPending || isCancelPending
-                    ? t("saving...")
-                    : t("save_changes")}
+                <Button type="submit" disabled={isPending}>
+                  {isPending ? t("saving...") : t("save")}
                 </Button>
               </div>
             </form>

@@ -1,4 +1,4 @@
-import { useMutation, useQuery } from "@tanstack/react-query";
+import { useMutation, useQuery, useQueryClient } from "@tanstack/react-query";
 import { Link, navigate } from "raviger";
 import { useState } from "react";
 import { useTranslation } from "react-i18next";
@@ -58,12 +58,9 @@ export function AccountShow({
   const { t } = useTranslation();
   const [sheetOpen, setSheetOpen] = useState(false);
   const [isPaymentSheetOpen, setIsPaymentSheetOpen] = useState(false);
+  const queryClient = useQueryClient();
 
-  const {
-    data: account,
-    isLoading,
-    refetch,
-  } = useQuery({
+  const { data: account, isLoading } = useQuery({
     queryKey: ["account", accountId],
     queryFn: query(accountApi.retrieveAccount, {
       pathParams: { facilityId, accountId },
@@ -76,7 +73,9 @@ export function AccountShow({
     }),
     onSuccess: () => {
       toast.success(t("account_rebalanced_successfully"));
-      refetch();
+      queryClient.invalidateQueries({
+        queryKey: ["account", accountId],
+      });
     },
     onError: (_error) => {
       toast.error(t("failed_to_rebalance_account"));

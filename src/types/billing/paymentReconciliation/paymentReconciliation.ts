@@ -62,7 +62,7 @@ export interface PaymentReconciliationBase {
 
 export interface PaymentReconciliationCreate
   extends Omit<PaymentReconciliationBase, "id"> {
-  target_invoice: string;
+  target_invoice?: string;
   account: string;
 }
 

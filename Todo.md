@@ -19,10 +19,10 @@ x : Done
 - [x] Invoice View cleanup - Amjith
 - [x] Invoice Print Screen - Amjith
 - [ ] Invoice - Entered in error in action menu
-- [-] Invoice - Show record payment button only when in issued status - Jeevan
-- [-] Invoice - Show Issue Invoice button when in draft status  - Jeevan
-- [-] Invoice - Remove status dropdown in Invoice create & edit - Jeevan
-- [-] Invoice - Balance Invoice button - Confirm popup - Jeevan
+- [x] Invoice - Show record payment button only when in issued status - Jeevan
+- [x] Invoice - Show Issue Invoice button when in draft status - Jeevan
+- [x] Invoice - Remove status dropdown in Invoice create & edit - Jeevan
+- [x] Invoice - Balance Invoice button - Confirm popup - Jeevan
 - [x] Invoice - Add charge items when draft - Jeevan
 - [x] Invoice - Payment history filter by invoice - Amjith
 - [x] Account - Payments tab - filter by Account - BE

@@ -56,7 +56,7 @@ import {
 } from "@/types/base/monetaryComponent/monetaryComponent";
 import { CHARGE_ITEM_STATUS_STYLES } from "@/types/billing/chargeItem/chargeItem";
 import chargeItemApi from "@/types/billing/chargeItem/chargeItemApi";
-import { InvoiceStatus } from "@/types/billing/invoice/invoice";
+import { InvoiceCreate, InvoiceStatus } from "@/types/billing/invoice/invoice";
 import invoiceApi from "@/types/billing/invoice/invoiceApi";
 import {
   PaymentReconciliationPaymentMethod,
@@ -153,6 +153,10 @@ export function InvoiceShow({
   const [expandedItems, setExpandedItems] = useState<Record<string, boolean>>(
     {},
   );
+  const [reasonDialogOpen, setReasonDialogOpen] = useState(false);
+  const [selectedStatus, setSelectedStatus] = useState<InvoiceStatus | null>(
+    null,
+  );
   const queryClient = useQueryClient();
 
   const { data: invoice, isLoading } = useQuery({
@@ -185,6 +189,32 @@ export function InvoiceShow({
     },
     onError: () => {
       toast.error(t("failed_to_remove_charge_item"));
+    },
+  });
+
+  const { mutate: cancelInvoice, isPending: isCancelPending } = useMutation({
+    mutationFn: mutate(invoiceApi.cancelInvoice, {
+      pathParams: { facilityId, invoiceId },
+    }),
+    onSuccess: () => {
+      toast.success(t("invoice_cancelled_successfully"));
+      queryClient.invalidateQueries({ queryKey: ["invoice", invoiceId] });
+    },
+    onError: () => {
+      toast.error(t("failed_to_cancel_invoice"));
+    },
+  });
+
+  const { mutate: updateInvoice, isPending: isUpdatingInvoice } = useMutation({
+    mutationFn: mutate(invoiceApi.updateInvoice, {
+      pathParams: { facilityId, invoiceId },
+    }),
+    onSuccess: () => {
+      toast.success(t("invoice_updated_successfully"));
+      queryClient.invalidateQueries({ queryKey: ["invoice", invoiceId] });
+    },
+    onError: () => {
+      toast.error(t("failed_to_update_invoice"));
     },
   });
 
@@ -223,6 +253,51 @@ export function InvoiceShow({
     );
   };
 
+  const handleStatusChange = (status: InvoiceStatus) => {
+    if (
+      status === InvoiceStatus.cancelled ||
+      status === InvoiceStatus.entered_in_error ||
+      status === InvoiceStatus.balanced
+    ) {
+      setSelectedStatus(status);
+      setReasonDialogOpen(true);
+    } else {
+      const data: InvoiceCreate = {
+        title: invoice?.title || "",
+        status,
+        payment_terms: invoice?.payment_terms,
+        note: invoice?.note,
+        account: invoice?.account.id || "",
+        charge_items: invoice?.charge_items.map((item) => item.id) || [],
+      };
+
+      updateInvoice(data);
+    }
+  };
+
+  const handleDialogSubmit = () => {
+    if (!selectedStatus) return;
+
+    if (selectedStatus === InvoiceStatus.balanced) {
+      updateInvoice({
+        title: invoice?.title || "",
+        status: selectedStatus,
+        payment_terms: invoice?.payment_terms,
+        note: invoice?.note,
+        account: invoice?.account.id || "",
+        charge_items: invoice?.charge_items.map((item) => item.id) || [],
+      });
+    } else {
+      cancelInvoice({ reason: selectedStatus });
+    }
+
+    setReasonDialogOpen(false);
+  };
+
+  const canEdit =
+    invoice?.status !== InvoiceStatus.entered_in_error &&
+    invoice?.status !== InvoiceStatus.cancelled;
+
   if (isLoading) {
     return <TableSkeleton count={5} />;
   }
@@ -253,17 +328,85 @@ export function InvoiceShow({
               <CareIcon icon="l-arrow-left" className="size-4" />
             </Link>
           </Button>
-          <h1 className="text-2xl font-bold">
-            Invoice {invoice.id}
-            <Badge
-              variant={statusMap[invoice.status].color as any}
-              className="ml-2"
-            >
-              {statusMap[invoice.status].label}
-            </Badge>
-          </h1>
+          <div className="flex flex-col gap-1">
+            <div className="flex items-center gap-1">
+              <h1 className="text-2xl font-bold">{t("invoice")}</h1>
+
+              <Badge
+                variant={statusMap[invoice.status].color as any}
+                className="ml-2"
+              >
+                {statusMap[invoice.status].label}
+              </Badge>
+            </div>
+            <span className="text-sm text-gray-500"> {invoice.id}</span>
+          </div>
         </div>
         <div className="flex gap-2">
+          {canEdit && (
+            <DropdownMenu>
+              <DropdownMenuTrigger asChild>
+                <Button variant="outline" data-cy="invoice-actions-button">
+                  {t("actions")}
+                  <CareIcon icon="l-angle-down" className="ml-2" />
+                </Button>
+              </DropdownMenuTrigger>
+              <DropdownMenuContent align="end">
+                {invoice?.status === InvoiceStatus.draft && (
+                  <DropdownMenuItem asChild className="text-primary-900">
+                    <Button
+                      variant="ghost"
+                      className="w-full flex flex-row justify-stretch items-center"
+                      onClick={() => handleStatusChange(InvoiceStatus.issued)}
+                      disabled={isUpdatingInvoice}
+                    >
+                      <CareIcon icon="l-wallet" className="mr-1" />
+                      {t("mark_as_issued")}
+                    </Button>
+                  </DropdownMenuItem>
+                )}
+                {invoice?.status === InvoiceStatus.issued && (
+                  <DropdownMenuItem asChild className="text-primary-900">
+                    <Button
+                      variant="ghost"
+                      className="w-full flex flex-row justify-stretch items-center"
+                      onClick={() => handleStatusChange(InvoiceStatus.balanced)}
+                      disabled={isUpdatingInvoice}
+                    >
+                      <CareIcon icon="l-wallet" className="mr-1" />
+                      {t("mark_as_balanced")}
+                    </Button>
+                  </DropdownMenuItem>
+                )}
+                <DropdownMenuItem asChild className="text-primary-900">
+                  <Button
+                    variant="ghost"
+                    onClick={() => handleStatusChange(InvoiceStatus.cancelled)}
+                    disabled={isCancelPending}
+                    className="w-full flex flex-row justify-stretch items-center"
+                    data-cy="invoice-cancel-button"
+                  >
+                    <CareIcon icon="l-times-circle" className="mr-1" />
+                    <span>{t("mark_as_cancelled")}</span>
+                  </Button>
+                </DropdownMenuItem>
+                <DropdownMenuItem asChild className="text-primary-900">
+                  <Button
+                    variant="ghost"
+                    onClick={() =>
+                      handleStatusChange(InvoiceStatus.entered_in_error)
+                    }
+                    disabled={isCancelPending}
+                    className="w-full flex flex-row justify-stretch items-center"
+                    data-cy="invoice-mark-error-button"
+                  >
+                    <CareIcon icon="l-exclamation-circle" className="mr-1" />
+                    <span>{t("mark_as_entered_in_error")}</span>
+                  </Button>
+                </DropdownMenuItem>
+              </DropdownMenuContent>
+            </DropdownMenu>
+          )}
           <EditInvoiceSheet
             facilityId={facilityId}
             invoiceId={invoiceId}
@@ -281,10 +424,12 @@ export function InvoiceShow({
               {t("print")}
             </Link>
           </Button>
-          <Button onClick={() => setIsPaymentSheetOpen(true)}>
-            <CareIcon icon="l-wallet" className="mr-2 size-4" />
-            {t("record_payment")}
-          </Button>
+          {invoice.status === InvoiceStatus.issued && (
+            <Button onClick={() => setIsPaymentSheetOpen(true)}>
+              <CareIcon icon="l-wallet" className="mr-2 size-4" />
+              {t("record_payment")}
+            </Button>
+          )}
         </div>
       </div>
 
@@ -746,6 +891,45 @@ export function InvoiceShow({
               disabled={isRemoving}
             >
               {isRemoving ? t("removing...") : t("remove")}
+            </AlertDialogAction>
+          </AlertDialogFooter>
+        </AlertDialogContent>
+      </AlertDialog>
+
+      <AlertDialog
+        open={reasonDialogOpen}
+        onOpenChange={(open) => {
+          setReasonDialogOpen(open);
+          if (!open) {
+            setTimeout(() => setSelectedStatus(null), 150);
+          }
+        }}
+      >
+        <AlertDialogContent>
+          <AlertDialogHeader>
+            <AlertDialogTitle>{t("confirm")}</AlertDialogTitle>
+            <AlertDialogDescription>
+              {selectedStatus === InvoiceStatus.balanced
+                ? t("are_you_sure_want_to_mark_as_balanced")
+                : selectedStatus === InvoiceStatus.entered_in_error
+                  ? t("are_you_sure_want_to_mark_as_error")
+                  : t("are_you_sure_want_to_cancel_invoice")}
+            </AlertDialogDescription>
+          </AlertDialogHeader>
+          <AlertDialogFooter>
+            <AlertDialogCancel>{t("cancel")}</AlertDialogCancel>
+            <AlertDialogAction
+              onClick={handleDialogSubmit}
+              className={cn(
+                buttonVariants({
+                  variant:
+                    selectedStatus === InvoiceStatus.balanced
+                      ? "primary"
+                      : "destructive",
+                }),
+              )}
+            >
+              {t("confirm")}
             </AlertDialogAction>
           </AlertDialogFooter>
         </AlertDialogContent>
