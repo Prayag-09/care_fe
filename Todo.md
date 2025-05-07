@@ -51,7 +51,7 @@ x : Done
 - [x] Lets move uploaded files list to above the Choose file Card - Yash
 - [ ] Implement barcode in service request after creating the Specimen
 - [-] Print all Barcodes button for a service request with page setup - [hold till @bodhi confirms]
-- [-] When you have uploaded the file the result section should always be present. - Yash
+- [x] When you have uploaded the file the result section should always be present. - Yash
 - [x] Link to diganostic report page should be added to the service request - Yash
 - [x] We should have an option to capture conclusion in diagnostic report- Yash
 - [ ] workflow statuses on the right side as per design should be created.
