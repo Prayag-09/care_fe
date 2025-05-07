@@ -141,7 +141,7 @@ export function DiagnosticReportReview({
   // Show loading state while fetching the report
   if (isLoadingReport) {
     return (
-      <Card className="shadow-lg border-t-4 border-t-primary">
+      <Card className="shadow-lg border">
         <CardContent className="p-4">
           <div className="space-y-4">
             <Skeleton className="h-8 w-1/3" />
@@ -151,6 +151,14 @@ export function DiagnosticReportReview({
         </CardContent>
       </Card>
     );
+  }
+
+  // Don't show the report review if there are no observations and no files
+  if (
+    (!fullReport?.observations || fullReport.observations.length === 0) &&
+    (!files?.results || files.results.length === 0)
+  ) {
+    return null;
   }
 
   return (
