@@ -41,8 +41,6 @@ import FileUploadDialog from "@/components/Files/FileUploadDialog";
 
 import useFileUpload from "@/hooks/useFileUpload";
 
-import { FILE_EXTENSIONS } from "@/common/constants";
-
 import routes from "@/Utils/request/api";
 import mutate from "@/Utils/request/mutate";
 import query from "@/Utils/request/query";
@@ -217,7 +215,7 @@ export function DiagnosticReportForm({
   const fileUpload = useFileUpload({
     type: "diagnostic_report" as any,
     multiple: true,
-    allowedExtensions: ["pdf", "doc", "docx"],
+    allowedExtensions: ["pdf"],
     allowNameFallback: false,
     onUpload: () => {
       queryClient.invalidateQueries({
@@ -941,9 +939,7 @@ export function DiagnosticReportForm({
                                   {t("choose_file")}
                                 </Label>
                                 <div className="text-sm text-gray-500">
-                                  {FILE_EXTENSIONS.DOCUMENT.map((ext) =>
-                                    t(ext),
-                                  ).join(", ")}
+                                  {t("pdf")}
                                 </div>
                                 <Label
                                   htmlFor="file_upload_diagnostic_report"
