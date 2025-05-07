@@ -51,8 +51,8 @@ x : Done
 - [x] In service request create from AD lets remove status, intent, category, do not perform and locations. (These should be shown along with the name for information purpose) - Manyu
 - [x] If no specimen def is avilable then lets not empty state - Amjith
 - [x] Lets move uploaded files list to above the Choose file Card - Yash
-- [ ] Implement barcode in service request after creating the Specimen
-- [ ] Print all Barcodes button for a service request with page setup
+- [-] Implement barcode in service request after creating the Specimen - Vinu
+- [-] Print all Barcodes button for a service request with page setup - Vinu
 - [x] When you have uploaded the file the result section should always be present. - Yash
 - [x] Link to diganostic report page should be added to the service request - Yash
 - [x] We should have an option to capture conclusion in diagnostic report- Yash
