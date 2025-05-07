@@ -12,16 +12,17 @@ x : Done
 - [ ] Make currency configurable
 - [x] Add paymenthistory in invoices page - Amjith
 - [-] Add payment as transactions tab in account page - Jeevan
-- [ ] Build a flow for account balanceing and closing
+- [ ] Build a flow for account balanceing and closing (Close button - mark as inactive and select close reason dropdown)
 - [-] Replace Charge Item Create with ChargeItemDef to ChargeItem API - Vignesh
 - [x] Account balance
 - [x] Invoice list cleanup - Amjith
 - [x] Invoice View cleanup - Amjith
 - [x] Invoice Print Screen - Amjith
-- [ ] Invoice update statuses - Call different APIs (Balanced, Entered in error)
+- [ ] Invoice - Entered in error in action menu
 - [-] Invoice - Show record payment button only when in issued status - Jeevan
-- [-] Invoice - Show Issue Invoice button when in draft status, remove from status dropdown  - Jeevan
-- [-] Invoice - Remove status dropdown in Invoice create, remove from request - Jeevan
+- [-] Invoice - Show Issue Invoice button when in draft status  - Jeevan
+- [-] Invoice - Remove status dropdown in Invoice create & edit - Jeevan
+- [-] Invoice - Balance Invoice button - Confirm popup - Jeevan
 - [x] Invoice - Add charge items when draft - Jeevan
 - [x] Invoice - Payment history filter by invoice - Amjith
 - [x] Account - Payments tab - filter by Account - BE
@@ -41,10 +42,10 @@ x : Done
 - [x] Rewamp design of service request show page based on design - Yaswanth
 - [x] Add support for search by specimen ID in the UI based on design - Manyu
 - [x] Add filters for statues in service request page as of the UI - Manyu
+- [x] Add support for xray and file uploads service request - Amjith
 - [-] Add support for multiple diagnostic report for a service request - [hold till @bodhi confirms]
 - [-] Service Request - Show specimen.collection.collector details instead of UUID (After BE change) - Vignesh
 - [-] Service Request - Show specimen.processing.performer details instead of UUID (After BE change) - Vignesh
-- [x] Add support for xray and file uploads service request - Amjith
 
 - [ ] In service request create from AD lets remove status, intent, category, do not perform and locations. (These should be shown along with the name for information purpose)
 - [x] If no specimen def is avilable then lets not empty state - Amjith
@@ -54,7 +55,7 @@ x : Done
 - [x] When you have uploaded the file the result section should always be present. - Yash
 - [x] Link to diganostic report page should be added to the service request - Yash
 - [x] We should have an option to capture conclusion in diagnostic report- Yash
-- [ ] workflow statuses on the right side as per design should be created.
+- [ ] Workflow statuses on the right side as per design should be created.
 - [ ] Service request should show linked cahrge items along with its status [check for backend support]
 - [-] Diagnostic Report - Print uploaded files as well - Yash
 
