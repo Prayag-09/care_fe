@@ -11,10 +11,10 @@ x : Done
 - [x] Wire the actual amounts in all payment pages once backend is done - Amjith
 - [ ] Make currency configurable
 - [x] Add paymenthistory in invoices page - Amjith
-- [-] Add payment as transactions tab in account page - Jeevan (@bodhi to confirm)
-- [ ] Build a flow for account balanceing and closing
+- [-] Add payment as transactions tab in account page - Jeevan
+- [v] Build a flow for account balanceing and closing
 - [ ] Make it easy for users to mark an invoice as issued from draft state
-- [ ] Replace Charge Item Create with ChargeItemDef to ChargeItem API
+- [-] Replace Charge Item Create with ChargeItemDef to ChargeItem API - Vignesh
 - [x] Account balance
 - [x] Invoice list cleanup - Amjith
 - [x] Invoice View cleanup - Amjith
@@ -62,3 +62,4 @@ x : Done
 - [ ] Patient - There shouldn't be more than one active account at any point in time
 - [ ] BE need to sort by internal id by default, all apis has jumping issue
 - [ ] Need sort by payment_datetime for Payment Reconciliation list
+- [ ] Replace Charge Item Create with ChargeItemDef to ChargeItem API
