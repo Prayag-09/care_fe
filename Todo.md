@@ -35,6 +35,7 @@ x : Done
 - [x] Create invoice inside Account charge item list - Jeevan
 - [-] Charge Item Definition Update - Rithvik
 - [-] Charge Item Update - Jeevan & Rithvik
+- [ ] Consider disabling onWheelChange for input[type=number] fields.
 
 ## Labs
 
