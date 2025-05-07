@@ -1,4 +1,5 @@
 import { PlusIcon } from "lucide-react";
+import { useState } from "react";
 
 import { Button } from "@/components/ui/button";
 import {
@@ -17,8 +18,10 @@ export function CreateDiscountMonetaryComponentPopover(props: {
   systemCodes: Code[];
   facilityCodes: Code[];
 }) {
+  const [open, setOpen] = useState(false);
+
   return (
-    <Popover>
+    <Popover open={open} onOpenChange={setOpen}>
       <PopoverTrigger asChild>
         <Button variant="outline" size="sm">
           <PlusIcon />
@@ -27,7 +30,14 @@ export function CreateDiscountMonetaryComponentPopover(props: {
       </PopoverTrigger>
       <PopoverContent className="w-80" align="end">
         <div className="pt-4">
-          <DiscountMonetoryComponentForm {...props} />
+          <DiscountMonetoryComponentForm
+            onSubmit={(data) => {
+              setOpen(false);
+              props.onSubmit(data);
+            }}
+            systemCodes={props.systemCodes}
+            facilityCodes={props.facilityCodes}
+          />
         </div>
       </PopoverContent>
     </Popover>
