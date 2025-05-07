@@ -9,9 +9,9 @@ x : Done
 ## Billing
 
 - [x] Wire the actual amounts in all payment pages once backend is done - Amjith
-- [ ] Make currency configurable
+- [x] Make currency configurable - Rithvik
 - [x] Add paymenthistory in invoices page - Amjith
-- [-] Account - Record payment without invoice - Jeevan
+- [x] Account - Record payment without invoice - Jeevan
 - [ ] Build a flow for account balanceing and closing (Close button - mark as inactive and select close reason dropdown)
 - [-] Replace Charge Item Create with ChargeItemDef to ChargeItem API - Vignesh
 - [x] Account balance
