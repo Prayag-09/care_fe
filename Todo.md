@@ -33,7 +33,7 @@ x : Done
 - [x] Payments list (Tab - by Charge item Status) - Jeevan
 - [x] Show page for cancelled invoice (render charge items from cache)
 - [x] Create invoice inside Account charge item list - Jeevan
-- [-] Charge Item Definition Update - Rithvik
+- [x] Charge Item Definition Update - Rithvik
 - [-] Charge Item Update - Jeevan & Rithvik
 - [ ] Consider disabling onWheelChange for input[type=number] fields.
 
@@ -58,7 +58,7 @@ x : Done
 - [x] We should have an option to capture conclusion in diagnostic report- Yash
 - [x] Workflow statuses on the right side as per design should be created. - Amjith
 - [ ] Service request should show linked cahrge items along with its status [check for backend support]
-- [-] Diagnostic Report - Print uploaded files as well - Yash
+- [x] Diagnostic Report - Print uploaded files as well - Yash
 
 ## Back End
 

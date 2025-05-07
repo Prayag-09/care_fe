@@ -1,5 +1,9 @@
 import * as React from "react";
 
+import { cn } from "@/lib/utils";
+
+import { Input } from "@/components/ui/input";
+
 import { MonetaryComponent } from "@/types/base/monetaryComponent/monetaryComponent";
 
 export const numberFormatter = new Intl.NumberFormat("en-IN", {
@@ -33,4 +37,23 @@ function MonetaryDisplay({
   );
 }
 
-export { MonetaryDisplay };
+function MonetaryAmountInput(props: React.ComponentProps<typeof Input>) {
+  return (
+    <div className="flex items-center space-x-2">
+      <span className="text-lg font-medium">₹</span>
+      <Input
+        type="number"
+        min={0}
+        data-care-input="monetary-amount"
+        onWheel={(e) => {
+          e.currentTarget.blur();
+          e.stopPropagation();
+        }}
+        {...props}
+        className={cn("text-right", props.className)}
+      />
+    </div>
+  );
+}
+
+export { MonetaryDisplay, MonetaryAmountInput };
