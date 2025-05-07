@@ -11,7 +11,7 @@ x : Done
 - [x] Wire the actual amounts in all payment pages once backend is done - Amjith
 - [ ] Make currency configurable
 - [x] Add paymenthistory in invoices page - Amjith
-- [-] Add payment as transactions tab in account page - Jeevan
+- [-] Account - Record payment without invoice - Jeevan
 - [ ] Build a flow for account balanceing and closing (Close button - mark as inactive and select close reason dropdown)
 - [-] Replace Charge Item Create with ChargeItemDef to ChargeItem API - Vignesh
 - [x] Account balance
