@@ -27,26 +27,19 @@ type PrintInvoiceProps = {
 interface PriceComponentRowProps {
   label: string;
   components: MonetoryComponent[];
-  baseAmount: number;
-  quantity: number;
+  totalPriceComponents: MonetoryComponent[];
 }
 
 function PriceComponentRow({
   label,
   components,
-  baseAmount,
-  quantity,
+  totalPriceComponents,
 }: PriceComponentRowProps) {
   if (!components.length) return null;
 
   return (
     <>
       {components.map((component, index) => {
-        const value =
-          component.amount !== undefined && component.amount !== null
-            ? component.amount * quantity
-            : (component.factor || 0) * baseAmount * quantity;
-
         return (
           <tr
             key={`${label}-${index}`}
@@ -55,19 +48,16 @@ function PriceComponentRow({
             <td className="py-2 pl-8">
               {component.code && `${component.code.display} `}({label})
             </td>
-            <td className="py-2 text-right"></td>
             <td className="py-2 text-right">
               <MonetoryDisplay {...component} />
             </td>
+            <td className="py-2 text-right"></td>
             <td className="py-2 text-right">
-              <MonetoryDisplay
-                amount={
-                  component.monetory_component_type ===
-                  MonetoryComponentType.discount
-                    ? -value
-                    : value
-                }
-              />
+              {component.monetory_component_type ===
+              MonetoryComponentType.discount
+                ? "- "
+                : "+ "}
+              <MonetoryDisplay amount={totalPriceComponents[index]?.amount} />
             </td>
           </tr>
         );
@@ -166,10 +156,10 @@ export function PrintInvoice({ facilityId, invoiceId }: PrintInvoiceProps) {
                   {t("item")}
                 </th>
                 <th className="pb-2 text-right font-medium text-gray-500">
-                  {t("qty")}
+                  {t("unit_price")}
                 </th>
                 <th className="pb-2 text-right font-medium text-gray-500">
-                  {t("unit_price")}
+                  {t("qty")}
                 </th>
                 <th className="pb-2 text-right font-medium text-gray-500">
                   {t("amount")}
@@ -184,9 +174,21 @@ export function PrintInvoice({ facilityId, invoiceId }: PrintInvoiceProps) {
                 );
                 const baseAmount = baseComponent?.amount || 0;
 
-                const getComponentsByType = (type: MonetoryComponentType) => {
+                const getUnitComponentsByType = (
+                  type: MonetoryComponentType,
+                ) => {
                   return (
                     item.unit_price_components?.filter(
+                      (c) => c.monetory_component_type === type,
+                    ) || []
+                  );
+                };
+
+                const getTotalComponentsByType = (
+                  type: MonetoryComponentType,
+                ) => {
+                  return (
+                    item.total_price_components?.filter(
                       (c) => c.monetory_component_type === type,
                     ) || []
                   );
@@ -201,37 +203,40 @@ export function PrintInvoice({ facilityId, invoiceId }: PrintInvoiceProps) {
                           <div className="text-xs text-gray-500">{item.id}</div>
                         </div>
                       </td>
-                      <td className="py-4 text-right">{item.quantity}</td>
                       <td className="py-4 text-right">
                         <MonetoryDisplay amount={baseAmount} />
                       </td>
+                      <td className="py-4 text-right">{item.quantity}</td>
                       <td className="py-4 text-right">
                         <MonetoryDisplay amount={item.total_price} />
                       </td>
                     </tr>
                     <PriceComponentRow
                       label={t("surcharges")}
-                      components={getComponentsByType(
+                      components={getUnitComponentsByType(
                         MonetoryComponentType.surcharge,
                       )}
-                      baseAmount={baseAmount}
-                      quantity={item.quantity}
+                      totalPriceComponents={getTotalComponentsByType(
+                        MonetoryComponentType.surcharge,
+                      )}
                     />
                     <PriceComponentRow
                       label={t("discounts")}
-                      components={getComponentsByType(
+                      components={getUnitComponentsByType(
                         MonetoryComponentType.discount,
                       )}
-                      baseAmount={baseAmount}
-                      quantity={item.quantity}
+                      totalPriceComponents={getTotalComponentsByType(
+                        MonetoryComponentType.discount,
+                      )}
                     />
                     <PriceComponentRow
                       label={t("taxes")}
-                      components={getComponentsByType(
+                      components={getUnitComponentsByType(
                         MonetoryComponentType.tax,
                       )}
-                      baseAmount={baseAmount}
-                      quantity={item.quantity}
+                      totalPriceComponents={getTotalComponentsByType(
+                        MonetoryComponentType.tax,
+                      )}
                     />
                     <tr className="bg-muted/30 font-medium">
                       <td className="py-2 pl-8">{t("total")}</td>

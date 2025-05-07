@@ -96,26 +96,20 @@ const paymentMethodMap: Record<PaymentReconciliationPaymentMethod, string> = {
 interface PriceComponentRowProps {
   label: string;
   components: MonetoryComponent[];
-  baseAmount: number;
-  quantity: number;
+  totalPriceComponents: MonetoryComponent[];
 }
 
 function PriceComponentRow({
   label,
   components,
-  baseAmount,
-  quantity,
+  totalPriceComponents,
 }: PriceComponentRowProps) {
   if (!components.length) return null;
 
   return (
     <>
       {components.map((component, index) => {
-        const value =
-          component.amount !== undefined && component.amount !== null
-            ? component.amount * quantity
-            : (component.factor || 0) * baseAmount * quantity;
-
+        console.log("index", index, component, totalPriceComponents[index]);
         return (
           <TableRow
             key={`${label}-${index}`}
@@ -128,16 +122,13 @@ function PriceComponentRow({
             <TableCell>
               <MonetoryDisplay {...component} />
             </TableCell>
-            <TableCell>{quantity}</TableCell>
+            <TableCell></TableCell>
             <TableCell>
-              <MonetoryDisplay
-                amount={
-                  component.monetory_component_type ===
-                  MonetoryComponentType.discount
-                    ? -value
-                    : value
-                }
-              />
+              {component.monetory_component_type ===
+              MonetoryComponentType.discount
+                ? "- "
+                : "+ "}
+              <MonetoryDisplay amount={totalPriceComponents[index]?.amount} />
             </TableCell>
             <TableCell></TableCell>
           </TableRow>
@@ -210,9 +201,17 @@ export function InvoiceShow({
     }));
   };
 
-  const getComponentsByType = (item: any, type: MonetoryComponentType) => {
+  const getUnitComponentsByType = (item: any, type: MonetoryComponentType) => {
     return (
       item.unit_price_components?.filter(
+        (c: any) => c.monetory_component_type === type,
+      ) || []
+    );
+  };
+
+  const getTotalComponentsByType = (item: any, type: MonetoryComponentType) => {
+    return (
+      item.total_price_components?.filter(
         (c: any) => c.monetory_component_type === type,
       ) || []
     );
@@ -469,22 +468,26 @@ export function InvoiceShow({
                           <PriceComponentRow
                             key={`${item.id}-discounts`}
                             label={t("discounts")}
-                            components={getComponentsByType(
+                            components={getUnitComponentsByType(
                               item,
                               MonetoryComponentType.discount,
                             )}
-                            baseAmount={baseAmount}
-                            quantity={item.quantity}
+                            totalPriceComponents={getTotalComponentsByType(
+                              item,
+                              MonetoryComponentType.discount,
+                            )}
                           />,
                           <PriceComponentRow
                             key={`${item.id}-taxes`}
                             label={t("taxes")}
-                            components={getComponentsByType(
+                            components={getUnitComponentsByType(
                               item,
                               MonetoryComponentType.tax,
                             )}
-                            baseAmount={baseAmount}
-                            quantity={item.quantity}
+                            totalPriceComponents={getTotalComponentsByType(
+                              item,
+                              MonetoryComponentType.tax,
+                            )}
                           />,
                         ];
 
