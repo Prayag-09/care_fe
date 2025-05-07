@@ -1,5 +1,4 @@
 import { format } from "date-fns";
-import dayjs from "dayjs";
 import { useState } from "react";
 import "react-day-picker/style.css";
 import { useTranslation } from "react-i18next";
@@ -21,16 +20,14 @@ import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
 interface CombinedDatePickerProps {
   value?: Date;
   onChange: (date: Date | undefined) => void;
-  disabled?: boolean;
   placeholder?: string;
   buttonClassName?: string;
   popoverAlign?: "start" | "center" | "end";
   defaultTab?: "absolute" | "relative";
   classes?: string;
   dateFormat?: string;
-
-  min?: Date;
-  max?: Date;
+  disabled?: boolean;
+  blockDate?: (date: Date) => boolean;
 }
 
 export function CombinedDatePicker({
@@ -43,8 +40,7 @@ export function CombinedDatePicker({
   defaultTab = "absolute",
   classes,
   dateFormat = "PPP",
-  min,
-  max,
+  blockDate,
 }: CombinedDatePickerProps) {
   const { t } = useTranslation();
 
@@ -95,17 +91,14 @@ export function CombinedDatePicker({
                 mode="single"
                 selected={value}
                 onSelect={handleSelect}
-                disabled={(date) => {
-                  if (min && dayjs(date).isBefore(min, "day")) return true;
-                  if (max && dayjs(date).isAfter(max, "day")) return true;
-                  return false;
-                }}
+                disabled={blockDate}
               />
             </TabsContent>
             <TabsContent value="relative" className="p-0">
               <RelativeDatePicker
                 value={value}
                 onDateChange={handleRelativeDateChange}
+                disabled={blockDate}
               />
             </TabsContent>
           </Tabs>

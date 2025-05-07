@@ -507,37 +507,59 @@ export default function AppointmentsPage({
                     </div>
 
                     <div className="flex flex-col gap-2">
+                      <Label className="text-sm font-medium">
+                        {t("start_date")}
+                      </Label>
                       <CombinedDatePicker
-                        value={qParams.date_from}
-                        onChange={(date) =>
-                          updateQuery({
-                            date_from: date ? dateQueryString(date) : null,
-                            date_to:
-                              qParams.date_to &&
-                              dayjs(qParams.date_to).isBefore(date)
-                                ? dateQueryString(date)
-                                : qParams.date_to,
-                            slot: null,
-                          })
-                        }
-                      />
-                      <CombinedDatePicker
-                        min={
+                        value={
                           qParams.date_from
                             ? new Date(qParams.date_from)
                             : undefined
                         }
-                        value={qParams.date_to}
-                        onChange={(date) =>
+                        onChange={(date) => {
+                          if (qParams.date_to && date) {
+                            if (
+                              dayjs(date).isAfter(dayjs(qParams.date_to), "day")
+                            ) {
+                              updateQuery({
+                                date_from: date ? dateQueryString(date) : null,
+                                date_to: null,
+                                slot: null,
+                              });
+                              return;
+                            }
+                          }
                           updateQuery({
-                            date_from:
-                              qParams.date_from &&
-                              dayjs(qParams.date_from).isAfter(date)
-                                ? dateQueryString(date)
-                                : qParams.date_from,
+                            date_from: date ? dateQueryString(date) : null,
+                            slot: null,
+                          });
+                        }}
+                      />
+                    </div>
+
+                    <div className="flex flex-col gap-2">
+                      <Label className="text-sm font-medium">
+                        {t("end_date")}
+                      </Label>
+                      <CombinedDatePicker
+                        value={
+                          qParams.date_to
+                            ? new Date(qParams.date_to)
+                            : undefined
+                        }
+                        onChange={(date) => {
+                          updateQuery({
                             date_to: date ? dateQueryString(date) : null,
                             slot: null,
-                          })
+                          });
+                        }}
+                        blockDate={(date) =>
+                          qParams.date_from
+                            ? dayjs(date).isBefore(
+                                dayjs(qParams.date_from),
+                                "day",
+                              )
+                            : false
                         }
                       />
                     </div>
