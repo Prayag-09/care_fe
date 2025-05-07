@@ -72,9 +72,7 @@ export function WorkflowProgress({ request }: WorkflowProgressProps) {
     if (specimen.collection?.collected_date_time) {
       events.push({
         title: "Specimen Collected",
-        description: `${specimen.specimen_type?.display || "Specimen"} collected by ${
-          specimen.collection.collector
-        }`,
+        description: `${specimen.specimen_type?.display || "Specimen"} collected`,
         timestamp: specimen.collection.collected_date_time,
         status: "completed",
       });
@@ -87,9 +85,7 @@ export function WorkflowProgress({ request }: WorkflowProgressProps) {
       if (processing.time_date_time) {
         events.push({
           title: "Specimen Processed",
-          description: `${specimen.specimen_type?.display || "Specimen"} processed by ${
-            processing.performer
-          }`,
+          description: `${specimen.specimen_type?.display || "Specimen"} processed`,
           additional_info: `${processing.method?.display || "Method"}`,
           timestamp: processing.time_date_time,
           status: "completed",
@@ -102,9 +98,7 @@ export function WorkflowProgress({ request }: WorkflowProgressProps) {
   request.diagnostic_reports?.forEach((report: DiagnosticReportRead) => {
     events.push({
       title: "Diagnostic Report Generated",
-      description: `Diagnostic report created by ${
-        report.created_by && formatName(report.created_by)
-      }`,
+      description: `Diagnostic report created`,
       timestamp: report.created_date,
       status: report.status === "final" ? "completed" : "in_progress",
     });

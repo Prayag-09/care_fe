@@ -48,7 +48,7 @@ x : Done
 - [-] Service Request - Show specimen.collection.collector details instead of UUID (After BE change) - Vignesh
 - [-] Service Request - Show specimen.processing.performer details instead of UUID (After BE change) - Vignesh
 
-- [ ] In service request create from AD lets remove status, intent, category, do not perform and locations. (These should be shown along with the name for information purpose)
+- [-] In service request create from AD lets remove status, intent, category, do not perform and locations. (These should be shown along with the name for information purpose) - Manyu
 - [x] If no specimen def is avilable then lets not empty state - Amjith
 - [x] Lets move uploaded files list to above the Choose file Card - Yash
 - [ ] Implement barcode in service request after creating the Specimen
@@ -56,7 +56,7 @@ x : Done
 - [x] When you have uploaded the file the result section should always be present. - Yash
 - [x] Link to diganostic report page should be added to the service request - Yash
 - [x] We should have an option to capture conclusion in diagnostic report- Yash
-- [ ] Workflow statuses on the right side as per design should be created.
+- [x] Workflow statuses on the right side as per design should be created. - Amjith
 - [ ] Service request should show linked cahrge items along with its status [check for backend support]
 - [-] Diagnostic Report - Print uploaded files as well - Yash
 
