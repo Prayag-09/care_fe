@@ -3,6 +3,7 @@
 Do keep this updated if you have completed something, also mark your name to the issue if you have working on something.
 
 x : Done
+
 - : In Progress/Assigned/Blocked
 
 ## Billing
@@ -19,15 +20,15 @@ x : Done
 - [x] Invoice View cleanup - Amjith
 - [x] Invoice Print Screen - Amjith
 - [ ] Invoice update statuses - Call different APIs
-- [-] Invoice - Add charge items when draft - Jeevan
+- [x] Invoice - Add charge items when draft - Jeevan
 - [x] Invoice - Payment history filter by invoice - Amjith
 - [x] Account - Payments tab - filter by Account - BE
 - [x] Invoice View & Print - Show tax split up & Discounts (code with group in brackets) - Amjith
-- [ ] Invoice - Cancel button (API) & Mark as entered-in-error
+- [x] Invoice - Cancel button (API) & Mark as entered-in-error - Jeevan
 - [x] View for Cancelled invoices list (Tab - by invoice Status) - Jeevan
 - [x] Charge items list (Tab - by Charge item Status) - Jeevan
 - [x] Payments list (Tab - by Charge item Status) - Jeevan
-- [-] Show page for cancelled invoice (render charge items from cache) - Jeevan
+- [x] Show page for cancelled invoice (render charge items from cache)
 - [x] Create invoice inside Account charge item list - Jeevan
 - [-] Charge Item Definition Update - Rithvik
 
@@ -42,7 +43,7 @@ x : Done
 - [-] Service Request - Show specimen.processing.performer details instead of UUID (After BE change) - Vignesh
 - [x] Add support for xray and file uploads service request - Amjith
 
-- [-] In service request create from AD lets remove status, intent, category, do not perform and locations. (These should be shown along with the name for information purpose) - Manyu 
+- [-] In service request create from AD lets remove status, intent, category, do not perform and locations. (These should be shown along with the name for information purpose) - Manyu
 - [x] If no specimen def is avilable then lets not empty state - Amjith
 - [x] Lets move uploaded files list to above the Choose file Card - Yash
 - [ ] Implement barcode in service request after creating the Specimen
@@ -60,4 +61,3 @@ x : Done
 - [ ] Patient - There shouldn't be more than one active account at any point in time
 - [ ] BE need to sort by internal id by default, all apis has jumping issue
 - [ ] Need sort by payment_datetime for Payment Reconciliation list
-
