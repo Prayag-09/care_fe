@@ -1,4 +1,4 @@
-import { MonetoryComponent } from "@/types/base/monetoryComponent/monetoryComponent";
+import { MonetaryComponent } from "@/types/base/monetaryComponent/monetaryComponent";
 import { AccountRead } from "@/types/billing/account/Account";
 import { ChargeItemRead } from "@/types/billing/chargeItem/chargeItem";
 import { PaymentReconciliationRead } from "@/types/billing/paymentReconciliation/paymentReconciliation";
@@ -36,7 +36,7 @@ export interface InvoiceCreate extends Omit<InvoiceBase, "id"> {
 export interface InvoiceRead extends InvoiceBase {
   account: AccountRead;
   charge_items: ChargeItemRead[];
-  total_price_components: MonetoryComponent[];
+  total_price_components: MonetaryComponent[];
   total_net: number;
   total_gross: number;
   payment_reconciliations?: PaymentReconciliationRead[];

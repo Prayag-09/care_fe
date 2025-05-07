@@ -11,7 +11,7 @@ import CareIcon from "@/CAREUI/icons/CareIcon";
 import { Badge } from "@/components/ui/badge";
 import { Button } from "@/components/ui/button";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
-import { MonetoryDisplay } from "@/components/ui/monetory-display";
+import { MonetaryDisplay } from "@/components/ui/monetary-display";
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
 
 import { Avatar } from "@/components/Common/Avatar";
@@ -180,7 +180,7 @@ export function AccountShow({
                     "text-xl font-bold px-1",
                   )}
                 >
-                  <MonetoryDisplay amount={account.total_balance} />
+                  <MonetaryDisplay amount={account.total_balance} />
                 </span>
               </div>
               <div
@@ -191,7 +191,7 @@ export function AccountShow({
                   {t("total_gross")}
                 </span>
                 <span className={cn("text-xl font-bold px-1")}>
-                  <MonetoryDisplay amount={account.total_gross} />
+                  <MonetaryDisplay amount={account.total_gross} />
                 </span>
               </div>
               <div
@@ -202,7 +202,7 @@ export function AccountShow({
                   {t("total_net")}
                 </span>
                 <span className={cn("text-xl font-bold px-1")}>
-                  <MonetoryDisplay amount={account.total_net} />
+                  <MonetaryDisplay amount={account.total_net} />
                 </span>
               </div>
               <div
@@ -213,7 +213,7 @@ export function AccountShow({
                   {t("total_paid")}
                 </span>
                 <span className={cn("text-xl font-bold px-1")}>
-                  <MonetoryDisplay amount={account.total_paid} />
+                  <MonetaryDisplay amount={account.total_paid} />
                 </span>
               </div>
             </div>

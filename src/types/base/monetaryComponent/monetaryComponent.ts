@@ -1,6 +1,6 @@
 import { Code } from "@/types/questionnaire/code";
 
-export enum MonetoryComponentType {
+export enum MonetaryComponentType {
   base = "base",
   discount = "discount",
   tax = "tax",
@@ -8,13 +8,13 @@ export enum MonetoryComponentType {
   informational = "informational",
 }
 
-export interface MonetoryComponent {
-  monetory_component_type: MonetoryComponentType;
+export interface MonetaryComponent {
+  monetary_component_type: MonetaryComponentType;
   code?: Code | null;
   factor?: number | null;
   amount?: number | null;
 }
 
-export interface MonetoryComponentRead extends MonetoryComponent {
+export interface MonetaryComponentRead extends MonetaryComponent {
   title: string;
 }

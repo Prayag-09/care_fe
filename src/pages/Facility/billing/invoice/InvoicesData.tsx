@@ -8,7 +8,7 @@ import CareIcon from "@/CAREUI/icons/CareIcon";
 import { Badge } from "@/components/ui/badge";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
-import { MonetoryDisplay } from "@/components/ui/monetory-display";
+import { MonetaryDisplay } from "@/components/ui/monetary-display";
 import {
   Table,
   TableBody,
@@ -136,7 +136,7 @@ export default function InvoicesData({
                       </Badge>
                     </TableCell>
                     <TableCell>
-                      <MonetoryDisplay
+                      <MonetaryDisplay
                         className="font-medium"
                         amount={invoice.total_gross}
                       />

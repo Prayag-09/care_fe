@@ -8,17 +8,17 @@ import {
   PopoverTrigger,
 } from "@/components/ui/popover";
 
-import { MonetoryComponentRead } from "@/types/base/monetoryComponent/monetoryComponent";
+import { MonetaryComponentRead } from "@/types/base/monetaryComponent/monetaryComponent";
 import { Code } from "@/types/questionnaire/code";
 
-import { DiscountMonetoryComponentForm } from "./DiscountMonetoryComponentForm";
+import { DiscountMonetaryComponentForm } from "./DiscountMonetaryComponentForm";
 
-export function EditDiscountMonetoryPopover({
+export function EditDiscountMonetaryPopover({
   component,
   ...props
 }: {
-  component: MonetoryComponentRead;
-  onSubmit: (data: MonetoryComponentRead) => void;
+  component: MonetaryComponentRead;
+  onSubmit: (data: MonetaryComponentRead) => void;
   systemCodes: Code[];
   facilityCodes: Code[];
 }) {
@@ -32,7 +32,7 @@ export function EditDiscountMonetoryPopover({
         </Button>
       </PopoverTrigger>
       <PopoverContent className="w-80">
-        <DiscountMonetoryComponentForm
+        <DiscountMonetaryComponentForm
           defaultValues={component}
           onSubmit={(data) => {
             setOpen(false);

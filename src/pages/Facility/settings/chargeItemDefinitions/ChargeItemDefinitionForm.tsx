@@ -37,9 +37,9 @@ import Loading from "@/components/Common/Loading";
 import mutate from "@/Utils/request/mutate";
 import query from "@/Utils/request/query";
 import {
-  MonetoryComponent,
-  MonetoryComponentType,
-} from "@/types/base/monetoryComponent/monetoryComponent";
+  MonetaryComponent,
+  MonetaryComponentType,
+} from "@/types/base/monetaryComponent/monetaryComponent";
 import {
   ChargeItemDefinitionCreate,
   ChargeItemDefinitionRead,
@@ -51,7 +51,7 @@ import { Code, CodeSchema } from "@/types/questionnaire/code";
 
 const priceComponentSchema = z
   .object({
-    monetory_component_type: z.nativeEnum(MonetoryComponentType),
+    monetary_component_type: z.nativeEnum(MonetaryComponentType),
     code: CodeSchema.nullable().optional(),
     factor: z.number().min(0).max(100).nullable().optional(),
     amount: z.number().min(0).nullable().optional(),
@@ -59,7 +59,7 @@ const priceComponentSchema = z
   .refine(
     (data) => {
       // Base price must have amount, not factor
-      if (data.monetory_component_type === MonetoryComponentType.base) {
+      if (data.monetary_component_type === MonetaryComponentType.base) {
         return data.amount != null;
       }
 
@@ -84,7 +84,7 @@ const formSchema = z.object({
       // Ensure there is at least one component and the first one is base price
       return (
         components.length > 0 &&
-        components[0].monetory_component_type === MonetoryComponentType.base
+        components[0].monetary_component_type === MonetaryComponentType.base
       );
     },
     {
@@ -119,7 +119,7 @@ export function ChargeItemDefinitionForm({
 
     return [
       {
-        monetory_component_type: MonetoryComponentType.base,
+        monetary_component_type: MonetaryComponentType.base,
         amount: 0,
         factor: null,
         code: null,
@@ -160,7 +160,7 @@ export function ChargeItemDefinitionForm({
       watchedValues.price_component &&
       watchedValues.price_component.length > 0
     ) {
-      setPriceComponents(watchedValues.price_component as MonetoryComponent[]);
+      setPriceComponents(watchedValues.price_component as MonetaryComponent[]);
     }
   }, [watchedValues.price_component]);
 
@@ -185,9 +185,9 @@ export function ChargeItemDefinitionForm({
     // Prepare the final submission data
     const cleanedPriceComponents = values.price_component.map((comp) => {
       // For base price type, ensure we only use amount (not factor)
-      if (comp.monetory_component_type === MonetoryComponentType.base) {
+      if (comp.monetary_component_type === MonetaryComponentType.base) {
         return {
-          monetory_component_type: comp.monetory_component_type,
+          monetary_component_type: comp.monetary_component_type,
           amount: comp.amount,
           ...(comp.code && { code: comp.code }),
         };
@@ -195,7 +195,7 @@ export function ChargeItemDefinitionForm({
 
       // For other types, use either amount or factor based on which is set
       return {
-        monetory_component_type: comp.monetory_component_type,
+        monetary_component_type: comp.monetary_component_type,
         ...(comp.code && { code: comp.code }),
         ...(comp.factor !== null
           ? { factor: comp.factor }
@@ -230,7 +230,7 @@ export function ChargeItemDefinitionForm({
 
     // Find the base price component (should be first)
     const baseComponent = priceComponents.find(
-      (c) => c.monetory_component_type === MonetoryComponentType.base,
+      (c) => c.monetary_component_type === MonetaryComponentType.base,
     );
 
     if (baseComponent) {
@@ -255,15 +255,15 @@ export function ChargeItemDefinitionForm({
   const toggleDiscountCode = (codeObj: Code, isChecked: boolean) => {
     const existingComponent = priceComponents.find(
       (c) =>
-        c.monetory_component_type === MonetoryComponentType.discount &&
+        c.monetary_component_type === MonetaryComponentType.discount &&
         c.code?.code === codeObj.code &&
         c.code?.system === codeObj.system,
     );
 
     if (isChecked && !existingComponent) {
       // Add a new discount component
-      const newComponent: MonetoryComponent = {
-        monetory_component_type: MonetoryComponentType.discount,
+      const newComponent: MonetaryComponent = {
+        monetary_component_type: MonetaryComponentType.discount,
         code: codeObj,
         amount: null,
         factor: 10, // Default 10% discount (using 0-100 scale)
@@ -281,7 +281,7 @@ export function ChargeItemDefinitionForm({
       const updatedComponents = priceComponents.filter(
         (c) =>
           !(
-            c.monetory_component_type === MonetoryComponentType.discount &&
+            c.monetary_component_type === MonetaryComponentType.discount &&
             c.code?.code === codeObj.code &&
             c.code?.system === codeObj.system
           ),
@@ -300,15 +300,15 @@ export function ChargeItemDefinitionForm({
   const toggleTaxCode = (codeObj: Code, isChecked: boolean) => {
     const existingComponent = priceComponents.find(
       (c) =>
-        c.monetory_component_type === MonetoryComponentType.tax &&
+        c.monetary_component_type === MonetaryComponentType.tax &&
         c.code?.code === codeObj.code &&
         c.code?.system === codeObj.system,
     );
 
     if (isChecked && !existingComponent) {
       // Add a new tax component
-      const newComponent: MonetoryComponent = {
-        monetory_component_type: MonetoryComponentType.tax,
+      const newComponent: MonetaryComponent = {
+        monetary_component_type: MonetaryComponentType.tax,
         code: codeObj,
         amount: null,
         factor: 18, // Default 18% tax (like GST) (using 0-100 scale)
@@ -326,7 +326,7 @@ export function ChargeItemDefinitionForm({
       const updatedComponents = priceComponents.filter(
         (c) =>
           !(
-            c.monetory_component_type === MonetoryComponentType.tax &&
+            c.monetary_component_type === MonetaryComponentType.tax &&
             c.code?.code === codeObj.code &&
             c.code?.system === codeObj.system
           ),
@@ -344,11 +344,11 @@ export function ChargeItemDefinitionForm({
   // Check if a specific code is selected
   const isCodeSelected = (
     codeObj: Code,
-    type: MonetoryComponentType,
+    type: MonetaryComponentType,
   ): boolean => {
     return priceComponents.some(
       (c) =>
-        c.monetory_component_type === type &&
+        c.monetary_component_type === type &&
         c.code?.code === codeObj.code &&
         c.code?.system === codeObj.system,
     );
@@ -357,11 +357,11 @@ export function ChargeItemDefinitionForm({
   // Get factor (percentage) value for a component
   const getComponentPercentage = (
     codeObj: Code,
-    type: MonetoryComponentType,
+    type: MonetaryComponentType,
   ): number => {
     const component = priceComponents.find(
       (c) =>
-        c.monetory_component_type === type &&
+        c.monetary_component_type === type &&
         c.code?.code === codeObj.code &&
         c.code?.system === codeObj.system,
     );
@@ -371,18 +371,18 @@ export function ChargeItemDefinitionForm({
 
   // Get base price component
   const basePrice = priceComponents.find(
-    (c) => c.monetory_component_type === MonetoryComponentType.base,
+    (c) => c.monetary_component_type === MonetaryComponentType.base,
   );
 
   // Add a function to update the percentage for a discount or tax code
   const updateComponentPercentage = (
     codeObj: Code,
-    type: MonetoryComponentType,
+    type: MonetaryComponentType,
     value: string,
   ) => {
     const component = priceComponents.find(
       (c) =>
-        c.monetory_component_type === type &&
+        c.monetary_component_type === type &&
         c.code?.code === codeObj.code &&
         c.code?.system === codeObj.system,
     );
@@ -585,7 +585,7 @@ export function ChargeItemDefinitionForm({
                     discountCodes.map((code) => {
                       const isSelected = isCodeSelected(
                         code,
-                        MonetoryComponentType.discount,
+                        MonetaryComponentType.discount,
                       );
                       return (
                         <tr
@@ -633,12 +633,12 @@ export function ChargeItemDefinitionForm({
                                     max="100"
                                     value={getComponentPercentage(
                                       code,
-                                      MonetoryComponentType.discount,
+                                      MonetaryComponentType.discount,
                                     )}
                                     onChange={(e) =>
                                       updateComponentPercentage(
                                         code,
-                                        MonetoryComponentType.discount,
+                                        MonetaryComponentType.discount,
                                         e.target.value,
                                       )
                                     }
@@ -694,7 +694,7 @@ export function ChargeItemDefinitionForm({
                     taxCodes.map((code) => {
                       const isSelected = isCodeSelected(
                         code,
-                        MonetoryComponentType.tax,
+                        MonetaryComponentType.tax,
                       );
                       return (
                         <tr
@@ -742,12 +742,12 @@ export function ChargeItemDefinitionForm({
                                     max="100"
                                     value={getComponentPercentage(
                                       code,
-                                      MonetoryComponentType.tax,
+                                      MonetaryComponentType.tax,
                                     )}
                                     onChange={(e) =>
                                       updateComponentPercentage(
                                         code,
-                                        MonetoryComponentType.tax,
+                                        MonetaryComponentType.tax,
                                         e.target.value,
                                       )
                                     }
@@ -808,18 +808,18 @@ export function ChargeItemDefinitionForm({
                 <span className="text-gray-500">{t("total_discounts")}</span>
                 <span className="text-red-600">
                   {discountCodes.some((code) =>
-                    isCodeSelected(code, MonetoryComponentType.discount),
+                    isCodeSelected(code, MonetaryComponentType.discount),
                   )
                     ? `-${discountCodes
                         .filter((code) =>
-                          isCodeSelected(code, MonetoryComponentType.discount),
+                          isCodeSelected(code, MonetaryComponentType.discount),
                         )
                         .reduce(
                           (sum, code) =>
                             sum +
                             getComponentPercentage(
                               code,
-                              MonetoryComponentType.discount,
+                              MonetaryComponentType.discount,
                             ),
                           0,
                         )}%`
@@ -832,18 +832,18 @@ export function ChargeItemDefinitionForm({
                 <span className="text-gray-500">{t("taxes")}</span>
                 <span>
                   {taxCodes.some((code) =>
-                    isCodeSelected(code, MonetoryComponentType.tax),
+                    isCodeSelected(code, MonetaryComponentType.tax),
                   )
                     ? `+${taxCodes
                         .filter((code) =>
-                          isCodeSelected(code, MonetoryComponentType.tax),
+                          isCodeSelected(code, MonetaryComponentType.tax),
                         )
                         .reduce(
                           (sum, code) =>
                             sum +
                             getComponentPercentage(
                               code,
-                              MonetoryComponentType.tax,
+                              MonetaryComponentType.tax,
                             ),
                           0,
                         )}%`

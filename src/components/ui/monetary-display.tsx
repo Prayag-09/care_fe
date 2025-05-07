@@ -1,18 +1,18 @@
 import * as React from "react";
 
-import { MonetoryComponent } from "@/types/base/monetoryComponent/monetoryComponent";
+import { MonetaryComponent } from "@/types/base/monetaryComponent/monetaryComponent";
 
 export const numberFormatter = new Intl.NumberFormat("en-IN", {
   style: "currency",
   currency: "INR",
 });
 
-function MonetoryDisplay({
+function MonetaryDisplay({
   amount,
   factor,
   fallback,
   ...props
-}: Pick<MonetoryComponent, "amount" | "factor"> & {
+}: Pick<MonetaryComponent, "amount" | "factor"> & {
   fallback?: React.ReactNode;
 } & React.ComponentProps<"data">) {
   if ((amount ?? factor) == null) {
@@ -21,8 +21,8 @@ function MonetoryDisplay({
 
   return (
     <data
-      data-slot="monetory-value"
-      data-monetory-type={amount ? "amount" : "factor"}
+      data-slot="monetary-value"
+      data-monetary-type={amount ? "amount" : "factor"}
       data-amount={amount}
       data-factor={factor}
       {...props}
@@ -33,4 +33,4 @@ function MonetoryDisplay({
   );
 }
 
-export { MonetoryDisplay };
+export { MonetaryDisplay };

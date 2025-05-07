@@ -19,7 +19,7 @@ import {
   DropdownMenuSeparator,
   DropdownMenuTrigger,
 } from "@/components/ui/dropdown-menu";
-import { MonetoryDisplay } from "@/components/ui/monetory-display";
+import { MonetaryDisplay } from "@/components/ui/monetary-display";
 import {
   Table,
   TableBody,
@@ -36,9 +36,9 @@ import useFilters from "@/hooks/useFilters";
 
 import query from "@/Utils/request/query";
 import {
-  MonetoryComponent,
-  MonetoryComponentType,
-} from "@/types/base/monetoryComponent/monetoryComponent";
+  MonetaryComponent,
+  MonetaryComponentType,
+} from "@/types/base/monetaryComponent/monetaryComponent";
 import {
   ChargeItemRead,
   ChargeItemStatus,
@@ -62,7 +62,7 @@ function getStatusVariant(status: string) {
 
 interface PriceComponentRowProps {
   label: string;
-  components: MonetoryComponent[];
+  components: MonetaryComponent[];
   baseAmount: number;
   quantity: number;
 }
@@ -90,14 +90,14 @@ function PriceComponentRow({
               {component.code && `${component.code.display} `}({label})
             </TableCell>
             <TableCell>
-              <MonetoryDisplay {...component} />
+              <MonetaryDisplay {...component} />
             </TableCell>
             <TableCell></TableCell>
             <TableCell>
-              <MonetoryDisplay
+              <MonetaryDisplay
                 amount={
-                  component.monetory_component_type ===
-                  MonetoryComponentType.discount
+                  component.monetary_component_type ===
+                  MonetaryComponentType.discount
                     ? -value
                     : value
                 }
@@ -149,18 +149,18 @@ export function ChargeItemsTable({
 
   const getComponentsByType = (
     item: ChargeItemRead,
-    type: MonetoryComponentType,
+    type: MonetaryComponentType,
   ) => {
     return (
       item.unit_price_components?.filter(
-        (c) => c.monetory_component_type === type,
+        (c) => c.monetary_component_type === type,
       ) || []
     );
   };
 
   const getBaseComponent = (item: ChargeItemRead) => {
     return item.unit_price_components?.find(
-      (c) => c.monetory_component_type === MonetoryComponentType.base,
+      (c) => c.monetary_component_type === MonetaryComponentType.base,
     );
   };
 
@@ -241,11 +241,11 @@ export function ChargeItemsTable({
                         )}
                       </TableCell>
                       <TableCell>
-                        <MonetoryDisplay amount={baseAmount} />
+                        <MonetaryDisplay amount={baseAmount} />
                       </TableCell>
                       <TableCell>{item.quantity}</TableCell>
                       <TableCell className="font-medium">
-                        <MonetoryDisplay amount={item.total_price} />
+                        <MonetaryDisplay amount={item.total_price} />
                       </TableCell>
                       <TableCell>
                         <div className="flex items-center space-x-2">
@@ -316,7 +316,7 @@ export function ChargeItemsTable({
                       label={t("discounts")}
                       components={getComponentsByType(
                         item,
-                        MonetoryComponentType.discount,
+                        MonetaryComponentType.discount,
                       )}
                       baseAmount={baseAmount}
                       quantity={item.quantity}
@@ -326,7 +326,7 @@ export function ChargeItemsTable({
                       label={t("taxes")}
                       components={getComponentsByType(
                         item,
-                        MonetoryComponentType.tax,
+                        MonetaryComponentType.tax,
                       )}
                       baseAmount={baseAmount}
                       quantity={item.quantity}
@@ -344,7 +344,7 @@ export function ChargeItemsTable({
                       <TableCell></TableCell>
                       <TableCell></TableCell>
                       <TableCell>
-                        <MonetoryDisplay amount={item.total_price} />
+                        <MonetaryDisplay amount={item.total_price} />
                       </TableCell>
                       <TableCell></TableCell>
                       <TableCell></TableCell>

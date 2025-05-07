@@ -7,16 +7,16 @@ import { formatPhoneNumberIntl } from "react-phone-number-input";
 
 import PrintPreview from "@/CAREUI/misc/PrintPreview";
 
-import { MonetoryDisplay } from "@/components/ui/monetory-display";
+import { MonetaryDisplay } from "@/components/ui/monetary-display";
 import { Separator } from "@/components/ui/separator";
 
 import Loading from "@/components/Common/Loading";
 
 import query from "@/Utils/request/query";
 import {
-  MonetoryComponent,
-  MonetoryComponentType,
-} from "@/types/base/monetoryComponent/monetoryComponent";
+  MonetaryComponent,
+  MonetaryComponentType,
+} from "@/types/base/monetaryComponent/monetaryComponent";
 import invoiceApi from "@/types/billing/invoice/invoiceApi";
 
 type PrintInvoiceProps = {
@@ -26,8 +26,8 @@ type PrintInvoiceProps = {
 
 interface PriceComponentRowProps {
   label: string;
-  components: MonetoryComponent[];
-  totalPriceComponents: MonetoryComponent[];
+  components: MonetaryComponent[];
+  totalPriceComponents: MonetaryComponent[];
 }
 
 function PriceComponentRow({
@@ -49,15 +49,15 @@ function PriceComponentRow({
               {component.code && `${component.code.display} `}({label})
             </td>
             <td className="py-2 text-right">
-              <MonetoryDisplay {...component} />
+              <MonetaryDisplay {...component} />
             </td>
             <td className="py-2 text-right"></td>
             <td className="py-2 text-right">
-              {component.monetory_component_type ===
-              MonetoryComponentType.discount
+              {component.monetary_component_type ===
+              MonetaryComponentType.discount
                 ? "- "
                 : "+ "}
-              <MonetoryDisplay amount={totalPriceComponents[index]?.amount} />
+              <MonetaryDisplay amount={totalPriceComponents[index]?.amount} />
             </td>
           </tr>
         );
@@ -170,26 +170,26 @@ export function PrintInvoice({ facilityId, invoiceId }: PrintInvoiceProps) {
               {invoice.charge_items.map((item) => {
                 const baseComponent = item.unit_price_components?.find(
                   (c) =>
-                    c.monetory_component_type === MonetoryComponentType.base,
+                    c.monetary_component_type === MonetaryComponentType.base,
                 );
                 const baseAmount = baseComponent?.amount || 0;
 
                 const getUnitComponentsByType = (
-                  type: MonetoryComponentType,
+                  type: MonetaryComponentType,
                 ) => {
                   return (
                     item.unit_price_components?.filter(
-                      (c) => c.monetory_component_type === type,
+                      (c) => c.monetary_component_type === type,
                     ) || []
                   );
                 };
 
                 const getTotalComponentsByType = (
-                  type: MonetoryComponentType,
+                  type: MonetaryComponentType,
                 ) => {
                   return (
                     item.total_price_components?.filter(
-                      (c) => c.monetory_component_type === type,
+                      (c) => c.monetary_component_type === type,
                     ) || []
                   );
                 };
@@ -204,38 +204,38 @@ export function PrintInvoice({ facilityId, invoiceId }: PrintInvoiceProps) {
                         </div>
                       </td>
                       <td className="py-4 text-right">
-                        <MonetoryDisplay amount={baseAmount} />
+                        <MonetaryDisplay amount={baseAmount} />
                       </td>
                       <td className="py-4 text-right">{item.quantity}</td>
                       <td className="py-4 text-right">
-                        <MonetoryDisplay amount={item.total_price} />
+                        <MonetaryDisplay amount={item.total_price} />
                       </td>
                     </tr>
                     <PriceComponentRow
                       label={t("surcharges")}
                       components={getUnitComponentsByType(
-                        MonetoryComponentType.surcharge,
+                        MonetaryComponentType.surcharge,
                       )}
                       totalPriceComponents={getTotalComponentsByType(
-                        MonetoryComponentType.surcharge,
+                        MonetaryComponentType.surcharge,
                       )}
                     />
                     <PriceComponentRow
                       label={t("discounts")}
                       components={getUnitComponentsByType(
-                        MonetoryComponentType.discount,
+                        MonetaryComponentType.discount,
                       )}
                       totalPriceComponents={getTotalComponentsByType(
-                        MonetoryComponentType.discount,
+                        MonetaryComponentType.discount,
                       )}
                     />
                     <PriceComponentRow
                       label={t("taxes")}
                       components={getUnitComponentsByType(
-                        MonetoryComponentType.tax,
+                        MonetaryComponentType.tax,
                       )}
                       totalPriceComponents={getTotalComponentsByType(
-                        MonetoryComponentType.tax,
+                        MonetaryComponentType.tax,
                       )}
                     />
                     <tr className="bg-muted/30 font-medium">
@@ -243,7 +243,7 @@ export function PrintInvoice({ facilityId, invoiceId }: PrintInvoiceProps) {
                       <td></td>
                       <td></td>
                       <td className="py-2 text-right">
-                        <MonetoryDisplay amount={item.total_price} />
+                        <MonetaryDisplay amount={item.total_price} />
                       </td>
                     </tr>
                   </React.Fragment>
@@ -258,14 +258,14 @@ export function PrintInvoice({ facilityId, invoiceId }: PrintInvoiceProps) {
           {/* Base Amount */}
           {invoice.total_price_components
             ?.filter(
-              (c) => c.monetory_component_type === MonetoryComponentType.base,
+              (c) => c.monetary_component_type === MonetaryComponentType.base,
             )
             .map((component, index) => (
               <div key={`base-${index}`} className="flex w-64 justify-between">
                 <span className="text-gray-500">
                   {component.code?.display || t("base_amount")}
                 </span>
-                <MonetoryDisplay amount={component.amount} fallback="-" />
+                <MonetaryDisplay amount={component.amount} fallback="-" />
               </div>
             ))}
 
@@ -273,7 +273,7 @@ export function PrintInvoice({ facilityId, invoiceId }: PrintInvoiceProps) {
           {invoice.total_price_components
             ?.filter(
               (c) =>
-                c.monetory_component_type === MonetoryComponentType.surcharge,
+                c.monetary_component_type === MonetaryComponentType.surcharge,
             )
             .map((component, index) => (
               <div
@@ -285,7 +285,7 @@ export function PrintInvoice({ facilityId, invoiceId }: PrintInvoiceProps) {
                   {t("surcharge")})
                 </span>
                 <span>
-                  + <MonetoryDisplay {...component} />
+                  + <MonetaryDisplay {...component} />
                 </span>
               </div>
             ))}
@@ -294,7 +294,7 @@ export function PrintInvoice({ facilityId, invoiceId }: PrintInvoiceProps) {
           {invoice.total_price_components
             ?.filter(
               (c) =>
-                c.monetory_component_type === MonetoryComponentType.discount,
+                c.monetary_component_type === MonetaryComponentType.discount,
             )
             .map((component, index) => (
               <div
@@ -306,7 +306,7 @@ export function PrintInvoice({ facilityId, invoiceId }: PrintInvoiceProps) {
                   {t("discount")})
                 </span>
                 <span>
-                  - <MonetoryDisplay {...component} />
+                  - <MonetaryDisplay {...component} />
                 </span>
               </div>
             ))}
@@ -314,7 +314,7 @@ export function PrintInvoice({ facilityId, invoiceId }: PrintInvoiceProps) {
           {/* Taxes */}
           {invoice.total_price_components
             ?.filter(
-              (c) => c.monetory_component_type === MonetoryComponentType.tax,
+              (c) => c.monetary_component_type === MonetaryComponentType.tax,
             )
             .map((component, index) => (
               <div
@@ -325,7 +325,7 @@ export function PrintInvoice({ facilityId, invoiceId }: PrintInvoiceProps) {
                   {component.code && `${component.code.display} `}({t("tax")})
                 </span>
                 <span>
-                  + <MonetoryDisplay {...component} />
+                  + <MonetaryDisplay {...component} />
                 </span>
               </div>
             ))}
@@ -335,13 +335,13 @@ export function PrintInvoice({ facilityId, invoiceId }: PrintInvoiceProps) {
           {/* Subtotal */}
           <div className="flex w-64 justify-between">
             <span className="text-gray-500">{t("net_amount")}</span>
-            <MonetoryDisplay amount={invoice.total_net} />
+            <MonetaryDisplay amount={invoice.total_net} />
           </div>
 
           {/* Total */}
           <div className="flex w-64 justify-between font-bold">
             <span>{t("total")}</span>
-            <MonetoryDisplay amount={invoice.total_gross} />
+            <MonetaryDisplay amount={invoice.total_gross} />
           </div>
         </div>
 

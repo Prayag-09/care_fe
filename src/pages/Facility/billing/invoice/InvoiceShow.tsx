@@ -32,7 +32,7 @@ import {
   DropdownMenuSeparator,
   DropdownMenuTrigger,
 } from "@/components/ui/dropdown-menu";
-import { MonetoryDisplay } from "@/components/ui/monetory-display";
+import { MonetaryDisplay } from "@/components/ui/monetary-display";
 import { Separator } from "@/components/ui/separator";
 import {
   Table,
@@ -51,9 +51,9 @@ import query from "@/Utils/request/query";
 import PaymentReconciliationSheet from "@/pages/Facility/billing/PaymentReconciliationSheet";
 import EditInvoiceSheet from "@/pages/Facility/billing/invoice/EditInvoiceSheet";
 import {
-  MonetoryComponent,
-  MonetoryComponentType,
-} from "@/types/base/monetoryComponent/monetoryComponent";
+  MonetaryComponent,
+  MonetaryComponentType,
+} from "@/types/base/monetaryComponent/monetaryComponent";
 import { CHARGE_ITEM_STATUS_STYLES } from "@/types/billing/chargeItem/chargeItem";
 import chargeItemApi from "@/types/billing/chargeItem/chargeItemApi";
 import { InvoiceStatus } from "@/types/billing/invoice/invoice";
@@ -95,8 +95,8 @@ const paymentMethodMap: Record<PaymentReconciliationPaymentMethod, string> = {
 
 interface PriceComponentRowProps {
   label: string;
-  components: MonetoryComponent[];
-  totalPriceComponents: MonetoryComponent[];
+  components: MonetaryComponent[];
+  totalPriceComponents: MonetaryComponent[];
 }
 
 function PriceComponentRow({
@@ -120,15 +120,15 @@ function PriceComponentRow({
               {component.code && `${component.code.display} `}({label})
             </TableCell>
             <TableCell>
-              <MonetoryDisplay {...component} />
+              <MonetaryDisplay {...component} />
             </TableCell>
             <TableCell></TableCell>
             <TableCell>
-              {component.monetory_component_type ===
-              MonetoryComponentType.discount
+              {component.monetary_component_type ===
+              MonetaryComponentType.discount
                 ? "- "
                 : "+ "}
-              <MonetoryDisplay amount={totalPriceComponents[index]?.amount} />
+              <MonetaryDisplay amount={totalPriceComponents[index]?.amount} />
             </TableCell>
             <TableCell></TableCell>
           </TableRow>
@@ -201,25 +201,25 @@ export function InvoiceShow({
     }));
   };
 
-  const getUnitComponentsByType = (item: any, type: MonetoryComponentType) => {
+  const getUnitComponentsByType = (item: any, type: MonetaryComponentType) => {
     return (
       item.unit_price_components?.filter(
-        (c: any) => c.monetory_component_type === type,
+        (c: any) => c.monetary_component_type === type,
       ) || []
     );
   };
 
-  const getTotalComponentsByType = (item: any, type: MonetoryComponentType) => {
+  const getTotalComponentsByType = (item: any, type: MonetaryComponentType) => {
     return (
       item.total_price_components?.filter(
-        (c: any) => c.monetory_component_type === type,
+        (c: any) => c.monetary_component_type === type,
       ) || []
     );
   };
 
   const getBaseComponent = (item: any) => {
     return item.unit_price_components?.find(
-      (c: any) => c.monetory_component_type === MonetoryComponentType.base,
+      (c: any) => c.monetary_component_type === MonetaryComponentType.base,
     );
   };
 
@@ -410,11 +410,11 @@ export function InvoiceShow({
                               </div>
                             </TableCell>
                             <TableCell>
-                              <MonetoryDisplay amount={baseAmount} />
+                              <MonetaryDisplay amount={baseAmount} />
                             </TableCell>
                             <TableCell>{item.quantity}</TableCell>
                             <TableCell>
-                              <MonetoryDisplay amount={item.total_price} />
+                              <MonetaryDisplay amount={item.total_price} />
                             </TableCell>
                             <TableCell>
                               <Badge
@@ -470,11 +470,11 @@ export function InvoiceShow({
                             label={t("discounts")}
                             components={getUnitComponentsByType(
                               item,
-                              MonetoryComponentType.discount,
+                              MonetaryComponentType.discount,
                             )}
                             totalPriceComponents={getTotalComponentsByType(
                               item,
-                              MonetoryComponentType.discount,
+                              MonetaryComponentType.discount,
                             )}
                           />,
                           <PriceComponentRow
@@ -482,11 +482,11 @@ export function InvoiceShow({
                             label={t("taxes")}
                             components={getUnitComponentsByType(
                               item,
-                              MonetoryComponentType.tax,
+                              MonetaryComponentType.tax,
                             )}
                             totalPriceComponents={getTotalComponentsByType(
                               item,
-                              MonetoryComponentType.tax,
+                              MonetaryComponentType.tax,
                             )}
                           />,
                         ];
@@ -501,7 +501,7 @@ export function InvoiceShow({
                             <TableCell></TableCell>
                             <TableCell></TableCell>
                             <TableCell>
-                              <MonetoryDisplay amount={item.total_price} />
+                              <MonetaryDisplay amount={item.total_price} />
                             </TableCell>
                             <TableCell></TableCell>
                             <TableCell></TableCell>
@@ -521,8 +521,8 @@ export function InvoiceShow({
                   {invoice.total_price_components
                     ?.filter(
                       (c) =>
-                        c.monetory_component_type ===
-                        MonetoryComponentType.base,
+                        c.monetary_component_type ===
+                        MonetaryComponentType.base,
                     )
                     .map((component, index) => (
                       <div
@@ -532,7 +532,7 @@ export function InvoiceShow({
                         <span className="text-gray-500">
                           {component.code?.display || t("base_amount")}
                         </span>
-                        <MonetoryDisplay amount={component.amount} />
+                        <MonetaryDisplay amount={component.amount} />
                       </div>
                     ))}
 
@@ -540,8 +540,8 @@ export function InvoiceShow({
                   {invoice.total_price_components
                     ?.filter(
                       (c) =>
-                        c.monetory_component_type ===
-                        MonetoryComponentType.surcharge,
+                        c.monetary_component_type ===
+                        MonetaryComponentType.surcharge,
                     )
                     .map((component, index) => (
                       <div
@@ -553,7 +553,7 @@ export function InvoiceShow({
                           {t("surcharge")})
                         </span>
                         <span>
-                          + <MonetoryDisplay {...component} />
+                          + <MonetaryDisplay {...component} />
                         </span>
                       </div>
                     ))}
@@ -562,8 +562,8 @@ export function InvoiceShow({
                   {invoice.total_price_components
                     ?.filter(
                       (c) =>
-                        c.monetory_component_type ===
-                        MonetoryComponentType.discount,
+                        c.monetary_component_type ===
+                        MonetaryComponentType.discount,
                     )
                     .map((component, index) => (
                       <div
@@ -575,7 +575,7 @@ export function InvoiceShow({
                           {t("discount")})
                         </span>
                         <span>
-                          - <MonetoryDisplay {...component} />
+                          - <MonetaryDisplay {...component} />
                         </span>
                       </div>
                     ))}
@@ -584,7 +584,7 @@ export function InvoiceShow({
                   {invoice.total_price_components
                     ?.filter(
                       (c) =>
-                        c.monetory_component_type === MonetoryComponentType.tax,
+                        c.monetary_component_type === MonetaryComponentType.tax,
                     )
                     .map((component, index) => (
                       <div
@@ -596,7 +596,7 @@ export function InvoiceShow({
                           {t("tax")})
                         </span>
                         <span>
-                          + <MonetoryDisplay {...component} />
+                          + <MonetaryDisplay {...component} />
                         </span>
                       </div>
                     ))}
@@ -606,13 +606,13 @@ export function InvoiceShow({
                   {/* Subtotal */}
                   <div className="flex w-64 justify-between">
                     <span className="text-gray-500">{t("net_amount")}</span>
-                    <MonetoryDisplay amount={invoice.total_net} />
+                    <MonetaryDisplay amount={invoice.total_net} />
                   </div>
 
                   {/* Total */}
                   <div className="flex w-64 justify-between font-bold">
                     <span>{t("total")}</span>
-                    <MonetoryDisplay amount={invoice.total_gross} />
+                    <MonetaryDisplay amount={invoice.total_gross} />
                   </div>
                 </div>
               </div>
@@ -672,7 +672,7 @@ export function InvoiceShow({
                             : "-"}
                         </TableCell>
                         <TableCell>
-                          <MonetoryDisplay amount={payment.amount || 0} />
+                          <MonetaryDisplay amount={payment.amount || 0} />
                         </TableCell>
                         <TableCell>
                           <Badge

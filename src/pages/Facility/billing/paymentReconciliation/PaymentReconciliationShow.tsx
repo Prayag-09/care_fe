@@ -9,7 +9,7 @@ import CareIcon from "@/CAREUI/icons/CareIcon";
 import { Badge } from "@/components/ui/badge";
 import { Button } from "@/components/ui/button";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
-import { MonetoryDisplay } from "@/components/ui/monetory-display";
+import { MonetaryDisplay } from "@/components/ui/monetary-display";
 import { Separator } from "@/components/ui/separator";
 
 import { TableSkeleton } from "@/components/Common/SkeletonLoading";
@@ -156,7 +156,7 @@ export function PaymentReconciliationShow({
                 <div className="md:col-span-3">
                   <div className="flex justify-between items-center py-3 border-b">
                     <div className="text-gray-500">{t("amount")}</div>
-                    <MonetoryDisplay
+                    <MonetaryDisplay
                       className="text-xl font-bold"
                       amount={payment.amount}
                     />
@@ -242,7 +242,7 @@ export function PaymentReconciliationShow({
                           <InfoItem
                             label={t("amount_tendered")}
                             value={
-                              <MonetoryDisplay
+                              <MonetaryDisplay
                                 amount={payment.tendered_amount}
                               />
                             }
@@ -252,7 +252,7 @@ export function PaymentReconciliationShow({
                           <InfoItem
                             label={t("change_returned")}
                             value={
-                              <MonetoryDisplay
+                              <MonetaryDisplay
                                 amount={payment.returned_amount}
                               />
                             }
@@ -307,7 +307,7 @@ export function PaymentReconciliationShow({
                       {t("invoice_amount")}
                     </div>
                     <div className="font-bold">
-                      <MonetoryDisplay
+                      <MonetaryDisplay
                         amount={payment.target_invoice.total_gross}
                       />
                     </div>

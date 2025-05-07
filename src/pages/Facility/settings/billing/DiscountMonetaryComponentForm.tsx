@@ -25,14 +25,14 @@ import {
 } from "@/components/ui/select";
 
 import {
-  MonetoryComponentRead,
-  MonetoryComponentType,
-} from "@/types/base/monetoryComponent/monetoryComponent";
+  MonetaryComponentRead,
+  MonetaryComponentType,
+} from "@/types/base/monetaryComponent/monetaryComponent";
 import { Code, CodeSchema } from "@/types/questionnaire/code";
 
 const formSchema = z
   .object({
-    monetory_component_type: z.literal(MonetoryComponentType.discount),
+    monetary_component_type: z.literal(MonetaryComponentType.discount),
     code: CodeSchema.nullable().optional(),
     factor: z.number().min(0).max(100).nullable().optional(),
     amount: z.number().min(0).nullable().optional(),
@@ -53,19 +53,19 @@ const formSchema = z
     },
   );
 
-interface DiscountMonetoryComponentFormProps {
-  defaultValues?: MonetoryComponentRead;
-  onSubmit: (data: MonetoryComponentRead) => void;
+interface DiscountMonetaryComponentFormProps {
+  defaultValues?: MonetaryComponentRead;
+  onSubmit: (data: MonetaryComponentRead) => void;
   systemCodes: Code[];
   facilityCodes: Code[];
 }
 
-export function DiscountMonetoryComponentForm({
+export function DiscountMonetaryComponentForm({
   defaultValues,
   onSubmit,
   systemCodes,
   facilityCodes,
-}: DiscountMonetoryComponentFormProps) {
+}: DiscountMonetaryComponentFormProps) {
   const { t } = useTranslation();
   const [valueType, setValueType] = useState<"factor" | "amount">(
     defaultValues?.factor != null ? "factor" : "amount",
@@ -74,7 +74,7 @@ export function DiscountMonetoryComponentForm({
   const form = useForm({
     resolver: zodResolver(formSchema),
     defaultValues: {
-      monetory_component_type: MonetoryComponentType.discount,
+      monetary_component_type: MonetaryComponentType.discount,
       code: defaultValues?.code || null,
       factor: defaultValues?.factor || null,
       amount: defaultValues?.amount || null,
@@ -235,7 +235,7 @@ export function DiscountMonetoryComponentForm({
                       form.setValue("code", {
                         code: value,
                         display: "",
-                        system: "http://ohc.network/codes/monetory/discount",
+                        system: "http://ohc.network/codes/monetary/discount",
                       });
                     }}
                     noOptionsMessage={`Create a new code for '${form.getValues("code.code")}'`}

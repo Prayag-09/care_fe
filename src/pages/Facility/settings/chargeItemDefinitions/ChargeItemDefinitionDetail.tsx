@@ -13,7 +13,7 @@ import Page from "@/components/Common/Page";
 import { TableSkeleton } from "@/components/Common/SkeletonLoading";
 
 import query from "@/Utils/request/query";
-import { MonetoryComponent } from "@/types/base/monetoryComponent/monetoryComponent";
+import { MonetaryComponent } from "@/types/base/monetaryComponent/monetaryComponent";
 import chargeItemDefinitionApi from "@/types/billing/chargeItemDefinition/chargeItemDefinitionApi";
 
 interface ChargeItemDefinitionDetailProps {
@@ -47,7 +47,7 @@ export function ChargeItemDefinitionDetail({
     }
   };
 
-  const renderPriceComponent = (component: MonetoryComponent) => {
+  const renderPriceComponent = (component: MonetaryComponent) => {
     const typeLabels: Record<string, string> = {
       base: t("base_price"),
       discount: t("discount"),
@@ -59,7 +59,7 @@ export function ChargeItemDefinitionDetail({
       <div className="flex items-center justify-between py-2">
         <div>
           <p className="font-medium">
-            {typeLabels[component.monetory_component_type]}
+            {typeLabels[component.monetary_component_type]}
           </p>
           {component.code && (
             <p className="text-sm text-gray-500">{component.code.display}</p>

@@ -1,4 +1,4 @@
-import { MonetoryComponent } from "@/types/base/monetoryComponent/monetoryComponent";
+import { MonetaryComponent } from "@/types/base/monetaryComponent/monetaryComponent";
 
 export enum ChargeItemDefinitionStatus {
   draft = "draft",
@@ -14,7 +14,7 @@ export interface ChargeItemDefinitionBase {
   derived_from_uri: string | null;
   description: string | null;
   purpose: string | null;
-  price_component: MonetoryComponent[];
+  price_component: MonetaryComponent[];
 }
 
 export interface ChargeItemDefinitionRead extends ChargeItemDefinitionBase {

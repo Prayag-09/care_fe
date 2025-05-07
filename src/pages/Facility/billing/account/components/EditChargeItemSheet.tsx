@@ -18,7 +18,7 @@ import {
   FormMessage,
 } from "@/components/ui/form";
 import { Input } from "@/components/ui/input";
-import { MonetoryDisplay } from "@/components/ui/monetory-display";
+import { MonetaryDisplay } from "@/components/ui/monetary-display";
 import { ScrollArea } from "@/components/ui/scroll-area";
 import {
   Select,
@@ -41,7 +41,7 @@ import {
 import { Textarea } from "@/components/ui/textarea";
 
 import mutate from "@/Utils/request/mutate";
-import { MonetoryComponentType } from "@/types/base/monetoryComponent/monetoryComponent";
+import { MonetaryComponentType } from "@/types/base/monetaryComponent/monetaryComponent";
 import {
   ChargeItemRead,
   ChargeItemStatus,
@@ -94,17 +94,17 @@ export function EditChargeItemSheet({
   }, [isOpen, form]);
 
   // Filter price components by type
-  const getComponentsByType = (type: MonetoryComponentType) => {
+  const getComponentsByType = (type: MonetaryComponentType) => {
     return (
       item.unit_price_components?.filter(
-        (c) => c.monetory_component_type === type,
+        (c) => c.monetary_component_type === type,
       ) || []
     );
   };
 
-  const baseComponent = getComponentsByType(MonetoryComponentType.base)[0];
-  const discounts = getComponentsByType(MonetoryComponentType.discount);
-  const taxes = getComponentsByType(MonetoryComponentType.tax);
+  const baseComponent = getComponentsByType(MonetaryComponentType.base)[0];
+  const discounts = getComponentsByType(MonetaryComponentType.discount);
+  const taxes = getComponentsByType(MonetaryComponentType.tax);
 
   // Calculate unit total based on components
   const calculateUnitTotal = () => {
@@ -273,7 +273,7 @@ export function EditChargeItemSheet({
                                 {t("base_price")}
                               </span>
 
-                              <MonetoryDisplay amount={baseComponent.amount} />
+                              <MonetaryDisplay amount={baseComponent.amount} />
                             </div>
                           )}
 
@@ -286,7 +286,7 @@ export function EditChargeItemSheet({
                                 {t("discount")}
                               </span>
                               <span>
-                                - <MonetoryDisplay {...discount} />
+                                - <MonetaryDisplay {...discount} />
                               </span>
                             </div>
                           ))}
@@ -298,7 +298,7 @@ export function EditChargeItemSheet({
                             >
                               <span className="text-blue-600">{t("tax")}</span>
                               <span>
-                                + <MonetoryDisplay {...tax} />
+                                + <MonetaryDisplay {...tax} />
                               </span>
                             </div>
                           ))}
@@ -307,7 +307,7 @@ export function EditChargeItemSheet({
 
                           <div className="flex justify-between font-semibold">
                             <span>{t("unit_total")}</span>
-                            <MonetoryDisplay amount={calculateUnitTotal()} />
+                            <MonetaryDisplay amount={calculateUnitTotal()} />
                           </div>
                         </div>
                       </div>
@@ -328,7 +328,7 @@ export function EditChargeItemSheet({
 
                             <div className="flex justify-between font-semibold">
                               <span>{t("total_price")}</span>
-                              <MonetoryDisplay amount={currentTotal} />
+                              <MonetaryDisplay amount={currentTotal} />
                             </div>
                           </div>
                         </div>

@@ -5,7 +5,7 @@ import { useTranslation } from "react-i18next";
 import { Button } from "@/components/ui/button";
 import { Checkbox } from "@/components/ui/checkbox";
 import { Input } from "@/components/ui/input";
-import { MonetoryDisplay } from "@/components/ui/monetory-display";
+import { MonetaryDisplay } from "@/components/ui/monetary-display";
 import { ScrollArea } from "@/components/ui/scroll-area";
 import {
   Sheet,
@@ -174,7 +174,7 @@ export default function AddChargeItemSheet({
                           <TableCell>{item.title}</TableCell>
                           <TableCell>{item.quantity}</TableCell>
                           <TableCell>
-                            <MonetoryDisplay
+                            <MonetaryDisplay
                               value={item.unit_price_components.reduce(
                                 (sum, comp) => sum + (comp.amount ?? 0),
                                 0,
@@ -182,7 +182,7 @@ export default function AddChargeItemSheet({
                             />
                           </TableCell>
                           <TableCell>
-                            <MonetoryDisplay
+                            <MonetaryDisplay
                               value={
                                 item.quantity *
                                 item.unit_price_components.reduce(

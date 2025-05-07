@@ -1,4 +1,4 @@
-import { MonetoryComponent } from "@/types/base/monetoryComponent/monetoryComponent";
+import { MonetaryComponent } from "@/types/base/monetaryComponent/monetaryComponent";
 import { ChargeItemDefinitionBase } from "@/types/billing/chargeItemDefinition/chargeItemDefinition";
 
 export enum ChargeItemStatus {
@@ -30,7 +30,7 @@ export interface ChargeItemBase {
   description?: string;
   status: ChargeItemStatus;
   quantity: number;
-  unit_price_components: MonetoryComponent[];
+  unit_price_components: MonetaryComponent[];
   note?: string;
   override_reason?: ChargeItemOverrideReason;
 }
@@ -45,7 +45,7 @@ export interface ChargeItemUpdate extends ChargeItemBase {
 }
 
 export interface ChargeItemRead extends ChargeItemBase {
-  total_price_components: MonetoryComponent[];
+  total_price_components: MonetaryComponent[];
   total_price: number;
   charge_item_definition: ChargeItemDefinitionBase;
 }

@@ -16,7 +16,7 @@ import {
 } from "@/components/ui/alert-dialog";
 import { Button } from "@/components/ui/button";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
-import { MonetoryDisplay } from "@/components/ui/monetory-display";
+import { MonetaryDisplay } from "@/components/ui/monetary-display";
 
 import Loading from "@/components/Common/Loading";
 import Page from "@/components/Common/Page";
@@ -24,12 +24,12 @@ import Page from "@/components/Common/Page";
 import routes from "@/Utils/request/api";
 import mutate from "@/Utils/request/mutate";
 import query from "@/Utils/request/query";
-import { MonetoryComponentRead } from "@/types/base/monetoryComponent/monetoryComponent";
+import { MonetaryComponentRead } from "@/types/base/monetaryComponent/monetaryComponent";
 import { FacilityData } from "@/types/facility/facility";
 import facilityApi from "@/types/facility/facilityApi";
 
 import { CreateDiscountMonetaryComponentPopover } from "./CreateDiscountMonetaryComponentPopover";
-import { EditDiscountMonetoryPopover } from "./EditDiscountMonetoryPopover";
+import { EditDiscountMonetaryPopover } from "./EditDiscountMonetaryPopover";
 
 export function BillingSettings({ facilityId }: { facilityId: string }) {
   const { t } = useTranslation();
@@ -44,9 +44,9 @@ export function BillingSettings({ facilityId }: { facilityId: string }) {
     }),
   });
 
-  const { mutate: updateMonetoryComponents, isPending: _isPending } =
+  const { mutate: updateMonetaryComponents, isPending: _isPending } =
     useMutation({
-      mutationFn: mutate(facilityApi.updateMonetoryComponents, {
+      mutationFn: mutate(facilityApi.updateMonetaryComponents, {
         pathParams: { facilityId },
       }),
       onSuccess: () => {
@@ -60,10 +60,10 @@ export function BillingSettings({ facilityId }: { facilityId: string }) {
   }
 
   const handleSaveComponent = (
-    data: MonetoryComponentRead,
+    data: MonetaryComponentRead,
     replaceIndex?: number,
   ) => {
-    const discountComponents = [...facility.discount_monetory_components];
+    const discountComponents = [...facility.discount_monetary_components];
     const discountCodes = [...facility.discount_codes];
     const allCodes = [
       ...facility.instance_discount_codes,
@@ -85,8 +85,8 @@ export function BillingSettings({ facilityId }: { facilityId: string }) {
       discountCodes.push(discountCode);
     }
 
-    updateMonetoryComponents({
-      discount_monetory_components: discountComponents,
+    updateMonetaryComponents({
+      discount_monetary_components: discountComponents,
       discount_codes: discountCodes,
     });
   };
@@ -94,12 +94,12 @@ export function BillingSettings({ facilityId }: { facilityId: string }) {
   const confirmDeleteComponent = () => {
     if (componentToDelete == null) return;
 
-    const updatedComponents = facility.discount_monetory_components.filter(
+    const updatedComponents = facility.discount_monetary_components.filter(
       (_, index) => index !== componentToDelete,
     );
 
-    updateMonetoryComponents({
-      discount_monetory_components: updatedComponents,
+    updateMonetaryComponents({
+      discount_monetary_components: updatedComponents,
       discount_codes: facility.discount_codes,
     });
 
@@ -123,7 +123,7 @@ export function BillingSettings({ facilityId }: { facilityId: string }) {
           </CardHeader>
           <CardContent>
             <DiscountComponentGrid
-              components={facility.discount_monetory_components || []}
+              components={facility.discount_monetary_components || []}
               canEdit={true}
               onEdit={handleSaveComponent}
               onDelete={setComponentToDelete}
@@ -141,7 +141,7 @@ export function BillingSettings({ facilityId }: { facilityId: string }) {
           </CardHeader>
           <CardContent>
             <DiscountComponentGrid
-              components={facility.instance_discount_monetory_components || []}
+              components={facility.instance_discount_monetary_components || []}
               canEdit={false}
               onEdit={() => {}}
               onDelete={() => {}}
@@ -162,7 +162,7 @@ export function BillingSettings({ facilityId }: { facilityId: string }) {
               {t("billing.delete_component_confirmation", {
                 title:
                   componentToDelete !== undefined
-                    ? facility.discount_monetory_components[componentToDelete]
+                    ? facility.discount_monetary_components[componentToDelete]
                         ?.title
                     : "",
               })}
@@ -190,9 +190,9 @@ const DiscountComponentGrid = ({
   onDelete,
   facility,
 }: {
-  components: MonetoryComponentRead[];
+  components: MonetaryComponentRead[];
   canEdit?: boolean;
-  onEdit?: (data: MonetoryComponentRead, index: number) => void;
+  onEdit?: (data: MonetaryComponentRead, index: number) => void;
   onDelete?: (index: number) => void;
   // TODO: Skip passing facility so that discount codes can be obtained from current facility context
   facility: FacilityData;
@@ -232,10 +232,10 @@ const DiscountCouponCard = ({
   onDelete,
   facility,
 }: {
-  component: MonetoryComponentRead;
+  component: MonetaryComponentRead;
   index: number;
   canEdit: boolean;
-  onEdit?: (data: MonetoryComponentRead, index: number) => void;
+  onEdit?: (data: MonetaryComponentRead, index: number) => void;
   onDelete?: (index: number) => void;
   facility: FacilityData;
 }) => {
@@ -256,7 +256,7 @@ const DiscountCouponCard = ({
           {canEdit && (
             <div className="flex space-x-1">
               {onEdit && (
-                <EditDiscountMonetoryPopover
+                <EditDiscountMonetaryPopover
                   component={component}
                   onSubmit={(data) => onEdit(data, index)}
                   systemCodes={facility.instance_discount_codes}
@@ -282,7 +282,7 @@ const DiscountCouponCard = ({
               {t("billing.value")}
             </span>
             <span className="text-2xl font-bold">
-              <MonetoryDisplay {...component} fallback="-" />
+              <MonetaryDisplay {...component} fallback="-" />
             </span>
           </div>
 

@@ -6,7 +6,7 @@ import { useTranslation } from "react-i18next";
 import PrintPreview from "@/CAREUI/misc/PrintPreview";
 
 import { Badge } from "@/components/ui/badge";
-import { MonetoryDisplay } from "@/components/ui/monetory-display";
+import { MonetaryDisplay } from "@/components/ui/monetary-display";
 import { Separator } from "@/components/ui/separator";
 
 import Loading from "@/components/Common/Loading";
@@ -183,7 +183,7 @@ export function PrintPaymentReconciliation({
                       <td className="py-4">{payment.target_invoice.title}</td>
                       <td className="py-4">{payment.target_invoice.status}</td>
                       <td className="py-4 text-right">
-                        <MonetoryDisplay
+                        <MonetaryDisplay
                           amount={payment.target_invoice.total_gross}
                         />
                       </td>
@@ -230,7 +230,7 @@ export function PrintPaymentReconciliation({
                         payment.issuer_type.slice(1)}
                     </td>
                     <td className="py-4 text-right">
-                      <MonetoryDisplay amount={payment.amount} />
+                      <MonetaryDisplay amount={payment.amount} />
                     </td>
                   </tr>
                 </tbody>
@@ -242,23 +242,23 @@ export function PrintPaymentReconciliation({
           <div className="flex flex-col items-end space-y-2 mt-6">
             <div className="flex w-48 justify-between">
               <span className="text-gray-500">{t("amount")}</span>
-              <MonetoryDisplay amount={payment.amount} />
+              <MonetaryDisplay amount={payment.amount} />
             </div>
             {payment.method === "cash" && (
               <>
                 <div className="flex w-48 justify-between">
                   <span className="text-gray-500">{t("tendered")}</span>
-                  <MonetoryDisplay amount={payment.tendered_amount} />
+                  <MonetaryDisplay amount={payment.tendered_amount} />
                 </div>
                 <div className="flex w-48 justify-between">
                   <span className="text-gray-500">{t("returned")}</span>
-                  <MonetoryDisplay amount={payment.returned_amount} />
+                  <MonetaryDisplay amount={payment.returned_amount} />
                 </div>
               </>
             )}
             <div className="flex w-48 justify-between font-bold border-t pt-2">
               <span>{t("total")}</span>
-              <MonetoryDisplay amount={payment.amount} />
+              <MonetaryDisplay amount={payment.amount} />
             </div>
           </div>
 
