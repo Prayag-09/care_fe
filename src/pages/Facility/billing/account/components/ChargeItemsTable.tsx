@@ -45,7 +45,7 @@ import {
 } from "@/types/billing/chargeItem/chargeItem";
 import chargeItemApi from "@/types/billing/chargeItem/chargeItemApi";
 
-import EditChargeItemPopover from "./EditChargeItemPopover";
+import EditChargeItemSheet from "./EditChargeItemSheet";
 
 function getStatusVariant(status: string) {
   switch (status) {
@@ -291,7 +291,7 @@ export function ChargeItemsTable({
 
                         {/* Invisible trigger for the edit sheet */}
                         <span className="hidden">
-                          <EditChargeItemPopover
+                          <EditChargeItemSheet
                             facilityId={facilityId}
                             item={item}
                             trigger={

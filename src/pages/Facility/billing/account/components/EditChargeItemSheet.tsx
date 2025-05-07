@@ -67,7 +67,7 @@ interface EditChargeItemSheetProps {
   trigger?: React.ReactNode;
 }
 
-export function EditChargeItemPopover({
+export function EditChargeItemSheet({
   facilityId,
   item,
   trigger,
@@ -375,4 +375,4 @@ export function EditChargeItemPopover({
   );
 }
 
-export default EditChargeItemPopover;
+export default EditChargeItemSheet;
