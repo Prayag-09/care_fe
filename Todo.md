@@ -36,7 +36,7 @@ x : Done
 ## Labs
 
 - [x] Build service request list page based on design - Manyu
-- [-] Rewamp design of service request show page based on design - Yaswanth
+- [x] Rewamp design of service request show page based on design - Yaswanth
 - [-] Add support for search by specimen ID in the UI based on design - Manyu
 - [x] Add filters for statues in service request page as of the UI - Manyu
 - [-] Add support for multiple diagnostic report for a service request - [hold till @bodhi confirms]
