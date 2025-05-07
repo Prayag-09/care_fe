@@ -11,7 +11,7 @@ x : Done
 - [x] Wire the actual amounts in all payment pages once backend is done - Amjith
 - [ ] Make currency configurable
 - [x] Add paymenthistory in invoices page - Amjith
-- [ ] Add payment as transactions tab in account page
+- [-] Add payment as transactions tab in account page - Jeevan (@bodhi to confirm)
 - [ ] Build a flow for account balanceing and closing
 - [ ] Make it easy for users to mark an invoice as issued from draft state
 - [ ] Replace Charge Item Create with ChargeItemDef to ChargeItem API
@@ -31,6 +31,7 @@ x : Done
 - [x] Show page for cancelled invoice (render charge items from cache)
 - [x] Create invoice inside Account charge item list - Jeevan
 - [-] Charge Item Definition Update - Rithvik
+- [-] Charge Item Update - Jeevan & Rithvik
 
 ## Labs
 
