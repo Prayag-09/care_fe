@@ -13,7 +13,6 @@ x : Done
 - [x] Add paymenthistory in invoices page - Amjith
 - [-] Add payment as transactions tab in account page - Jeevan
 - [ ] Build a flow for account balanceing and closing
-- [ ] Make it easy for users to mark an invoice as issued from draft state
 - [-] Replace Charge Item Create with ChargeItemDef to ChargeItem API - Vignesh
 - [x] Account balance
 - [x] Invoice list cleanup - Amjith
