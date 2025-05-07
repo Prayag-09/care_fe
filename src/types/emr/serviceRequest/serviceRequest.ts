@@ -97,6 +97,6 @@ export interface ServiceRequestReadSpec extends BaseServiceRequestSpec {
   diagnostic_reports: DiagnosticReportRead[];
   created_by: UserBase;
   updated_by: UserBase;
-  created_at: string;
+  created_date: string;
   updated_at: string;
 }

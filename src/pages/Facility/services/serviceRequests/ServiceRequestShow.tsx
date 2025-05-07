@@ -25,6 +25,7 @@ import { PatientHeader } from "./components/PatientHeader";
 import { ServiceRequestDetails } from "./components/ServiceRequestDetails";
 import { SpecimenForm } from "./components/SpecimenForm";
 import { SpecimenWorkflowCard } from "./components/SpecimenWorkflowCard";
+import { WorkflowProgress } from "./components/WorkflowProgress";
 
 interface ServiceRequestShowProps {
   facilityId: string;
@@ -122,7 +123,7 @@ export default function ServiceRequestShow({
 
   const assignedSpecimenIds = new Set<string>();
   return (
-    <div className="flex min-h-screen bg-gray-50 relative">
+    <div className="flex flex-col lg:flex-row min-h-screen bg-gray-50 relative">
       <div className="flex-1 p-4 max-w-6xl mx-auto">
         <div className="space-y-6">
           {locationId && serviceId ? (
@@ -244,6 +245,9 @@ export default function ServiceRequestShow({
             />
           )}
         </div>
+      </div>
+      <div className="flex-1 p-2 min-w-90 md:max-w-90 mx-auto">
+        <WorkflowProgress request={request} />
       </div>
     </div>
   );
