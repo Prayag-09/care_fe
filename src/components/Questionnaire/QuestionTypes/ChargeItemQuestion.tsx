@@ -431,10 +431,12 @@ export function ChargeItemQuestion({
 
   const chargeItemDefinitionOptions = useMemo(
     () =>
-      chargeItemDefinitions?.results.map((cid) => ({
-        id: cid.id,
-        title: cid.title,
-      })) || [],
+      chargeItemDefinitions?.results
+        .filter((cid) => cid.status === "active")
+        .map((cid) => ({
+          id: cid.id,
+          title: cid.title,
+        })) || [],
     [chargeItemDefinitions?.results],
   );
 

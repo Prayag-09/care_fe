@@ -15,8 +15,8 @@ x : Done
 - [ ] Consider disabling onWheelChange for input[type=number] fields.
 - [ ] [!BUG!] Charge Item create is broken now.
 - [ ] When Creating charge item in questionnaire we should allow users to pick discount and tax and quantitiy. We should also make it billable by deafault
-- [-] We should only show active charge defanitions in questionnaire - Manyu
-- [-] Description and Purpose (Additional Details) for a charge item def should be above the price component - Manyu
+- [x] We should only show active charge defanitions in questionnaire - Manyu
+- [x] Description and Purpose (Additional Details) for a charge item def should be above the price component - Manyu
 - [-] All instance level tax codes should be shown as an option in the charge item def creator - Check with Vignesh
 - [ ] The UX for creating a new code should be better, the flow is quite ambigious to pick one.
 - [ ] Allow serch for discount codes
