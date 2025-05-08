@@ -8,7 +8,6 @@ x : Done
 
 ## Billing
 
-
 - [-] Charge Item Update - Jeevan & Rithvik
 - [-] Replace Charge Item Create with ChargeItemDef to ChargeItem API - Vignesh
 - [-] Build a flow for account balanceing and closing (Close button - mark as inactive and select close reason dropdown) - Jeevan
@@ -22,11 +21,8 @@ x : Done
 - [-] Lets have a list like styling for the discount codes as their would be a lot of these options. - Rithvik
 - [-] We should also show instance level tax components in the billing page - Rithvik
 - [-] Add support for information components in chargeDef and Charge Item. - Rithvik
-- [ ] [!BUG!]  Specimen Discard broken - Hide from SR after discard, should be able to collect the same specimen again
-
 
 ## Labs
-
 
 - [-] Implement barcode in service request after creating the Specimen - Vignesh (draft status)
 - [-] Print all Barcodes button for a service request with page setup - Vinu
@@ -34,10 +30,9 @@ x : Done
 - [-] Service Request - Show specimen.collection.collector details instead of UUID (After BE change) - Vignesh
 - [-] Service Request - Show specimen.processing.performer details instead of UUID (After BE change) - Vignesh
 - [ ] Service request should show linked cahrge items along with its status [check for backend support]
-
+- [-] [!BUG!] Specimen Discard broken - Hide from SR after discard, should be able to collect the same specimen again - Yaswanth
 
 ## Back End
-
 
 - [ ] Service Request - Show specimen.collection.collector details instead of UUID (After BE change)
 - [ ] Service Request - Show specimen.processing.performer details instead of UUID (After BE change)
@@ -45,9 +40,6 @@ x : Done
 - [ ] BE need to sort by internal id by default, all apis has jumping issue
 - [ ] Need sort by payment_datetime for Payment Reconciliation list
 - [ ] Replace Charge Item Create with ChargeItemDef to ChargeItem API
-
-
-
 
 ## Archived
 
@@ -78,7 +70,6 @@ x : Done
 - [x] Charge Item Definition Update - Rithvik
 - [x] Invoice - Entered in error in action menu - Jeevan
 - [x] [!BUG!] Charge Item create is broken now. - Amjith (Data Issue)
-
 
 ## Labs
 
