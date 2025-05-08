@@ -11,16 +11,14 @@ x : Done
 - [-] Charge Item Update - Jeevan & Rithvik
 - [-] Replace Charge Item Create with ChargeItemDef to ChargeItem API - Vignesh
 - [-] Build a flow for account balanceing and closing (Close button - mark as inactive and select close reason dropdown) - Jeevan
-- [ ] Consider disabling onWheelChange for input[type=number] fields.
-- [ ] When Creating charge item in questionnaire we should allow users to pick discount and tax and quantitiy. We should also make it billable by deafault
-- [x] We should only show active charge defanitions in questionnaire - Manyu
-- [x] Description and Purpose (Additional Details) for a charge item def should be above the price component - Manyu
 - [-] All instance level tax codes should be shown as an option in the charge item def creator - Check with Vignesh
 - [-] The UX for creating a new code should be better, the flow is quite ambigious to pick one. - Rithvik
 - [-] Allow serch for discount codes - Rithvik
 - [-] Lets have a list like styling for the discount codes as their would be a lot of these options. - Rithvik
 - [-] We should also show instance level tax components in the billing page - Rithvik
 - [-] Add support for information components in chargeDef and Charge Item. - Rithvik
+- [ ] Consider disabling onWheelChange for input[type=number] fields.
+- [ ] When Creating charge item in questionnaire we should allow users to pick discount and tax and quantitiy. 
 
 ## Labs
 
@@ -30,7 +28,7 @@ x : Done
 - [-] Service Request - Show specimen.collection.collector details instead of UUID (After BE change) - Vignesh
 - [-] Service Request - Show specimen.processing.performer details instead of UUID (After BE change) - Vignesh
 - [ ] Service request should show linked cahrge items along with its status [check for backend support]
-- [x] [!BUG!] Specimen Discard broken - Hide from SR after discard, should be able to collect the same specimen again - Yaswanth
+
 - [-] Currently when ever we interact with discard specimen dialog the below specimen collapsible is getting expanded and collapsed. This should not happen. - Yaswanth
 
 ## Back End
@@ -71,6 +69,9 @@ x : Done
 - [x] Charge Item Definition Update - Rithvik
 - [x] Invoice - Entered in error in action menu - Jeevan
 - [x] [!BUG!] Charge Item create is broken now. - Amjith (Data Issue)
+- [x] We should also make it billable by deafault - Amjith
+- [x] We should only show active charge defanitions in questionnaire - Manyu
+- [x] Description and Purpose (Additional Details) for a charge item def should be above the price component - Manyu
 
 ## Labs
 
@@ -79,6 +80,7 @@ x : Done
 - [x] Add support for search by specimen ID in the UI based on design - Manyu
 - [x] Add filters for statues in service request page as of the UI - Manyu
 - [x] Add support for xray and file uploads service request - Amjith
+- [x] [!BUG!] Specimen Discard broken - Hide from SR after discard, should be able to collect the same specimen again - Yaswanth
 
 - [x] In service request create from AD lets remove status, intent, category, do not perform and locations. (These should be shown along with the name for information purpose) - Manyu
 - [x] If no specimen def is avilable then lets not empty state - Amjith
