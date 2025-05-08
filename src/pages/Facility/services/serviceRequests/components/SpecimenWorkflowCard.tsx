@@ -55,6 +55,8 @@ import {
   DropdownMenuTrigger,
 } from "@/components/ui/dropdown-menu";
 import { DropdownMenu } from "@/components/ui/dropdown-menu";
+import { Label } from "@/components/ui/label";
+import { RadioGroup, RadioGroupItem } from "@/components/ui/radio-group";
 import {
   Table,
   TableBody,
@@ -156,12 +158,18 @@ export function SpecimenWorkflowCard({
     },
   });
 
+  const [selectedDiscardReason, setSelectedDiscardReason] =
+    useState<SpecimenStatus | null>(null);
+
   const { mutate: discardSpecimen, isPending: isDiscarding } = useMutation({
-    mutationFn: () => {
+    mutationFn: (status: SpecimenStatus) => {
       if (!collectedSpecimen) return Promise.reject("No specimen to discard");
       return mutate(specimenApi.updateSpecimen, {
         pathParams: { facilityId, specimenId: collectedSpecimen.id },
-      })(collectedSpecimen);
+      })({
+        ...collectedSpecimen,
+        status,
+      });
     },
     onSuccess: () => {
       toast.success(`Specimen ${collectedSpecimen?.id} marked as discarded.`);
@@ -344,18 +352,86 @@ export function SpecimenWorkflowCard({
                             <AlertDialogHeader>
                               <AlertDialogTitle>Are you sure?</AlertDialogTitle>
                               <AlertDialogDescription>
-                                This action will mark the specimen as
-                                discarded/unavailable and cannot be easily
-                                undone.
+                                Please select a reason for discarding this
+                                specimen:
                               </AlertDialogDescription>
                             </AlertDialogHeader>
+
+                            <RadioGroup
+                              defaultValue=""
+                              onValueChange={(value: SpecimenStatus) =>
+                                setSelectedDiscardReason(value)
+                              }
+                              className="space-y-3 my-4"
+                            >
+                              <div className="flex items-start space-x-2 p-2 rounded-md border border-gray-200 hover:bg-gray-50">
+                                <RadioGroupItem
+                                  value="unavailable"
+                                  id="unavailable"
+                                />
+                                <Label
+                                  htmlFor="unavailable"
+                                  className="flex flex-col gap-1"
+                                >
+                                  <span className="font-medium">
+                                    Unavailable
+                                  </span>
+                                  <span className="text-sm text-gray-500">
+                                    The specimen is lost, destroyed, or consumed
+                                  </span>
+                                </Label>
+                              </div>
+
+                              <div className="flex items-start space-x-2 p-2 rounded-md border border-gray-200 hover:bg-gray-50">
+                                <RadioGroupItem
+                                  value="unsatisfactory"
+                                  id="unsatisfactory"
+                                />
+                                <Label
+                                  htmlFor="unsatisfactory"
+                                  className="flex flex-col gap-1"
+                                >
+                                  <span className="font-medium">
+                                    Unsatisfactory
+                                  </span>
+                                  <span className="text-sm text-gray-500">
+                                    The specimen is unusable due to quality
+                                    issues
+                                  </span>
+                                </Label>
+                              </div>
+
+                              <div className="flex items-start space-x-2 p-2 rounded-md border border-gray-200 hover:bg-gray-50">
+                                <RadioGroupItem
+                                  value="entered_in_error"
+                                  id="entered_in_error"
+                                />
+                                <Label
+                                  htmlFor="entered_in_error"
+                                  className="flex flex-col gap-1"
+                                >
+                                  <span className="font-medium">
+                                    Entered in Error
+                                  </span>
+                                  <span className="text-sm text-gray-500">
+                                    The specimen record was created by mistake
+                                  </span>
+                                </Label>
+                              </div>
+                            </RadioGroup>
+
                             <AlertDialogFooter>
                               <AlertDialogCancel disabled={isDiscarding}>
                                 Cancel
                               </AlertDialogCancel>
                               <AlertDialogAction
-                                onClick={() => discardSpecimen()}
-                                disabled={isDiscarding}
+                                onClick={() =>
+                                  selectedDiscardReason &&
+                                  discardSpecimen(selectedDiscardReason)
+                                }
+                                disabled={
+                                  isDiscarding || !selectedDiscardReason
+                                }
                               >
                                 {isDiscarding
                                   ? "Discarding..."
