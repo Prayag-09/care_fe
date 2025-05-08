@@ -148,7 +148,10 @@ function ChargeItemForm({
                 <SelectValue placeholder={t("select_status")} />
               </SelectTrigger>
               <SelectContent>
-                {Object.values(ChargeItemStatus).map((status) => (
+                {Object.values([
+                  ChargeItemStatus.billable,
+                  ChargeItemStatus.planned,
+                ]).map((status) => (
                   <SelectItem key={status} value={status}>
                     {t(status)}
                   </SelectItem>
@@ -262,7 +265,10 @@ function ChargeItemForm({
                     <SelectValue placeholder={t("select_status")} />
                   </SelectTrigger>
                   <SelectContent>
-                    {Object.values(ChargeItemStatus).map((status) => (
+                    {Object.values([
+                      ChargeItemStatus.billable,
+                      ChargeItemStatus.planned,
+                    ]).map((status) => (
                       <SelectItem key={status} value={status}>
                         {t(status)}
                       </SelectItem>
@@ -372,7 +378,7 @@ export function ChargeItemQuestion({
 
       const newChargeItem = {
         title: selectedCID.title,
-        status: ChargeItemStatus.planned,
+        status: ChargeItemStatus.billable,
         quantity: 1,
         unit_price_components: selectedCID.price_component,
         note: null,

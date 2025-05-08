@@ -24,8 +24,9 @@ x : Done
 
 ## Labs
 
-- [-] Implement barcode in service request after creating the Specimen - Vignesh (draft status)
-- [-] Print all Barcodes button for a service request with page setup - Vinu
+
+- [-] Implement barcode in service request after creating the Specimen - Manyu
+- [-] Print all Barcodes button for a service request with page setup - Manyu
 - [-] Add support for multiple diagnostic report for a service request - [hold till @bodhi confirms]
 - [-] Service Request - Show specimen.collection.collector details instead of UUID (After BE change) - Vignesh
 - [-] Service Request - Show specimen.processing.performer details instead of UUID (After BE change) - Vignesh

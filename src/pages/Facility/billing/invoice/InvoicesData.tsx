@@ -72,7 +72,7 @@ export default function InvoicesData({
           limit: resultsPerPage,
           offset: ((qParams.page ?? 1) - 1) * resultsPerPage,
           search: qParams.search,
-          status: qParams.status ?? InvoiceStatus.draft,
+          status: qParams.status ?? InvoiceStatus.issued,
         },
       },
     ),
@@ -90,7 +90,7 @@ export default function InvoicesData({
           className="max-w-xs"
         />
         <Tabs
-          defaultValue={qParams.status ?? InvoiceStatus.draft}
+          defaultValue={qParams.status ?? InvoiceStatus.issued}
           onValueChange={(value) => updateQuery({ status: value })}
           className="mx-4 mb-4"
         >

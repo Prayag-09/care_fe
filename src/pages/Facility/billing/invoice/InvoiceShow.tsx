@@ -324,7 +324,9 @@ export function InvoiceShow({
         <div className="flex items-center gap-4">
           <Button variant="ghost" asChild>
             {/* TODO: Redirect to the account that the invoice is for once the API is updated */}
-            <Link href={`/facility/${facilityId}/billing/accounts`}>
+            <Link
+              href={`/facility/${facilityId}/billing/account/${invoice.account.id}`}
+            >
               <CareIcon icon="l-arrow-left" className="size-4" />
             </Link>
           </Button>

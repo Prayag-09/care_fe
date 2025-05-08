@@ -135,7 +135,7 @@ export function ChargeItemsTable({
       pathParams: { facilityId },
       queryParams: {
         account: accountId,
-        status: qParams.charge_item_status ?? ChargeItemStatus.planned,
+        status: qParams.charge_item_status ?? ChargeItemStatus.billable,
       },
     }),
   }) as { data: { results: ChargeItemRead[] } | undefined; isLoading: boolean };
@@ -175,7 +175,7 @@ export function ChargeItemsTable({
         </div>
       </CardHeader>
       <Tabs
-        value={qParams.charge_item_status ?? ChargeItemStatus.planned}
+        value={qParams.charge_item_status ?? ChargeItemStatus.billable}
         onValueChange={(value) => updateQuery({ charge_item_status: value })}
         className="mx-4 mb-4"
       >

@@ -412,7 +412,7 @@ export function ChargeItemDefinitionForm({
     resolver: zodResolver(formSchema),
     defaultValues: {
       title: initialData?.title || "",
-      status: initialData?.status || ChargeItemDefinitionStatus.draft,
+      status: initialData?.status || ChargeItemDefinitionStatus.active,
       description: initialData?.description || null,
       purpose: initialData?.purpose || null,
       derived_from_uri: initialData?.derived_from_uri || null,
@@ -547,35 +547,37 @@ export function ChargeItemDefinitionForm({
                 )}
               />
 
-              <FormField
-                control={form.control}
-                name="status"
-                render={({ field }) => (
-                  <FormItem>
-                    <FormLabel>{t("status")}</FormLabel>
-                    <Select
-                      onValueChange={field.onChange}
-                      defaultValue={field.value}
-                    >
-                      <FormControl>
-                        <SelectTrigger>
-                          <SelectValue placeholder={t("select_status")} />
-                        </SelectTrigger>
-                      </FormControl>
-                      <SelectContent>
-                        {Object.values(ChargeItemDefinitionStatus).map(
-                          (status) => (
-                            <SelectItem key={status} value={status}>
-                              {t(status)}
-                            </SelectItem>
-                          ),
-                        )}
-                      </SelectContent>
-                    </Select>
-                    <FormMessage />
-                  </FormItem>
-                )}
-              />
+              {isUpdate && (
+                <FormField
+                  control={form.control}
+                  name="status"
+                  render={({ field }) => (
+                    <FormItem>
+                      <FormLabel>{t("status")}</FormLabel>
+                      <Select
+                        onValueChange={field.onChange}
+                        defaultValue={field.value}
+                      >
+                        <FormControl>
+                          <SelectTrigger>
+                            <SelectValue placeholder={t("select_status")} />
+                          </SelectTrigger>
+                        </FormControl>
+                        <SelectContent>
+                          {Object.values(ChargeItemDefinitionStatus).map(
+                            (status) => (
+                              <SelectItem key={status} value={status}>
+                                {t(status)}
+                              </SelectItem>
+                            ),
+                          )}
+                        </SelectContent>
+                      </Select>
+                      <FormMessage />
+                    </FormItem>
+                  )}
+                />
+              )}
             </div>
           </CardContent>
         </Card>

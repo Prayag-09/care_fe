@@ -4,6 +4,7 @@ import {
   useMutation,
   useQueryClient,
 } from "@tanstack/react-query";
+import { ChevronDown, ChevronUp } from "lucide-react";
 import { Link } from "raviger";
 import { useState } from "react";
 import { useForm } from "react-hook-form";
@@ -11,6 +12,7 @@ import { useTranslation } from "react-i18next";
 import { toast } from "sonner";
 import * as z from "zod";
 
+import { Badge } from "@/components/ui/badge";
 import { Button } from "@/components/ui/button";
 import {
   Form,
@@ -21,6 +23,7 @@ import {
   FormMessage,
 } from "@/components/ui/form";
 import { Input } from "@/components/ui/input";
+import { MonetaryDisplay } from "@/components/ui/monetary-display";
 import {
   Table,
   TableBody,
@@ -36,8 +39,10 @@ import { TableSkeleton } from "@/components/Common/SkeletonLoading";
 import mutate from "@/Utils/request/mutate";
 import query from "@/Utils/request/query";
 import { PaginatedResponse } from "@/Utils/request/types";
+import { MonetaryComponentType } from "@/types/base/monetaryComponent/monetaryComponent";
 import {
-  ChargeItemBase,
+  CHARGE_ITEM_STATUS_STYLES,
+  ChargeItemRead,
   ChargeItemStatus,
 } from "@/types/billing/chargeItem/chargeItem";
 import chargeItemApi from "@/types/billing/chargeItem/chargeItemApi";
@@ -61,6 +66,47 @@ interface CreateInvoicePageProps {
   accountId: string;
 }
 
+interface PriceComponentRowProps {
+  label: string;
+  components: any[];
+  totalPriceComponents: any[];
+}
+
+function PriceComponentRow({
+  label,
+  components,
+  totalPriceComponents,
+}: PriceComponentRowProps) {
+  if (!components.length) return null;
+
+  return (
+    <>
+      {components.map((component, index) => (
+        <TableRow
+          key={`${label}-${index}`}
+          className="text-xs text-gray-500 bg-muted/30"
+        >
+          <TableCell></TableCell>
+          <TableCell>
+            {component.code && `${component.code.display} `}({label})
+          </TableCell>
+          <TableCell>
+            <MonetaryDisplay {...component} />
+          </TableCell>
+          <TableCell></TableCell>
+          <TableCell>
+            {component.monetary_component_type ===
+            MonetaryComponentType.discount
+              ? "- "
+              : "+ "}
+            <MonetaryDisplay amount={totalPriceComponents[index]?.amount} />
+          </TableCell>
+        </TableRow>
+      ))}
+    </>
+  );
+}
+
 export function CreateInvoicePage({
   facilityId,
   accountId,
@@ -68,6 +114,9 @@ export function CreateInvoicePage({
   const { t } = useTranslation();
   const queryClient = useQueryClient();
   const [selectedRows, setSelectedRows] = useState<Record<string, boolean>>({});
+  const [expandedItems, setExpandedItems] = useState<Record<string, boolean>>(
+    {},
+  );
 
   const form = useForm<FormValues>({
     resolver: zodResolver(formSchema),
@@ -98,12 +147,12 @@ export function CreateInvoicePage({
           account: accountId,
         },
       })({ signal: new AbortController().signal });
-      return response as PaginatedResponse<ChargeItemBase>;
+      return response as PaginatedResponse<ChargeItemRead>;
     },
     initialPageParam: 0,
     getNextPageParam: (
-      lastPage: PaginatedResponse<ChargeItemBase>,
-      allPages: PaginatedResponse<ChargeItemBase>[],
+      lastPage: PaginatedResponse<ChargeItemRead>,
+      allPages: PaginatedResponse<ChargeItemRead>[],
     ) => {
       const currentOffset = allPages.length * ITEMS_PER_PAGE;
       return currentOffset < lastPage.count ? currentOffset : null;
@@ -148,6 +197,35 @@ export function CreateInvoicePage({
 
       return newSelection;
     });
+  };
+
+  const toggleItemExpand = (itemId: string) => {
+    setExpandedItems((prev) => ({
+      ...prev,
+      [itemId]: !prev[itemId],
+    }));
+  };
+
+  const getUnitComponentsByType = (item: any, type: MonetaryComponentType) => {
+    return (
+      item.unit_price_components?.filter(
+        (c: any) => c.monetary_component_type === type,
+      ) || []
+    );
+  };
+
+  const getTotalComponentsByType = (item: any, type: MonetaryComponentType) => {
+    return (
+      item.total_price_components?.filter(
+        (c: any) => c.monetary_component_type === type,
+      ) || []
+    );
+  };
+
+  const getBaseComponent = (item: any) => {
+    return item.unit_price_components?.find(
+      (c: any) => c.monetary_component_type === MonetaryComponentType.base,
+    );
   };
 
   const handleLoadMore = () => {
@@ -197,7 +275,7 @@ export function CreateInvoicePage({
                 <FormItem>
                   <FormLabel>{t("payment_terms")}</FormLabel>
                   <FormControl>
-                    <Input
+                    <Textarea
                       {...field}
                       disabled={createMutation.isPending}
                       placeholder={t("payment_terms_placeholder")}
@@ -244,31 +322,113 @@ export function CreateInvoicePage({
                     <TableRow>
                       <TableHead className="w-[50px]"></TableHead>
                       <TableHead>{t("title")}</TableHead>
-                      <TableHead>{t("amount")}</TableHead>
+                      <TableHead>{t("unit_price")}</TableHead>
+                      <TableHead>{t("quantity")}</TableHead>
+                      <TableHead>{t("total")}</TableHead>
+                      <TableHead>{t("status")}</TableHead>
                     </TableRow>
                   </TableHeader>
                   <TableBody>
-                    {chargeItems.filter(Boolean).map((item) => (
-                      <TableRow key={item.id}>
-                        <TableCell>
-                          <input
-                            type="checkbox"
-                            checked={selectedRows[item.id] || false}
-                            onChange={() => handleRowSelection(item.id)}
-                            className="h-4 w-4 rounded border-gray-300"
-                          />
-                        </TableCell>
-                        <TableCell>{item.title}</TableCell>
-                        <TableCell>
-                          {item.unit_price_components?.[0]
-                            ? `${item.unit_price_components[0].amount} ${
-                                item.unit_price_components[0].code?.code ||
-                                "INR"
-                              }`
-                            : "-"}
-                        </TableCell>
-                      </TableRow>
-                    ))}
+                    {chargeItems.filter(Boolean).flatMap((item) => {
+                      const isExpanded = expandedItems[item.id] || false;
+                      const baseComponent = getBaseComponent(item);
+                      const baseAmount = baseComponent?.amount || 0;
+
+                      const mainRow = (
+                        <TableRow key={item.id} className="hover:bg-muted/50">
+                          <TableCell className="flex items-center gap-2">
+                            <input
+                              type="checkbox"
+                              checked={selectedRows[item.id] || false}
+                              onChange={() => handleRowSelection(item.id)}
+                              className="h-4 w-4 rounded border-gray-300"
+                            />
+                            <Button
+                              variant="ghost"
+                              size="icon"
+                              className="h-6 w-6"
+                              onClick={() => toggleItemExpand(item.id)}
+                            >
+                              {isExpanded ? (
+                                <ChevronUp className="h-4 w-4" />
+                              ) : (
+                                <ChevronDown className="h-4 w-4" />
+                              )}
+                            </Button>
+                          </TableCell>
+                          <TableCell className="font-medium">
+                            {item.title}
+                            <div className="text-xs text-gray-500">
+                              {item.id}
+                            </div>
+                          </TableCell>
+                          <TableCell>
+                            <MonetaryDisplay amount={baseAmount} />
+                          </TableCell>
+                          <TableCell>{item.quantity}</TableCell>
+                          <TableCell>
+                            <MonetaryDisplay amount={item.total_price} />
+                          </TableCell>
+                          <TableCell>
+                            <Badge
+                              variant="outline"
+                              className={CHARGE_ITEM_STATUS_STYLES[item.status]}
+                            >
+                              {t(item.status)}
+                            </Badge>
+                          </TableCell>
+                        </TableRow>
+                      );
+
+                      if (!isExpanded) return [mainRow];
+
+                      const detailRows = [
+                        <PriceComponentRow
+                          key={`${item.id}-discounts`}
+                          label={t("discounts")}
+                          components={getUnitComponentsByType(
+                            item,
+                            MonetaryComponentType.discount,
+                          )}
+                          totalPriceComponents={getTotalComponentsByType(
+                            item,
+                            MonetaryComponentType.discount,
+                          )}
+                        />,
+                        <PriceComponentRow
+                          key={`${item.id}-taxes`}
+                          label={t("taxes")}
+                          components={getUnitComponentsByType(
+                            item,
+                            MonetaryComponentType.tax,
+                          )}
+                          totalPriceComponents={getTotalComponentsByType(
+                            item,
+                            MonetaryComponentType.tax,
+                          )}
+                        />,
+                      ];
+
+                      const summaryRow = (
+                        <TableRow
+                          key={`${item.id}-summary`}
+                          className="bg-muted/30 font-medium"
+                        >
+                          <TableCell></TableCell>
+                          <TableCell>{t("total")}</TableCell>
+                          <TableCell></TableCell>
+                          <TableCell></TableCell>
+                          <TableCell>
+                            <MonetaryDisplay amount={item.total_price} />
+                          </TableCell>
+                          <TableCell></TableCell>
+                        </TableRow>
+                      );
+
+                      return [mainRow, ...detailRows, summaryRow].filter(
+                        Boolean,
+                      );
+                    })}
                   </TableBody>
                 </Table>
               </div>
@@ -291,7 +451,7 @@ export function CreateInvoicePage({
               render={({ field }) => (
                 <FormMessage>
                   {field.value.length > 0
-                    ? t("selected_items_count", { count: field.value.length })
+                    ? `${t("selected_items_count")} ${field.value.length}`
                     : t("no_items_selected")}
                 </FormMessage>
               )}
