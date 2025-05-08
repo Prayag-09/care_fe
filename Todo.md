@@ -17,11 +17,11 @@ x : Done
 - [x] We should only show active charge defanitions in questionnaire - Manyu
 - [x] Description and Purpose (Additional Details) for a charge item def should be above the price component - Manyu
 - [-] All instance level tax codes should be shown as an option in the charge item def creator - Check with Vignesh
-- [ ] The UX for creating a new code should be better, the flow is quite ambigious to pick one.
-- [ ] Allow serch for discount codes
-- [ ] Lets have a list like styling for the discount codes as their would be a lot of these options.
-- [ ] We should also show instance level tax components in the billing page
-- [ ] Add support for information components in chargeDef and Charge Item.
+- [-] The UX for creating a new code should be better, the flow is quite ambigious to pick one. - Rithvik
+- [-] Allow serch for discount codes - Rithvik
+- [-] Lets have a list like styling for the discount codes as their would be a lot of these options. - Rithvik
+- [-] We should also show instance level tax components in the billing page - Rithvik
+- [-] Add support for information components in chargeDef and Charge Item. - Rithvik
 - [ ] [!BUG!]  Specimen Discard broken - Hide from SR after discard, should be able to collect the same specimen again
 
 
