@@ -46,7 +46,7 @@ x : Done
 - [ ] Lets have a list like styling for the discount codes as their would be a lot of these options.
 - [ ] We should also show instance level tax components in the billing page
 - [ ] Add support for information components in chargeDef and Charge Item.
-
+- [ ] [!BUG!]  Specimen Discard broken - Hide from SR
 ## Labs
 
 - [x] Build service request list page based on design - Manyu
