@@ -164,10 +164,7 @@ export function AccountShow({
           </CardHeader>
           <CardContent>
             <div className="space-y-2">
-              <div
-                key={account.total_balance}
-                className="flex flex-col justify-between text-sm"
-              >
+              <div className="flex flex-col justify-between text-sm">
                 <span className="text-base font-medium text-gray-500">
                   {t("total_balance")}
                 </span>
@@ -193,10 +190,7 @@ export function AccountShow({
                   <MonetaryDisplay amount={account.total_gross} />
                 </span>
               </div>
-              <div
-                key={account.total_net}
-                className="flex flex-col justify-between text-sm"
-              >
+              <div className="flex flex-col justify-between text-sm">
                 <span className="text-base font-medium text-gray-500">
                   {t("total_net")}
                 </span>
@@ -204,10 +198,7 @@ export function AccountShow({
                   <MonetaryDisplay amount={account.total_net} />
                 </span>
               </div>
-              <div
-                key={account.total_paid}
-                className="flex flex-col justify-between text-sm"
-              >
+              <div className="flex flex-col justify-between text-sm">
                 <span className="text-base font-medium text-gray-500">
                   {t("total_paid")}
                 </span>
