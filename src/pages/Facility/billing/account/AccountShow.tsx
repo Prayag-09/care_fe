@@ -291,18 +291,6 @@ export function AccountShow({
                     : t("view_and_manage_invoices")}
                 </p>
               </div>
-              {accountId && (
-                <div className="flex gap-2">
-                  <Button variant="ghost" asChild>
-                    <Link
-                      href={`/facility/${facilityId}/billing/payments?accountId=${accountId}`}
-                    >
-                      <CareIcon icon="l-wallet" className="mr-2 size-4" />
-                      {t("view_payments")}
-                    </Link>
-                  </Button>
-                </div>
-              )}
             </CardHeader>
             <CardContent>
               <InvoicesData facilityId={facilityId} accountId={accountId} />

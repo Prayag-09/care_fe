@@ -16,7 +16,8 @@ interface CreateSpecimenDefinitionProps {
 
 export function CreateSpecimenDefinition({
   facilityId,
-  onSuccess = () => navigate(`/settings/specimen_definitions`),
+  onSuccess = () =>
+    navigate(`/facility/${facilityId}/settings/specimen_definitions`),
 }: CreateSpecimenDefinitionProps) {
   const { t } = useTranslation();
   const queryClient = useQueryClient();
