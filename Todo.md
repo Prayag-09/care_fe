@@ -24,14 +24,13 @@ x : Done
 
 ## Labs
 
-
 - [-] Implement barcode in service request after creating the Specimen - Manyu
 - [-] Print all Barcodes button for a service request with page setup - Manyu
 - [-] Add support for multiple diagnostic report for a service request - [hold till @bodhi confirms]
 - [-] Service Request - Show specimen.collection.collector details instead of UUID (After BE change) - Vignesh
 - [-] Service Request - Show specimen.processing.performer details instead of UUID (After BE change) - Vignesh
 - [ ] Service request should show linked cahrge items along with its status [check for backend support]
-- [-] [!BUG!] Specimen Discard broken - Hide from SR after discard, should be able to collect the same specimen again - Yaswanth
+- [x] [!BUG!] Specimen Discard broken - Hide from SR after discard, should be able to collect the same specimen again - Yaswanth
 
 ## Back End
 
