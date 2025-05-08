@@ -48,7 +48,6 @@ export type AppRoutes = {
 
 const Routes: AppRoutes = {
   "/": () => <UserDashboard />,
-  // ...AssetRoutes,
   ...ConsultationRoutes,
   ...FacilityRoutes,
   ...PatientRoutes,
