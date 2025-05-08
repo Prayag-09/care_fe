@@ -8,6 +8,52 @@ x : Done
 
 ## Billing
 
+
+- [-] Charge Item Update - Jeevan & Rithvik
+- [-] Replace Charge Item Create with ChargeItemDef to ChargeItem API - Vignesh
+- [-] Build a flow for account balanceing and closing (Close button - mark as inactive and select close reason dropdown) - Jeevan
+- [ ] Consider disabling onWheelChange for input[type=number] fields.
+- [ ] [!BUG!] Charge Item create is broken now.
+- [ ] When Creating charge item in questionnaire we should allow users to pick discount and tax and quantitiy. We should also make it billable by deafault
+- [-] We should only show active charge defanitions in questionnaire - Manyu
+- [-] Description and Purpose (Additional Details) for a charge item def should be above the price component - Manyu
+- [-] All instance level tax codes should be shown as an option in the charge item def creator - Check with Vignesh
+- [ ] The UX for creating a new code should be better, the flow is quite ambigious to pick one.
+- [ ] Allow serch for discount codes
+- [ ] Lets have a list like styling for the discount codes as their would be a lot of these options.
+- [ ] We should also show instance level tax components in the billing page
+- [ ] Add support for information components in chargeDef and Charge Item.
+- [ ] [!BUG!]  Specimen Discard broken - Hide from SR
+
+
+## Labs
+
+
+- [-] Implement barcode in service request after creating the Specimen - Vinu
+- [-] Print all Barcodes button for a service request with page setup - Vinu
+- [-] Add support for multiple diagnostic report for a service request - [hold till @bodhi confirms]
+- [-] Service Request - Show specimen.collection.collector details instead of UUID (After BE change) - Vignesh
+- [-] Service Request - Show specimen.processing.performer details instead of UUID (After BE change) - Vignesh
+- [ ] Service request should show linked cahrge items along with its status [check for backend support]
+
+
+## Back End
+
+
+- [ ] Service Request - Show specimen.collection.collector details instead of UUID (After BE change)
+- [ ] Service Request - Show specimen.processing.performer details instead of UUID (After BE change)
+- [ ] Patient - There shouldn't be more than one active account at any point in time
+- [ ] BE need to sort by internal id by default, all apis has jumping issue
+- [ ] Need sort by payment_datetime for Payment Reconciliation list
+- [ ] Replace Charge Item Create with ChargeItemDef to ChargeItem API
+
+
+
+
+## Archived
+
+## Billing
+
 - [x] Wire the actual amounts in all payment pages once backend is done - Amjith
 - [x] Make currency configurable - Rithvik
 - [x] Add paymenthistory in invoices page - Amjith
@@ -31,22 +77,9 @@ x : Done
 - [x] Show page for cancelled invoice (render charge items from cache)
 - [x] Create invoice inside Account charge item list - Jeevan
 - [x] Charge Item Definition Update - Rithvik
-- [-] Charge Item Update - Jeevan & Rithvik
-- [-] Replace Charge Item Create with ChargeItemDef to ChargeItem API - Vignesh
-- [-] Build a flow for account balanceing and closing (Close button - mark as inactive and select close reason dropdown) - Jeevan
-- [-] Invoice - Entered in error in action menu - Jeevan
-- [ ] Consider disabling onWheelChange for input[type=number] fields.
-- [ ] [!BUG!] Charge Item create is broken now.
-- [ ] When Creating charge item in questionnaire we should allow users to pick discount and tax and quantitiy. We should also make it billable by deafault
-- [ ] We should only show active charge defanitions in questionnaire
-- [ ] Description and Purpose for a charge item def should be above the price component
-- [ ] All instance level tax codes should be shown as an option in the charge item def creator
-- [ ] The UX for creating a new code should be better, the flow is quite ambigious to pick one.
-- [ ] Allow serch for discount codes
-- [ ] Lets have a list like styling for the discount codes as their would be a lot of these options.
-- [ ] We should also show instance level tax components in the billing page
-- [ ] Add support for information components in chargeDef and Charge Item.
-- [ ] [!BUG!]  Specimen Discard broken - Hide from SR
+- [x] Invoice - Entered in error in action menu - Jeevan
+
+
 ## Labs
 
 - [x] Build service request list page based on design - Manyu
@@ -63,18 +96,3 @@ x : Done
 - [x] Link to diganostic report page should be added to the service request - Yash
 - [x] We should have an option to capture conclusion in diagnostic report- Yash
 - [x] Workflow statuses on the right side as per design should be created. - Amjith
-- [-] Implement barcode in service request after creating the Specimen - Vinu
-- [-] Print all Barcodes button for a service request with page setup - Vinu
-- [-] Add support for multiple diagnostic report for a service request - [hold till @bodhi confirms]
-- [-] Service Request - Show specimen.collection.collector details instead of UUID (After BE change) - Vignesh
-- [-] Service Request - Show specimen.processing.performer details instead of UUID (After BE change) - Vignesh
-- [ ] Service request should show linked cahrge items along with its status [check for backend support]
-
-## Back End
-
-- [ ] Service Request - Show specimen.collection.collector details instead of UUID (After BE change)
-- [ ] Service Request - Show specimen.processing.performer details instead of UUID (After BE change)
-- [ ] Patient - There shouldn't be more than one active account at any point in time
-- [ ] BE need to sort by internal id by default, all apis has jumping issue
-- [ ] Need sort by payment_datetime for Payment Reconciliation list
-- [ ] Replace Charge Item Create with ChargeItemDef to ChargeItem API
