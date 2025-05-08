@@ -13,7 +13,6 @@ x : Done
 - [-] Replace Charge Item Create with ChargeItemDef to ChargeItem API - Vignesh
 - [-] Build a flow for account balanceing and closing (Close button - mark as inactive and select close reason dropdown) - Jeevan
 - [ ] Consider disabling onWheelChange for input[type=number] fields.
-- [ ] [!BUG!] Charge Item create is broken now.
 - [ ] When Creating charge item in questionnaire we should allow users to pick discount and tax and quantitiy. We should also make it billable by deafault
 - [x] We should only show active charge defanitions in questionnaire - Manyu
 - [x] Description and Purpose (Additional Details) for a charge item def should be above the price component - Manyu
@@ -78,6 +77,7 @@ x : Done
 - [x] Create invoice inside Account charge item list - Jeevan
 - [x] Charge Item Definition Update - Rithvik
 - [x] Invoice - Entered in error in action menu - Jeevan
+- [x] [!BUG!] Charge Item create is broken now. - Amjith (Data Issue)
 
 
 ## Labs
