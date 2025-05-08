@@ -36,6 +36,16 @@ x : Done
 - [x] Charge Item Definition Update - Rithvik
 - [-] Charge Item Update - Jeevan & Rithvik
 - [ ] Consider disabling onWheelChange for input[type=number] fields.
+- [ ] [!BUG!] Charge Item create is broken now.
+- [ ] When Creating charge item in questionnaire we should allow users to pick discount and tax and quantitiy. We should also make it billable by deafault
+- [ ] We should only show active charge defanitions in questionnaire
+- [ ] Description and Purpose for a charge item def should be above the price component
+- [ ] All instance level tax codes should be shown as an option in the charge item def creator
+- [ ] The UX for creating a new code should be better, the flow is quite ambigious to pick one.
+- [ ] Allow serch for discount codes
+- [ ] Lets have a list like styling for the discount codes as their would be a lot of these options.
+- [ ] We should also show instance level tax components in the billing page
+- [ ] Add support for information components in chargeDef and Charge Item.
 
 ## Labs
 
