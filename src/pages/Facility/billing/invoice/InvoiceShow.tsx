@@ -343,41 +343,40 @@ export function InvoiceShow({
           </div>
         </div>
         <div className="flex gap-2">
+          {invoice?.status === InvoiceStatus.draft && (
+            <Button
+              variant="primary"
+              className="w-full flex flex-row justify-stretch items-center"
+              onClick={() => handleStatusChange(InvoiceStatus.issued)}
+              disabled={isUpdatingInvoice}
+            >
+              <CareIcon icon="l-wallet" className="mr-1" />
+              {t("mark_as_issued")}
+            </Button>
+          )}
+          {invoice?.status === InvoiceStatus.issued && (
+            <Button
+              variant="primary"
+              className="w-full flex flex-row justify-stretch items-center"
+              onClick={() => handleStatusChange(InvoiceStatus.balanced)}
+              disabled={isUpdatingInvoice}
+            >
+              <CareIcon icon="l-wallet" className="mr-1" />
+              {t("mark_as_balanced")}
+            </Button>
+          )}
           {canEdit && (
             <DropdownMenu>
               <DropdownMenuTrigger asChild>
-                <Button variant="outline" data-cy="invoice-actions-button">
-                  {t("actions")}
-                  <CareIcon icon="l-angle-down" className="ml-2" />
+                <Button
+                  variant="outline"
+                  data-cy="invoice-actions-button"
+                  className="px-2"
+                >
+                  <CareIcon icon="l-ellipsis-v" />
                 </Button>
               </DropdownMenuTrigger>
               <DropdownMenuContent align="end">
-                {invoice?.status === InvoiceStatus.draft && (
-                  <DropdownMenuItem asChild className="text-primary-900">
-                    <Button
-                      variant="ghost"
-                      className="w-full flex flex-row justify-stretch items-center"
-                      onClick={() => handleStatusChange(InvoiceStatus.issued)}
-                      disabled={isUpdatingInvoice}
-                    >
-                      <CareIcon icon="l-wallet" className="mr-1" />
-                      {t("mark_as_issued")}
-                    </Button>
-                  </DropdownMenuItem>
-                )}
-                {invoice?.status === InvoiceStatus.issued && (
-                  <DropdownMenuItem asChild className="text-primary-900">
-                    <Button
-                      variant="ghost"
-                      className="w-full flex flex-row justify-stretch items-center"
-                      onClick={() => handleStatusChange(InvoiceStatus.balanced)}
-                      disabled={isUpdatingInvoice}
-                    >
-                      <CareIcon icon="l-wallet" className="mr-1" />
-                      {t("mark_as_balanced")}
-                    </Button>
-                  </DropdownMenuItem>
-                )}
                 <DropdownMenuItem asChild className="text-primary-900">
                   <Button
                     variant="ghost"
