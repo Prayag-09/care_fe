@@ -15,7 +15,10 @@ import query from "@/Utils/request/query";
 import activityDefinitionApi from "@/types/emr/activityDefinition/activityDefinitionApi";
 import { DiagnosticReportStatus } from "@/types/emr/diagnosticReport/diagnosticReport";
 import serviceRequestApi from "@/types/emr/serviceRequest/serviceRequestApi";
-import { SpecimenFromDefinitionCreate } from "@/types/emr/specimen/specimen";
+import {
+  SpecimenFromDefinitionCreate,
+  SpecimenStatus,
+} from "@/types/emr/specimen/specimen";
 import specimenApi from "@/types/emr/specimen/specimenApi";
 import { SpecimenDefinitionRead } from "@/types/emr/specimenDefinition/specimenDefinition";
 
@@ -174,7 +177,11 @@ export default function ServiceRequestShow({
                   (spec) => spec.specimen_definition?.id === requirement.id,
                 );
 
-                const collectedSpecimen = allMatchingForThisDefId.find(
+                const validSpecimens = allMatchingForThisDefId.filter(
+                  (spec) => spec.status === SpecimenStatus.available,
+                );
+
+                const collectedSpecimen = validSpecimens.find(
                   (spec) => !assignedSpecimenIds.has(spec.id),
                 );
 
