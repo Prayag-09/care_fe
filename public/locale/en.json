@@ -3236,7 +3236,7 @@
   "source": "Source",
   "source_file": "Source Files",
   "spdx_sbom_version": "SPDX SBOM Version",
-  "specify_diagnostic_report_codes": "Specivy the diagnostic report codes for this activity",
+  "specify_diagnostic_report_codes": "Specify the diagnostic report codes for this activity",
   "specimen": "Specimen",
   "specimen_definition": "Specimen Definition",
   "specimen_definition_created": "Specimen definition created",
