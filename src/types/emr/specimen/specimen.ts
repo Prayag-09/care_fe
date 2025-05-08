@@ -14,6 +14,30 @@ export enum SpecimenStatus {
   entered_in_error = "entered_in_error",
 }
 
+export interface SpecimenDiscardReason {
+  status: SpecimenStatus;
+  label: string;
+  description: string;
+}
+
+export const SPECIMEN_DISCARD_REASONS: SpecimenDiscardReason[] = [
+  {
+    status: SpecimenStatus.unavailable,
+    label: "Unavailable",
+    description: "The specimen is lost, destroyed, or consumed",
+  },
+  {
+    status: SpecimenStatus.unsatisfactory,
+    label: "Unsatisfactory",
+    description: "The specimen is unusable due to quality issues",
+  },
+  {
+    status: SpecimenStatus.entered_in_error,
+    label: "Entered in Error",
+    description: "The specimen record was created by mistake",
+  },
+];
+
 export interface CollectionSpec {
   collector: string | null;
   collected_date_time: string | null;

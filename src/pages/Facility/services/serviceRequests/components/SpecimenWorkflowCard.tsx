@@ -72,6 +72,7 @@ import mutate from "@/Utils/request/mutate";
 import { ProcessSpecimen } from "@/pages/Facility/services/serviceRequests/components/ProcessSpecimen";
 import {
   ProcessingSpec,
+  SPECIMEN_DISCARD_REASONS,
   SpecimenRead,
   SpecimenStatus,
 } from "@/types/emr/specimen/specimen";
@@ -364,7 +365,7 @@ export function SpecimenWorkflowCard({
                             <AlertDialogHeader>
                               <AlertDialogTitle>Are you sure?</AlertDialogTitle>
                               <AlertDialogDescription>
-                                Please select a reason for discarding this
+                                Please select the reason for discarding this
                                 specimen:
                               </AlertDialogDescription>
                             </AlertDialogHeader>
@@ -374,62 +375,30 @@ export function SpecimenWorkflowCard({
                               onValueChange={(value: SpecimenStatus) =>
                                 setSelectedDiscardReason(value)
                               }
-                              className="space-y-3 my-4"
+                              className="space-y-3 my-4 justify-center items-center"
                             >
-                              <div className="flex items-start space-x-2 p-2 rounded-md border border-gray-200 hover:bg-gray-50">
-                                <RadioGroupItem
-                                  value="unavailable"
-                                  id="unavailable"
-                                />
-                                <Label
-                                  htmlFor="unavailable"
-                                  className="flex flex-col gap-1"
+                              {SPECIMEN_DISCARD_REASONS.map((reason) => (
+                                <div
+                                  key={reason.status}
+                                  className="flex items-start space-x-2 p-2 rounded-md border border-gray-200 hover:bg-gray-50"
                                 >
-                                  <span className="font-medium">
-                                    Unavailable
-                                  </span>
-                                  <span className="text-sm text-gray-500">
-                                    The specimen is lost, destroyed, or consumed
-                                  </span>
-                                </Label>
-                              </div>
-
-                              <div className="flex items-start space-x-2 p-2 rounded-md border border-gray-200 hover:bg-gray-50">
-                                <RadioGroupItem
-                                  value="unsatisfactory"
-                                  id="unsatisfactory"
-                                />
-                                <Label
-                                  htmlFor="unsatisfactory"
-                                  className="flex flex-col gap-1"
-                                >
-                                  <span className="font-medium">
-                                    Unsatisfactory
-                                  </span>
-                                  <span className="text-sm text-gray-500">
-                                    The specimen is unusable due to quality
-                                    issues
-                                  </span>
-                                </Label>
-                              </div>
-
-                              <div className="flex items-start space-x-2 p-2 rounded-md border border-gray-200 hover:bg-gray-50">
-                                <RadioGroupItem
-                                  value="entered_in_error"
-                                  id="entered_in_error"
-                                />
-                                <Label
-                                  htmlFor="entered_in_error"
-                                  className="flex flex-col gap-1"
-                                >
-                                  <span className="font-medium">
-                                    Entered in Error
-                                  </span>
-                                  <span className="text-sm text-gray-500">
-                                    The specimen record was created by mistake
-                                  </span>
-                                </Label>
-                              </div>
+                                  <RadioGroupItem
+                                    value={reason.status}
+                                    id={reason.status}
+                                  />
+                                  <Label
+                                    htmlFor={reason.status}
+                                    className="flex flex-col gap-0.5 px-1"
+                                  >
+                                    <span className="font-medium text-sm text-gray-950">
+                                      {reason.label}
+                                    </span>
+                                    <span className="text-sm text-gray-500 font-normal">
+                                      {reason.description}
+                                    </span>
+                                  </Label>
+                                </div>
+                              ))}
                             </RadioGroup>
 
                             <AlertDialogFooter>
@@ -445,9 +414,7 @@ export function SpecimenWorkflowCard({
                                   isDiscarding || !selectedDiscardReason
                                 }
                               >
-                                {isDiscarding
-                                  ? "Discarding..."
-                                  : "Confirm Discard"}
+                                {isDiscarding ? "Discarding..." : t("discard")}
                               </AlertDialogAction>
                             </AlertDialogFooter>
                           </AlertDialogContent>
