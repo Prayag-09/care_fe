@@ -358,15 +358,16 @@ export function SpecimenWorkflowCard({
                               onSelect={(e) => e.preventDefault()}
                             >
                               <Trash2 className="h-4 w-4 mr-2" />
-                              Discard Specimen
+                              {t("discard")}
                             </DropdownMenuItem>
                           </AlertDialogTrigger>
                           <AlertDialogContent>
                             <AlertDialogHeader>
-                              <AlertDialogTitle>Are you sure?</AlertDialogTitle>
+                              <AlertDialogTitle>
+                                {t("are_you_sure")}
+                              </AlertDialogTitle>
                               <AlertDialogDescription>
-                                Please select the reason for discarding this
-                                specimen:
+                                {t("specimen_discard_dialog_description")}
                               </AlertDialogDescription>
                             </AlertDialogHeader>
 
@@ -375,7 +376,7 @@ export function SpecimenWorkflowCard({
                               onValueChange={(value: SpecimenStatus) =>
                                 setSelectedDiscardReason(value)
                               }
-                              className="space-y-3 my-4 justify-center items-center"
+                              className="space-y-3 justify-center items-center"
                             >
                               {SPECIMEN_DISCARD_REASONS.map((reason) => (
                                 <div
@@ -403,7 +404,7 @@ export function SpecimenWorkflowCard({
 
                             <AlertDialogFooter>
                               <AlertDialogCancel disabled={isDiscarding}>
-                                Cancel
+                                {t("cancel")}
                               </AlertDialogCancel>
                               <AlertDialogAction
                                 onClick={() =>
@@ -414,7 +415,7 @@ export function SpecimenWorkflowCard({
                                   isDiscarding || !selectedDiscardReason
                                 }
                               >
-                                {isDiscarding ? "Discarding..." : t("discard")}
+                                {isDiscarding ? t("discarding") : t("discard")}
                               </AlertDialogAction>
                             </AlertDialogFooter>
                           </AlertDialogContent>
