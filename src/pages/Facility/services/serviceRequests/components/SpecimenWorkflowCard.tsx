@@ -325,9 +325,21 @@ export function SpecimenWorkflowCard({
                         "Unknown Status"}
                     </Badge>
                     {isOpen ? (
-                      <ChevronsDownUp className="size-7 bg-white border border-gray-300 rounded-md p-1 shadow-sm transition-transform duration-200" />
+                      <Button
+                        variant="ghost"
+                        size="icon"
+                        className="size-10 border border-gray-400 bg-white shadow p-4"
+                      >
+                        <ChevronsDownUp className="size-5" />
+                      </Button>
                     ) : (
-                      <ChevronsUpDown className="size-7 bg-white border border-gray-300 rounded-md p-1 shadow-sm transition-transform duration-200" />
+                      <Button
+                        variant="ghost"
+                        size="icon"
+                        className="size-10 border border-gray-400 bg-white shadow p-4"
+                      >
+                        <ChevronsUpDown className="size-5" />
+                      </Button>
                     )}
                   </div>
                   <div className="flex self-end gap-2">
