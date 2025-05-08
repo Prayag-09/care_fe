@@ -7,6 +7,7 @@ export enum ChargeItemStatus {
   not_billable = "not_billable",
   aborted = "aborted",
   billed = "billed",
+  paid = "paid",
   entered_in_error = "entered_in_error",
 }
 
@@ -16,6 +17,7 @@ export const CHARGE_ITEM_STATUS_STYLES = {
   not_billable: "bg-yellow-100 text-yellow-800 border-yellow-200",
   aborted: "bg-red-100 text-red-800 border-red-200",
   billed: "bg-green-100 text-green-800 border-green-200",
+  paid: "bg-green-100 text-green-800 border-green-200",
   entered_in_error: "bg-red-100 text-red-800 border-red-200",
 } as const;
 
