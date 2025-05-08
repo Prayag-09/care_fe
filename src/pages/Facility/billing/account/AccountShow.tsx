@@ -179,10 +179,7 @@ export function AccountShow({
                   <MonetaryDisplay amount={account.total_balance} />
                 </span>
               </div>
-              <div
-                key={account.total_gross}
-                className="flex flex-col justify-between text-sm"
-              >
+              <div className="flex flex-col justify-between text-sm">
                 <span className="text-base font-medium text-gray-500">
                   {t("total_gross")}
                 </span>
