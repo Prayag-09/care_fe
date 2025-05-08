@@ -23,13 +23,13 @@ x : Done
 - [ ] Lets have a list like styling for the discount codes as their would be a lot of these options.
 - [ ] We should also show instance level tax components in the billing page
 - [ ] Add support for information components in chargeDef and Charge Item.
-- [ ] [!BUG!]  Specimen Discard broken - Hide from SR
+- [ ] [!BUG!]  Specimen Discard broken - Hide from SR after discard, should be able to collect the same specimen again
 
 
 ## Labs
 
 
-- [-] Implement barcode in service request after creating the Specimen - Vinu
+- [-] Implement barcode in service request after creating the Specimen - Vignesh (draft status)
 - [-] Print all Barcodes button for a service request with page setup - Vinu
 - [-] Add support for multiple diagnostic report for a service request - [hold till @bodhi confirms]
 - [-] Service Request - Show specimen.collection.collector details instead of UUID (After BE change) - Vignesh
