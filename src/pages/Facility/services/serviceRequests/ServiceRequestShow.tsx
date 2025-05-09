@@ -9,7 +9,6 @@ import CareIcon from "@/CAREUI/icons/CareIcon";
 
 import { Button } from "@/components/ui/button";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
-import { Sheet, SheetContent, SheetTrigger } from "@/components/ui/sheet";
 import { Skeleton } from "@/components/ui/skeleton";
 
 import useBreakpoints from "@/hooks/useBreakpoints";
@@ -49,11 +48,6 @@ export default function ServiceRequestShow({
   const isMobile = useBreakpoints({
     default: true,
     lg: false,
-  });
-
-  const sheetPosition = useBreakpoints({
-    default: "bottom",
-    md: "right",
   });
 
   const [selectedSpecimenDefinition, setSelectedSpecimenDefinition] =
@@ -201,30 +195,7 @@ export default function ServiceRequestShow({
               </Button>
             )}
 
-            {isMobile && (
-              <Sheet>
-                <SheetTrigger asChild>
-                  <Button
-                    variant="link"
-                    className="w-fit flex items-center gap-0.5 underline"
-                  >
-                    <CareIcon
-                      icon="l-file-check-alt"
-                      className="text-lg stroke-2"
-                    />
-                    View Workflow Progress
-                  </Button>
-                </SheetTrigger>
-                <SheetContent
-                  side={sheetPosition === "bottom" ? "bottom" : "right"}
-                >
-                  <WorkflowProgress
-                    request={request}
-                    className="h-full rounded-none border-none"
-                  />
-                </SheetContent>
-              </Sheet>
-            )}
+            {isMobile && <WorkflowProgress request={request} variant="sheet" />}
           </div>
           <div className="px-2">
             <PatientHeader
@@ -331,7 +302,7 @@ export default function ServiceRequestShow({
       </div>
       {!isMobile && (
         <div className="flex-1 p-2 min-w-90 md:max-w-90 mx-auto">
-          <WorkflowProgress request={request} />
+          <WorkflowProgress request={request} variant="sidebar" />
         </div>
       )}
     </div>

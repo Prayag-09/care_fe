@@ -5,8 +5,10 @@ import { cn } from "@/lib/utils";
 
 import CareIcon from "@/CAREUI/icons/CareIcon";
 
+import { Button } from "@/components/ui/button";
 import { Card } from "@/components/ui/card";
 import { ScrollArea } from "@/components/ui/scroll-area";
+import { Sheet, SheetContent, SheetTrigger } from "@/components/ui/sheet";
 
 import useBreakpoints from "@/hooks/useBreakpoints";
 
@@ -26,6 +28,7 @@ interface TimelineEvent {
 interface WorkflowProgressProps {
   request: ServiceRequestReadSpec;
   className?: string;
+  variant?: "sheet" | "sidebar";
 }
 
 function TimelineNode({ event }: { event: TimelineEvent }) {
@@ -60,15 +63,33 @@ function TimelineNode({ event }: { event: TimelineEvent }) {
   );
 }
 
+function WorkflowContent({ events }: { events: TimelineEvent[] }) {
+  return (
+    <>
+      <div className="flex items-center gap-2 p-4 border-b">
+        <CareIcon icon="l-clipboard-alt" className="size-5" />
+        <h2 className="text-lg font-semibold">Workflow Progress</h2>
+      </div>
+      <ScrollArea className="h-[calc(100vh-10rem)]">
+        <div className="p-4 space-y-2">
+          {events.map((event, index) => (
+            <TimelineNode key={index} event={event} />
+          ))}
+        </div>
+      </ScrollArea>
+    </>
+  );
+}
+
 export function WorkflowProgress({
   request,
   className,
+  variant = "sidebar",
 }: WorkflowProgressProps) {
   const events: TimelineEvent[] = [];
-
-  const isMobile = useBreakpoints({
-    default: true,
-    lg: false,
+  const sheetPosition = useBreakpoints({
+    default: "bottom",
+    md: "right",
   });
 
   // Add service request creation
@@ -123,25 +144,36 @@ export function WorkflowProgress({
     (a, b) => new Date(a.timestamp).getTime() - new Date(b.timestamp).getTime(),
   );
 
+  if (variant === "sheet") {
+    return (
+      <Sheet>
+        <SheetTrigger asChild>
+          <Button
+            variant="link"
+            className="w-fit flex items-center gap-0.5 underline"
+          >
+            <CareIcon icon="l-file-check-alt" className="text-lg stroke-2" />
+            View Workflow Progress
+          </Button>
+        </SheetTrigger>
+        <SheetContent
+          side={sheetPosition === "bottom" ? "bottom" : "right"}
+          className={cn(
+            "p-0",
+            sheetPosition === "bottom" ? "h-[80vh]" : "h-screen max-w-md",
+          )}
+        >
+          <Card className="h-full rounded-none border-none shadow-none">
+            <WorkflowContent events={events} />
+          </Card>
+        </SheetContent>
+      </Sheet>
+    );
+  }
+
   return (
-    <Card
-      className={cn(
-        !isMobile && className,
-        "shadow-none border-none",
-        "rounded-none",
-      )}
-    >
-      <div className="flex items-center gap-2 mb-6">
-        <CareIcon icon="l-clipboard-alt" className="size-5" />
-        <h2 className="text-lg font-semibold">Workflow Progress</h2>
-      </div>
-      <ScrollArea className="h-[calc(100vh-10rem)]">
-        <div className="p-4 space-y-2">
-          {events.map((event, index) => (
-            <TimelineNode key={index} event={event} />
-          ))}
-        </div>
-      </ScrollArea>
+    <Card className={className}>
+      <WorkflowContent events={events} />
     </Card>
   );
 }
