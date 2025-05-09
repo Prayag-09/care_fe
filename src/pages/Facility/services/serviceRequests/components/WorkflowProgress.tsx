@@ -1,9 +1,14 @@
 import { format } from "date-fns";
 import { CheckCircle2 } from "lucide-react";
 
+import { cn } from "@/lib/utils";
+
 import CareIcon from "@/CAREUI/icons/CareIcon";
 
 import { Card } from "@/components/ui/card";
+import { ScrollArea } from "@/components/ui/scroll-area";
+
+import useBreakpoints from "@/hooks/useBreakpoints";
 
 import { formatName } from "@/Utils/utils";
 import { DiagnosticReportRead } from "@/types/emr/diagnosticReport/diagnosticReport";
@@ -20,6 +25,7 @@ interface TimelineEvent {
 
 interface WorkflowProgressProps {
   request: ServiceRequestReadSpec;
+  className?: string;
 }
 
 function TimelineNode({ event }: { event: TimelineEvent }) {
@@ -54,8 +60,16 @@ function TimelineNode({ event }: { event: TimelineEvent }) {
   );
 }
 
-export function WorkflowProgress({ request }: WorkflowProgressProps) {
+export function WorkflowProgress({
+  request,
+  className,
+}: WorkflowProgressProps) {
   const events: TimelineEvent[] = [];
+
+  const isMobile = useBreakpoints({
+    default: true,
+    lg: false,
+  });
 
   // Add service request creation
   if (request.created_by && request.created_date) {
@@ -110,16 +124,24 @@ export function WorkflowProgress({ request }: WorkflowProgressProps) {
   );
 
   return (
-    <Card className="p-4">
+    <Card
+      className={cn(
+        !isMobile && className,
+        "shadow-none border-none",
+        "rounded-none",
+      )}
+    >
       <div className="flex items-center gap-2 mb-6">
         <CareIcon icon="l-clipboard-alt" className="size-5" />
         <h2 className="text-lg font-semibold">Workflow Progress</h2>
       </div>
-      <div className="space-y-2">
-        {events.map((event, index) => (
-          <TimelineNode key={index} event={event} />
-        ))}
-      </div>
+      <ScrollArea className="h-[calc(100vh-10rem)]">
+        <div className="p-4 space-y-2">
+          {events.map((event, index) => (
+            <TimelineNode key={index} event={event} />
+          ))}
+        </div>
+      </ScrollArea>
     </Card>
   );
 }

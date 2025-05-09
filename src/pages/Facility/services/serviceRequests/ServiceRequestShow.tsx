@@ -9,7 +9,10 @@ import CareIcon from "@/CAREUI/icons/CareIcon";
 
 import { Button } from "@/components/ui/button";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
+import { Sheet, SheetContent, SheetTrigger } from "@/components/ui/sheet";
 import { Skeleton } from "@/components/ui/skeleton";
+
+import useBreakpoints from "@/hooks/useBreakpoints";
 
 import mutate from "@/Utils/request/mutate";
 import query from "@/Utils/request/query";
@@ -43,6 +46,16 @@ export default function ServiceRequestShow({
 }: ServiceRequestShowProps) {
   const { t } = useTranslation();
   const queryClient = useQueryClient();
+  const isMobile = useBreakpoints({
+    default: true,
+    lg: false,
+  });
+
+  const sheetPosition = useBreakpoints({
+    default: "bottom",
+    md: "right",
+  });
+
   const [selectedSpecimenDefinition, setSelectedSpecimenDefinition] =
     useState<SpecimenDefinitionRead | null>(null);
 
@@ -159,34 +172,60 @@ export default function ServiceRequestShow({
     <div className="flex flex-col lg:flex-row min-h-screen bg-gray-50 relative">
       <div className="flex-1 p-4 max-w-6xl mx-auto">
         <div className="space-y-6">
-          {locationId && serviceId ? (
-            <Button
-              variant="link"
-              className="underline underline-offset-2 text-gray-950 font-semibold pl-0"
-              onClick={() =>
-                navigate(
-                  `/facility/${facilityId}/services/${serviceId}/requests/locations/${locationId}`,
-                )
-              }
-            >
-              <CareIcon icon="l-arrow-left" className="mr-2 size-4" />
-              Back
-            </Button>
-          ) : (
-            <Button
-              variant="link"
-              className="underline underline-offset-2 text-gray-950 font-semibold pl-0 cursor-pointer"
-              onClick={() =>
-                navigate(
-                  `/facility/${facilityId}/patient/${request.encounter.patient.id}/encounter/${request.encounter.id}/service_requests`,
-                )
-              }
-            >
-              <ArrowLeftIcon className="size-4" />
-              Back to encounter
-            </Button>
-          )}
+          <div className="flex items-center justify-between gap-2">
+            {locationId && serviceId ? (
+              <Button
+                variant="link"
+                className="underline underline-offset-2 text-gray-950 font-semibold pl-0"
+                onClick={() =>
+                  navigate(
+                    `/facility/${facilityId}/services/${serviceId}/requests/locations/${locationId}`,
+                  )
+                }
+              >
+                <CareIcon icon="l-arrow-left" className="mr-2 size-4" />
+                Back
+              </Button>
+            ) : (
+              <Button
+                variant="link"
+                className="underline underline-offset-2 text-gray-950 font-semibold pl-0 cursor-pointer"
+                onClick={() =>
+                  navigate(
+                    `/facility/${facilityId}/patient/${request.encounter.patient.id}/encounter/${request.encounter.id}/service_requests`,
+                  )
+                }
+              >
+                <ArrowLeftIcon className="size-4" />
+                Back to encounter
+              </Button>
+            )}
 
+            {isMobile && (
+              <Sheet>
+                <SheetTrigger asChild>
+                  <Button
+                    variant="link"
+                    className="w-fit flex items-center gap-0.5 underline"
+                  >
+                    <CareIcon
+                      icon="l-file-check-alt"
+                      className="text-lg stroke-2"
+                    />
+                    View Workflow Progress
+                  </Button>
+                </SheetTrigger>
+                <SheetContent
+                  side={sheetPosition === "bottom" ? "bottom" : "right"}
+                >
+                  <WorkflowProgress
+                    request={request}
+                    className="h-full rounded-none border-none"
+                  />
+                </SheetContent>
+              </Sheet>
+            )}
+          </div>
           <div className="px-2">
             <PatientHeader
               patient={request.encounter.patient}
@@ -290,9 +329,11 @@ export default function ServiceRequestShow({
           )}
         </div>
       </div>
-      <div className="flex-1 p-2 min-w-90 md:max-w-90 mx-auto">
-        <WorkflowProgress request={request} />
-      </div>
+      {!isMobile && (
+        <div className="flex-1 p-2 min-w-90 md:max-w-90 mx-auto">
+          <WorkflowProgress request={request} />
+        </div>
+      )}
     </div>
   );
 }
