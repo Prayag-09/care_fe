@@ -66,6 +66,8 @@ import {
   TableRow,
 } from "@/components/ui/table";
 
+import { PrintableQRCode } from "@/components/PrintableQRCode";
+
 import useAuthUser from "@/hooks/useAuthUser";
 
 import mutate from "@/Utils/request/mutate";
@@ -305,6 +307,7 @@ export function SpecimenWorkflowCard({
                     )}
                   </div>
                 </div>
+
                 {/* Status Badge on Right */}
                 <div className="flex items-center flex-col gap-4">
                   <div className="flex items-center gap-2">
@@ -455,6 +458,16 @@ export function SpecimenWorkflowCard({
         <CollapsibleContent className="data-[state=open]:animate-collapsible-down data-[state=closed]:animate-collapsible-up overflow-hidden">
           {/* === Accordion for Instructions, Collection Details, Processing, Discard === */}
           <CardContent className="p-2 bg-gray-100">
+            {hasCollected && collectedSpecimen && (
+              <Card className="p-4 w-full my-2 shadow-none border-none rounded-md">
+                <PrintableQRCode
+                  value={collectedSpecimen.id}
+                  title={collectedSpecimen.specimen_type?.display}
+                  subtitle={collectedSpecimen.specimen_definition?.title}
+                  identifier={collectedSpecimen.id}
+                />
+              </Card>
+            )}
             <Accordion
               type="multiple"
               className="w-full space-y-2"
@@ -517,7 +530,7 @@ export function SpecimenWorkflowCard({
                             <TableHead className="text-gray-700">
                               Patient Prep
                             </TableHead>
-                            <TableCell className="text-gray-950 font-semibold">
+                            <TableCell className="text-gray-950 font-semibold break-words whitespace-pre-wrap">
                               {requirement.patient_preparation &&
                               requirement.patient_preparation.length > 0
                                 ? requirement.patient_preparation
