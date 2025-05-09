@@ -26,7 +26,8 @@ x : Done
 - [ ] Service request should show linked cahrge items along with its status [check for backend support]
 - [x] Move the workflow progress into a sheet for small devices - Yaswanth
 - [x] Hide the sidebar on SR show - (Sugegstion from Vinu) - Yaswanth
-- [-] Show the specimen history inside a sheet on SR show - Yaswanth
+- [x] Show the specimen history inside a sheet on SR show - Yaswanth
+- [x] [!BUG!] Allow re-creating the draft specimen after discrard - when the specimen is not in available or draft status - Yaswanth
 
 ## Back End
 
