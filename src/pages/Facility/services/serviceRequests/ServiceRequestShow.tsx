@@ -92,7 +92,10 @@ export default function ServiceRequestShow({
       (spec) => spec.specimen_definition?.id === requirement.id,
     );
 
-    if (existingSpecimen) {
+    if (
+      existingSpecimen?.status === SpecimenStatus.available ||
+      existingSpecimen?.status === SpecimenStatus.draft
+    ) {
       return;
     }
 

@@ -52,7 +52,7 @@ export function SpecimenHistorySheet({
                         SPECIMEN_STATUS_COLOR_MAP[specimen.status],
                       )}
                     >
-                      {specimen.status}
+                      {t(specimen.status)}
                     </Badge>
                   </div>
 
