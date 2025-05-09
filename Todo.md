@@ -20,13 +20,14 @@ x : Done
 
 ## Labs
 
-
 - [ ] Print all Barcodes button for a service request with page setup
 - [-] Add support for multiple diagnostic report for a service request - [hold till @bodhi confirms]
 - [-] Service Request - Show specimen.collection.collector details instead of UUID (After BE change) - Vignesh
 - [-] Service Request - Show specimen.processing.performer details instead of UUID (After BE change) - Vignesh
 - [ ] Service request should show linked cahrge items along with its status [check for backend support]
-- [-] Move the workflow progress into a sheet for small devices - Yaswanth
+- [x] Move the workflow progress into a sheet for small devices - Yaswanth
+- [x] Hide the sidebar on SR show - (Sugegstion from Vinu) - Yaswanth
+- [-] Show the specimen history inside a sheet on SR show - Yaswanth
 
 ## Back End
 
