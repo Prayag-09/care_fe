@@ -28,7 +28,7 @@ interface TimelineEvent {
 interface WorkflowProgressProps {
   request: ServiceRequestReadSpec;
   className?: string;
-  variant?: "sheet" | "sidebar";
+  variant?: "sheet" | "card";
 }
 
 function TimelineNode({ event }: { event: TimelineEvent }) {
@@ -84,7 +84,7 @@ function WorkflowContent({ events }: { events: TimelineEvent[] }) {
 export function WorkflowProgress({
   request,
   className,
-  variant = "sidebar",
+  variant = "card",
 }: WorkflowProgressProps) {
   const events: TimelineEvent[] = [];
   const sheetPosition = useBreakpoints({

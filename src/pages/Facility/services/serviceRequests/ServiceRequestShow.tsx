@@ -302,7 +302,7 @@ export default function ServiceRequestShow({
       </div>
       {!isMobile && (
         <div className="flex-1 p-2 min-w-90 md:max-w-90 mx-auto">
-          <WorkflowProgress request={request} variant="sidebar" />
+          <WorkflowProgress request={request} variant="card" />
         </div>
       )}
     </div>
