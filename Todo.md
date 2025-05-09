@@ -22,14 +22,12 @@ x : Done
 
 ## Labs
 
-- [-] Implement barcode in service request after creating the Specimen - Manyu
-- [-] Print all Barcodes button for a service request with page setup - Manyu
+
+- [ ] Print all Barcodes button for a service request with page setup
 - [-] Add support for multiple diagnostic report for a service request - [hold till @bodhi confirms]
 - [-] Service Request - Show specimen.collection.collector details instead of UUID (After BE change) - Vignesh
 - [-] Service Request - Show specimen.processing.performer details instead of UUID (After BE change) - Vignesh
 - [ ] Service request should show linked cahrge items along with its status [check for backend support]
-
-- [x] Currently when ever we interact with discard specimen dialog the below specimen collapsible is getting expanded and collapsed. This should not happen. - Yaswanth
 - [-] Move the workflow progress into a sheet for small devices - Yaswanth
 
 ## Back End
@@ -82,6 +80,8 @@ x : Done
 - [x] Add filters for statues in service request page as of the UI - Manyu
 - [x] Add support for xray and file uploads service request - Amjith
 - [x] [!BUG!] Specimen Discard broken - Hide from SR after discard, should be able to collect the same specimen again - Yaswanth
+- [x] Currently when ever we interact with discard specimen dialog the below specimen collapsible is getting expanded and collapsed. This should not happen. - Yaswanth
+- [x] Implement barcode in service request after creating the Specimen - Manyu & Amjith
 
 - [x] In service request create from AD lets remove status, intent, category, do not perform and locations. (These should be shown along with the name for information purpose) - Manyu
 - [x] If no specimen def is avilable then lets not empty state - Amjith
