@@ -13,13 +13,11 @@ x : Done
 - [-] Build a flow for account balanceing and closing (Close button - mark as inactive and select close reason dropdown) - Jeevan
 - [-] All instance level tax codes should be shown as an option in the charge item def creator - Check with Vignesh
 - [-] Allow serch for discount codes - Rithvik
-- [-] We should also show instance level tax components in the billing page - Rithvik
 - [-] Add support for information components in chargeDef and Charge Item. - Rithvik
 - [-] Consider disabling onWheelChange for input[type=number] fields. - [hold till @bodhi confirms]
 - [-] When Creating charge item in questionnaire we should allow users to pick discount and tax and quantitiy. - Amjith
 
 ## Labs
-
 
 - [ ] Print all Barcodes button for a service request with page setup
 - [-] Add support for multiple diagnostic report for a service request - [hold till @bodhi confirms]
@@ -71,6 +69,7 @@ x : Done
 - [x] Description and Purpose (Additional Details) for a charge item def should be above the price component - Manyu
 - [x] Lets have a list like styling for the discount codes as their would be a lot of these options. - Rithvik
 - [x] The UX for creating a new code should be better, the flow is quite ambigious to pick one. - Rithvik
+- [x] We should also show instance level tax components in the billing page - Rithvik
 
 ## Labs
 

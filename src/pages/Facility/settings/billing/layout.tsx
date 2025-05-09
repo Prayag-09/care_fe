@@ -18,11 +18,15 @@ import ErrorPage from "@/components/ErrorPages/DefaultErrorPage";
 
 import { DiscountCodeSettings } from "@/pages/Facility/settings/billing/discount/discount-codes/DiscountCodeSettings";
 import { DiscountComponentSettings } from "@/pages/Facility/settings/billing/discount/discount-components/DiscountComponentSettings";
+import { TaxCodeSettings } from "@/pages/Facility/settings/billing/tax/tax-codes/TaxCodeSettings";
+import { TaxComponentSettings } from "@/pages/Facility/settings/billing/tax/tax-components/TaxComponentSettings";
 import useCurrentFacility from "@/pages/Facility/utils/useCurrentFacility";
 
 const routes = {
   "/discount-components": () => <DiscountComponentSettings />,
   "/discount-codes": () => <DiscountCodeSettings />,
+  "/tax-codes": () => <TaxCodeSettings />,
+  "/tax-components": () => <TaxComponentSettings />,
   "*": () => <ErrorPage />,
 };
 
