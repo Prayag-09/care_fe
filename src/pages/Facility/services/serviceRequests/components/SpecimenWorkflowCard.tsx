@@ -75,6 +75,7 @@ import { ProcessSpecimen } from "@/pages/Facility/services/serviceRequests/compo
 import {
   ProcessingSpec,
   SPECIMEN_DISCARD_REASONS,
+  SPECIMEN_STATUS_COLOR_MAP,
   SpecimenRead,
   SpecimenStatus,
 } from "@/types/emr/specimen/specimen";
@@ -90,25 +91,6 @@ function formatQuantity(quantity: any): string {
   }
   return "N/A";
 }
-
-// --- Status Maps (from CollectedSpecimenCard) ---
-const statusVariantMap: Record<
-  string,
-  "default" | "destructive" | "outline" | "secondary"
-> = {
-  available: "default",
-  unavailable: "destructive",
-  unsatisfactory: "destructive",
-  entered_in_error: "destructive",
-  received: "secondary",
-};
-
-const statusColorMap: Record<string, string> = {
-  available: "bg-green-100 text-green-800 border-green-200",
-  unavailable: "bg-red-100 text-red-800 border-red-200",
-  unsatisfactory: "bg-yellow-100 text-yellow-800 border-yellow-200",
-  received: "bg-blue-100 text-blue-800 border-blue-200",
-};
 
 // --- Main Combined Component ---
 interface SpecimenWorkflowCardProps {
@@ -312,13 +294,10 @@ export function SpecimenWorkflowCard({
                 <div className="flex items-center flex-col gap-4">
                   <div className="flex items-center gap-2">
                     <Badge
-                      variant={
-                        statusVariantMap[collectedSpecimen.status] ||
-                        "secondary"
-                      }
+                      variant="outline"
                       className={cn(
                         "capitalize font-medium h-fit",
-                        statusColorMap[collectedSpecimen.status],
+                        SPECIMEN_STATUS_COLOR_MAP[collectedSpecimen.status],
                       )}
                     >
                       {collectedSpecimen.status ===

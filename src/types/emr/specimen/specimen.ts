@@ -15,6 +15,15 @@ export enum SpecimenStatus {
   entered_in_error = "entered_in_error",
 }
 
+export const SPECIMEN_STATUS_COLOR_MAP: Record<string, string> = {
+  available: "bg-green-100 text-green-800 border-green-200",
+  unavailable: "bg-orange-100 text-orange-800 border-orange-200",
+  unsatisfactory: "bg-yellow-100 text-yellow-800 border-yellow-200",
+  received: "bg-blue-100 text-blue-800 border-blue-200",
+  draft: "bg-gray-100 text-gray-800 border-gray-200",
+  entered_in_error: "bg-red-100 text-red-800 border-red-200",
+};
+
 export interface SpecimenDiscardReason {
   status: SpecimenStatus;
   label: string;

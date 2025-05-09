@@ -1,5 +1,5 @@
 import { useMutation, useQuery, useQueryClient } from "@tanstack/react-query";
-import { ArrowLeftIcon } from "lucide-react";
+import { ArrowLeftIcon, MoreVertical } from "lucide-react";
 import { navigate } from "raviger";
 import { useState } from "react";
 import { useTranslation } from "react-i18next";
@@ -9,6 +9,12 @@ import CareIcon from "@/CAREUI/icons/CareIcon";
 
 import { Button } from "@/components/ui/button";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
+import {
+  DropdownMenu,
+  DropdownMenuContent,
+  DropdownMenuItem,
+  DropdownMenuTrigger,
+} from "@/components/ui/dropdown-menu";
 import { Skeleton } from "@/components/ui/skeleton";
 
 import useBreakpoints from "@/hooks/useBreakpoints";
@@ -27,6 +33,7 @@ import { DiagnosticReportReview } from "./components/DiagnosticReportReview";
 import { PatientHeader } from "./components/PatientHeader";
 import { ServiceRequestDetails } from "./components/ServiceRequestDetails";
 import { SpecimenForm } from "./components/SpecimenForm";
+import { SpecimenHistorySheet } from "./components/SpecimenHistorySheet";
 import { SpecimenWorkflowCard } from "./components/SpecimenWorkflowCard";
 import { WorkflowProgress } from "./components/WorkflowProgress";
 
@@ -211,7 +218,28 @@ export default function ServiceRequestShow({
           />
           {specimenRequirements.length > 0 && !selectedSpecimenDefinition && (
             <div className="space-y-6">
-              <h2 className="text-xl font-semibold">{t("specimens")}</h2>
+              <div className="flex items-center justify-between">
+                <h2 className="text-xl font-semibold">{t("specimens")}</h2>
+                <DropdownMenu>
+                  <DropdownMenuTrigger asChild>
+                    <Button variant="ghost" size="icon">
+                      <MoreVertical className="size-4" />
+                    </Button>
+                  </DropdownMenuTrigger>
+                  <DropdownMenuContent align="end">
+                    <SpecimenHistorySheet specimens={request?.specimens || []}>
+                      <DropdownMenuItem
+                        onSelect={(e) => e.preventDefault()}
+                        onClick={(e) => {
+                          e.stopPropagation();
+                        }}
+                      >
+                        {t("view_specimen_history")}
+                      </DropdownMenuItem>
+                    </SpecimenHistorySheet>
+                  </DropdownMenuContent>
+                </DropdownMenu>
+              </div>
               {specimenRequirements.map((requirement) => {
                 const allMatchingForThisDefId = request.specimens.filter(
                   (spec) => spec.specimen_definition?.id === requirement.id,
