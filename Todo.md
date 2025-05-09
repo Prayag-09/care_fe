@@ -8,9 +8,7 @@ x : Done
 
 ## Billing
 
-- [-] Charge Item Update - Jeevan & Rithvik
 - [-] Replace Charge Item Create with ChargeItemDef to ChargeItem API - Vignesh
-- [-] Build a flow for account balanceing and closing (Close button - mark as inactive and select close reason dropdown) - Jeevan
 - [-] All instance level tax codes should be shown as an option in the charge item def creator - Check with Vignesh
 - [-] Allow serch for discount codes - Rithvik
 - [-] Add support for information components in chargeDef and Charge Item. - Rithvik
@@ -73,6 +71,8 @@ x : Done
 - [x] Lets have a list like styling for the discount codes as their would be a lot of these options. - Rithvik
 - [x] The UX for creating a new code should be better, the flow is quite ambigious to pick one. - Rithvik
 - [x] We should also show instance level tax components in the billing page - Rithvik
+- [x] Charge Item Update - Jeevan & Rithvik
+- [x] Build a flow for account balanceing and closing (Close button - mark as inactive and select close reason dropdown) - Jeevan
 
 ## Labs
 

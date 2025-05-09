@@ -29,6 +29,7 @@ import {
 } from "@/components/ui/sheet";
 import { Textarea } from "@/components/ui/textarea";
 
+import mutate from "@/Utils/request/mutate";
 import query from "@/Utils/request/query";
 import {
   AccountBillingStatus,
@@ -38,6 +39,7 @@ import {
   statusColorMap,
 } from "@/types/billing/account/Account";
 import accountApi from "@/types/billing/account/accountApi";
+import { Period } from "@/types/emr/encounter";
 import { Patient } from "@/types/emr/newPatient";
 
 interface AccountFormValues {
@@ -47,6 +49,7 @@ interface AccountFormValues {
   billing_status: AccountBillingStatus;
   id?: string;
   patient?: Patient;
+  service_period?: Period;
 }
 
 interface AccountSheetProps {
@@ -54,7 +57,7 @@ interface AccountSheetProps {
   onOpenChange: (open: boolean) => void;
   facilityId: string;
   patientId?: string;
-  initialValues?: Partial<AccountFormValues>;
+  initialValues?: AccountRead;
   isEdit?: boolean;
 }
 
@@ -78,6 +81,9 @@ export function AccountSheet({
     },
   });
 
+  const accountBillingStatus = methods.watch("billing_status");
+  const accountStatus = methods.watch("status");
+
   // Reset form when initialValues changes
   React.useEffect(() => {
     methods.reset(
@@ -90,25 +96,26 @@ export function AccountSheet({
     );
   }, [initialValues, methods]);
 
-  const createMutation = useMutation<AccountRead, unknown, AccountFormValues>({
-    mutationFn: (data: AccountFormValues) =>
-      query(accountApi.createAccount, {
-        pathParams: { facilityId },
-        body: {
-          ...data,
-          patient: patientId!,
-          billing_status: data.billing_status,
-          service_period: {
-            start: new Date().toISOString(),
-          },
-          description: data.description,
-        },
-      })({ signal: new AbortController().signal }),
+  const { mutate: createAccount, isPending: isCreating } = useMutation({
+    mutationFn: mutate(accountApi.createAccount, {
+      pathParams: { facilityId },
+    }),
     onSuccess: () => {
       onOpenChange(false);
       queryClient.invalidateQueries({ queryKey: ["accounts"] });
     },
   });
+
+  const isAccountBillingStatusClosed = (
+    billingStatus: AccountBillingStatus,
+  ) => {
+    return (
+      billingStatus === AccountBillingStatus.closed_baddebt ||
+      billingStatus === AccountBillingStatus.closed_voided ||
+      billingStatus === AccountBillingStatus.closed_completed ||
+      billingStatus === AccountBillingStatus.closed_combined
+    );
+  };
 
   const updateMutation = useMutation<AccountRead, unknown, AccountFormValues>({
     mutationFn: (data) =>
@@ -118,10 +125,17 @@ export function AccountSheet({
           id: data.id!,
           name: data.name,
           description: data.description,
-          status: data.status,
+          status:
+            isAccountBillingStatusClosed(data.billing_status) &&
+            data.status === AccountStatus.active
+              ? AccountStatus.inactive
+              : data.status,
           billing_status: data.billing_status,
           service_period: {
-            start: new Date().toISOString(),
+            start: data.service_period?.start || new Date().toISOString(),
+            end: isAccountBillingStatusClosed(data.billing_status)
+              ? new Date().toISOString()
+              : data.service_period?.end || undefined,
           },
           patient: data.patient?.id || patientId!,
         },
@@ -139,7 +153,15 @@ export function AccountSheet({
     if (isEdit && initialValues?.id) {
       updateMutation.mutate({ ...values, id: initialValues.id });
     } else {
-      createMutation.mutate(values);
+      createAccount({
+        ...values,
+        patient: patientId!,
+        billing_status: values.billing_status,
+        service_period: {
+          start: new Date().toISOString(),
+        },
+        description: values.description,
+      });
     }
   };
 
@@ -165,10 +187,7 @@ export function AccountSheet({
                   <FormItem>
                     <FormLabel>{t("account_name")}</FormLabel>
                     <FormControl>
-                      <Input
-                        {...field}
-                        disabled={createMutation.status === "pending"}
-                      />
+                      <Input {...field} disabled={isCreating} />
                     </FormControl>
                     <FormMessage />
                   </FormItem>
@@ -181,10 +200,7 @@ export function AccountSheet({
                   <FormItem>
                     <FormLabel>{t("description")}</FormLabel>
                     <FormControl>
-                      <Textarea
-                        {...field}
-                        disabled={createMutation.status === "pending"}
-                      />
+                      <Textarea {...field} disabled={isCreating} />
                     </FormControl>
                     <FormMessage />
                   </FormItem>
@@ -201,7 +217,7 @@ export function AccountSheet({
                       <Select
                         value={field.value}
                         onValueChange={field.onChange}
-                        disabled={createMutation.status === "pending"}
+                        disabled={isCreating}
                       >
                         <SelectTrigger>
                           <SelectValue />
@@ -246,11 +262,17 @@ export function AccountSheet({
                   </FormItem>
                 )}
               />
+              {isAccountBillingStatusClosed(accountBillingStatus) &&
+                accountStatus === AccountStatus.active && (
+                  <p className="text-red-500 bg-red-50 text-xs -mt-2 p-2">
+                    {t("billing_status_inactive_warning")}
+                  </p>
+                )}
 
               <SheetFooter>
                 <Button
                   type="submit"
-                  disabled={createMutation.status === "pending"}
+                  disabled={isCreating || updateMutation.isPending}
                 >
                   {isEdit ? t("update") : t("create")}
                 </Button>

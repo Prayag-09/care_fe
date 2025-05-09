@@ -1,6 +1,7 @@
+import { DialogDescription } from "@radix-ui/react-dialog";
 import { useMutation, useQuery, useQueryClient } from "@tanstack/react-query";
 import { Link, navigate } from "raviger";
-import { useState } from "react";
+import { useEffect, useState } from "react";
 import { useTranslation } from "react-i18next";
 import { toast } from "sonner";
 
@@ -11,7 +12,20 @@ import CareIcon from "@/CAREUI/icons/CareIcon";
 import { Badge } from "@/components/ui/badge";
 import { Button } from "@/components/ui/button";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
+import {
+  Dialog,
+  DialogContent,
+  DialogHeader,
+  DialogTitle,
+} from "@/components/ui/dialog";
 import { MonetaryDisplay } from "@/components/ui/monetary-display";
+import {
+  Select,
+  SelectContent,
+  SelectItem,
+  SelectTrigger,
+  SelectValue,
+} from "@/components/ui/select";
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
 
 import { Avatar } from "@/components/Common/Avatar";
@@ -22,7 +36,11 @@ import query from "@/Utils/request/query";
 import PaymentReconciliationSheet from "@/pages/Facility/billing/PaymentReconciliationSheet";
 import InvoicesData from "@/pages/Facility/billing/invoice/InvoicesData";
 import PaymentsData from "@/pages/Facility/billing/paymentReconciliation/PaymentsData";
-import { AccountStatus } from "@/types/billing/account/Account";
+import {
+  AccountBillingStatus,
+  AccountStatus,
+  closeBillingStatusColorMap,
+} from "@/types/billing/account/Account";
 import accountApi from "@/types/billing/account/accountApi";
 
 import AccountSheet from "./AccountSheet";
@@ -46,6 +64,14 @@ function formatDate(date?: string) {
 
 type tab = "charge_items" | "invoices" | "payments";
 
+const closedStatusText = {
+  [AccountBillingStatus.closed_baddebt]: "close_account_help_closed_baddebt",
+  [AccountBillingStatus.closed_voided]: "close_account_help_closed_voided",
+  [AccountBillingStatus.closed_completed]:
+    "close_account_help_closed_completed",
+  [AccountBillingStatus.closed_combined]: "close_account_help_closed_combined",
+};
+
 export function AccountShow({
   facilityId,
   accountId,
@@ -59,6 +85,10 @@ export function AccountShow({
   const [sheetOpen, setSheetOpen] = useState(false);
   const [isPaymentSheetOpen, setIsPaymentSheetOpen] = useState(false);
   const queryClient = useQueryClient();
+  const [closeAccountStatus, setCloseAccountStatus] = useState<{
+    sheetOpen: boolean;
+    reason: AccountBillingStatus;
+  }>({ sheetOpen: false, reason: AccountBillingStatus.closed_baddebt });
 
   const { data: account, isLoading } = useQuery({
     queryKey: ["account", accountId],
@@ -66,6 +96,23 @@ export function AccountShow({
       pathParams: { facilityId, accountId },
     }),
   });
+
+  const isAccountBillingClosed =
+    account?.billing_status === AccountBillingStatus.closed_baddebt ||
+    account?.billing_status === AccountBillingStatus.closed_voided ||
+    account?.billing_status === AccountBillingStatus.closed_completed ||
+    account?.billing_status === AccountBillingStatus.closed_combined;
+
+  useEffect(() => {
+    if (account) {
+      setCloseAccountStatus({
+        sheetOpen: false,
+        reason: isAccountBillingClosed
+          ? account?.billing_status
+          : AccountBillingStatus.closed_baddebt,
+      });
+    }
+  }, [account]);
 
   const rebalanceMutation = useMutation({
     mutationFn: mutate(accountApi.rebalanceAccount, {
@@ -78,9 +125,40 @@ export function AccountShow({
       });
     },
     onError: (_error) => {
-      toast.error(t("failed_to_rebalance_account"));
+      toast.error(t("account_rebalance_failed"));
     },
   });
+
+  const { mutate: closeAccount } = useMutation({
+    mutationFn: mutate(accountApi.updateAccount, {
+      pathParams: { facilityId, accountId },
+    }),
+    onSuccess: () => {
+      toast.success(t("account_closed_successfully"));
+      queryClient.invalidateQueries({
+        queryKey: ["account", accountId],
+      });
+    },
+  });
+
+  const handleCloseAccount = () => {
+    closeAccount({
+      id: accountId,
+      name: account?.name || "",
+      description: account?.description,
+      status: AccountStatus.inactive,
+      billing_status: closeAccountStatus.reason,
+      service_period: {
+        start: account?.service_period?.start || new Date().toISOString(),
+        end: new Date().toISOString(),
+      },
+      patient: account?.patient?.id || "",
+    });
+    setCloseAccountStatus({
+      sheetOpen: false,
+      reason: AccountBillingStatus.closed_baddebt,
+    });
+  };
 
   if (isLoading) {
     return <TableSkeleton count={5} />;
@@ -114,10 +192,27 @@ export function AccountShow({
                 {account.description || t("no_description")}
               </p>
             </div>
-            <Button variant="outline" onClick={() => setSheetOpen(true)}>
-              <CareIcon icon="l-pen" className="mr-2 size-4" />
-              {t("edit")}
-            </Button>
+            <div className="flex flex-row gap-2">
+              <Button variant="outline" onClick={() => setSheetOpen(true)}>
+                <CareIcon icon="l-pen" className="mr-2 size-4" />
+                {t("edit")}
+              </Button>
+              {account.status === AccountStatus.active &&
+                !isAccountBillingClosed && (
+                  <Button
+                    variant="destructive"
+                    onClick={() =>
+                      setCloseAccountStatus({
+                        ...closeAccountStatus,
+                        sheetOpen: true,
+                      })
+                    }
+                  >
+                    <CareIcon icon="l-trash" className="mr-2 size-4" />
+                    {t("close_account")}
+                  </Button>
+                )}
+            </div>
           </CardHeader>
           <CardContent>
             <div className="grid gap-4 md:grid-cols-2">
@@ -323,8 +418,62 @@ export function AccountShow({
         facilityId={facilityId}
         accountId={accountId}
       />
+
+      <Dialog
+        open={closeAccountStatus.sheetOpen}
+        onOpenChange={(open) =>
+          setCloseAccountStatus({ ...closeAccountStatus, sheetOpen: open })
+        }
+      >
+        <DialogHeader></DialogHeader>
+        <DialogContent>
+          <DialogTitle>{t("close_account")}</DialogTitle>
+          <DialogDescription className="text-xs text-gray-500 -mt-1">
+            {t(
+              closedStatusText[
+                closeAccountStatus.reason as keyof typeof closedStatusText
+              ],
+            )}
+          </DialogDescription>
+          <Select
+            value={closeAccountStatus.reason}
+            onValueChange={(value) =>
+              setCloseAccountStatus({
+                ...closeAccountStatus,
+                reason: value as AccountBillingStatus,
+              })
+            }
+          >
+            <SelectTrigger>
+              <SelectValue />
+            </SelectTrigger>
+            <SelectContent>
+              {Object.keys(closeBillingStatusColorMap).map((key) => (
+                <SelectItem key={key} value={key}>
+                  {t(key)}
+                </SelectItem>
+              ))}
+            </SelectContent>
+          </Select>
+          <ClosedCallout balance={account.total_balance} />
+          <Button variant="destructive" onClick={handleCloseAccount}>
+            {t("close_account")}
+          </Button>
+        </DialogContent>
+      </Dialog>
     </div>
   );
 }
+
+const ClosedCallout = ({ balance }: { balance: number }) => {
+  const { t } = useTranslation();
+  const isNegative = balance > 0;
+  if (!isNegative) return <></>;
+  return (
+    <span className="text-red-500 bg-red-50 text-xs -mt-2 p-2 rounded">
+      <p>{t("close_account_negative_balance")}</p>
+    </span>
+  );
+};
 
 export default AccountShow;

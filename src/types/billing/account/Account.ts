@@ -75,3 +75,12 @@ export const billingStatusColorMap: Record<AccountBillingStatus, string> = {
   closed_completed: "success",
   closed_combined: "success",
 };
+
+export const closeBillingStatusColorMap: Partial<
+  Record<AccountBillingStatus, string>
+> = {
+  closed_baddebt: "destructive",
+  closed_voided: "destructive",
+  closed_completed: "success",
+  closed_combined: "success",
+};

@@ -41,6 +41,7 @@ import {
 import { Textarea } from "@/components/ui/textarea";
 
 import mutate from "@/Utils/request/mutate";
+import { summarizeMonetaryComponents } from "@/pages/Facility/settings/chargeItemDefinitions/utils";
 import { MonetaryComponentType } from "@/types/base/monetaryComponent/monetaryComponent";
 import {
   ChargeItemRead,
@@ -106,29 +107,14 @@ export function EditChargeItemSheet({
   const discounts = getComponentsByType(MonetaryComponentType.discount);
   const taxes = getComponentsByType(MonetaryComponentType.tax);
 
-  // Calculate unit total based on components
-  const calculateUnitTotal = () => {
-    const baseAmount = baseComponent?.amount || 0;
-
-    const discountAmount = discounts.reduce((sum, c) => {
-      if (c.amount !== undefined && c.amount !== null) {
-        return sum + c.amount;
-      }
-      return sum + (c.factor || 0) * baseAmount;
-    }, 0);
-
-    const taxAmount = taxes.reduce((sum, c) => {
-      const subtotal = baseAmount - discountAmount;
-      return sum + (c.factor || 0) * subtotal;
-    }, 0);
-
-    return baseAmount - discountAmount + taxAmount;
-  };
+  const { totalAmount, netAmount, taxableAmount } = summarizeMonetaryComponents(
+    item.unit_price_components,
+  );
 
   const currentTotal =
     item.total_price !== null && item.total_price !== undefined
       ? item.total_price
-      : calculateUnitTotal();
+      : totalAmount;
 
   const { mutate: updateChargeItem, isPending } = useMutation({
     mutationFn: (data: FormValues) => {
@@ -282,10 +268,15 @@ export function EditChargeItemSheet({
                               key={`discount-${index}`}
                               className="flex justify-between"
                             >
-                              <span className="text-green-600">
-                                {t("discount")}
-                              </span>
-                              <span>
+                              <div className="space-x-1">
+                                <span>
+                                  {discount.code && discount.code.display}
+                                </span>
+                                <span className="text-red-600">
+                                  ({t("discount")})
+                                </span>
+                              </div>
+                              <span className="text-red-600">
                                 - <MonetaryDisplay {...discount} />
                               </span>
                             </div>
@@ -296,8 +287,13 @@ export function EditChargeItemSheet({
                               key={`tax-${index}`}
                               className="flex justify-between"
                             >
-                              <span className="text-blue-600">{t("tax")}</span>
-                              <span>
+                              <div className="space-x-1">
+                                <span>{tax.code && tax.code.display}</span>
+                                <span className="text-green-600">
+                                  ({t("tax")})
+                                </span>
+                              </div>
+                              <span className="text-green-600">
                                 + <MonetaryDisplay {...tax} />
                               </span>
                             </div>
@@ -307,7 +303,9 @@ export function EditChargeItemSheet({
 
                           <div className="flex justify-between font-semibold">
                             <span>{t("unit_total")}</span>
-                            <MonetaryDisplay amount={calculateUnitTotal()} />
+                            <span className="text-green-600">
+                              <MonetaryDisplay amount={totalAmount} />
+                            </span>
                           </div>
                         </div>
                       </div>
@@ -326,9 +324,46 @@ export function EditChargeItemSheet({
 
                             <Separator className="my-2" />
 
-                            <div className="flex justify-between font-semibold">
-                              <span>{t("total_price")}</span>
-                              <MonetaryDisplay amount={currentTotal} />
+                            <div className="flex flex-col justify-between gap-2">
+                              <div className="flex justify-between">
+                                <span>{t("total_base_price")}</span>
+                                <span>
+                                  <MonetaryDisplay
+                                    amount={
+                                      item.quantity *
+                                      (baseComponent?.amount || 0)
+                                    }
+                                  />
+                                </span>
+                              </div>
+                              <div className="flex justify-between">
+                                <span>{t("total_discounts")}</span>
+                                <span className="text-red-600">
+                                  <MonetaryDisplay
+                                    amount={
+                                      item.quantity *
+                                      (netAmount - taxableAmount)
+                                    }
+                                  />
+                                </span>
+                              </div>
+                              <div className="flex justify-between">
+                                <span>{t("total_taxes")}</span>
+                                <span className="text-green-600">
+                                  <MonetaryDisplay
+                                    amount={
+                                      item.quantity *
+                                      (totalAmount - taxableAmount)
+                                    }
+                                  />
+                                </span>
+                              </div>
+                              <div className="flex justify-between font-semibold">
+                                <span>{t("total_price")}</span>
+                                <span className="text-green-600">
+                                  <MonetaryDisplay amount={currentTotal} />
+                                </span>
+                              </div>
                             </div>
                           </div>
                         </div>
