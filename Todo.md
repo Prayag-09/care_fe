@@ -30,6 +30,7 @@ x : Done
 - [ ] Service request should show linked cahrge items along with its status [check for backend support]
 
 - [x] Currently when ever we interact with discard specimen dialog the below specimen collapsible is getting expanded and collapsed. This should not happen. - Yaswanth
+- [-] Move the workflow progress into a sheet for small devices - Yaswanth
 
 ## Back End
 
