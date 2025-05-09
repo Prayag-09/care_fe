@@ -1,0 +1,187 @@
+import { useMutation, useQueryClient } from "@tanstack/react-query";
+import { TrashIcon } from "lucide-react";
+import { useState } from "react";
+import { useTranslation } from "react-i18next";
+import { toast } from "sonner";
+
+import {
+  AlertDialog,
+  AlertDialogAction,
+  AlertDialogCancel,
+  AlertDialogContent,
+  AlertDialogDescription,
+  AlertDialogFooter,
+  AlertDialogHeader,
+  AlertDialogTitle,
+} from "@/components/ui/alert-dialog";
+import { Badge } from "@/components/ui/badge";
+import { Button } from "@/components/ui/button";
+import { buttonVariants } from "@/components/ui/button";
+import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
+import {
+  Table,
+  TableBody,
+  TableCell,
+  TableHead,
+  TableHeader,
+  TableRow,
+} from "@/components/ui/table";
+
+import Loading from "@/components/Common/Loading";
+
+import mutate from "@/Utils/request/mutate";
+import { CreateDiscountCodePopover } from "@/pages/Facility/settings/billing/discount/discount-codes/CreateDiscountCodePopover";
+import { EditDiscountCodePopover } from "@/pages/Facility/settings/billing/discount/discount-codes/EditDiscountCodePopover";
+import useCurrentFacility from "@/pages/Facility/utils/useCurrentFacility";
+import facilityApi from "@/types/facility/facilityApi";
+import { Code } from "@/types/questionnaire/code";
+
+export interface AnnotatedDiscountCode extends Code {
+  isInstance: boolean;
+  facilityIndex?: number;
+}
+
+export function DiscountCodeSettings() {
+  const { t } = useTranslation();
+  const queryClient = useQueryClient();
+
+  const [codeToDelete, setCodeToDelete] = useState<number>();
+
+  const facility = useCurrentFacility();
+
+  const { mutate: deleteCode, isPending } = useMutation({
+    mutationFn: mutate(facilityApi.updateMonetaryComponents, {
+      pathParams: { facilityId: facility?.id ?? "" },
+    }),
+    onSuccess: () => {
+      queryClient.invalidateQueries({ queryKey: ["facility", facility?.id] });
+      toast.success(t("discount_code_deleted"));
+    },
+  });
+
+  if (!facility) {
+    return <Loading />;
+  }
+
+  const confirmDeleteCode = () => {
+    if (codeToDelete == null) return;
+
+    const updatedCodes = facility.discount_codes.filter(
+      (_, index) => index !== codeToDelete,
+    );
+
+    deleteCode({
+      discount_codes: updatedCodes,
+      discount_monetary_components: facility.discount_monetary_components,
+    });
+
+    setCodeToDelete(undefined);
+  };
+
+  // Combine instance and facility codes
+  const allCodes: AnnotatedDiscountCode[] = [
+    ...(facility.instance_discount_codes || []).map((code: Code) => ({
+      ...code,
+      isInstance: true as const,
+    })),
+    ...(facility.discount_codes || []).map((code: Code, index: number) => ({
+      ...code,
+      isInstance: false as const,
+      facilityIndex: index,
+    })),
+  ];
+
+  return (
+    <>
+      <Card>
+        <CardHeader className="flex flex-col gap-2 lg:flex-row items-center justify-between">
+          <CardTitle>{t("discount_codes")}</CardTitle>
+          <CreateDiscountCodePopover />
+        </CardHeader>
+        <CardContent>
+          <Table>
+            <TableHeader>
+              <TableRow>
+                <TableHead className="w-20" />
+                <TableHead>{t("name")}</TableHead>
+                <TableHead>{t("code")}</TableHead>
+                <TableHead className="w-24"></TableHead>
+              </TableRow>
+            </TableHeader>
+            <TableBody>
+              {allCodes.length === 0 ? (
+                <TableRow>
+                  <TableCell
+                    colSpan={4}
+                    className="text-center text-muted-foreground h-24"
+                  >
+                    {t("no_discount_codes")}
+                  </TableCell>
+                </TableRow>
+              ) : (
+                allCodes.map((code) => (
+                  <TableRow key={`${code.code}-${code.isInstance}`}>
+                    <TableCell className="text-center">
+                      <Badge
+                        variant={code.isInstance ? "secondary" : "outline"}
+                      >
+                        {code.isInstance ? t("instance") : t("facility")}
+                      </Badge>
+                    </TableCell>
+                    <TableCell>{code.display}</TableCell>
+                    <TableCell>
+                      <code className="px-2 py-1 rounded bg-gray-100 text-sm">
+                        {code.code}
+                      </code>
+                    </TableCell>
+                    <TableCell>
+                      {!code.isInstance && (
+                        <div className="flex justify-end space-x-1">
+                          <EditDiscountCodePopover
+                            code={code}
+                            disabled={isPending}
+                          />
+                          <Button
+                            variant="ghost"
+                            size="icon"
+                            onClick={() => setCodeToDelete(code.facilityIndex)}
+                            disabled={isPending}
+                          >
+                            <TrashIcon className="h-4 w-4 text-destructive" />
+                          </Button>
+                        </div>
+                      )}
+                    </TableCell>
+                  </TableRow>
+                ))
+              )}
+            </TableBody>
+          </Table>
+        </CardContent>
+      </Card>
+
+      <AlertDialog
+        open={codeToDelete !== undefined}
+        onOpenChange={(open) => !open && setCodeToDelete(undefined)}
+      >
+        <AlertDialogContent>
+          <AlertDialogHeader>
+            <AlertDialogTitle>{t("confirm_delete")}</AlertDialogTitle>
+            <AlertDialogDescription>
+              {t("billing_delete_discount_code_confirmation")}
+            </AlertDialogDescription>
+          </AlertDialogHeader>
+          <AlertDialogFooter>
+            <AlertDialogCancel>{t("cancel")}</AlertDialogCancel>
+            <AlertDialogAction
+              onClick={confirmDeleteCode}
+              className={buttonVariants({ variant: "destructive" })}
+            >
+              {t("confirm")}
+            </AlertDialogAction>
+          </AlertDialogFooter>
+        </AlertDialogContent>
+      </AlertDialog>
+    </>
+  );
+}

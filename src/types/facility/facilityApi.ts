@@ -1,7 +1,9 @@
 import { HttpMethod, Type } from "@/Utils/request/api";
 import { PaginatedResponse } from "@/Utils/request/types";
+import { MonetaryComponentRead } from "@/types/base/monetaryComponent/monetaryComponent";
+import { Code } from "@/types/questionnaire/code";
 
-import { FacilityData, FacilityMonetaryComponentsWrite } from "./facility";
+import { FacilityData } from "./facility";
 
 export default {
   getAllFacilities: {
@@ -24,6 +26,9 @@ export default {
     path: "/api/v1/facility/{facilityId}/set_monetary_codes/",
     method: HttpMethod.POST,
     TRes: Type<FacilityData>(),
-    TBody: Type<FacilityMonetaryComponentsWrite>(),
+    TBody: Type<{
+      discount_codes: Code[];
+      discount_monetary_components: MonetaryComponentRead[];
+    }>(),
   },
 } as const;

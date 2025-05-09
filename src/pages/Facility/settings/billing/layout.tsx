@@ -16,11 +16,13 @@ import {
 
 import ErrorPage from "@/components/ErrorPages/DefaultErrorPage";
 
-import { DiscountComponentSettings } from "@/pages/Facility/settings/billing/discount/DiscountComponentSettings";
+import { DiscountCodeSettings } from "@/pages/Facility/settings/billing/discount/discount-codes/DiscountCodeSettings";
+import { DiscountComponentSettings } from "@/pages/Facility/settings/billing/discount/discount-components/DiscountComponentSettings";
 import useCurrentFacility from "@/pages/Facility/utils/useCurrentFacility";
 
 const routes = {
-  "/discounts": () => <DiscountComponentSettings />,
+  "/discount-components": () => <DiscountComponentSettings />,
+  "/discount-codes": () => <DiscountCodeSettings />,
   "*": () => <ErrorPage />,
 };
 
@@ -34,7 +36,7 @@ const sidebarNavItems = [
       },
       {
         title: "Discount Components",
-        href: "/discounts",
+        href: "/discount-components",
       },
     ],
   },

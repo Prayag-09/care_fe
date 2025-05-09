@@ -12,7 +12,7 @@ import {
 } from "@/components/ui/popover";
 
 import mutate from "@/Utils/request/mutate";
-import { DiscountMonetaryComponentForm } from "@/pages/Facility/settings/billing/discount/DiscountMonetaryComponentForm";
+import { DiscountMonetaryComponentForm } from "@/pages/Facility/settings/billing/discount/discount-components/DiscountMonetaryComponentForm";
 import useCurrentFacility from "@/pages/Facility/utils/useCurrentFacility";
 import facilityApi from "@/types/facility/facilityApi";
 
