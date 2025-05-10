@@ -19,7 +19,7 @@ import { Code } from "@/types/questionnaire/code";
 
 export function TaxCodeSettings() {
   const { t } = useTranslation();
-  const facility = useCurrentFacility();
+  const { facility } = useCurrentFacility();
   const [search, setSearch] = useState("");
 
   if (!facility) {

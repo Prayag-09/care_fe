@@ -49,14 +49,14 @@ export function DiscountComponentSettings() {
   const [search, setSearch] = useState("");
   const [componentToDelete, setComponentToDelete] = useState<number>();
 
-  const facility = useCurrentFacility();
+  const { facility, facilityId } = useCurrentFacility();
 
   const { mutate: deleteComponent, isPending } = useMutation({
     mutationFn: mutate(facilityApi.updateMonetaryComponents, {
-      pathParams: { facilityId: facility?.id ?? "" },
+      pathParams: { facilityId },
     }),
     onSuccess: () => {
-      queryClient.invalidateQueries({ queryKey: ["facility", facility?.id] });
+      queryClient.invalidateQueries({ queryKey: ["facility", facilityId] });
       toast.success(t("discount_component_deleted"));
     },
   });
@@ -111,7 +111,7 @@ export function DiscountComponentSettings() {
         options={
           <div className="flex items-center gap-2">
             <Input
-              placeholder={t("search_discount_components")}
+              placeholder={t("search")}
               value={search}
               onChange={(e) => setSearch(e.target.value)}
               className="w-[300px]"

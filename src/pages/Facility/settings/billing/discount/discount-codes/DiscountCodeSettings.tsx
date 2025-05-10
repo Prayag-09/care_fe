@@ -48,14 +48,14 @@ export function DiscountCodeSettings() {
   const [search, setSearch] = useState("");
   const [codeToDelete, setCodeToDelete] = useState<number>();
 
-  const facility = useCurrentFacility();
+  const { facility, facilityId } = useCurrentFacility();
 
   const { mutate: deleteCode, isPending } = useMutation({
     mutationFn: mutate(facilityApi.updateMonetaryComponents, {
-      pathParams: { facilityId: facility?.id ?? "" },
+      pathParams: { facilityId },
     }),
     onSuccess: () => {
-      queryClient.invalidateQueries({ queryKey: ["facility", facility?.id] });
+      queryClient.invalidateQueries({ queryKey: ["facility", facilityId] });
       toast.success(t("discount_code_deleted"));
     },
   });
@@ -105,7 +105,7 @@ export function DiscountCodeSettings() {
         options={
           <div className="flex items-center gap-2">
             <Input
-              placeholder={t("search_discount_codes")}
+              placeholder={t("search")}
               value={search}
               onChange={(e) => setSearch(e.target.value)}
               className="w-[300px]"

@@ -18,16 +18,16 @@ import facilityApi from "@/types/facility/facilityApi";
 
 export function CreateDiscountMonetaryComponentPopover() {
   const { t } = useTranslation();
-  const facility = useCurrentFacility();
+  const { facility, facilityId } = useCurrentFacility();
   const queryClient = useQueryClient();
   const [open, setOpen] = useState(false);
 
   const { mutate: createComponent } = useMutation({
     mutationFn: mutate(facilityApi.updateMonetaryComponents, {
-      pathParams: { facilityId: facility?.id ?? "" },
+      pathParams: { facilityId },
     }),
     onSuccess: () => {
-      queryClient.invalidateQueries({ queryKey: ["facility", facility?.id] });
+      queryClient.invalidateQueries({ queryKey: ["facility", facilityId] });
       toast.success(t("discount_component_created"));
     },
   });

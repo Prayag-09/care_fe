@@ -68,7 +68,7 @@ export function DiscountMonetaryComponentForm({
     defaultValues?.factor != null ? "factor" : "amount",
   );
 
-  const facility = useCurrentFacility();
+  const { facility } = useCurrentFacility();
   const discountCodes = [
     ...(facility?.instance_discount_codes || []),
     ...(facility?.discount_codes || []),

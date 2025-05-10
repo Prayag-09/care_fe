@@ -61,11 +61,11 @@ const sidebarNavItems = [
 
 export function BillingSettingsLayout() {
   const { t } = useTranslation();
-  const facility = useCurrentFacility();
+  const { facilityId } = useCurrentFacility();
 
   const route = useRoutes(routes, {
-    basePath: `/facility/${facility?.id}/settings/billing`,
-    routeProps: { facilityId: facility?.id },
+    basePath: `/facility/${facilityId}/settings/billing`,
+    routeProps: { facilityId },
   });
 
   return (

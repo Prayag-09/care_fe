@@ -2,6 +2,7 @@ import { useState } from "react";
 import { useTranslation } from "react-i18next";
 
 import { Input } from "@/components/ui/input";
+import { MonetaryDisplay } from "@/components/ui/monetary-display";
 import {
   Table,
   TableBody,
@@ -15,21 +16,10 @@ import Loading from "@/components/Common/Loading";
 import Page from "@/components/Common/Page";
 
 import useCurrentFacility from "@/pages/Facility/utils/useCurrentFacility";
-import { MonetaryComponentRead } from "@/types/base/monetaryComponent/monetaryComponent";
-
-function MonetaryDisplay({ factor, amount }: MonetaryComponentRead) {
-  if (factor != null) {
-    return <span>{factor}%</span>;
-  }
-  if (amount != null) {
-    return <span>₹{amount}</span>;
-  }
-  return null;
-}
 
 export function TaxComponentSettings() {
   const { t } = useTranslation();
-  const facility = useCurrentFacility();
+  const { facility } = useCurrentFacility();
   const [search, setSearch] = useState("");
 
   if (!facility) {

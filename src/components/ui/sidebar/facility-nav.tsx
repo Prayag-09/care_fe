@@ -145,7 +145,7 @@ export function FacilityNav({ selectedFacility }: FacilityNavProps) {
   const { t } = useTranslation();
   const { hasPermission } = usePermissions();
 
-  const facility = useCurrentFacility();
+  const { facility } = useCurrentFacility();
 
   const {
     canViewAppointments,

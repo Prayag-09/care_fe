@@ -18,13 +18,13 @@ import facilityApi from "@/types/facility/facilityApi";
 
 export function CreateDiscountCodePopover() {
   const { t } = useTranslation();
-  const facility = useCurrentFacility();
+  const { facility, facilityId } = useCurrentFacility();
   const queryClient = useQueryClient();
   const [open, setOpen] = useState(false);
 
   const { mutate: createCode } = useMutation({
     mutationFn: mutate(facilityApi.updateMonetaryComponents, {
-      pathParams: { facilityId: facility?.id ?? "" },
+      pathParams: { facilityId },
     }),
     onSuccess: () => {
       queryClient.invalidateQueries({ queryKey: ["facility", facility?.id] });

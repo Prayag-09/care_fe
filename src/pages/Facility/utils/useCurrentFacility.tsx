@@ -7,11 +7,11 @@ import query from "@/Utils/request/query";
 const extractFacilityId = (path: string) => {
   const segments = path.split("/");
 
-  if (segments[1] === "facility") {
+  if (segments[1] === "facility" && segments[2]) {
     return segments[2];
   }
 
-  return null;
+  throw new Error("'useCurrentFacility' must be used within a facility route");
 };
 
 /**
@@ -28,9 +28,8 @@ export default function useCurrentFacility() {
     queryFn: query(routes.getPermittedFacility, {
       pathParams: { id: facilityId ?? "" },
     }),
-    enabled: !!facilityId,
     staleTime: 1000 * 60 * 30, // cache for 30 minutes
   });
 
-  return facility;
+  return { facilityId, facility };
 }

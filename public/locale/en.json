@@ -2250,6 +2250,8 @@
   "no_log_update_delta": "No changes since previous log update",
   "no_log_updates": "No log updates found",
   "no_matches_found": "No matches found",
+  "no_matching_discount_codes": "No discount codes matches this search",
+  "no_matching_discount_components": "No discount components matches this search",
   "no_matching_tax_codes": "No matching tax codes found",
   "no_matching_tax_components": "No matching tax components found",
   "no_medical_history_available": "No Medical History Available",
