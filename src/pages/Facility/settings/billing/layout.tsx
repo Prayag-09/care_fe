@@ -107,7 +107,7 @@ export function BillingSettingsLayout() {
           <nav className="flex flex-col space-y-1">
             {sidebarNavItems.map((category) => (
               <div key={category.category} className="space-y-2 py-2">
-                <h4 className="px-2 text-lg font-semibold tracking-tight">
+                <h4 className="px-2 text-sm uppercase font-bold tracking-tight">
                   {category.category}
                 </h4>
                 <div className="space-y-1">

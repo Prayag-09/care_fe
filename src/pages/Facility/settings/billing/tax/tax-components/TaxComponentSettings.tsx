@@ -1,6 +1,7 @@
+import { useState } from "react";
 import { useTranslation } from "react-i18next";
 
-import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
+import { Input } from "@/components/ui/input";
 import {
   Table,
   TableBody,
@@ -11,6 +12,7 @@ import {
 } from "@/components/ui/table";
 
 import Loading from "@/components/Common/Loading";
+import Page from "@/components/Common/Page";
 
 import useCurrentFacility from "@/pages/Facility/utils/useCurrentFacility";
 import { MonetaryComponentRead } from "@/types/base/monetaryComponent/monetaryComponent";
@@ -28,6 +30,7 @@ function MonetaryDisplay({ factor, amount }: MonetaryComponentRead) {
 export function TaxComponentSettings() {
   const { t } = useTranslation();
   const facility = useCurrentFacility();
+  const [search, setSearch] = useState("");
 
   if (!facility) {
     return <Loading />;
@@ -35,12 +38,34 @@ export function TaxComponentSettings() {
 
   const allComponents = facility.instance_tax_monetary_components || [];
 
+  const filteredComponents = allComponents.filter(
+    (component) =>
+      component.title.toLowerCase().includes(search.toLowerCase()) ||
+      component.code?.code.toLowerCase().includes(search.toLowerCase()) ||
+      (component.code?.display || "")
+        .toLowerCase()
+        .includes(search.toLowerCase()) ||
+      (component.factor != null &&
+        component.factor.toString().includes(search)) ||
+      (component.amount != null &&
+        component.amount.toString().includes(search)),
+  );
+
   return (
-    <Card>
-      <CardHeader>
-        <CardTitle>{t("tax_components")}</CardTitle>
-      </CardHeader>
-      <CardContent>
+    <Page
+      title={t("tax_components")}
+      options={
+        <div className="flex items-center gap-2">
+          <Input
+            placeholder={t("search_tax_components")}
+            value={search}
+            onChange={(e) => setSearch(e.target.value)}
+            className="w-[300px]"
+          />
+        </div>
+      }
+    >
+      <div className="rounded-md border overflow-hidden mt-4">
         <Table>
           <TableHeader>
             <TableRow>
@@ -49,18 +74,20 @@ export function TaxComponentSettings() {
               <TableHead>{t("value")}</TableHead>
             </TableRow>
           </TableHeader>
-          <TableBody>
-            {allComponents.length === 0 ? (
+          <TableBody className="bg-white">
+            {filteredComponents.length === 0 ? (
               <TableRow>
                 <TableCell
                   colSpan={3}
                   className="text-center text-muted-foreground h-24"
                 >
-                  {t("no_tax_components")}
+                  {search
+                    ? t("no_matching_tax_components")
+                    : t("no_tax_components")}
                 </TableCell>
               </TableRow>
             ) : (
-              allComponents.map((component) => (
+              filteredComponents.map((component) => (
                 <TableRow key={`${component.code?.code || component.title}`}>
                   <TableCell>{component.title}</TableCell>
                   <TableCell>
@@ -78,7 +105,7 @@ export function TaxComponentSettings() {
             )}
           </TableBody>
         </Table>
-      </CardContent>
-    </Card>
+      </div>
+    </Page>
   );
 }

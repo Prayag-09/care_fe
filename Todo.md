@@ -10,7 +10,6 @@ x : Done
 
 - [-] Replace Charge Item Create with ChargeItemDef to ChargeItem API - Vignesh
 - [-] All instance level tax codes should be shown as an option in the charge item def creator - Check with Vignesh
-- [-] Allow serch for discount codes - Rithvik
 - [-] Add support for information components in chargeDef and Charge Item. - Rithvik
 - [-] Consider disabling onWheelChange for input[type=number] fields. - [hold till @bodhi confirms]
 - [-] When Creating charge item in questionnaire we should allow users to pick discount and tax and quantitiy. - Amjith
@@ -73,6 +72,7 @@ x : Done
 - [x] We should also show instance level tax components in the billing page - Rithvik
 - [x] Charge Item Update - Jeevan & Rithvik
 - [x] Build a flow for account balanceing and closing (Close button - mark as inactive and select close reason dropdown) - Jeevan
+- [x] Allow serch for discount codes - Rithvik
 
 ## Labs
 

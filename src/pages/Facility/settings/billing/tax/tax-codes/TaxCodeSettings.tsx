@@ -1,6 +1,7 @@
+import { useState } from "react";
 import { useTranslation } from "react-i18next";
 
-import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
+import { Input } from "@/components/ui/input";
 import {
   Table,
   TableBody,
@@ -11,6 +12,7 @@ import {
 } from "@/components/ui/table";
 
 import Loading from "@/components/Common/Loading";
+import Page from "@/components/Common/Page";
 
 import useCurrentFacility from "@/pages/Facility/utils/useCurrentFacility";
 import { Code } from "@/types/questionnaire/code";
@@ -18,6 +20,7 @@ import { Code } from "@/types/questionnaire/code";
 export function TaxCodeSettings() {
   const { t } = useTranslation();
   const facility = useCurrentFacility();
+  const [search, setSearch] = useState("");
 
   if (!facility) {
     return <Loading />;
@@ -25,12 +28,27 @@ export function TaxCodeSettings() {
 
   const allCodes = facility.instance_tax_codes || [];
 
+  const filteredCodes = allCodes.filter(
+    (code) =>
+      code.display.toLowerCase().includes(search.toLowerCase()) ||
+      code.code.toLowerCase().includes(search.toLowerCase()),
+  );
+
   return (
-    <Card>
-      <CardHeader>
-        <CardTitle>{t("tax_codes")}</CardTitle>
-      </CardHeader>
-      <CardContent>
+    <Page
+      title={t("tax_codes")}
+      options={
+        <div className="flex items-center gap-2">
+          <Input
+            placeholder={t("search_tax_codes")}
+            value={search}
+            onChange={(e) => setSearch(e.target.value)}
+            className="w-[300px]"
+          />
+        </div>
+      }
+    >
+      <div className="rounded-md border overflow-hidden mt-4">
         <Table>
           <TableHeader>
             <TableRow>
@@ -38,18 +56,18 @@ export function TaxCodeSettings() {
               <TableHead>{t("code")}</TableHead>
             </TableRow>
           </TableHeader>
-          <TableBody>
-            {allCodes.length === 0 ? (
+          <TableBody className="bg-white">
+            {filteredCodes.length === 0 ? (
               <TableRow>
                 <TableCell
                   colSpan={2}
                   className="text-center text-muted-foreground h-24"
                 >
-                  {t("no_tax_codes")}
+                  {search ? t("no_matching_tax_codes") : t("no_tax_codes")}
                 </TableCell>
               </TableRow>
             ) : (
-              allCodes.map((code: Code) => (
+              filteredCodes.map((code: Code) => (
                 <TableRow key={code.code}>
                   <TableCell>{code.display}</TableCell>
                   <TableCell>
@@ -62,7 +80,7 @@ export function TaxCodeSettings() {
             )}
           </TableBody>
         </Table>
-      </CardContent>
-    </Card>
+      </div>
+    </Page>
   );
 }

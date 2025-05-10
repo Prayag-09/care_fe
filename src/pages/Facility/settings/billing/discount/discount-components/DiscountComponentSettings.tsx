@@ -16,7 +16,7 @@ import {
 } from "@/components/ui/alert-dialog";
 import { Badge } from "@/components/ui/badge";
 import { Button, buttonVariants } from "@/components/ui/button";
-import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
+import { Input } from "@/components/ui/input";
 import { MonetaryDisplay } from "@/components/ui/monetary-display";
 import {
   Table,
@@ -28,6 +28,7 @@ import {
 } from "@/components/ui/table";
 
 import Loading from "@/components/Common/Loading";
+import Page from "@/components/Common/Page";
 
 import mutate from "@/Utils/request/mutate";
 import useCurrentFacility from "@/pages/Facility/utils/useCurrentFacility";
@@ -45,7 +46,7 @@ export interface AnnotatedMonetaryComponent extends MonetaryComponentRead {
 export function DiscountComponentSettings() {
   const { t } = useTranslation();
   const queryClient = useQueryClient();
-
+  const [search, setSearch] = useState("");
   const [componentToDelete, setComponentToDelete] = useState<number>();
 
   const facility = useCurrentFacility();
@@ -96,14 +97,30 @@ export function DiscountComponentSettings() {
     ),
   ];
 
+  const filteredComponents = allComponents.filter(
+    (component) =>
+      component.title.toLowerCase().includes(search.toLowerCase()) ||
+      component.code?.code.toLowerCase().includes(search.toLowerCase()) ||
+      component.code?.display.toLowerCase().includes(search.toLowerCase()),
+  );
+
   return (
     <>
-      <Card>
-        <CardHeader className="flex flex-col gap-2 lg:flex-row items-center justify-between">
-          <CardTitle>{t("discount_monetary_components")}</CardTitle>
-          <CreateDiscountMonetaryComponentPopover />
-        </CardHeader>
-        <CardContent>
+      <Page
+        title={t("discount_monetary_components")}
+        options={
+          <div className="flex items-center gap-2">
+            <Input
+              placeholder={t("search_discount_components")}
+              value={search}
+              onChange={(e) => setSearch(e.target.value)}
+              className="w-[300px]"
+            />
+            <CreateDiscountMonetaryComponentPopover />
+          </div>
+        }
+      >
+        <div className="rounded-md border overflow-hidden mt-4">
           <Table>
             <TableHeader>
               <TableRow>
@@ -114,18 +131,20 @@ export function DiscountComponentSettings() {
                 <TableHead className="w-24"></TableHead>
               </TableRow>
             </TableHeader>
-            <TableBody>
-              {allComponents.length === 0 ? (
+            <TableBody className="bg-white">
+              {filteredComponents.length === 0 ? (
                 <TableRow>
                   <TableCell
-                    colSpan={4}
+                    colSpan={5}
                     className="text-center text-muted-foreground h-24"
                   >
-                    {t("no_discount_components")}
+                    {search
+                      ? t("no_matching_discount_components")
+                      : t("no_discount_components")}
                   </TableCell>
                 </TableRow>
               ) : (
-                allComponents.map((component) => (
+                filteredComponents.map((component) => (
                   <TableRow key={`${component.title}-${component.isInstance}`}>
                     <TableCell className="text-center">
                       <Badge
@@ -179,8 +198,8 @@ export function DiscountComponentSettings() {
               )}
             </TableBody>
           </Table>
-        </CardContent>
-      </Card>
+        </div>
+      </Page>
 
       <AlertDialog
         open={componentToDelete !== undefined}

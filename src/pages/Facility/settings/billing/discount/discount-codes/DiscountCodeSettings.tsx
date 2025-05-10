@@ -17,7 +17,7 @@ import {
 import { Badge } from "@/components/ui/badge";
 import { Button } from "@/components/ui/button";
 import { buttonVariants } from "@/components/ui/button";
-import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
+import { Input } from "@/components/ui/input";
 import {
   Table,
   TableBody,
@@ -28,6 +28,7 @@ import {
 } from "@/components/ui/table";
 
 import Loading from "@/components/Common/Loading";
+import Page from "@/components/Common/Page";
 
 import mutate from "@/Utils/request/mutate";
 import { CreateDiscountCodePopover } from "@/pages/Facility/settings/billing/discount/discount-codes/CreateDiscountCodePopover";
@@ -44,7 +45,7 @@ export interface AnnotatedDiscountCode extends Code {
 export function DiscountCodeSettings() {
   const { t } = useTranslation();
   const queryClient = useQueryClient();
-
+  const [search, setSearch] = useState("");
   const [codeToDelete, setCodeToDelete] = useState<number>();
 
   const facility = useCurrentFacility();
@@ -91,14 +92,29 @@ export function DiscountCodeSettings() {
     })),
   ];
 
+  const filteredCodes = allCodes.filter(
+    (code) =>
+      code.display.toLowerCase().includes(search.toLowerCase()) ||
+      code.code.toLowerCase().includes(search.toLowerCase()),
+  );
+
   return (
     <>
-      <Card>
-        <CardHeader className="flex flex-col gap-2 lg:flex-row items-center justify-between">
-          <CardTitle>{t("discount_codes")}</CardTitle>
-          <CreateDiscountCodePopover />
-        </CardHeader>
-        <CardContent>
+      <Page
+        title={t("discount_codes")}
+        options={
+          <div className="flex items-center gap-2">
+            <Input
+              placeholder={t("search_discount_codes")}
+              value={search}
+              onChange={(e) => setSearch(e.target.value)}
+              className="w-[300px]"
+            />
+            <CreateDiscountCodePopover />
+          </div>
+        }
+      >
+        <div className="rounded-md border overflow-hidden">
           <Table>
             <TableHeader>
               <TableRow>
@@ -108,18 +124,20 @@ export function DiscountCodeSettings() {
                 <TableHead className="w-24"></TableHead>
               </TableRow>
             </TableHeader>
-            <TableBody>
-              {allCodes.length === 0 ? (
+            <TableBody className="bg-white">
+              {filteredCodes.length === 0 ? (
                 <TableRow>
                   <TableCell
                     colSpan={4}
                     className="text-center text-muted-foreground h-24"
                   >
-                    {t("no_discount_codes")}
+                    {search
+                      ? t("no_matching_discount_codes")
+                      : t("no_discount_codes")}
                   </TableCell>
                 </TableRow>
               ) : (
-                allCodes.map((code) => (
+                filteredCodes.map((code) => (
                   <TableRow key={`${code.code}-${code.isInstance}`}>
                     <TableCell className="text-center">
                       <Badge
@@ -157,8 +175,8 @@ export function DiscountCodeSettings() {
               )}
             </TableBody>
           </Table>
-        </CardContent>
-      </Card>
+        </div>
+      </Page>
 
       <AlertDialog
         open={codeToDelete !== undefined}
