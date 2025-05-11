@@ -35,13 +35,9 @@ interface SettingsLayoutProps {
 
 const getRoutes = (facilityId: string) => ({
   "/general": () => <GeneralSettings facilityId={facilityId} />,
-  "/departments": () => <FacilityOrganizationList facilityId={facilityId} />,
+  "/departments": () => <FacilityOrganizationList />,
   "/departments/:id/:tab": ({ id, tab }: { id: string; tab: string }) => (
-    <FacilityOrganizationList
-      facilityId={facilityId}
-      organizationId={id}
-      currentTab={tab}
-    />
+    <FacilityOrganizationList organizationId={id} currentTab={tab} />
   ),
   "/locations": () => <LocationSettings facilityId={facilityId} />,
   "/locations/:id": ({ id }: { id: string }) => (

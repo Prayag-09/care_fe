@@ -17,18 +17,19 @@ import useAppHistory from "@/hooks/useAppHistory";
 import mutate from "@/Utils/request/mutate";
 import query from "@/Utils/request/query";
 import { PractitionerSelector } from "@/pages/Appointments/components/PractitionerSelector";
+import useCurrentFacility from "@/pages/Facility/utils/useCurrentFacility";
 import scheduleApis from "@/types/scheduling/scheduleApi";
 
 import { AppointmentSlotPicker } from "./components/AppointmentSlotPicker";
 
 interface Props {
-  facilityId: string;
   patientId: string;
 }
 
-export default function BookAppointment(props: Props) {
+export default function BookAppointment({ patientId }: Props) {
   const { t } = useTranslation();
   const { goBack } = useAppHistory();
+  const { facilityId } = useCurrentFacility();
 
   const [resourceId, setResourceId] = useState<string>();
   const [selectedSlotId, setSelectedSlotId] = useState<string>();
@@ -36,11 +37,9 @@ export default function BookAppointment(props: Props) {
   const [reason, setReason] = useState("");
 
   const resourcesQuery = useQuery({
-    queryKey: ["practitioners", props.facilityId],
+    queryKey: ["practitioners", facilityId],
     queryFn: query(scheduleApis.appointments.availableUsers, {
-      pathParams: {
-        facility_id: props.facilityId,
-      },
+      pathParams: { facilityId },
     }),
   });
   const resource = resourcesQuery.data?.users.find((r) => r.id === resourceId);
@@ -62,10 +61,7 @@ export default function BookAppointment(props: Props) {
 
   const { mutateAsync: createAppointment } = useMutation({
     mutationFn: mutate(scheduleApis.slots.createAppointment, {
-      pathParams: {
-        facility_id: props.facilityId,
-        slot_id: selectedSlotId ?? "",
-      },
+      pathParams: { facilityId, slotId: selectedSlotId ?? "" },
     }),
   });
 
@@ -81,12 +77,12 @@ export default function BookAppointment(props: Props) {
 
     try {
       const data = await createAppointment({
-        patient: props.patientId,
+        patient: patientId,
         reason_for_visit: reason,
       });
       toast.success("Appointment created successfully");
       navigate(
-        `/facility/${props.facilityId}/patient/${props.patientId}/appointments/${data.id}`,
+        `/facility/${facilityId}/patient/${patientId}/appointments/${data.id}`,
       );
     } catch {
       toast.error("Failed to create appointment");
@@ -115,7 +111,7 @@ export default function BookAppointment(props: Props) {
             <div>
               <Label className="block mb-2">{t("select_practitioner")}</Label>
               <PractitionerSelector
-                facilityId={props.facilityId}
+                facilityId={facilityId}
                 selected={resource ?? null}
                 onSelect={(user) => setResourceId(user?.id ?? undefined)}
                 clearSelection={t("show_all")}
@@ -130,7 +126,7 @@ export default function BookAppointment(props: Props) {
             )}
           >
             <AppointmentSlotPicker
-              facilityId={props.facilityId}
+              facilityId={facilityId}
               resourceId={resourceId}
               selectedSlotId={selectedSlotId}
               onSlotSelect={setSelectedSlotId}
@@ -143,7 +139,7 @@ export default function BookAppointment(props: Props) {
               type="button"
               onClick={() =>
                 goBack(
-                  `/facility/${props.facilityId}/patient/${props.patientId}/appointments`,
+                  `/facility/${facilityId}/patient/${patientId}/appointments`,
                 )
               }
             >

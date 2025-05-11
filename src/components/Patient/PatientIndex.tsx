@@ -41,6 +41,7 @@ import { GENDER_TYPES } from "@/common/constants";
 import routes from "@/Utils/request/api";
 import query from "@/Utils/request/query";
 import { usePermissions } from "@/context/PermissionContext";
+import useCurrentFacility from "@/pages/Facility/utils/useCurrentFacility";
 import { PartialPatientModel } from "@/types/emr/newPatient";
 
 export default function PatientIndex({ facilityId }: { facilityId: string }) {
@@ -53,16 +54,11 @@ export default function PatientIndex({ facilityId }: { facilityId: string }) {
   const { t } = useTranslation();
   const { hasPermission } = usePermissions();
 
-  const { data: facilityData } = useQuery({
-    queryKey: ["facility", facilityId],
-    queryFn: query(routes.getPermittedFacility, {
-      pathParams: { id: facilityId },
-    }),
-  });
+  const { facility } = useCurrentFacility();
 
   const { canCreatePatient } = getPermissions(
     hasPermission,
-    facilityData?.permissions ?? [],
+    facility?.permissions ?? [],
   );
 
   const handleCreatePatient = useCallback(() => {
