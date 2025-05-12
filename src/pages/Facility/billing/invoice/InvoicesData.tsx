@@ -23,6 +23,8 @@ import { TableSkeleton } from "@/components/Common/SkeletonLoading";
 
 import useFilters from "@/hooks/useFilters";
 
+import { RESULTS_PER_PAGE_LIMIT } from "@/common/constants";
+
 import query from "@/Utils/request/query";
 import { InvoiceRead, InvoiceStatus } from "@/types/billing/invoice/invoice";
 import invoiceApi from "@/types/billing/invoice/invoiceApi";
@@ -55,7 +57,7 @@ export default function InvoicesData({
 }) {
   const { t } = useTranslation();
   const { qParams, updateQuery, Pagination, resultsPerPage } = useFilters({
-    limit: 15,
+    limit: RESULTS_PER_PAGE_LIMIT,
     disableCache: true,
   });
 
@@ -169,7 +171,7 @@ export default function InvoicesData({
           </Table>
         </div>
       )}
-      {<Pagination totalCount={invoices.length} />}
+      {response && <Pagination totalCount={response.count} />}
     </>
   );
 }

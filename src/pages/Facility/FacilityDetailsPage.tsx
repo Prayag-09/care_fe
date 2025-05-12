@@ -142,7 +142,7 @@ export function FacilityDetailsPage({ id }: Props) {
                 <UserCard key={user.username} user={user} facilityId={id} />
               ))}
             </div>
-            <Pagination totalCount={users.length ?? 0} />
+            <Pagination totalCount={docResponse?.count ?? 0} />
           </>
         )}
         {users.length === 0 && (

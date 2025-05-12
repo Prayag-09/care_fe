@@ -23,6 +23,8 @@ import { TableSkeleton } from "@/components/Common/SkeletonLoading";
 
 import useFilters from "@/hooks/useFilters";
 
+import { RESULTS_PER_PAGE_LIMIT } from "@/common/constants";
+
 import query from "@/Utils/request/query";
 import {
   PaymentReconciliationOutcome,
@@ -86,7 +88,7 @@ export default function PaymentsData({
 }) {
   const { t } = useTranslation();
   const { qParams, updateQuery, Pagination, resultsPerPage } = useFilters({
-    limit: 15,
+    limit: RESULTS_PER_PAGE_LIMIT,
     disableCache: true,
   });
 
@@ -231,7 +233,7 @@ export default function PaymentsData({
           </Table>
         </div>
       )}
-      <Pagination totalCount={payments.length} />
+      {response && <Pagination totalCount={response.count} />}
     </>
   );
 }
