@@ -19,6 +19,7 @@ x : Done
 - [-] Consider disabling onWheelChange for input[type=number] fields. - [hold till @bodhi confirms]
 - [-] When Creating charge item in questionnaire we should allow users to pick discount and tax and quantitiy. - Amjith
 - [x] When Creating charge item in questionnaire we should display applicable discounts and tax and amounts from the charge item def as read-only - Yaswanth
+- [ ] Move account as a pill in the encounter, it should only fetch the account if its clicked, show the account details as a popover and show option to navigate to the accounts page
 
 ## Labs
 
@@ -38,6 +39,9 @@ x : Done
 - [ ] Replace Charge Item Create with ChargeItemDef to ChargeItem API
 - [ ] Add support for information codes (such as MRP)
 - [ ] Disallow same code for the same component type in Charge Item's pricing components (https://github.com/ohcnetwork/care/pull/3033) - Rithvik
+- [ ] Create Charge Item from Charge Definition
+- [ ] Observation Interpretation
+- [ ] Spec for Ingredients, Nutrients, Drug_characteristic are incomplete in Product Knowledge
 
 # Archived
 
