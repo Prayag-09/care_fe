@@ -24,6 +24,9 @@ import ObservationDefinitionForm from "./observationDefinition/ObservationDefini
 import ObservationDefinitionList from "./observationDefinition/ObservationDefinitionList";
 import ObservationDefinitionView from "./observationDefinition/ObservationDefinitionView";
 import FacilityOrganizationList from "./organizations/FacilityOrganizationList";
+import ProductForm from "./product/ProductForm";
+import ProductList from "./product/ProductList";
+import ProductView from "./product/ProductView";
 import ProductKnowledgeForm from "./productKnowledge/ProductKnowledgeForm";
 import ProductKnowledgeList from "./productKnowledge/ProductKnowledgeList";
 import ProductKnowledgeView from "./productKnowledge/ProductKnowledgeView";
@@ -145,6 +148,14 @@ const getRoutes = (facilityId: string) => ({
   ),
   "/product_knowledge/:id/edit": ({ id }: { id: string }) => (
     <ProductKnowledgeForm facilityId={facilityId} productKnowledgeId={id} />
+  ),
+  "/product": () => <ProductList facilityId={facilityId} />,
+  "/product/new": () => <ProductForm facilityId={facilityId} />,
+  "/product/:id": ({ id }: { id: string }) => (
+    <ProductView facilityId={facilityId} productId={id} />
+  ),
+  "/product/:id/edit": ({ id }: { id: string }) => (
+    <ProductForm facilityId={facilityId} productId={id} />
   ),
 
   "*": () => <ErrorPage />,

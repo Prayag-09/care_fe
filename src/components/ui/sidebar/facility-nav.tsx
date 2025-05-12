@@ -138,6 +138,10 @@ function generateFacilityLinks(
           name: t("product_knowledge"),
           url: `${baseUrl}/settings/product_knowledge`,
         },
+        {
+          name: t("product"),
+          url: `${baseUrl}/settings/product`,
+        },
       ],
     },
   ];

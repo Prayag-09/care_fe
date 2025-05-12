@@ -25,6 +25,7 @@ export interface ProductCreate extends Omit<ProductBase, "id"> {
 
 export interface ProductUpdate extends ProductBase {
   charge_item_definition?: string;
+  product_knowledge: string;
 }
 
 export interface ProductRead extends ProductBase {

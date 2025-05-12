@@ -1,7 +1,6 @@
 import { HttpMethod, Type } from "@/Utils/request/api";
 import { PaginatedResponse } from "@/Utils/request/types";
 import {
-  ProductBase,
   ProductCreate,
   ProductRead,
   ProductUpdate,
@@ -11,7 +10,7 @@ export default {
   listProduct: {
     path: "/api/v1/facility/{facilityId}/product/",
     method: HttpMethod.GET,
-    TRes: Type<PaginatedResponse<ProductBase>>(),
+    TRes: Type<PaginatedResponse<ProductRead>>(),
   },
   retrieveProduct: {
     path: "/api/v1/facility/{facilityId}/product/{productId}/",
