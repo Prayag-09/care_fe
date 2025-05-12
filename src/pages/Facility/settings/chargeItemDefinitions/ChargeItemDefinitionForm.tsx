@@ -172,8 +172,6 @@ function MonetaryComponentSelectionSection({
             monetaryComponentIsEqual(c, component),
           );
 
-          console.log({ componentRead, components, component });
-
           return (
             <div
               key={idx}
