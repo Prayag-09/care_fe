@@ -81,7 +81,7 @@ function PriceComponentRow({
         const value =
           component.amount !== undefined && component.amount !== null
             ? component.amount * quantity
-            : (component.factor || 0) * baseAmount * quantity;
+            : (((component.factor || 0) * baseAmount) / 100) * quantity;
 
         return (
           <TableRow key={`${label}-${index}`} className="text-xs text-gray-500">
