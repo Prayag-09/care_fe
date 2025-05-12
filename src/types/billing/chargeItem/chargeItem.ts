@@ -42,6 +42,10 @@ export interface ChargeItemCreate extends Omit<ChargeItemBase, "id"> {
   account?: string;
 }
 
+export interface ChargeItemUpsert extends Omit<ChargeItemBase, "id"> {
+  id?: string;
+  account?: string;
+}
 export interface ChargeItemUpdate extends ChargeItemBase {
   account?: string;
 }

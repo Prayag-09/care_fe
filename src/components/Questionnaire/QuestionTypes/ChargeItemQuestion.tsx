@@ -41,6 +41,7 @@ import query from "@/Utils/request/query";
 import {
   ChargeItemBase,
   ChargeItemStatus,
+  ChargeItemUpsert,
 } from "@/types/billing/chargeItem/chargeItem";
 import chargeItemDefinitionApi from "@/types/billing/chargeItemDefinition/chargeItemDefinitionApi";
 import { QuestionValidationError } from "@/types/questionnaire/batch";
@@ -72,8 +73,8 @@ const CHARGE_ITEM_FIELDS = {
 } as const;
 
 interface ChargeItemFormProps {
-  chargeItem: ChargeItemBase;
-  onUpdate?: (updates: ChargeItemBase) => void;
+  chargeItem: ChargeItemUpsert;
+  onUpdate?: (updates: ChargeItemUpsert) => void;
   onRemove?: () => void;
   onAdd?: () => void;
   disabled?: boolean;
@@ -324,9 +325,9 @@ export function ChargeItemQuestion({
   const [selectedChargeItemDefinition, setSelectedChargeItemDefinition] =
     useState<string | null>(null);
   const [previewChargeItem, setPreviewChargeItem] =
-    useState<ChargeItemBase | null>(null);
-  const [chargeItems, setChargeItems] = useState<ChargeItemBase[]>(
-    (questionnaireResponse.values?.[0]?.value as ChargeItemBase[]) || [],
+    useState<ChargeItemUpsert | null>(null);
+  const [chargeItems, setChargeItems] = useState<ChargeItemUpsert[]>(
+    (questionnaireResponse.values?.[0]?.value as ChargeItemUpsert[]) || [],
   );
 
   const { data: chargeItemDefinitions } = useQuery({
@@ -359,7 +360,6 @@ export function ChargeItemQuestion({
       if (!selectedCID) return;
 
       setPreviewChargeItem({
-        id: "",
         title: selectedCID.title,
         status: ChargeItemStatus.billable,
         quantity: 1,
@@ -397,7 +397,7 @@ export function ChargeItemQuestion({
     );
   };
 
-  const handleUpdateChargeItem = (index: number, updates: ChargeItemBase) => {
+  const handleUpdateChargeItem = (index: number, updates: ChargeItemUpsert) => {
     const newChargeItems = chargeItems.map((ci, i: number) => {
       if (i !== index) return ci;
       return { ...ci, ...updates };
@@ -410,7 +410,7 @@ export function ChargeItemQuestion({
     );
   };
 
-  const handlePreviewChargeItemUpdate = (updates: ChargeItemBase) => {
+  const handlePreviewChargeItemUpdate = (updates: ChargeItemUpsert) => {
     if (!previewChargeItem) return;
     setPreviewChargeItem({ ...previewChargeItem, ...updates });
   };

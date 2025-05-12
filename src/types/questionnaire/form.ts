@@ -1,6 +1,6 @@
 import { StructuredQuestionType } from "@/components/Questionnaire/data/StructuredFormData";
 
-import { ChargeItemBase } from "@/types/billing/chargeItem/chargeItem";
+import { ChargeItemUpsert } from "@/types/billing/chargeItem/chargeItem";
 import { AllergyIntoleranceRequest } from "@/types/emr/allergyIntolerance/allergyIntolerance";
 import { DiagnosisRequest } from "@/types/emr/diagnosis/diagnosis";
 import { EncounterEditRequest } from "@/types/emr/encounter";
@@ -37,7 +37,7 @@ export type ResponseValue =
   | RV<"time_of_death", string[]>
   | RV<"files", FileUploadQuestion[]>
   | RV<"time", string | undefined>
-  | RV<"charge_item", ChargeItemBase[]>;
+  | RV<"charge_item", ChargeItemUpsert[]>;
 
 export interface QuestionnaireResponse {
   question_id: string;
