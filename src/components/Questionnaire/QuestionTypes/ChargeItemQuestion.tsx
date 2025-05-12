@@ -1,30 +1,17 @@
 import { useQuery } from "@tanstack/react-query";
-import { Check, ChevronDown, ChevronsUpDown, Trash2 } from "lucide-react";
-import { useEffect, useMemo, useState } from "react";
+import { Trash2 } from "lucide-react";
+import { useEffect, useState } from "react";
 import { useTranslation } from "react-i18next";
 
-import { cn } from "@/lib/utils";
-
+import Autocomplete from "@/components/ui/autocomplete";
 import { Button } from "@/components/ui/button";
 import {
   Collapsible,
   CollapsibleContent,
   CollapsibleTrigger,
 } from "@/components/ui/collapsible";
-import {
-  Command,
-  CommandEmpty,
-  CommandGroup,
-  CommandInput,
-  CommandItem,
-} from "@/components/ui/command";
 import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
-import {
-  Popover,
-  PopoverContent,
-  PopoverTrigger,
-} from "@/components/ui/popover";
 import {
   Select,
   SelectContent,
@@ -225,7 +212,6 @@ function ChargeItemForm({
                 <Trash2 className="h-4 w-4" />
               </Button>
             )}
-            <ChevronDown className="h-4 w-4 shrink-0 transition-transform duration-200" />
           </div>
         </CollapsibleTrigger>
         <CollapsibleContent>
@@ -320,7 +306,6 @@ export function ChargeItemQuestion({
   errors,
 }: ChargeItemQuestionProps) {
   const { t } = useTranslation();
-  const [open, setOpen] = useState(false);
   const [selectedChargeItemDefinition, setSelectedChargeItemDefinition] =
     useState<string | null>(null);
   const [previewChargeItem, setPreviewChargeItem] =
@@ -328,12 +313,13 @@ export function ChargeItemQuestion({
   const [chargeItems, setChargeItems] = useState<ChargeItemBase[]>(
     (questionnaireResponse.values?.[0]?.value as ChargeItemBase[]) || [],
   );
+  const [cidSearch, setCidSearch] = useState("");
 
-  const { data: chargeItemDefinitions } = useQuery({
-    queryKey: ["charge_item_definitions"],
-    queryFn: query(chargeItemDefinitionApi.listChargeItemDefinition, {
+  const { data: chargeItemDefinitions, isLoading } = useQuery({
+    queryKey: ["charge_item_definitions", cidSearch],
+    queryFn: query.debounced(chargeItemDefinitionApi.listChargeItemDefinition, {
       pathParams: { facilityId },
-      queryParams: { limit: 100 },
+      queryParams: { limit: 100, status: "active", title: cidSearch },
     }),
   });
 
@@ -367,7 +353,6 @@ export function ChargeItemQuestion({
         note: undefined,
         override_reason: undefined,
       });
-      setOpen(false);
     }
   }, [
     selectedChargeItemDefinition,
@@ -414,17 +399,6 @@ export function ChargeItemQuestion({
     if (!previewChargeItem) return;
     setPreviewChargeItem({ ...previewChargeItem, ...updates });
   };
-
-  const chargeItemDefinitionOptions = useMemo(
-    () =>
-      chargeItemDefinitions?.results
-        .filter((cid) => cid.status === "active")
-        .map((cid) => ({
-          id: cid.id,
-          title: cid.title,
-        })) || [],
-    [chargeItemDefinitions?.results],
-  );
 
   useEffect(() => {
     const initialChargeItems =
@@ -485,57 +459,22 @@ export function ChargeItemQuestion({
       )}
 
       <div className="space-y-2 w-full">
-        <Popover open={open} onOpenChange={setOpen}>
-          <PopoverTrigger asChild>
-            <Button
-              variant="outline"
-              role="combobox"
-              aria-expanded={open}
-              className="w-full justify-between"
-              disabled={disabled}
-            >
-              {selectedChargeItemDefinition
-                ? chargeItemDefinitionOptions.find(
-                    (cid) => cid.id === selectedChargeItemDefinition,
-                  )?.title
-                : t("select_charge_item_definition")}
-              <ChevronsUpDown className="ml-2 h-4 w-4 shrink-0 opacity-50" />
-            </Button>
-          </PopoverTrigger>
-          <PopoverContent className="w-[300px] p-0">
-            <Command>
-              <CommandInput
-                placeholder={t("search_charge_item_definitions")}
-                className="h-9"
-              />
-              <CommandEmpty>
-                {t("no_charge_item_definitions_found")}
-              </CommandEmpty>
-              <CommandGroup>
-                {chargeItemDefinitionOptions.map((cid) => (
-                  <CommandItem
-                    key={cid.id}
-                    value={cid.id}
-                    onSelect={() => {
-                      setSelectedChargeItemDefinition(cid.id);
-                      setOpen(false);
-                    }}
-                  >
-                    <Check
-                      className={cn(
-                        "mr-2 h-4 w-4",
-                        selectedChargeItemDefinition === cid.id
-                          ? "opacity-100"
-                          : "opacity-0",
-                      )}
-                    />
-                    {cid.title}
-                  </CommandItem>
-                ))}
-              </CommandGroup>
-            </Command>
-          </PopoverContent>
-        </Popover>
+        <Autocomplete
+          options={
+            chargeItemDefinitions?.results?.map((cid) => ({
+              label: cid.title,
+              value: cid.id,
+            })) || []
+          }
+          value={selectedChargeItemDefinition || ""}
+          onChange={(value) => setSelectedChargeItemDefinition(value)}
+          onSearch={setCidSearch}
+          placeholder={t("select_charge_item_definition")}
+          isLoading={isLoading}
+          noOptionsMessage={t("no_charge_item_definitions_found")}
+          disabled={disabled}
+          data-cy="charge-item-definition-search"
+        />
       </div>
     </div>
   );

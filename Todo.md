@@ -65,7 +65,7 @@ x : Done
 - [x] Invoice - Entered in error in action menu - Jeevan
 - [x] [!BUG!] Charge Item create is broken now. - Amjith (Data Issue)
 - [x] We should also make it billable by deafault - Amjith
-- [x] We should only show active charge defanitions in questionnaire - Manyu
+- [x] We should only show active charge defanitions in questionnaire - Manyu & Rithvik
 - [x] Description and Purpose (Additional Details) for a charge item def should be above the price component - Manyu
 - [x] Lets have a list like styling for the discount codes as their would be a lot of these options. - Rithvik
 - [x] The UX for creating a new code should be better, the flow is quite ambigious to pick one. - Rithvik
