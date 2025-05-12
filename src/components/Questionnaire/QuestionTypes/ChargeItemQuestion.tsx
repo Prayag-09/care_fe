@@ -71,25 +71,6 @@ const CHARGE_ITEM_FIELDS = {
   },
 } as const;
 
-export function validateChargeItemQuestion(
-  values: any[],
-  questionId: string,
-): QuestionValidationError[] {
-  return values.reduce((errors: QuestionValidationError[], value, index) => {
-    const fieldErrors = Object.entries(CHARGE_ITEM_FIELDS)
-      .filter(([_, field]) => field.required && !value[field.key])
-      .map(([_, field]) => ({
-        question_id: questionId,
-        error: "field_required",
-        type: "validation_error",
-        field_key: field.key,
-        index,
-      }));
-
-    return [...errors, ...fieldErrors];
-  }, []);
-}
-
 interface ChargeItemFormProps {
   chargeItem: ChargeItemBase;
   onUpdate?: (updates: ChargeItemBase) => void;
@@ -342,9 +323,10 @@ export function ChargeItemQuestion({
   const [open, setOpen] = useState(false);
   const [selectedChargeItemDefinition, setSelectedChargeItemDefinition] =
     useState<string | null>(null);
-  const [previewChargeItem, setPreviewChargeItem] = useState<any | null>(null);
-  const [chargeItems, setChargeItems] = useState<any[]>(
-    (questionnaireResponse.values?.[0]?.value as any[]) || [],
+  const [previewChargeItem, setPreviewChargeItem] =
+    useState<ChargeItemBase | null>(null);
+  const [chargeItems, setChargeItems] = useState<ChargeItemBase[]>(
+    (questionnaireResponse.values?.[0]?.value as ChargeItemBase[]) || [],
   );
 
   const { data: chargeItemDefinitions } = useQuery({
@@ -376,17 +358,15 @@ export function ChargeItemQuestion({
       );
       if (!selectedCID) return;
 
-      const newChargeItem = {
+      setPreviewChargeItem({
+        id: "",
         title: selectedCID.title,
         status: ChargeItemStatus.billable,
         quantity: 1,
         unit_price_components: selectedCID.price_component,
-        note: null,
-        override_reason: null,
-        encounter: encounterId,
-      };
-
-      setPreviewChargeItem(newChargeItem);
+        note: undefined,
+        override_reason: undefined,
+      });
       setOpen(false);
     }
   }, [
@@ -417,8 +397,8 @@ export function ChargeItemQuestion({
     );
   };
 
-  const handleUpdateChargeItem = (index: number, updates: any) => {
-    const newChargeItems = chargeItems.map((ci: any, i: number) => {
+  const handleUpdateChargeItem = (index: number, updates: ChargeItemBase) => {
+    const newChargeItems = chargeItems.map((ci, i: number) => {
       if (i !== index) return ci;
       return { ...ci, ...updates };
     });
@@ -430,7 +410,7 @@ export function ChargeItemQuestion({
     );
   };
 
-  const handlePreviewChargeItemUpdate = (updates: any) => {
+  const handlePreviewChargeItemUpdate = (updates: ChargeItemBase) => {
     if (!previewChargeItem) return;
     setPreviewChargeItem({ ...previewChargeItem, ...updates });
   };
@@ -448,7 +428,7 @@ export function ChargeItemQuestion({
 
   useEffect(() => {
     const initialChargeItems =
-      (questionnaireResponse.values?.[0]?.value as any[]) || [];
+      (questionnaireResponse.values?.[0]?.value as ChargeItemBase[]) || [];
 
     if (JSON.stringify(initialChargeItems) !== JSON.stringify(chargeItems)) {
       setChargeItems(initialChargeItems);
