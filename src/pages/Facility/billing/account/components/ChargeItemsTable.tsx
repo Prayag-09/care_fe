@@ -135,7 +135,7 @@ export function ChargeItemsTable({
       pathParams: { facilityId },
       queryParams: {
         account: accountId,
-        status: qParams.charge_item_status ?? ChargeItemStatus.billable,
+        status: qParams.charge_item_status,
       },
     }),
   }) as { data: { results: ChargeItemRead[] } | undefined; isLoading: boolean };
@@ -175,11 +175,16 @@ export function ChargeItemsTable({
         </div>
       </CardHeader>
       <Tabs
-        value={qParams.charge_item_status ?? ChargeItemStatus.billable}
-        onValueChange={(value) => updateQuery({ charge_item_status: value })}
+        value={qParams.charge_item_status ?? "all"}
+        onValueChange={(value) =>
+          updateQuery({
+            charge_item_status: value === "all" ? undefined : value,
+          })
+        }
         className="mx-4 mb-4"
       >
         <TabsList>
+          <TabsTrigger value="all">{t("all")}</TabsTrigger>
           {Object.values(ChargeItemStatus).map((status) => (
             <TabsTrigger key={status} value={status}>
               {t(status)}
