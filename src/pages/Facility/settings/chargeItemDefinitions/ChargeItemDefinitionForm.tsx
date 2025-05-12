@@ -540,8 +540,25 @@ export function ChargeItemDefinitionForm({
             {/* Base Price and MRP */}
             <div className="p-4 bg-gray-50 rounded-lg border">
               <div className="space-y-4">
-                {/* Base Price */}
+                {/* MRP */}
                 <div className="flex items-center justify-between">
+                  <div>
+                    <h4 className="font-medium text-gray-900">{t("mrp")}</h4>
+                    <p className="text-sm text-gray-600">
+                      {t("mrp_description")}
+                    </p>
+                  </div>
+                  <div className="w-48">
+                    <MonetaryAmountInput
+                      value={mrpComponent?.amount ?? ""}
+                      onChange={(e) => handleMRPChange(e.target.valueAsNumber)}
+                      placeholder={t("optional")}
+                    />
+                  </div>
+                </div>
+
+                {/* Base Price */}
+                <div className="flex items-center justify-between pt-2 border-t border-gray-200">
                   <div>
                     <h4 className="font-medium text-gray-900">
                       {t("base_price")}
@@ -564,23 +581,6 @@ export function ChargeItemDefinitionForm({
                           placeholder="0.00"
                         />
                       )}
-                    />
-                  </div>
-                </div>
-
-                {/* MRP */}
-                <div className="flex items-center justify-between pt-2 border-t border-gray-200">
-                  <div>
-                    <h4 className="font-medium text-gray-900">{t("mrp")}</h4>
-                    <p className="text-sm text-gray-600">
-                      {t("mrp_description")}
-                    </p>
-                  </div>
-                  <div className="w-48">
-                    <MonetaryAmountInput
-                      value={mrpComponent?.amount ?? ""}
-                      onChange={(e) => handleMRPChange(e.target.valueAsNumber)}
-                      placeholder={t("optional")}
                     />
                   </div>
                 </div>

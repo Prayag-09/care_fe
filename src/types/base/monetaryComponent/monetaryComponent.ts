@@ -18,3 +18,11 @@ export interface MonetaryComponent {
 export interface MonetaryComponentRead extends MonetaryComponent {
   title: string;
 }
+
+export const MonetaryComponentOrder = {
+  informational: 1,
+  base: 2,
+  surcharge: 3,
+  discount: 4,
+  tax: 5,
+} as const satisfies Record<MonetaryComponentType, number>;
