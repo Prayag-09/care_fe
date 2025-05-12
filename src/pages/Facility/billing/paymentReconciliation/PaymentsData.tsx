@@ -10,6 +10,14 @@ import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { MonetaryDisplay } from "@/components/ui/monetary-display";
 import {
+  Select,
+  SelectContent,
+  SelectGroup,
+  SelectItem,
+  SelectTrigger,
+  SelectValue,
+} from "@/components/ui/select";
+import {
   Table,
   TableBody,
   TableCell,
@@ -115,14 +123,15 @@ export default function PaymentsData({
         placeholder={t("search_payments")}
         value={qParams.search || ""}
         onChange={(e) => updateQuery({ search: e.target.value || undefined })}
-        className="max-w-xs"
+        className="sm:max-w-xs"
       />
-      <div className="flex flex-row justify-between items-center gap-2 my-4">
+      <div className="flex flex-row justify-between items-center gap-2 my-4 max-sm:flex-col">
         <Tabs
           defaultValue={qParams.status ?? "all"}
           onValueChange={(value) =>
             updateQuery({ status: value === "all" ? undefined : value })
           }
+          className="max-sm:hidden"
         >
           <TabsList>
             <TabsTrigger value="all">{t("all")}</TabsTrigger>
@@ -133,6 +142,27 @@ export default function PaymentsData({
             ))}
           </TabsList>
         </Tabs>
+        <Select
+          defaultValue={qParams.status ?? "all"}
+          onValueChange={(value) =>
+            updateQuery({ status: value === "all" ? undefined : value })
+          }
+        >
+          <SelectTrigger className="sm:hidden">
+            <SelectValue placeholder={t("filter_by_status")} />
+          </SelectTrigger>
+          <SelectContent>
+            <SelectGroup>
+              <SelectItem value="all">t("all")</SelectItem>
+              {Object.values(PaymentReconciliationStatus).map((status) => (
+                <SelectItem key={status} value={status}>
+                  {t(statusMap[status].label)}
+                </SelectItem>
+              ))}
+            </SelectGroup>
+          </SelectContent>
+        </Select>
+
         <Tabs
           defaultValue={qParams.reconciliation_type ?? "all"}
           onValueChange={(value) =>
@@ -140,6 +170,7 @@ export default function PaymentsData({
               reconciliation_type: value === "all" ? undefined : value,
             })
           }
+          className="max-sm:hidden"
         >
           <TabsList>
             <TabsTrigger value="all">{t("all")}</TabsTrigger>
@@ -150,6 +181,26 @@ export default function PaymentsData({
             ))}
           </TabsList>
         </Tabs>
+        <Select
+          defaultValue={qParams.status ?? "all"}
+          onValueChange={(value) =>
+            updateQuery({ status: value === "all" ? undefined : value })
+          }
+        >
+          <SelectTrigger className="sm:hidden">
+            <SelectValue placeholder={t("filter_by_type")} />
+          </SelectTrigger>
+          <SelectContent>
+            <SelectGroup>
+              <SelectItem value="all">t("all")</SelectItem>
+              {Object.values(PaymentReconciliationType).map((type) => (
+                <SelectItem key={type} value={type}>
+                  {t(typeMap[type])}
+                </SelectItem>
+              ))}
+            </SelectGroup>
+          </SelectContent>
+        </Select>
       </div>
       {isLoading ? (
         <TableSkeleton count={3} />

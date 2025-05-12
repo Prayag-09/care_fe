@@ -14,6 +14,7 @@ import { MonetaryDisplay } from "@/components/ui/monetary-display";
 import {
   Select,
   SelectContent,
+  SelectGroup,
   SelectItem,
   SelectTrigger,
   SelectValue,
@@ -135,7 +136,7 @@ export function AccountList({
               onValueChange={(value) =>
                 updateQuery({ status: value === "all" ? undefined : value })
               }
-              className="overflow-y-auto max-w-[calc(100%)]"
+              className="overflow-y-auto max-w-[calc(100%)] max-sm:hidden"
             >
               <TabsList>
                 <TabsTrigger value="all">{t("all_statuses")}</TabsTrigger>
@@ -146,9 +147,30 @@ export function AccountList({
                 ))}
               </TabsList>
             </Tabs>
+
+            <Select
+              defaultValue={qParams.status ?? "all"}
+              onValueChange={(value) =>
+                updateQuery({ status: value === "all" ? undefined : value })
+              }
+            >
+              <SelectTrigger className="sm:hidden">
+                <SelectValue placeholder={t("filter_by_status")} />
+              </SelectTrigger>
+              <SelectContent>
+                <SelectGroup>
+                  <SelectItem value="all">t("all")</SelectItem>
+                  {Object.values(statusColorMap).map((key) => (
+                    <SelectItem key={key} value={key}>
+                      {t(key)}
+                    </SelectItem>
+                  ))}
+                </SelectGroup>
+              </SelectContent>
+            </Select>
           </div>
           <div className="flex flex-wrap gap-4">
-            <div className="w-64">
+            <div className="w-full sm:w-64">
               <Select
                 value={qParams.billing_status ?? "all"}
                 onValueChange={(value) =>
@@ -157,7 +179,7 @@ export function AccountList({
                   })
                 }
               >
-                <SelectTrigger className="w-40">
+                <SelectTrigger>
                   <SelectValue placeholder={t("all_billing_statuses")} />
                 </SelectTrigger>
                 <SelectContent>
