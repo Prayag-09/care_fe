@@ -1,0 +1,33 @@
+import { ChargeItemDefinitionBase } from "@/types/billing/chargeItemDefinition/chargeItemDefinition";
+import { ProductKnowledgeBase } from "@/types/inventory/productKnowledge";
+
+export enum ProductStatusOptions {
+  active = "active",
+  inactive = "inactive",
+  entered_in_error = "entered_in_error",
+}
+
+export type ProductBatch = {
+  lot_number?: string;
+};
+
+export interface ProductBase {
+  id: string;
+  status: ProductStatusOptions;
+  batch?: ProductBatch;
+  expiration_date?: string;
+}
+
+export interface ProductCreate extends Omit<ProductBase, "id"> {
+  product_knowledge: string;
+  charge_item_definition?: string;
+}
+
+export interface ProductUpdate extends ProductBase {
+  charge_item_definition?: string;
+}
+
+export interface ProductRead extends ProductBase {
+  product_knowledge: ProductKnowledgeBase;
+  charge_item_definition: ChargeItemDefinitionBase;
+}
