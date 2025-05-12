@@ -6,10 +6,12 @@ import { toast } from "sonner";
 
 import { Button } from "@/components/ui/button";
 import {
-  Popover,
-  PopoverContent,
-  PopoverTrigger,
-} from "@/components/ui/popover";
+  Sheet,
+  SheetContent,
+  SheetHeader,
+  SheetTitle,
+  SheetTrigger,
+} from "@/components/ui/sheet";
 
 import mutate from "@/Utils/request/mutate";
 import { DiscountCodeForm } from "@/pages/Facility/settings/billing/discount/discount-codes/DiscountCodeForm";
@@ -17,7 +19,7 @@ import { AnnotatedDiscountCode } from "@/pages/Facility/settings/billing/discoun
 import useCurrentFacility from "@/pages/Facility/utils/useCurrentFacility";
 import facilityApi from "@/types/facility/facilityApi";
 
-export function EditDiscountCodePopover({
+export function EditDiscountCodeSheet({
   code,
   disabled = false,
 }: {
@@ -40,35 +42,40 @@ export function EditDiscountCodePopover({
   });
 
   return (
-    <Popover open={open} onOpenChange={setOpen}>
-      <PopoverTrigger asChild>
+    <Sheet open={open} onOpenChange={setOpen}>
+      <SheetTrigger asChild>
         <Button variant="ghost" size="icon" disabled={disabled || isPending}>
-          <PencilIcon />
+          <PencilIcon className="size-4" />
         </Button>
-      </PopoverTrigger>
-      <PopoverContent className="w-80" align="end">
-        <DiscountCodeForm
-          defaultValues={code}
-          onSubmit={(data) => {
-            if (!facility) {
-              return;
-            }
+      </SheetTrigger>
+      <SheetContent className="sm:max-w-md">
+        <SheetHeader>
+          <SheetTitle>{t("edit_discount_code")}</SheetTitle>
+        </SheetHeader>
+        <div className="mt-6">
+          <DiscountCodeForm
+            defaultValues={code}
+            onSubmit={(data) => {
+              if (!facility) {
+                return;
+              }
 
-            setOpen(false);
+              setOpen(false);
 
-            const updatedCodes = facility.discount_codes.map(
-              (existing, index) =>
-                index === code.facilityIndex ? data : existing,
-            );
+              const updatedCodes = facility.discount_codes.map(
+                (existing, index) =>
+                  index === code.facilityIndex ? data : existing,
+              );
 
-            updateCode({
-              discount_codes: updatedCodes,
-              discount_monetary_components:
-                facility.discount_monetary_components,
-            });
-          }}
-        />
-      </PopoverContent>
-    </Popover>
+              updateCode({
+                discount_codes: updatedCodes,
+                discount_monetary_components:
+                  facility.discount_monetary_components,
+              });
+            }}
+          />
+        </div>
+      </SheetContent>
+    </Sheet>
   );
 }

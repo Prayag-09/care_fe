@@ -31,8 +31,8 @@ import Loading from "@/components/Common/Loading";
 import Page from "@/components/Common/Page";
 
 import mutate from "@/Utils/request/mutate";
-import { CreateDiscountCodePopover } from "@/pages/Facility/settings/billing/discount/discount-codes/CreateDiscountCodePopover";
-import { EditDiscountCodePopover } from "@/pages/Facility/settings/billing/discount/discount-codes/EditDiscountCodePopover";
+import { CreateDiscountCodeSheet } from "@/pages/Facility/settings/billing/discount/discount-codes/CreateDiscountCodeSheet";
+import { EditDiscountCodeSheet } from "@/pages/Facility/settings/billing/discount/discount-codes/EditDiscountCodeSheet";
 import useCurrentFacility from "@/pages/Facility/utils/useCurrentFacility";
 import facilityApi from "@/types/facility/facilityApi";
 import { Code } from "@/types/questionnaire/code";
@@ -110,11 +110,11 @@ export function DiscountCodeSettings() {
               onChange={(e) => setSearch(e.target.value)}
               className="w-[300px]"
             />
-            <CreateDiscountCodePopover />
+            <CreateDiscountCodeSheet />
           </div>
         }
       >
-        <div className="rounded-md border overflow-hidden">
+        <div className="rounded-md border overflow-hidden mt-4">
           <Table>
             <TableHeader>
               <TableRow>
@@ -155,7 +155,7 @@ export function DiscountCodeSettings() {
                     <TableCell>
                       {!code.isInstance && (
                         <div className="flex justify-end space-x-1">
-                          <EditDiscountCodePopover
+                          <EditDiscountCodeSheet
                             code={code}
                             disabled={isPending}
                           />

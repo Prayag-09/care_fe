@@ -13,7 +13,10 @@ import Page from "@/components/Common/Page";
 import { TableSkeleton } from "@/components/Common/SkeletonLoading";
 
 import query from "@/Utils/request/query";
-import { MonetaryComponent } from "@/types/base/monetaryComponent/monetaryComponent";
+import {
+  MonetaryComponent,
+  MonetaryComponentOrder,
+} from "@/types/base/monetaryComponent/monetaryComponent";
 import chargeItemDefinitionApi from "@/types/billing/chargeItemDefinition/chargeItemDefinitionApi";
 
 interface ChargeItemDefinitionDetailProps {
@@ -192,8 +195,13 @@ export function ChargeItemDefinitionDetail({
                 </div>
               ) : (
                 <div>
-                  {chargeItemDefinition.price_component.map(
-                    (component, index) => (
+                  {chargeItemDefinition.price_component
+                    .sort(
+                      (a, b) =>
+                        MonetaryComponentOrder[a.monetary_component_type] -
+                        MonetaryComponentOrder[b.monetary_component_type],
+                    )
+                    .map((component, index) => (
                       <div key={index}>
                         {renderPriceComponent(component)}
                         {index <
@@ -201,8 +209,7 @@ export function ChargeItemDefinitionDetail({
                           <Separator className="my-2" />
                         )}
                       </div>
-                    ),
-                  )}
+                    ))}
                 </div>
               )}
             </CardContent>

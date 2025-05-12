@@ -106,6 +106,9 @@ export function DiscountMonetaryComponentForm({
               <FormControl>
                 <Input {...field} />
               </FormControl>
+              <FormDescription>
+                {t("discount_component_name_description")}
+              </FormDescription>
               <FormMessage />
             </FormItem>
           )}
@@ -188,8 +191,11 @@ export function DiscountMonetaryComponentForm({
           </div>
           <FormDescription>
             {valueType === "factor"
-              ? t("discount_factor_range_description")
-              : t("discount_amount_range_description")}
+              ? t("discount_factor_description", {
+                  min: 0,
+                  max: 100,
+                })
+              : t("discount_amount_description")}
           </FormDescription>
           <FormMessage />
         </FormItem>
@@ -221,6 +227,9 @@ export function DiscountMonetaryComponentForm({
                     className="w-full"
                   />
                 </FormControl>
+                <FormDescription>
+                  {t("discount_component_code_description")}
+                </FormDescription>
                 <FormMessage />
               </FormItem>
             )}

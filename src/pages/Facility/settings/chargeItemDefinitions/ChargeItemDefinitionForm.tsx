@@ -10,7 +10,6 @@ import * as z from "zod";
 import Autocomplete from "@/components/ui/autocomplete";
 import { Button } from "@/components/ui/button";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
-import { Checkbox } from "@/components/ui/checkbox";
 import {
   Form,
   FormControl,
@@ -99,30 +98,19 @@ interface ChargeItemDefinitionFormProps {
   onSuccess?: () => void;
 }
 
-// Component to display monetary value with label
-function MonetaryValueDisplay({
-  label,
-  amount,
-  type = "normal",
-}: {
-  label: React.ReactNode;
-  amount: number;
-  type?: "normal" | "positive" | "negative";
-}) {
+const monetaryComponentIsEqual = <T extends MonetaryComponent>(a: T, b: T) => {
   return (
-    <div className="flex justify-between items-center py-2">
-      <span className="text-gray-600">{label}</span>
-      <MonetaryDisplay
-        data-coloring={type}
-        className="font-medium text-gray-900 data-[coloring=positive]:text-green-600 data-[coloring=negative]:text-red-600"
-        amount={amount}
-      />
-    </div>
+    a.monetary_component_type === b.monetary_component_type &&
+    a.code?.code === b.code?.code &&
+    a.code?.system === b.code?.system &&
+    a.code?.display === b.code?.display &&
+    a.factor === b.factor &&
+    a.amount === b.amount
   );
-}
+};
 
-// Component for discount component selection with autocomplete
-function DiscountSelectionSection({
+// Component for monetary component selection with autocomplete
+function MonetaryComponentSelectionSection({
   title,
   description,
   components,
@@ -130,26 +118,21 @@ function DiscountSelectionSection({
   onComponentToggle,
   onValueChange,
   summary,
+  type,
 }: {
   title: string;
   description: string;
   components: MonetaryComponentRead[];
   selectedComponents: MonetaryComponent[];
-  onComponentToggle: (
-    component: MonetaryComponentRead,
-    selected: boolean,
-  ) => void;
+  onComponentToggle: (component: MonetaryComponent, selected: boolean) => void;
   onValueChange: (component: MonetaryComponent, value: number) => void;
   summary: number;
+  type: MonetaryComponentType;
 }) {
   const { t } = useTranslation();
 
   const isComponentSelected = (component: MonetaryComponentRead) =>
-    selectedComponents.some(
-      (c) =>
-        c.code?.code === component.code?.code &&
-        c.code?.system === component.code?.system,
-    );
+    selectedComponents.some((c) => monetaryComponentIsEqual(c, component));
 
   const getComponentValue = (component: MonetaryComponent) => {
     return component.factor ?? component.amount ?? 0;
@@ -158,90 +141,75 @@ function DiscountSelectionSection({
   // Convert components to autocomplete options
   const availableOptions = components
     .filter((c) => !isComponentSelected(c))
-    .map((c) => ({
-      label: c.code?.display || c.title || "",
-      value: `${c.code?.system}-${c.code?.code}`,
-    }));
+    .map((c) => ({ label: c.title, value: c.title }));
 
   // Function to handle selection from autocomplete
   const handleAutocompleteChange = (value: string) => {
     if (!value) return;
-
-    const [system, code] = value.split("-");
-    const component = components.find(
-      (c) => c.code?.system === system && c.code?.code === code,
-    );
-
+    const component = components.find((c) => c.title === value);
     if (component) {
       onComponentToggle(component, true);
     }
   };
 
   return (
-    <div className="space-y-4 p-4 bg-red-50 rounded-lg border-red-100 border">
+    <div className="space-y-4 p-4 bg-gray-50 rounded-lg border">
       <div className="flex items-center justify-between">
         <div>
-          <h4 className="font-medium text-red-900">{title}</h4>
+          <h4 className="font-medium text-gray-900">{title}</h4>
           <p className="text-sm text-gray-600">{description}</p>
         </div>
       </div>
 
       {/* Selected Components */}
       <div className="space-y-3">
-        {selectedComponents.map((component) => (
-          <div
-            key={`${component.code?.system}-${component.code?.code}`}
-            className="p-3 rounded-lg bg-white border border-red-100 transition-colors"
-          >
-            <div className="flex items-center justify-between">
-              <div>
-                <div className="font-medium">{component.code?.display}</div>
-                <div className="text-sm text-gray-500">
-                  {component.code?.code}
+        {selectedComponents.map((component, idx) => {
+          const componentRead = components.find((c) =>
+            monetaryComponentIsEqual(c, component),
+          );
+          return (
+            <div
+              key={idx}
+              className="p-3 rounded-lg bg-white border border-gray-200 transition-colors"
+            >
+              <div className="flex items-center justify-between">
+                <div>
+                  <div className="font-medium">{componentRead?.title}</div>
+                  <div className="text-sm text-gray-500">
+                    {componentRead?.code?.code}
+                  </div>
                 </div>
+                <Button
+                  type="button"
+                  variant="outline"
+                  size="sm"
+                  onClick={() => onComponentToggle(component, false)}
+                >
+                  {t("remove")}
+                </Button>
               </div>
-              <Button
-                type="button"
-                variant="outline"
-                size="sm"
-                onClick={() => {
-                  const originalComponent = components.find(
-                    (c) =>
-                      c.code?.code === component.code?.code &&
-                      c.code?.system === component.code?.system,
-                  );
-                  if (originalComponent) {
-                    onComponentToggle(originalComponent, false);
-                  }
-                }}
-              >
-                {t("remove")}
-              </Button>
-            </div>
 
-            <div className="mt-3 flex items-center space-x-2">
-              <Input
-                type="number"
-                min="0"
-                max={component.factor != null ? 100 : undefined}
-                value={getComponentValue(component)}
-                onChange={(e) =>
-                  onValueChange(
-                    {
-                      ...component,
-                      monetary_component_type: MonetaryComponentType.discount,
-                    },
-                    parseFloat(e.target.value),
-                  )
-                }
-                className="text-right"
-              />
-              <span className="text-gray-500">
-                {component.factor != null ? "%" : "₹"}
-              </span>
+              <div className="mt-3 flex items-center space-x-2">
+                <Input
+                  type="number"
+                  min="0"
+                  max={component.factor != null ? 100 : undefined}
+                  value={getComponentValue(component)}
+                  onChange={(e) =>
+                    onValueChange(
+                      { ...component, monetary_component_type: type },
+                      parseFloat(e.target.value),
+                    )
+                  }
+                  className="text-right"
+                />
+                <span className="text-gray-500">
+                  {component.factor != null ? "%" : "₹"}
+                </span>
+              </div>
             </div>
-          </div>
-        ))}
+          );
+        })}
       </div>
 
       {/* Add New Component */}
@@ -250,140 +218,27 @@ function DiscountSelectionSection({
           options={availableOptions}
           value=""
           onChange={handleAutocompleteChange}
-          placeholder={t("add_discount")}
-          className="border-red-200"
+          placeholder={t(
+            type === MonetaryComponentType.tax ? "add_tax" : "add_discount",
+          )}
+          className="border-gray-200"
         />
       </div>
 
       {/* Summary */}
       {selectedComponents.length > 0 && (
         <div className="mt-4 p-3 bg-white rounded-lg border">
-          <MonetaryValueDisplay
-            label={t("total_discounts")}
-            amount={summary}
-            type="negative"
-          />
-        </div>
-      )}
-    </div>
-  );
-}
-
-// Component for tax component selection with checkboxes
-function TaxSelectionSection({
-  title,
-  description,
-  components,
-  selectedComponents,
-  onComponentToggle,
-  onValueChange,
-  summary,
-}: {
-  title: string;
-  description: string;
-  components: MonetaryComponentRead[];
-  selectedComponents: MonetaryComponent[];
-  onComponentToggle: (
-    component: MonetaryComponentRead,
-    selected: boolean,
-  ) => void;
-  onValueChange: (component: MonetaryComponent, value: number) => void;
-  summary: number;
-}) {
-  const { t } = useTranslation();
-
-  const isComponentSelected = (component: MonetaryComponentRead) =>
-    selectedComponents.some(
-      (c) =>
-        c.code?.code === component.code?.code &&
-        c.code?.system === component.code?.system,
-    );
-
-  const getComponentValue = (component: MonetaryComponentRead) => {
-    const selected = selectedComponents.find(
-      (c) =>
-        c.code?.code === component.code?.code &&
-        c.code?.system === component.code?.system,
-    );
-    return selected?.factor ?? selected?.amount ?? 0;
-  };
-
-  return (
-    <div className="space-y-4 p-4 bg-blue-50 rounded-lg border-blue-100 border">
-      <div className="flex items-center justify-between">
-        <div>
-          <h4 className="font-medium text-blue-900">{title}</h4>
-          <p className="text-sm text-gray-600">{description}</p>
-        </div>
-      </div>
-
-      <div className="space-y-3">
-        {components.map((component) => {
-          const isSelected = isComponentSelected(component);
-          return (
-            <div
-              key={`${component.code?.system}-${component.code?.code}`}
-              className={`p-3 rounded-lg bg-white border transition-colors ${
-                isSelected ? "border-blue-100" : "border-gray-100"
-              }`}
-            >
-              <div className="flex items-center space-x-3">
-                <Checkbox
-                  id={`tax-${component.code?.code}`}
-                  checked={isSelected}
-                  onCheckedChange={(checked) =>
-                    onComponentToggle(component, checked === true)
-                  }
-                  className="h-5 w-5 border-blue-500 data-[state=checked]:bg-blue-500 data-[state=checked]:text-white"
-                />
-                <div>
-                  <label
-                    htmlFor={`tax-${component.code?.code}`}
-                    className="cursor-pointer font-medium"
-                  >
-                    {component.code?.display}
-                  </label>
-                  <p className="text-sm text-gray-500">
-                    {component.code?.code}
-                  </p>
-                </div>
-              </div>
-
-              {isSelected && (
-                <div className="mt-3 flex items-center space-x-2">
-                  <Input
-                    type="number"
-                    min="0"
-                    max={component.factor != null ? 100 : undefined}
-                    value={getComponentValue(component)}
-                    onChange={(e) =>
-                      onValueChange(
-                        {
-                          ...component,
-                          monetary_component_type: MonetaryComponentType.tax,
-                        },
-                        parseFloat(e.target.value),
-                      )
-                    }
-                    className="text-right"
-                  />
-                  <span className="text-gray-500">
-                    {component.factor != null ? "%" : "₹"}
-                  </span>
-                </div>
-              )}
-            </div>
-          );
-        })}
-      </div>
-
-      {selectedComponents.length > 0 && (
-        <div className="mt-4 p-3 bg-white rounded-lg border">
-          <MonetaryValueDisplay
-            label={t("total_taxes")}
-            amount={summary}
-            type="positive"
-          />
+          <div className="flex justify-between items-center py-2">
+            <span className="text-gray-600">
+              {type === MonetaryComponentType.tax
+                ? t("total_taxes")
+                : t("total_discounts")}
+            </span>
+            <MonetaryDisplay
+              className="font-medium text-gray-900"
+              amount={summary}
+            />
+          </div>
         </div>
       )}
     </div>
@@ -435,6 +290,13 @@ export function ChargeItemDefinitionForm({
     // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [priceComponents, basePrice]);
 
+  // // Get MRP component if it exists
+  // const mrpComponent = form
+  //   .watch("price_component")
+  //   .find(
+  //     (c) => c.monetary_component_type === MonetaryComponentType.informational,
+  //   );
+
   // Handle form submission
   const { mutate: upsert, isPending } = useMutation({
     mutationFn: isUpdate
@@ -472,7 +334,7 @@ export function ChargeItemDefinitionForm({
 
   // Handle component selection
   const handleComponentToggle = (
-    component: MonetaryComponentRead,
+    component: MonetaryComponent,
     selected: boolean,
     type: MonetaryComponentType = MonetaryComponentType.tax,
   ) => {
@@ -482,18 +344,11 @@ export function ChargeItemDefinitionForm({
     if (selected) {
       newComponents = [
         ...currentComponents,
-        {
-          ...component,
-          monetary_component_type: type,
-        },
+        { ...component, monetary_component_type: type },
       ];
     } else {
       newComponents = currentComponents.filter(
-        (c) =>
-          !(
-            c.code?.code === component.code?.code &&
-            c.code?.system === component.code?.system
-          ),
+        (c) => !monetaryComponentIsEqual(c, component),
       );
     }
 
@@ -506,10 +361,8 @@ export function ChargeItemDefinitionForm({
     value: number,
   ) => {
     const currentComponents = form.getValues("price_component");
-    const componentIndex = currentComponents.findIndex(
-      (c) =>
-        c.code?.code === component.code?.code &&
-        c.code?.system === component.code?.system,
+    const componentIndex = currentComponents.findIndex((c) =>
+      monetaryComponentIsEqual(c, component),
     );
 
     if (componentIndex === -1) return;
@@ -522,6 +375,40 @@ export function ChargeItemDefinitionForm({
 
     form.setValue("price_component", newComponents, { shouldValidate: true });
   };
+
+  // // Function to handle MRP changes
+  // const handleMRPChange = (value: number) => {
+  //   const currentComponents = form.getValues("price_component");
+  //   const mrpIndex = currentComponents.findIndex(
+  //     (c) => c.monetary_component_type === MonetaryComponentType.informational,
+  //   );
+
+  //   if (isNaN(value) && mrpIndex !== -1) {
+  //     // Remove MRP component if value is NaN
+  //     const newComponents = [...currentComponents];
+  //     newComponents.splice(mrpIndex, 1);
+  //     form.setValue("price_component", newComponents, { shouldValidate: true });
+  //   } else if (!isNaN(value)) {
+  //     // Add or update MRP component
+  //     const mrpComponent = {
+  //       monetary_component_type: MonetaryComponentType.informational,
+  //       title: "MRP",
+  //       amount: value,
+  //     };
+
+  //     if (mrpIndex === -1) {
+  //       form.setValue("price_component", [...currentComponents, mrpComponent], {
+  //         shouldValidate: true,
+  //       });
+  //     } else {
+  //       const newComponents = [...currentComponents];
+  //       newComponents[mrpIndex] = mrpComponent;
+  //       form.setValue("price_component", newComponents, {
+  //         shouldValidate: true,
+  //       });
+  //     }
+  //   }
+  // };
 
   return (
     <Form {...form}>
@@ -650,29 +537,55 @@ export function ChargeItemDefinitionForm({
             <CardTitle>{t("pricing_components")}</CardTitle>
           </CardHeader>
           <CardContent className="space-y-6">
-            {/* Base Price */}
+            {/* Base Price and MRP */}
             <div className="p-4 bg-gray-50 rounded-lg border">
-              <div className="flex items-center justify-between">
-                <h4 className="font-medium text-gray-900">{t("base_price")}</h4>
-                <div className="w-48">
-                  <FormField
-                    control={form.control}
-                    name="price_component.0.amount"
-                    render={({ field }) => (
-                      <MonetaryAmountInput
-                        {...field}
-                        value={field.value ?? 0}
-                        onChange={(e) => field.onChange(e.target.valueAsNumber)}
-                        placeholder="0.00"
-                      />
-                    )}
-                  />
+              <div className="space-y-4">
+                {/* MRP */}
+                {/* <div className="flex items-center justify-between">
+                  <div>
+                    <h4 className="font-medium text-gray-900">{t("mrp")}</h4>
+                    <p className="text-sm text-gray-600">
+                      {t("mrp_description")}
+                    </p>
+                  </div>
+                  <div className="w-48">
+                    <MonetaryAmountInput
+                      value={mrpComponent?.amount ?? ""}
+                      onChange={(e) => handleMRPChange(e.target.valueAsNumber)}
+                      placeholder={t("optional")}
+                    />
+                  </div>
+                </div> */}
+
+                {/* Base Price */}
+                <div className="flex items-center justify-between pt-2 border-t border-gray-200">
+                  <div>
+                    <h4 className="font-medium text-gray-900">
+                      {t("base_price")}
+                    </h4>
+                  </div>
+                  <div className="w-48">
+                    <FormField
+                      control={form.control}
+                      name="price_component.0.amount"
+                      render={({ field }) => (
+                        <MonetaryAmountInput
+                          {...field}
+                          value={field.value ?? 0}
+                          onChange={(e) =>
+                            field.onChange(e.target.valueAsNumber)
+                          }
+                          placeholder="0.00"
+                        />
+                      )}
+                    />
+                  </div>
                 </div>
               </div>
             </div>
 
-            {/* Discounts - Using Autocomplete */}
-            <DiscountSelectionSection
+            {/* Discounts */}
+            <MonetaryComponentSelectionSection
               title={t("discounts")}
               description={t("select_applicable_discounts")}
               components={availableDiscounts}
@@ -688,10 +601,11 @@ export function ChargeItemDefinitionForm({
               }
               onValueChange={handleComponentValueChange}
               summary={priceSummary.netAmount - priceSummary.taxableAmount}
+              type={MonetaryComponentType.discount}
             />
 
-            {/* Taxes - Using Checkboxes */}
-            <TaxSelectionSection
+            {/* Taxes */}
+            <MonetaryComponentSelectionSection
               title={t("taxes")}
               description={t("select_applicable_taxes")}
               components={availableTaxes}
@@ -707,6 +621,7 @@ export function ChargeItemDefinitionForm({
               }
               onValueChange={handleComponentValueChange}
               summary={priceSummary.totalAmount - priceSummary.taxableAmount}
+              type={MonetaryComponentType.tax}
             />
 
             {/* Price Summary */}
@@ -715,21 +630,29 @@ export function ChargeItemDefinitionForm({
                 {t("price_summary")}
               </h4>
               <div className="space-y-2 divide-y divide-green-200">
-                <MonetaryValueDisplay
-                  label={t("base_price")}
-                  amount={priceSummary.baseAmount}
-                />
-                <MonetaryValueDisplay
-                  label={t("total_discounts")}
-                  amount={priceSummary.netAmount - priceSummary.taxableAmount}
-                  type="negative"
-                />
-                <MonetaryValueDisplay
-                  label={t("total_taxes")}
-                  amount={priceSummary.totalAmount - priceSummary.taxableAmount}
-                  type="positive"
-                />
-
+                <div className="flex justify-between items-center py-2">
+                  <span className="text-gray-600">{t("base_price")}</span>
+                  <MonetaryDisplay
+                    className="font-medium text-gray-900"
+                    amount={priceSummary.baseAmount}
+                  />
+                </div>
+                <div className="flex justify-between items-center py-2">
+                  <span className="text-gray-600">{t("total_discounts")}</span>
+                  <MonetaryDisplay
+                    className="font-medium text-gray-900 data-[coloring=positive]:text-green-600 data-[coloring=negative]:text-red-600"
+                    amount={priceSummary.netAmount - priceSummary.taxableAmount}
+                  />
+                </div>
+                <div className="flex justify-between items-center py-2">
+                  <span className="text-gray-600">{t("total_taxes")}</span>
+                  <MonetaryDisplay
+                    className="font-medium text-gray-900 data-[coloring=positive]:text-green-600 data-[coloring=negative]:text-red-600"
+                    amount={
+                      priceSummary.totalAmount - priceSummary.taxableAmount
+                    }
+                  />
+                </div>
                 <div className="flex justify-between items-center py-2 pt-3">
                   <span className="text-gray-600 text-lg font-bold">
                     {t("final_price")}
