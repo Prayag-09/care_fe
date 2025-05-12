@@ -34,6 +34,7 @@ x : Done
 - [ ] BE need to sort by internal id by default, all apis has jumping issue
 - [ ] Need sort by payment_datetime for Payment Reconciliation list
 - [ ] Replace Charge Item Create with ChargeItemDef to ChargeItem API
+- [ ] Add support for information codes (such as MRP)
 
 # Archived
 

@@ -290,12 +290,12 @@ export function ChargeItemDefinitionForm({
     // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [priceComponents, basePrice]);
 
-  // Get MRP component if it exists
-  const mrpComponent = form
-    .watch("price_component")
-    .find(
-      (c) => c.monetary_component_type === MonetaryComponentType.informational,
-    );
+  // // Get MRP component if it exists
+  // const mrpComponent = form
+  //   .watch("price_component")
+  //   .find(
+  //     (c) => c.monetary_component_type === MonetaryComponentType.informational,
+  //   );
 
   // Handle form submission
   const { mutate: upsert, isPending } = useMutation({
@@ -376,39 +376,39 @@ export function ChargeItemDefinitionForm({
     form.setValue("price_component", newComponents, { shouldValidate: true });
   };
 
-  // Function to handle MRP changes
-  const handleMRPChange = (value: number) => {
-    const currentComponents = form.getValues("price_component");
-    const mrpIndex = currentComponents.findIndex(
-      (c) => c.monetary_component_type === MonetaryComponentType.informational,
-    );
+  // // Function to handle MRP changes
+  // const handleMRPChange = (value: number) => {
+  //   const currentComponents = form.getValues("price_component");
+  //   const mrpIndex = currentComponents.findIndex(
+  //     (c) => c.monetary_component_type === MonetaryComponentType.informational,
+  //   );
 
-    if (isNaN(value) && mrpIndex !== -1) {
-      // Remove MRP component if value is NaN
-      const newComponents = [...currentComponents];
-      newComponents.splice(mrpIndex, 1);
-      form.setValue("price_component", newComponents, { shouldValidate: true });
-    } else if (!isNaN(value)) {
-      // Add or update MRP component
-      const mrpComponent = {
-        monetary_component_type: MonetaryComponentType.informational,
-        title: "MRP",
-        amount: value,
-      };
+  //   if (isNaN(value) && mrpIndex !== -1) {
+  //     // Remove MRP component if value is NaN
+  //     const newComponents = [...currentComponents];
+  //     newComponents.splice(mrpIndex, 1);
+  //     form.setValue("price_component", newComponents, { shouldValidate: true });
+  //   } else if (!isNaN(value)) {
+  //     // Add or update MRP component
+  //     const mrpComponent = {
+  //       monetary_component_type: MonetaryComponentType.informational,
+  //       title: "MRP",
+  //       amount: value,
+  //     };
 
-      if (mrpIndex === -1) {
-        form.setValue("price_component", [...currentComponents, mrpComponent], {
-          shouldValidate: true,
-        });
-      } else {
-        const newComponents = [...currentComponents];
-        newComponents[mrpIndex] = mrpComponent;
-        form.setValue("price_component", newComponents, {
-          shouldValidate: true,
-        });
-      }
-    }
-  };
+  //     if (mrpIndex === -1) {
+  //       form.setValue("price_component", [...currentComponents, mrpComponent], {
+  //         shouldValidate: true,
+  //       });
+  //     } else {
+  //       const newComponents = [...currentComponents];
+  //       newComponents[mrpIndex] = mrpComponent;
+  //       form.setValue("price_component", newComponents, {
+  //         shouldValidate: true,
+  //       });
+  //     }
+  //   }
+  // };
 
   return (
     <Form {...form}>
@@ -541,7 +541,7 @@ export function ChargeItemDefinitionForm({
             <div className="p-4 bg-gray-50 rounded-lg border">
               <div className="space-y-4">
                 {/* MRP */}
-                <div className="flex items-center justify-between">
+                {/* <div className="flex items-center justify-between">
                   <div>
                     <h4 className="font-medium text-gray-900">{t("mrp")}</h4>
                     <p className="text-sm text-gray-600">
@@ -555,7 +555,7 @@ export function ChargeItemDefinitionForm({
                       placeholder={t("optional")}
                     />
                   </div>
-                </div>
+                </div> */}
 
                 {/* Base Price */}
                 <div className="flex items-center justify-between pt-2 border-t border-gray-200">
@@ -563,9 +563,6 @@ export function ChargeItemDefinitionForm({
                     <h4 className="font-medium text-gray-900">
                       {t("base_price")}
                     </h4>
-                    <p className="text-sm text-gray-600">
-                      {t("base_price_description")}
-                    </p>
                   </div>
                   <div className="w-48">
                     <FormField
