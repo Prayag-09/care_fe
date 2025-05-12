@@ -1,5 +1,5 @@
 import { useQuery } from "@tanstack/react-query";
-import { Trash2 } from "lucide-react";
+import { ChevronsDownUp, ChevronsUpDown, Trash2, XIcon } from "lucide-react";
 import { useEffect, useState } from "react";
 import { useTranslation } from "react-i18next";
 
@@ -12,6 +12,7 @@ import {
 } from "@/components/ui/collapsible";
 import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
+import { MonetaryDisplay } from "@/components/ui/monetary-display";
 import {
   Select,
   SelectContent,
@@ -19,12 +20,16 @@ import {
   SelectTrigger,
   SelectValue,
 } from "@/components/ui/select";
+import { Separator } from "@/components/ui/separator";
 import { Skeleton } from "@/components/ui/skeleton";
-import { Textarea } from "@/components/ui/textarea";
 
 import { FieldError } from "@/components/Questionnaire/QuestionTypes/FieldError";
 
 import query from "@/Utils/request/query";
+import {
+  MonetaryComponent,
+  MonetaryComponentType,
+} from "@/types/base/monetaryComponent/monetaryComponent";
 import {
   ChargeItemBase,
   ChargeItemStatus,
@@ -69,6 +74,130 @@ interface ChargeItemFormProps {
   questionId?: string;
   index?: number;
   isPreview?: boolean;
+  defaultOpen?: boolean;
+}
+
+interface PriceComponentSummaryProps {
+  priceComponents: MonetaryComponent[];
+  quantity?: number;
+}
+
+function PriceComponentSummary({
+  priceComponents,
+  quantity = 1,
+}: PriceComponentSummaryProps) {
+  const { t } = useTranslation();
+
+  if (!priceComponents?.length) return null;
+
+  const baseComponents = priceComponents.filter(
+    (c) => c.monetary_component_type === MonetaryComponentType.base,
+  );
+  const taxComponents = priceComponents.filter(
+    (c) => c.monetary_component_type === MonetaryComponentType.tax,
+  );
+  const discountComponents = priceComponents.filter(
+    (c) => c.monetary_component_type === MonetaryComponentType.discount,
+  );
+  const surchargeComponents = priceComponents.filter(
+    (c) => c.monetary_component_type === MonetaryComponentType.surcharge,
+  );
+
+  const baseUnitAmount = baseComponents[0]?.amount || 0;
+  const baseAmount = baseUnitAmount * quantity;
+
+  const discountTotal = discountComponents.reduce((total, component) => {
+    return total + (baseAmount * (component.factor || 0)) / 100;
+  }, 0);
+
+  const surchargeTotal = surchargeComponents.reduce((total, component) => {
+    return total + (baseAmount * (component.factor || 0)) / 100;
+  }, 0);
+
+  const netAmount = baseAmount + surchargeTotal - discountTotal;
+
+  const taxTotal = taxComponents.reduce((total, component) => {
+    return total + (netAmount * (component.factor || 0)) / 100;
+  }, 0);
+
+  const totalAmount = netAmount + taxTotal;
+
+  return (
+    <div className="mt-4 border rounded-md p-4 bg-muted/20">
+      <div className="space-y-2">
+        <div className="flex justify-between text-sm">
+          <span>{t("base_amount")}</span>
+          <MonetaryDisplay amount={baseAmount} />
+        </div>
+
+        {surchargeComponents.map((component, index) => (
+          <div
+            key={`surcharge-${index}`}
+            className="flex justify-between text-sm text-gray-500"
+          >
+            <span>
+              {component.code?.display || t("surcharge")} ({t("surcharge")})
+            </span>
+            <span>
+              +{" "}
+              <MonetaryDisplay
+                amount={(baseAmount * (component.factor || 0)) / 100}
+              />{" "}
+              ({component.factor}%)
+            </span>
+          </div>
+        ))}
+
+        {discountComponents.map((component, index) => (
+          <div
+            key={`discount-${index}`}
+            className="flex justify-between text-sm text-gray-500"
+          >
+            <span>
+              {component.code?.display || t("discount")} ({t("discount")})
+            </span>
+            <span>
+              -{" "}
+              <MonetaryDisplay
+                amount={(baseAmount * (component.factor || 0)) / 100}
+              />{" "}
+              ({component.factor}%)
+            </span>
+          </div>
+        ))}
+
+        {taxComponents.map((component, index) => (
+          <div
+            key={`tax-${index}`}
+            className="flex justify-between text-sm text-gray-500"
+          >
+            <span>
+              {component.code?.display || t("tax")} ({t("tax")})
+            </span>
+            <span>
+              +{" "}
+              <MonetaryDisplay
+                amount={(netAmount * (component.factor || 0)) / 100}
+              />{" "}
+              ({component.factor}%)
+            </span>
+          </div>
+        ))}
+
+        <Separator className="my-2" />
+
+        <div className="flex justify-between text-sm">
+          <span className="text-gray-500">{t("net_amount")}</span>
+          <MonetaryDisplay amount={netAmount} />
+        </div>
+
+        <div className="flex justify-between font-semibold">
+          <span>{t("total_amount")}</span>
+          <MonetaryDisplay amount={totalAmount} />
+        </div>
+      </div>
+    </div>
+  );
 }
 
 function ChargeItemForm({
@@ -81,8 +210,10 @@ function ChargeItemForm({
   questionId,
   index,
   isPreview = false,
+  defaultOpen = true,
 }: ChargeItemFormProps) {
   const { t } = useTranslation();
+  const [isOpen, setIsOpen] = useState(defaultOpen);
 
   if (isPreview) {
     return (
@@ -163,9 +294,11 @@ function ChargeItemForm({
             )}
           </div>
 
-          <div className="space-y-2">
+          <div className="space-y-2 col-span-2">
             <Label>{t("note")}</Label>
-            <Textarea
+            <textarea
+              className="field-sizing-content focus:outline-none focus:ring-1 focus:ring-primary-500 focus:border-primary-500 rounded-md w-full"
+              rows={3}
               value={chargeItem.note || ""}
               onChange={(e) =>
                 onUpdate?.({ ...chargeItem, note: e.target.value })
@@ -175,6 +308,7 @@ function ChargeItemForm({
             />
           </div>
         </div>
+
         {isPreview && (
           <div className="flex justify-end">
             <Button onClick={onAdd} data-cy="add-charge-item">
@@ -187,16 +321,27 @@ function ChargeItemForm({
   }
 
   return (
-    <Collapsible defaultOpen={false}>
+    <Collapsible defaultOpen={defaultOpen} onOpenChange={setIsOpen}>
       <div className="rounded-md border border-gray-200">
         <CollapsibleTrigger className="flex w-full items-center justify-between p-2 hover:bg-gray-50 cursor-pointer">
           <div className="flex flex-col gap-1 items-start">
             <p className="text-sm font-semibold">{chargeItem.title}</p>
-            <span className="text-sm text-gray-500">
-              {chargeItem.unit_price_components?.[0]?.amount || 0}{" "}
-              {chargeItem.unit_price_components?.[0]?.code?.code || "INR"}
-            </span>
+            <div className="flex items-center gap-2">
+              <div className="text-sm mt-1 text-gray-600 capitalize flex items-center gap-1 justify-center">
+                {chargeItem.status}
+                <span className="text-gray-600 font-semibold">{" . "}</span>
+                <span className="text-sm text-gray-600">
+                  {chargeItem.quantity || 0}
+                </span>
+                <XIcon className="size-4" />
+                <span className="text-sm text-gray-600">
+                  {chargeItem.unit_price_components?.[0]?.amount || 0}{" "}
+                  {chargeItem.unit_price_components?.[0]?.code?.code || "INR"}
+                </span>
+              </div>
+            </div>
           </div>
+
           <div className="flex items-center gap-2">
             {onRemove && (
               <Button
@@ -213,6 +358,19 @@ function ChargeItemForm({
                 <Trash2 className="h-4 w-4" />
               </Button>
             )}
+
+            <Button
+              variant="ghost"
+              size="icon"
+              className="size-10 border border-gray-400 bg-white shadow p-4 pointer-events-none"
+              onClick={() => setIsOpen(!isOpen)}
+            >
+              {isOpen ? (
+                <ChevronsDownUp className="size-5" />
+              ) : (
+                <ChevronsUpDown className="size-5" />
+              )}
+            </Button>
           </div>
         </CollapsibleTrigger>
         <CollapsibleContent>
@@ -279,18 +437,26 @@ function ChargeItemForm({
                 )}
               </div>
 
-              <div className="space-y-2">
+              <div className="space-y-2 col-span-2">
                 <Label>{t("note")}</Label>
-                <Textarea
+                <textarea
                   value={chargeItem.note || ""}
                   onChange={(e) =>
                     onUpdate?.({ ...chargeItem, note: e.target.value })
                   }
                   disabled={disabled}
                   placeholder={t("add_notes")}
+                  className="field-sizing-content focus:outline-none focus:ring-1 focus:ring-primary-500 focus:border-primary-500 rounded-md w-full"
                 />
               </div>
             </div>
+
+            {chargeItem.unit_price_components?.length > 0 && (
+              <PriceComponentSummary
+                priceComponents={chargeItem.unit_price_components}
+                quantity={chargeItem.quantity}
+              />
+            )}
           </div>
         </CollapsibleContent>
       </div>

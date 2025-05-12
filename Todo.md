@@ -13,6 +13,7 @@ x : Done
 - [-] Add support for information components in chargeDef and Charge Item. - Rithvik
 - [-] Consider disabling onWheelChange for input[type=number] fields. - [hold till @bodhi confirms]
 - [-] When Creating charge item in questionnaire we should allow users to pick discount and tax and quantitiy. - Amjith
+- [x] When Creating charge item in questionnaire we should display applicable discounts and tax and amounts from the charge item def as read-only - Yaswanth
 
 ## Labs
 
