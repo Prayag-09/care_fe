@@ -6,6 +6,11 @@ x : Done
 
 - : In Progress/Assigned/Blocked
 
+## Pharmacy
+
+- [ ] Clean up product knowledge and fix update
+- [ ] Clean up product and support edit form product knowledge
+
 ## Billing
 
 - [-] Replace Charge Item Create with ChargeItemDef to ChargeItem API - Vignesh
