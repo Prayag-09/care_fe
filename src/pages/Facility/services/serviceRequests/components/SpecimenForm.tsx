@@ -22,6 +22,7 @@ import ValueSetSelect from "@/components/Questionnaire/ValueSetSelect";
 import useAuthUser from "@/hooks/useAuthUser";
 
 import mutate from "@/Utils/request/mutate";
+import { Code } from "@/types/base/code/code";
 import {
   CollectionSpec,
   SpecimenFromDefinitionCreate,
@@ -30,7 +31,6 @@ import {
 } from "@/types/emr/specimen/specimen";
 import specimenApi from "@/types/emr/specimen/specimenApi";
 import type { SpecimenDefinitionRead } from "@/types/emr/specimenDefinition/specimenDefinition";
-import { Code } from "@/types/questionnaire/code";
 
 interface SpecimenFormProps {
   specimenDefinition: SpecimenDefinitionRead;

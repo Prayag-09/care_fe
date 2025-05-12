@@ -54,6 +54,7 @@ import useBreakpoints from "@/hooks/useBreakpoints";
 
 import query from "@/Utils/request/query";
 import { formatName } from "@/Utils/utils";
+import { Code } from "@/types/base/code/code";
 import {
   DoseRange,
   INACTIVE_MEDICATION_STATUSES,
@@ -70,7 +71,6 @@ import medicationRequestApi from "@/types/emr/medicationRequest/medicationReques
 import { MedicationStatementRead } from "@/types/emr/medicationStatement";
 import medicationStatementApi from "@/types/emr/medicationStatement/medicationStatementApi";
 import { QuestionValidationError } from "@/types/questionnaire/batch";
-import { Code } from "@/types/questionnaire/code";
 import {
   QuestionnaireResponse,
   ResponseValue,

@@ -14,7 +14,7 @@ import { Tabs, TabsList, TabsTrigger } from "@/components/ui/tabs";
 
 import ValueSetSelect from "@/components/Questionnaire/ValueSetSelect";
 
-import { Code, ValueSetSystem } from "@/types/questionnaire/code";
+import { Code, ValueSetSystem } from "@/types/base/code/code";
 
 interface ValueSetOption {
   system: ValueSetSystem;

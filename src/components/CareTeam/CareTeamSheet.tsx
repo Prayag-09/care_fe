@@ -37,9 +37,9 @@ import ValueSetSelect from "@/components/Questionnaire/ValueSetSelect";
 
 import mutate from "@/Utils/request/mutate";
 import { formatName } from "@/Utils/utils";
+import { Code } from "@/types/base/code/code";
 import careTeamApi from "@/types/careTeam/careTeamApi";
 import { Encounter } from "@/types/emr/encounter";
-import { Code } from "@/types/questionnaire/code";
 import { UserBase } from "@/types/user/user";
 
 type CareTeamSheetProps = {

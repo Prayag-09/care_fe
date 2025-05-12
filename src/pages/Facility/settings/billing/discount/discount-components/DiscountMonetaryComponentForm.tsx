@@ -25,11 +25,11 @@ import {
 } from "@/components/ui/select";
 
 import useCurrentFacility from "@/pages/Facility/utils/useCurrentFacility";
+import { CodeSchema } from "@/types/base/code/code";
 import {
   MonetaryComponentRead,
   MonetaryComponentType,
 } from "@/types/base/monetaryComponent/monetaryComponent";
-import { CodeSchema } from "@/types/questionnaire/code";
 
 const formSchema = z
   .object({

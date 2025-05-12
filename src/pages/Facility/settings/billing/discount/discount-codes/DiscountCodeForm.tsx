@@ -15,7 +15,7 @@ import {
 } from "@/components/ui/form";
 import { Input } from "@/components/ui/input";
 
-import { Code } from "@/types/questionnaire/code";
+import { Code } from "@/types/base/code/code";
 
 const formSchema = z.object({
   code: z.string().min(1, { message: "field_required" }),

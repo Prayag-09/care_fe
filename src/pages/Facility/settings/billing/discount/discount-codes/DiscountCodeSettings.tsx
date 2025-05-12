@@ -34,8 +34,8 @@ import mutate from "@/Utils/request/mutate";
 import { CreateDiscountCodeSheet } from "@/pages/Facility/settings/billing/discount/discount-codes/CreateDiscountCodeSheet";
 import { EditDiscountCodeSheet } from "@/pages/Facility/settings/billing/discount/discount-codes/EditDiscountCodeSheet";
 import useCurrentFacility from "@/pages/Facility/utils/useCurrentFacility";
+import { Code } from "@/types/base/code/code";
 import facilityApi from "@/types/facility/facilityApi";
-import { Code } from "@/types/questionnaire/code";
 
 export interface AnnotatedDiscountCode extends Code {
   isInstance: boolean;

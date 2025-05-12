@@ -1,8 +1,8 @@
+import { Code } from "@/types/base/code/code";
 import { ChargeItemDefinitionRead } from "@/types/billing/chargeItemDefinition/chargeItemDefinition";
 import { ObservationDefinitionReadSpec } from "@/types/emr/observationDefinition/observationDefinition";
 import { SpecimenDefinitionRead } from "@/types/emr/specimenDefinition/specimenDefinition";
 import { LocationList } from "@/types/location/location";
-import { Code } from "@/types/questionnaire/code";
 
 export enum Status {
   draft = "draft",

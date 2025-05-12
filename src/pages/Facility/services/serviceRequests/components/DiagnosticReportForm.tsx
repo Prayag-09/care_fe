@@ -44,6 +44,7 @@ import useFileUpload from "@/hooks/useFileUpload";
 import routes from "@/Utils/request/api";
 import mutate from "@/Utils/request/mutate";
 import query from "@/Utils/request/query";
+import { Code } from "@/types/base/code/code";
 import {
   DiagnosticReportRead,
   DiagnosticReportStatus,
@@ -60,7 +61,6 @@ import {
   ObservationDefinitionComponentSpec,
   ObservationDefinitionReadSpec,
 } from "@/types/emr/observationDefinition/observationDefinition";
-import { Code } from "@/types/questionnaire/code";
 
 interface DiagnosticReportFormProps {
   facilityId: string;

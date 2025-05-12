@@ -1,5 +1,5 @@
+import { Code } from "@/types/base/code/code";
 import { ObservationDefinitionReadSpec } from "@/types/emr/observationDefinition/observationDefinition";
-import { Code } from "@/types/questionnaire/code";
 import { QuestionType } from "@/types/questionnaire/question";
 import { SubjectType } from "@/types/questionnaire/questionnaire";
 import { UserBase } from "@/types/user/user";

@@ -1,6 +1,6 @@
 import { UserBareMinimum } from "@/components/Users/models";
 
-import { Code } from "@/types/questionnaire/code";
+import { Code } from "@/types/base/code/code";
 
 export const DOSAGE_UNITS_CODES = [
   {

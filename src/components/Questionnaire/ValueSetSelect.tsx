@@ -39,7 +39,7 @@ import useBreakpoints from "@/hooks/useBreakpoints";
 import routes from "@/Utils/request/api";
 import mutate from "@/Utils/request/mutate";
 import query from "@/Utils/request/query";
-import { Code } from "@/types/questionnaire/code";
+import { Code } from "@/types/base/code/code";
 import valuesetRoutes from "@/types/valueset/valuesetApi";
 
 interface Props {

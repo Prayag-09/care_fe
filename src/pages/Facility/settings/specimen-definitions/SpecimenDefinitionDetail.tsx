@@ -8,9 +8,9 @@ import { Button } from "@/components/ui/button";
 import { Card } from "@/components/ui/card";
 
 import query from "@/Utils/request/query";
+import { Code } from "@/types/base/code/code";
 import { DurationSpec } from "@/types/emr/specimenDefinition/specimenDefinition";
 import specimenDefinitionApi from "@/types/emr/specimenDefinition/specimenDefinitionApi";
-import { Code } from "@/types/questionnaire/code";
 
 interface SpecimenDefinitionDetailProps {
   facilityId: string;

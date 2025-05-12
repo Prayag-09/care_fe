@@ -30,6 +30,7 @@ import { Textarea } from "@/components/ui/textarea";
 import ComboboxQuantityInput from "@/components/Common/ComboboxQuantityInput";
 import ValueSetSelect from "@/components/Questionnaire/ValueSetSelect";
 
+import { Code } from "@/types/base/code/code";
 import {
   Preference,
   RETENTION_TIME_UNITS,
@@ -40,7 +41,6 @@ import {
   SpecimenDefinitionCreate,
   SpecimenDefinitionUpdate,
 } from "@/types/emr/specimenDefinition/specimenDefinition";
-import { Code } from "@/types/questionnaire/code";
 
 const typeTestedSchema = z.object({
   is_derived: z.boolean(),

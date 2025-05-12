@@ -1,3 +1,4 @@
+import { Code } from "@/types/base/code/code";
 import {
   ActivityDefinitionReadSpec,
   Category,
@@ -7,7 +8,6 @@ import { Encounter } from "@/types/emr/encounter";
 import { ObservationRead } from "@/types/emr/observation/observation";
 import { SpecimenRead } from "@/types/emr/specimen/specimen";
 import { LocationList } from "@/types/location/location";
-import { Code } from "@/types/questionnaire/code";
 import { UserBase } from "@/types/user/user";
 
 export enum Status {

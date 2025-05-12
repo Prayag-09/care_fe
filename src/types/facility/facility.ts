@@ -1,6 +1,6 @@
+import { Code } from "@/types/base/code/code";
 import { MonetaryComponentRead } from "@/types/base/monetaryComponent/monetaryComponent";
 import { Organization } from "@/types/organization/organization";
-import { Code } from "@/types/questionnaire/code";
 
 export interface FacilityBareMinimum {
   id: string;

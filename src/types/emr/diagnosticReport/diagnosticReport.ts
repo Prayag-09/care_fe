@@ -1,6 +1,6 @@
+import { Code } from "@/types/base/code/code";
 import { Encounter } from "@/types/emr/encounter";
 import { ObservationRead } from "@/types/emr/observation/observation";
-import { Code } from "@/types/questionnaire/code";
 import { UserBase } from "@/types/user/user";
 
 export enum DiagnosticReportStatus {

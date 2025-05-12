@@ -15,7 +15,7 @@ import Loading from "@/components/Common/Loading";
 import Page from "@/components/Common/Page";
 
 import useCurrentFacility from "@/pages/Facility/utils/useCurrentFacility";
-import { Code } from "@/types/questionnaire/code";
+import { Code } from "@/types/base/code/code";
 
 export function TaxCodeSettings() {
   const { t } = useTranslation();

@@ -19,8 +19,8 @@ import { Separator } from "@/components/ui/separator";
 import Page from "@/components/Common/Page";
 
 import query from "@/Utils/request/query";
+import { Code } from "@/types/base/code/code";
 import observationDefinitionApi from "@/types/emr/observationDefinition/observationDefinitionApi";
-import { Code } from "@/types/questionnaire/code";
 
 interface Props {
   facilityId: string;

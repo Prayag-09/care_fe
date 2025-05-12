@@ -10,9 +10,9 @@ import {
   Map,
 } from "lucide-react";
 
+import { Code } from "@/types/base/code/code";
 import { Encounter } from "@/types/emr/encounter";
 import { FacilityOrganization } from "@/types/facilityOrganization/facilityOrganization";
-import { Code } from "@/types/questionnaire/code";
 
 export type AvailabilityStatus = "available" | "unavailable";
 

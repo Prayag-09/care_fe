@@ -1,10 +1,10 @@
+import { Code } from "@/types/base/code/code";
 import {
   DurationSpec,
   QuantitySpec,
   SpecimenDefinitionRead,
   TypeTestedSpec,
 } from "@/types/emr/specimenDefinition/specimenDefinition";
-import { Code } from "@/types/questionnaire/code";
 import { UserBase } from "@/types/user/user";
 
 export enum SpecimenStatus {

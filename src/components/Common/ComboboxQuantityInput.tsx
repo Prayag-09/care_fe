@@ -17,12 +17,12 @@ import {
   PopoverTrigger,
 } from "@/components/ui/popover";
 
+import { Code } from "@/types/base/code/code";
 import {
   DOSAGE_UNITS_CODES,
   DosageQuantity,
 } from "@/types/emr/medicationRequest";
 import { QuantitySpec } from "@/types/emr/specimenDefinition/specimenDefinition";
-import { Code } from "@/types/questionnaire/code";
 
 interface Props {
   quantity?: DosageQuantity | QuantitySpec;

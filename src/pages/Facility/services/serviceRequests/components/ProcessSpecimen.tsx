@@ -15,8 +15,8 @@ import { Textarea } from "@/components/ui/textarea";
 
 import ValueSetSelect from "@/components/Questionnaire/ValueSetSelect";
 
+import { Code } from "@/types/base/code/code";
 import { ProcessingSpec } from "@/types/emr/specimen/specimen";
-import { Code } from "@/types/questionnaire/code";
 
 interface ProcessSpecimenProps {
   onAddProcessing: (processing: ProcessingSpec) => void;
