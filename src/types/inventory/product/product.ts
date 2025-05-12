@@ -1,5 +1,5 @@
 import { ChargeItemDefinitionBase } from "@/types/billing/chargeItemDefinition/chargeItemDefinition";
-import { ProductKnowledgeBase } from "@/types/inventory/productKnowledge";
+import { ProductKnowledgeBase } from "@/types/inventory/productKnowledge/productKnowledge";
 
 export enum ProductStatusOptions {
   active = "active",
