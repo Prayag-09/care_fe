@@ -104,8 +104,8 @@ const monetaryComponentIsEqual = <T extends MonetaryComponent>(a: T, b: T) => {
     a.code?.code === b.code?.code &&
     a.code?.system === b.code?.system &&
     a.code?.display === b.code?.display &&
-    a.factor === b.factor &&
-    a.amount === b.amount
+    a.factor == b.factor &&
+    a.amount == b.amount
   );
 };
 
@@ -132,7 +132,11 @@ function MonetaryComponentSelectionSection({
   const { t } = useTranslation();
 
   const isComponentSelected = (component: MonetaryComponentRead) =>
-    selectedComponents.some((c) => monetaryComponentIsEqual(c, component));
+    selectedComponents.some(
+      (c) =>
+        monetaryComponentIsEqual(c, component) ||
+        (component.code && c.code && component.code.code === c.code.code),
+    );
 
   const getComponentValue = (component: MonetaryComponent) => {
     return component.factor ?? component.amount ?? 0;
@@ -167,6 +171,9 @@ function MonetaryComponentSelectionSection({
           const componentRead = components.find((c) =>
             monetaryComponentIsEqual(c, component),
           );
+
+          console.log({ componentRead, components, component });
+
           return (
             <div
               key={idx}
@@ -558,7 +565,7 @@ export function ChargeItemDefinitionForm({
                 </div> */}
 
                 {/* Base Price */}
-                <div className="flex items-center justify-between pt-2 border-t border-gray-200">
+                <div className="flex items-center justify-between">
                   <div>
                     <h4 className="font-medium text-gray-900">
                       {t("base_price")}

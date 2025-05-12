@@ -36,8 +36,6 @@ export function UpdateChargeItemDefinition({
     retry: 1,
   });
 
-  console.log("Fetched charge item definition:", chargeItemDefinition);
-
   if (isFetching) {
     return (
       <Page title={t("update_charge_item_definition")}>
