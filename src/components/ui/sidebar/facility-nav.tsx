@@ -134,6 +134,10 @@ function generateFacilityLinks(
           name: t("healthcare_services"),
           url: `${baseUrl}/settings/healthcare_services`,
         },
+        {
+          name: t("product_knowledge"),
+          url: `${baseUrl}/settings/product_knowledge`,
+        },
       ],
     },
   ];

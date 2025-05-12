@@ -24,6 +24,9 @@ import ObservationDefinitionForm from "./observationDefinition/ObservationDefini
 import ObservationDefinitionList from "./observationDefinition/ObservationDefinitionList";
 import ObservationDefinitionView from "./observationDefinition/ObservationDefinitionView";
 import FacilityOrganizationList from "./organizations/FacilityOrganizationList";
+import ProductKnowledgeForm from "./productKnowledge/ProductKnowledgeForm";
+import ProductKnowledgeList from "./productKnowledge/ProductKnowledgeList";
+import ProductKnowledgeView from "./productKnowledge/ProductKnowledgeView";
 import { CreateSpecimenDefinition } from "./specimen-definitions/CreateSpecimenDefinition";
 import { SpecimenDefinitionDetail } from "./specimen-definitions/SpecimenDefinitionDetail";
 import { SpecimenDefinitionsList } from "./specimen-definitions/SpecimenDefinitionsList";
@@ -132,6 +135,16 @@ const getRoutes = (facilityId: string) => ({
       facilityId={facilityId}
       chargeItemDefinitionId={id}
     />
+  ),
+  "/product_knowledge": () => <ProductKnowledgeList facilityId={facilityId} />,
+  "/product_knowledge/new": () => (
+    <ProductKnowledgeForm facilityId={facilityId} />
+  ),
+  "/product_knowledge/:id": ({ id }: { id: string }) => (
+    <ProductKnowledgeView facilityId={facilityId} productKnowledgeId={id} />
+  ),
+  "/product_knowledge/:id/edit": ({ id }: { id: string }) => (
+    <ProductKnowledgeForm facilityId={facilityId} productKnowledgeId={id} />
   ),
 
   "*": () => <ErrorPage />,

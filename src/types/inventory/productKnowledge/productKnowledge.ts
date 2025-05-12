@@ -27,10 +27,10 @@ export interface StorageGuideline {
 export interface ProductDefinition {
   dosage_form: Code;
   intended_routes: Code[];
-  //   TODO: Add ingredients, nutrients, and drug_characteristic types when BE is ready
-  //   ingredients: Code[];
-  //   nutrients: Code[];
-  //   drug_characteristic: Code[];
+  // TODO: Add ingredients, nutrients, and drug_characteristic types when BE is ready
+  ingredients: Code[];
+  nutrients: Code[];
+  drug_characteristic: { id?: string };
 }
 
 export interface ProductKnowledgeBase {
