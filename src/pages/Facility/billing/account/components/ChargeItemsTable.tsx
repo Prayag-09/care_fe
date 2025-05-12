@@ -2,9 +2,11 @@ import { useQuery } from "@tanstack/react-query";
 import {
   ChevronDown,
   ChevronUp,
+  ExternalLinkIcon,
   MoreHorizontal,
   PencilIcon,
 } from "lucide-react";
+import { Link } from "raviger";
 import { useState } from "react";
 import { useTranslation } from "react-i18next";
 
@@ -201,6 +203,7 @@ export function ChargeItemsTable({
               <TableRow>
                 <TableHead className="w-[40px]"></TableHead>
                 <TableHead>{t("item")}</TableHead>
+                <TableHead>{t("resource")}</TableHead>
                 <TableHead>{t("unit_price")}</TableHead>
                 <TableHead>{t("quantity")}</TableHead>
                 <TableHead>{t("total")}</TableHead>
@@ -240,10 +243,22 @@ export function ChargeItemsTable({
                       <TableCell className="font-medium">
                         {item.title}
                         {item.description && (
-                          <p className="text-xs text-gray-500">
+                          <p className="text-xs text-gray-500 whitespace-pre-wrap">
                             {item.description}
                           </p>
                         )}
+                      </TableCell>
+                      <TableCell>
+                        {item.service_resource === "service_request" &&
+                          item.service_resource_id && (
+                            <Link
+                              href={`/facility/${facilityId}/services_requests/${item.service_resource_id}`}
+                              className="flex items-center gap-0.5 underline text-gray-600"
+                            >
+                              {t("service_request")}
+                              <ExternalLinkIcon className="size-3" />
+                            </Link>
+                          )}
                       </TableCell>
                       <TableCell>
                         <MonetaryDisplay amount={baseAmount} />

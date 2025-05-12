@@ -21,6 +21,7 @@ import useBreakpoints from "@/hooks/useBreakpoints";
 
 import mutate from "@/Utils/request/mutate";
 import query from "@/Utils/request/query";
+import chargeItemApi from "@/types/billing/chargeItem/chargeItemApi";
 import activityDefinitionApi from "@/types/emr/activityDefinition/activityDefinitionApi";
 import { DiagnosticReportStatus } from "@/types/emr/diagnosticReport/diagnosticReport";
 import serviceRequestApi from "@/types/emr/serviceRequest/serviceRequestApi";
@@ -28,6 +29,7 @@ import { SpecimenRead, SpecimenStatus } from "@/types/emr/specimen/specimen";
 import specimenApi from "@/types/emr/specimen/specimenApi";
 import { SpecimenDefinitionRead } from "@/types/emr/specimenDefinition/specimenDefinition";
 
+import { ChargeItemCard } from "./components/ChargeItemCard";
 import { DiagnosticReportForm } from "./components/DiagnosticReportForm";
 import { DiagnosticReportReview } from "./components/DiagnosticReportReview";
 import { PatientHeader } from "./components/PatientHeader";
@@ -68,6 +70,20 @@ export default function ServiceRequestShow({
         serviceRequestId: serviceRequestId,
       },
     }),
+  });
+
+  const { data: chargeItems, isLoading: _isLoadingChargeItems } = useQuery({
+    queryKey: ["chargeItems", serviceRequestId],
+    queryFn: query(chargeItemApi.listChargeItem, {
+      pathParams: {
+        facilityId: facilityId,
+      },
+      queryParams: {
+        service_resource: "service_request",
+        service_resource_id: serviceRequestId,
+      },
+    }),
+    enabled: !!serviceRequestId,
   });
 
   const { mutate: createDraftSpecimenFromDefinition } = useMutation({
@@ -219,6 +235,11 @@ export default function ServiceRequestShow({
             request={request}
             activityDefinition={activityDefinition}
           />
+          {chargeItems &&
+            chargeItems.results.length > 0 &&
+            chargeItems.results.map((chargeItem) => (
+              <ChargeItemCard key={chargeItem.id} chargeItem={chargeItem} />
+            ))}
           {specimenRequirements.length > 0 && !selectedSpecimenDefinition && (
             <div className="space-y-6">
               <div className="flex items-center justify-between">

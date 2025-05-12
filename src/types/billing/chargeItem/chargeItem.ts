@@ -1,5 +1,6 @@
 import { MonetaryComponent } from "@/types/base/monetaryComponent/monetaryComponent";
 import { ChargeItemDefinitionBase } from "@/types/billing/chargeItemDefinition/chargeItemDefinition";
+import { InvoiceRead } from "@/types/billing/invoice/invoice";
 
 export enum ChargeItemStatus {
   planned = "planned",
@@ -35,18 +36,42 @@ export interface ChargeItemBase {
   unit_price_components: MonetaryComponent[];
   note?: string;
   override_reason?: ChargeItemOverrideReason;
+  service_resource?: "service_request";
+  service_resource_id?: string;
+  total_price: number;
+  paid_invoice?: InvoiceRead;
 }
 
-export interface ChargeItemCreate extends Omit<ChargeItemBase, "id"> {
+export interface ChargeItemCreate
+  extends Omit<
+    ChargeItemBase,
+    | "id"
+    | "service_resource_id"
+    | "service_resource"
+    | "paid_invoice"
+    | "total_price"
+  > {
   encounter: string;
   account?: string;
 }
 
-export interface ChargeItemUpsert extends Omit<ChargeItemBase, "id"> {
+export interface ChargeItemUpsert
+  extends Omit<
+    ChargeItemBase,
+    | "id"
+    | "service_resource_id"
+    | "service_resource"
+    | "paid_invoice"
+    | "total_price"
+  > {
   id?: string;
   account?: string;
 }
-export interface ChargeItemUpdate extends ChargeItemBase {
+export interface ChargeItemUpdate
+  extends Omit<
+    ChargeItemBase,
+    "service_resource_id" | "service_resource" | "paid_invoice" | "total_price"
+  > {
   account?: string;
 }
 
