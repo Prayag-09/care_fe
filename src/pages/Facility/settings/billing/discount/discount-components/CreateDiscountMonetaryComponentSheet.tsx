@@ -6,17 +6,19 @@ import { toast } from "sonner";
 
 import { Button } from "@/components/ui/button";
 import {
-  Popover,
-  PopoverContent,
-  PopoverTrigger,
-} from "@/components/ui/popover";
+  Sheet,
+  SheetContent,
+  SheetHeader,
+  SheetTitle,
+  SheetTrigger,
+} from "@/components/ui/sheet";
 
 import mutate from "@/Utils/request/mutate";
 import { DiscountMonetaryComponentForm } from "@/pages/Facility/settings/billing/discount/discount-components/DiscountMonetaryComponentForm";
 import useCurrentFacility from "@/pages/Facility/utils/useCurrentFacility";
 import facilityApi from "@/types/facility/facilityApi";
 
-export function CreateDiscountMonetaryComponentPopover() {
+export function CreateDiscountMonetaryComponentSheet() {
   const { t } = useTranslation();
   const { facility, facilityId } = useCurrentFacility();
   const queryClient = useQueryClient();
@@ -33,31 +35,36 @@ export function CreateDiscountMonetaryComponentPopover() {
   });
 
   return (
-    <Popover open={open} onOpenChange={setOpen}>
-      <PopoverTrigger asChild>
+    <Sheet open={open} onOpenChange={setOpen}>
+      <SheetTrigger asChild>
         <Button variant="outline" size="sm">
-          <PlusIcon />
+          <PlusIcon className="size-4 mr-2" />
           {t("create_discount_component")}
         </Button>
-      </PopoverTrigger>
-      <PopoverContent className="w-80" align="end">
-        <DiscountMonetaryComponentForm
-          onSubmit={(data) => {
-            if (!facility) {
-              return;
-            }
+      </SheetTrigger>
+      <SheetContent className="sm:max-w-md">
+        <SheetHeader>
+          <SheetTitle>{t("create_discount_component")}</SheetTitle>
+        </SheetHeader>
+        <div className="mt-6">
+          <DiscountMonetaryComponentForm
+            onSubmit={(data) => {
+              if (!facility) {
+                return;
+              }
 
-            setOpen(false);
-            createComponent({
-              discount_monetary_components: [
-                ...(facility.discount_monetary_components ?? []),
-                data,
-              ],
-              discount_codes: facility.discount_codes,
-            });
-          }}
-        />
-      </PopoverContent>
-    </Popover>
+              setOpen(false);
+              createComponent({
+                discount_monetary_components: [
+                  ...(facility.discount_monetary_components ?? []),
+                  data,
+                ],
+                discount_codes: facility.discount_codes,
+              });
+            }}
+          />
+        </div>
+      </SheetContent>
+    </Sheet>
   );
 }

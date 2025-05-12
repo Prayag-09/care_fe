@@ -7,6 +7,7 @@ import { Button } from "@/components/ui/button";
 import {
   Form,
   FormControl,
+  FormDescription,
   FormField,
   FormItem,
   FormLabel,
@@ -60,6 +61,9 @@ export function DiscountCodeForm({
               <FormControl>
                 <Input {...field} />
               </FormControl>
+              <FormDescription>
+                {t("discount_code_name_description")}
+              </FormDescription>
               <FormMessage />
             </FormItem>
           )}
@@ -74,6 +78,9 @@ export function DiscountCodeForm({
               <FormControl>
                 <Input {...field} />
               </FormControl>
+              <FormDescription>
+                {t("discount_code_code_description")}
+              </FormDescription>
               <FormMessage />
             </FormItem>
           )}

@@ -31,12 +31,11 @@ import Loading from "@/components/Common/Loading";
 import Page from "@/components/Common/Page";
 
 import mutate from "@/Utils/request/mutate";
+import { CreateDiscountMonetaryComponentSheet } from "@/pages/Facility/settings/billing/discount/discount-components/CreateDiscountMonetaryComponentSheet";
+import { EditDiscountMonetarySheet } from "@/pages/Facility/settings/billing/discount/discount-components/EditDiscountMonetarySheet";
 import useCurrentFacility from "@/pages/Facility/utils/useCurrentFacility";
 import { MonetaryComponentRead } from "@/types/base/monetaryComponent/monetaryComponent";
 import facilityApi from "@/types/facility/facilityApi";
-
-import { CreateDiscountMonetaryComponentPopover } from "./CreateDiscountMonetaryComponentPopover";
-import { EditDiscountMonetaryPopover } from "./EditDiscountMonetaryPopover";
 
 export interface AnnotatedMonetaryComponent extends MonetaryComponentRead {
   isInstance: boolean;
@@ -116,7 +115,7 @@ export function DiscountComponentSettings() {
               onChange={(e) => setSearch(e.target.value)}
               className="w-[300px]"
             />
-            <CreateDiscountMonetaryComponentPopover />
+            <CreateDiscountMonetaryComponentSheet />
           </div>
         }
       >
@@ -176,7 +175,7 @@ export function DiscountComponentSettings() {
                     <TableCell>
                       {!component.isInstance && (
                         <div className="flex justify-end space-x-1">
-                          <EditDiscountMonetaryPopover
+                          <EditDiscountMonetarySheet
                             component={component}
                             disabled={isPending}
                           />
