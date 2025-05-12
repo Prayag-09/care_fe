@@ -1,6 +1,5 @@
 import { useQuery } from "@tanstack/react-query";
 import { Link } from "raviger";
-import React from "react";
 import { useTranslation } from "react-i18next";
 
 import CareIcon from "@/CAREUI/icons/CareIcon";
@@ -9,6 +8,14 @@ import { Badge } from "@/components/ui/badge";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { MonetaryDisplay } from "@/components/ui/monetary-display";
+import {
+  Select,
+  SelectContent,
+  SelectGroup,
+  SelectItem,
+  SelectTrigger,
+  SelectValue,
+} from "@/components/ui/select";
 import {
   Table,
   TableBody,
@@ -22,6 +29,8 @@ import { Tabs, TabsList, TabsTrigger } from "@/components/ui/tabs";
 import { TableSkeleton } from "@/components/Common/SkeletonLoading";
 
 import useFilters from "@/hooks/useFilters";
+
+import { RESULTS_PER_PAGE_LIMIT } from "@/common/constants";
 
 import query from "@/Utils/request/query";
 import { InvoiceRead, InvoiceStatus } from "@/types/billing/invoice/invoice";
@@ -55,7 +64,7 @@ export default function InvoicesData({
 }) {
   const { t } = useTranslation();
   const { qParams, updateQuery, Pagination, resultsPerPage } = useFilters({
-    limit: 15,
+    limit: RESULTS_PER_PAGE_LIMIT,
     disableCache: true,
   });
 
@@ -82,19 +91,19 @@ export default function InvoicesData({
 
   return (
     <>
-      <div className="flex flex-row justify-between items-center gap-2">
+      <div className="flex flex-row justify-between items-center gap-2 max-sm:flex-col">
         <Input
           placeholder={t("search_invoices")}
           value={qParams.search || ""}
           onChange={(e) => updateQuery({ search: e.target.value || undefined })}
-          className="max-w-xs"
+          className="sm:max-w-xs"
         />
         <Tabs
           defaultValue={qParams.status ?? "all"}
           onValueChange={(value) =>
             updateQuery({ status: value === "all" ? undefined : value })
           }
-          className="mx-4 mb-4"
+          className="max-sm:hidden"
         >
           <TabsList>
             <TabsTrigger value="all">{t("all")}</TabsTrigger>
@@ -105,6 +114,27 @@ export default function InvoicesData({
             ))}
           </TabsList>
         </Tabs>
+
+        <Select
+          defaultValue={qParams.status ?? "all"}
+          onValueChange={(value) =>
+            updateQuery({ status: value === "all" ? undefined : value })
+          }
+        >
+          <SelectTrigger className="sm:hidden">
+            <SelectValue placeholder={t("filter_by_status")} />
+          </SelectTrigger>
+          <SelectContent>
+            <SelectGroup>
+              <SelectItem value="all">t("all")</SelectItem>
+              {Object.values(InvoiceStatus).map((status) => (
+                <SelectItem key={status} value={status}>
+                  {t(statusMap[status].label)}
+                </SelectItem>
+              ))}
+            </SelectGroup>
+          </SelectContent>
+        </Select>
       </div>
       {isLoading ? (
         <TableSkeleton count={3} />
@@ -169,7 +199,7 @@ export default function InvoicesData({
           </Table>
         </div>
       )}
-      {<Pagination totalCount={invoices.length} />}
+      {response && <Pagination totalCount={response.count} />}
     </>
   );
 }

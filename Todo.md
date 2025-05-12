@@ -21,10 +21,6 @@ x : Done
 - [-] Service Request - Show specimen.collection.collector details instead of UUID (After BE change) - Vignesh
 - [-] Service Request - Show specimen.processing.performer details instead of UUID (After BE change) - Vignesh
 - [ ] Service request should show linked cahrge items along with its status [check for backend support]
-- [x] Move the workflow progress into a sheet for small devices - Yaswanth
-- [x] Hide the sidebar on SR show - (Sugegstion from Vinu) - Yaswanth
-- [x] Show the specimen history inside a sheet on SR show - Yaswanth
-- [x] [!BUG!] Allow re-creating the draft specimen after discrard - when the specimen is not in available or draft status - Yaswanth
 
 ## Back End
 
@@ -35,6 +31,7 @@ x : Done
 - [ ] Need sort by payment_datetime for Payment Reconciliation list
 - [ ] Replace Charge Item Create with ChargeItemDef to ChargeItem API
 - [ ] Add support for information codes (such as MRP)
+- [ ] Disallow same code for the same component type in Charge Item's pricing components (https://github.com/ohcnetwork/care/pull/3033) - Rithvik
 
 # Archived
 
@@ -85,7 +82,6 @@ x : Done
 - [x] [!BUG!] Specimen Discard broken - Hide from SR after discard, should be able to collect the same specimen again - Yaswanth
 - [x] Currently when ever we interact with discard specimen dialog the below specimen collapsible is getting expanded and collapsed. This should not happen. - Yaswanth
 - [x] Implement barcode in service request after creating the Specimen - Manyu & Amjith
-
 - [x] In service request create from AD lets remove status, intent, category, do not perform and locations. (These should be shown along with the name for information purpose) - Manyu
 - [x] If no specimen def is avilable then lets not empty state - Amjith
 - [x] Lets move uploaded files list to above the Choose file Card - Yash
@@ -94,3 +90,7 @@ x : Done
 - [x] Link to diganostic report page should be added to the service request - Yash
 - [x] We should have an option to capture conclusion in diagnostic report- Yash
 - [x] Workflow statuses on the right side as per design should be created. - Amjith
+- [x] Move the workflow progress into a sheet for small devices - Yaswanth
+- [x] Hide the sidebar on SR show - (Sugegstion from Vinu) - Yaswanth
+- [x] Show the specimen history inside a sheet on SR show - Yaswanth
+- [x] [!BUG!] Allow re-creating the draft specimen after discrard - when the specimen is not in available or draft status - Yaswanth

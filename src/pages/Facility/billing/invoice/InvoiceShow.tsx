@@ -1,6 +1,6 @@
 import { useMutation, useQuery, useQueryClient } from "@tanstack/react-query";
 import { format } from "date-fns";
-import { ChevronDown, ChevronUp, MoreHorizontal } from "lucide-react";
+import { MoreHorizontal } from "lucide-react";
 import { Link } from "raviger";
 import React, { useState } from "react";
 import { useTranslation } from "react-i18next";
@@ -50,13 +50,14 @@ import mutate from "@/Utils/request/mutate";
 import query from "@/Utils/request/query";
 import PaymentReconciliationSheet from "@/pages/Facility/billing/PaymentReconciliationSheet";
 import EditInvoiceSheet from "@/pages/Facility/billing/invoice/EditInvoiceSheet";
-import {
-  MonetaryComponent,
-  MonetaryComponentType,
-} from "@/types/base/monetaryComponent/monetaryComponent";
+import { MonetaryComponentType } from "@/types/base/monetaryComponent/monetaryComponent";
 import { CHARGE_ITEM_STATUS_STYLES } from "@/types/billing/chargeItem/chargeItem";
 import chargeItemApi from "@/types/billing/chargeItem/chargeItemApi";
-import { InvoiceCreate, InvoiceStatus } from "@/types/billing/invoice/invoice";
+import {
+  InvoiceCreate,
+  InvoiceRead,
+  InvoiceStatus,
+} from "@/types/billing/invoice/invoice";
 import invoiceApi from "@/types/billing/invoice/invoiceApi";
 import {
   PaymentReconciliationPaymentMethod,
@@ -64,6 +65,7 @@ import {
   PaymentReconciliationType,
 } from "@/types/billing/paymentReconciliation/paymentReconciliation";
 import paymentReconciliationApi from "@/types/billing/paymentReconciliation/paymentReconciliationApi";
+import facilityApi from "@/types/facility/facilityApi";
 
 const statusMap: Record<InvoiceStatus, { label: string; color: string }> = {
   draft: { label: "Draft", color: "secondary" },
@@ -93,51 +95,6 @@ const paymentMethodMap: Record<PaymentReconciliationPaymentMethod, string> = {
   debc: "Debit Card",
 };
 
-interface PriceComponentRowProps {
-  label: string;
-  components: MonetaryComponent[];
-  totalPriceComponents: MonetaryComponent[];
-}
-
-function PriceComponentRow({
-  label,
-  components,
-  totalPriceComponents,
-}: PriceComponentRowProps) {
-  if (!components.length) return null;
-
-  return (
-    <>
-      {components.map((component, index) => {
-        console.log("index", index, component, totalPriceComponents[index]);
-        return (
-          <TableRow
-            key={`${label}-${index}`}
-            className="text-xs text-gray-500 bg-muted/30"
-          >
-            <TableCell></TableCell>
-            <TableCell>
-              {component.code && `${component.code.display} `}({label})
-            </TableCell>
-            <TableCell>
-              <MonetaryDisplay {...component} />
-            </TableCell>
-            <TableCell></TableCell>
-            <TableCell>
-              {component.monetary_component_type ===
-              MonetaryComponentType.discount
-                ? "- "
-                : "+ "}
-              <MonetaryDisplay amount={totalPriceComponents[index]?.amount} />
-            </TableCell>
-            <TableCell></TableCell>
-          </TableRow>
-        );
-      })}
-    </>
-  );
-}
-
 export function InvoiceShow({
   facilityId,
   invoiceId,
@@ -150,14 +107,19 @@ export function InvoiceShow({
   const [chargeItemToRemove, setChargeItemToRemove] = useState<string | null>(
     null,
   );
-  const [expandedItems, setExpandedItems] = useState<Record<string, boolean>>(
-    {},
-  );
   const [reasonDialogOpen, setReasonDialogOpen] = useState(false);
   const [selectedStatus, setSelectedStatus] = useState<InvoiceStatus | null>(
     null,
   );
   const queryClient = useQueryClient();
+
+  // Fetch facility data for available components
+  const { data: facilityData } = useQuery({
+    queryKey: ["facility", facilityId],
+    queryFn: query(facilityApi.getFacility, {
+      pathParams: { id: facilityId },
+    }),
+  });
 
   const { data: invoice, isLoading } = useQuery({
     queryKey: ["invoice", invoiceId],
@@ -224,13 +186,6 @@ export function InvoiceShow({
     }
   };
 
-  const toggleItemExpand = (itemId: string) => {
-    setExpandedItems((prev) => ({
-      ...prev,
-      [itemId]: !prev[itemId],
-    }));
-  };
-
   const getUnitComponentsByType = (item: any, type: MonetaryComponentType) => {
     return (
       item.unit_price_components?.filter(
@@ -239,12 +194,18 @@ export function InvoiceShow({
     );
   };
 
-  const getTotalComponentsByType = (item: any, type: MonetaryComponentType) => {
-    return (
-      item.total_price_components?.filter(
-        (c: any) => c.monetary_component_type === type,
-      ) || []
-    );
+  const getApplicableTaxColumns = (invoice: InvoiceRead) => {
+    // Get all unique tax codes from invoice charge items using a Set
+    const invoiceTaxCodes = new Set<string>();
+    invoice.charge_items.forEach((item) => {
+      getUnitComponentsByType(item, MonetaryComponentType.tax).forEach(
+        (taxComponent: any) => {
+          invoiceTaxCodes.add(taxComponent.code.code);
+        },
+      );
+    });
+    // Convert Set back to array for return value
+    return Array.from(invoiceTaxCodes);
   };
 
   const getBaseComponent = (item: any) => {
@@ -504,10 +465,13 @@ export function InvoiceShow({
                 <Table>
                   <TableHeader>
                     <TableRow>
-                      <TableHead className="w-[40px]"></TableHead>
                       <TableHead>{t("item")}</TableHead>
                       <TableHead>{t("unit_price")}</TableHead>
-                      <TableHead>{t("quantity")}</TableHead>
+                      <TableHead>{t("qty")}</TableHead>
+                      <TableHead>{t("discount")}</TableHead>
+                      {getApplicableTaxColumns(invoice).map((taxCode) => (
+                        <TableHead key={taxCode}>{t(taxCode)}</TableHead>
+                      ))}
                       <TableHead>{t("total")}</TableHead>
                       <TableHead className="w-[120px]">{t("status")}</TableHead>
                       {invoice?.status === InvoiceStatus.draft && (
@@ -529,40 +493,72 @@ export function InvoiceShow({
                       </TableRow>
                     ) : (
                       invoice.charge_items.flatMap((item) => {
-                        const isExpanded = expandedItems[item.id] || false;
                         const baseComponent = getBaseComponent(item);
                         const baseAmount = baseComponent?.amount || 0;
 
                         const mainRow = (
                           <TableRow key={item.id} className="hover:bg-muted/50">
-                            <TableCell>
-                              <Button
-                                variant="ghost"
-                                size="icon"
-                                className="h-6 w-6"
-                                onClick={() => toggleItemExpand(item.id)}
-                              >
-                                {isExpanded ? (
-                                  <ChevronUp className="h-4 w-4" />
-                                ) : (
-                                  <ChevronDown className="h-4 w-4" />
-                                )}
-                              </Button>
-                            </TableCell>
-                            <TableCell className="font-medium">
+                            <TableCell className="font-medium align-top">
                               {item.title}
-                              <div className="text-xs text-gray-500">
-                                {item.id}
-                              </div>
                             </TableCell>
-                            <TableCell>
+                            <TableCell className="align-top">
                               <MonetaryDisplay amount={baseAmount} />
                             </TableCell>
-                            <TableCell>{item.quantity}</TableCell>
-                            <TableCell>
+                            <TableCell className="align-top">
+                              {item.quantity}
+                            </TableCell>
+                            <TableCell className="align-top">
+                              <MonetaryDisplay
+                                amount={item.total_price_components
+                                  .filter(
+                                    (c) =>
+                                      c.monetary_component_type ===
+                                      MonetaryComponentType.discount,
+                                  )
+                                  .reduce(
+                                    (acc, curr) => acc + (curr.amount || 0),
+                                    0,
+                                  )}
+                              />
+                            </TableCell>
+                            {facilityData &&
+                              getApplicableTaxColumns(invoice).map(
+                                (taxCode) => (
+                                  <TableCell
+                                    key={taxCode}
+                                    className="align-top"
+                                  >
+                                    {(() => {
+                                      const totalAmount =
+                                        item.total_price_components.find(
+                                          (c) => c.code?.code === taxCode,
+                                        )?.amount;
+                                      const unitAmount =
+                                        item.unit_price_components.find(
+                                          (c) => c.code?.code === taxCode,
+                                        );
+                                      return (
+                                        <div className="flex flex-col items-center gap-0.5">
+                                          <MonetaryDisplay
+                                            amount={totalAmount}
+                                          />
+                                          <div className="items-center text-xs text-gray-500">
+                                            {totalAmount && (
+                                              <MonetaryDisplay
+                                                {...unitAmount}
+                                              />
+                                            )}
+                                          </div>
+                                        </div>
+                                      );
+                                    })()}
+                                  </TableCell>
+                                ),
+                              )}
+                            <TableCell className="align-top">
                               <MonetaryDisplay amount={item.total_price} />
                             </TableCell>
-                            <TableCell>
+                            <TableCell className="align-top">
                               <Badge
                                 variant="outline"
                                 className={
@@ -572,7 +568,7 @@ export function InvoiceShow({
                                 {t(item.status)}
                               </Badge>
                             </TableCell>
-                            <TableCell>
+                            <TableCell className="align-top">
                               {invoice.status === InvoiceStatus.draft && (
                                 <DropdownMenu>
                                   <DropdownMenuTrigger asChild>
@@ -608,55 +604,7 @@ export function InvoiceShow({
                           </TableRow>
                         );
 
-                        if (!isExpanded) return [mainRow];
-
-                        const detailRows = [
-                          <PriceComponentRow
-                            key={`${item.id}-discounts`}
-                            label={t("discounts")}
-                            components={getUnitComponentsByType(
-                              item,
-                              MonetaryComponentType.discount,
-                            )}
-                            totalPriceComponents={getTotalComponentsByType(
-                              item,
-                              MonetaryComponentType.discount,
-                            )}
-                          />,
-                          <PriceComponentRow
-                            key={`${item.id}-taxes`}
-                            label={t("taxes")}
-                            components={getUnitComponentsByType(
-                              item,
-                              MonetaryComponentType.tax,
-                            )}
-                            totalPriceComponents={getTotalComponentsByType(
-                              item,
-                              MonetaryComponentType.tax,
-                            )}
-                          />,
-                        ];
-
-                        const summaryRow = (
-                          <TableRow
-                            key={`${item.id}-summary`}
-                            className="bg-muted/30 font-medium"
-                          >
-                            <TableCell></TableCell>
-                            <TableCell>{t("total")}</TableCell>
-                            <TableCell></TableCell>
-                            <TableCell></TableCell>
-                            <TableCell>
-                              <MonetaryDisplay amount={item.total_price} />
-                            </TableCell>
-                            <TableCell></TableCell>
-                            <TableCell></TableCell>
-                          </TableRow>
-                        );
-
-                        return [mainRow, ...detailRows, summaryRow].filter(
-                          Boolean,
-                        );
+                        return [mainRow];
                       })
                     )}
                   </TableBody>

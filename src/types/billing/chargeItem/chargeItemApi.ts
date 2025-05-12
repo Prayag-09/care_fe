@@ -6,6 +6,7 @@ import {
   ChargeItemCreate,
   ChargeItemRead,
   ChargeItemUpdate,
+  ChargeItemUpsert,
 } from "./chargeItem";
 
 export default {
@@ -35,7 +36,7 @@ export default {
     path: "/api/v1/facility/{facilityId}/charge_item/upsert/",
     method: HttpMethod.POST,
     TRes: Type<ChargeItemRead>(),
-    TBody: Type<{ datapoints: ChargeItemCreate[] }>(),
+    TBody: Type<{ datapoints: ChargeItemUpsert[] }>(),
   },
   addChargeItemsToInvoice: {
     path: "/api/v1/facility/{facilityId}/invoice/{invoiceId}/attach_items_to_invoice/",

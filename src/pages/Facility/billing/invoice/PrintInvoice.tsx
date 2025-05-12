@@ -9,62 +9,26 @@ import PrintPreview from "@/CAREUI/misc/PrintPreview";
 
 import { MonetaryDisplay } from "@/components/ui/monetary-display";
 import { Separator } from "@/components/ui/separator";
+import {
+  Table,
+  TableBody,
+  TableCell,
+  TableHead,
+  TableHeader,
+  TableRow,
+} from "@/components/ui/table";
 
 import Loading from "@/components/Common/Loading";
 
 import query from "@/Utils/request/query";
-import {
-  MonetaryComponent,
-  MonetaryComponentType,
-} from "@/types/base/monetaryComponent/monetaryComponent";
+import { MonetaryComponentType } from "@/types/base/monetaryComponent/monetaryComponent";
+import { InvoiceRead } from "@/types/billing/invoice/invoice";
 import invoiceApi from "@/types/billing/invoice/invoiceApi";
 
 type PrintInvoiceProps = {
   facilityId: string;
   invoiceId: string;
 };
-
-interface PriceComponentRowProps {
-  label: string;
-  components: MonetaryComponent[];
-  totalPriceComponents: MonetaryComponent[];
-}
-
-function PriceComponentRow({
-  label,
-  components,
-  totalPriceComponents,
-}: PriceComponentRowProps) {
-  if (!components.length) return null;
-
-  return (
-    <>
-      {components.map((component, index) => {
-        return (
-          <tr
-            key={`${label}-${index}`}
-            className="text-xs text-gray-500 bg-muted/30"
-          >
-            <td className="py-2 pl-8">
-              {component.code && `${component.code.display} `}({label})
-            </td>
-            <td className="py-2 text-right">
-              <MonetaryDisplay {...component} />
-            </td>
-            <td className="py-2 text-right"></td>
-            <td className="py-2 text-right">
-              {component.monetary_component_type ===
-              MonetaryComponentType.discount
-                ? "- "
-                : "+ "}
-              <MonetaryDisplay amount={totalPriceComponents[index]?.amount} />
-            </td>
-          </tr>
-        );
-      })}
-    </>
-  );
-}
 
 export function PrintInvoice({ facilityId, invoiceId }: PrintInvoiceProps) {
   const { t } = useTranslation();
@@ -84,6 +48,40 @@ export function PrintInvoice({ facilityId, invoiceId }: PrintInvoiceProps) {
   const age = patient.date_of_birth
     ? differenceInYears(new Date(), new Date(patient.date_of_birth))
     : null;
+
+  const getUnitComponentsByType = (item: any, type: MonetaryComponentType) => {
+    return (
+      item.unit_price_components?.filter(
+        (c: any) => c.monetary_component_type === type,
+      ) || []
+    );
+  };
+
+  const getTotalComponentsByType = (item: any, type: MonetaryComponentType) => {
+    return (
+      item.total_price_components?.filter(
+        (c: any) => c.monetary_component_type === type,
+      ) || []
+    );
+  };
+
+  const getApplicableTaxColumns = (invoice: InvoiceRead) => {
+    const invoiceTaxCodes = new Set<string>();
+    invoice.charge_items.forEach((item) => {
+      getUnitComponentsByType(item, MonetaryComponentType.tax).forEach(
+        (taxComponent: any) => {
+          invoiceTaxCodes.add(taxComponent.code.code);
+        },
+      );
+    });
+    return Array.from(invoiceTaxCodes);
+  };
+
+  const getBaseComponent = (item: any) => {
+    return item.unit_price_components?.find(
+      (c: any) => c.monetary_component_type === MonetaryComponentType.base,
+    );
+  };
 
   return (
     <PrintPreview title={`${t("invoice")} #${invoice.id}`}>
@@ -145,112 +143,105 @@ export function PrintInvoice({ facilityId, invoiceId }: PrintInvoiceProps) {
           </div>
         </div>
 
-        <Separator className="my-8" />
+        <Separator className="my-4" />
 
         {/* Items Table */}
         <div className="overflow-x-auto">
-          <table className="w-full">
-            <thead>
-              <tr className="border-b text-sm">
-                <th className="pb-2 text-left font-medium text-gray-500">
+          <Table className="w-full">
+            <TableHeader>
+              <TableRow>
+                <TableHead className="p-1 font-medium text-gray-500">
                   {t("item")}
-                </th>
-                <th className="pb-2 text-right font-medium text-gray-500">
+                </TableHead>
+                <TableHead className="p-1 font-medium text-gray-500">
                   {t("unit_price")}
-                </th>
-                <th className="pb-2 text-right font-medium text-gray-500">
+                </TableHead>
+                <TableHead className="p-1 font-medium text-gray-500">
                   {t("qty")}
-                </th>
-                <th className="pb-2 text-right font-medium text-gray-500">
-                  {t("amount")}
-                </th>
-              </tr>
-            </thead>
-            <tbody>
+                </TableHead>
+                <TableHead className="p-1 font-medium text-gray-500">
+                  {t("discount")}
+                </TableHead>
+                {getApplicableTaxColumns(invoice).map((taxCode) => (
+                  <TableHead
+                    key={taxCode}
+                    className="p-1 font-medium text-gray-500"
+                  >
+                    {t(taxCode)}
+                  </TableHead>
+                ))}
+                <TableHead className="p-1 font-medium text-gray-500">
+                  {t("total")}
+                </TableHead>
+              </TableRow>
+            </TableHeader>
+            <TableBody>
               {invoice.charge_items.map((item) => {
-                const baseComponent = item.unit_price_components?.find(
-                  (c) =>
-                    c.monetary_component_type === MonetaryComponentType.base,
-                );
+                const baseComponent = getBaseComponent(item);
                 const baseAmount = baseComponent?.amount || 0;
 
-                const getUnitComponentsByType = (
-                  type: MonetaryComponentType,
-                ) => {
-                  return (
-                    item.unit_price_components?.filter(
-                      (c) => c.monetary_component_type === type,
-                    ) || []
-                  );
-                };
-
-                const getTotalComponentsByType = (
-                  type: MonetaryComponentType,
-                ) => {
-                  return (
-                    item.total_price_components?.filter(
-                      (c) => c.monetary_component_type === type,
-                    ) || []
-                  );
-                };
-
                 return (
-                  <React.Fragment key={item.id}>
-                    <tr className="border-b">
-                      <td className="py-4">
-                        <div>
-                          <div>{item.title}</div>
-                          <div className="text-xs text-gray-500">{item.id}</div>
-                        </div>
-                      </td>
-                      <td className="py-4 text-right">
-                        <MonetaryDisplay amount={baseAmount} />
-                      </td>
-                      <td className="py-4 text-right">{item.quantity}</td>
-                      <td className="py-4 text-right">
-                        <MonetaryDisplay amount={item.total_price} />
-                      </td>
-                    </tr>
-                    <PriceComponentRow
-                      label={t("surcharges")}
-                      components={getUnitComponentsByType(
-                        MonetaryComponentType.surcharge,
-                      )}
-                      totalPriceComponents={getTotalComponentsByType(
-                        MonetaryComponentType.surcharge,
-                      )}
-                    />
-                    <PriceComponentRow
-                      label={t("discounts")}
-                      components={getUnitComponentsByType(
-                        MonetaryComponentType.discount,
-                      )}
-                      totalPriceComponents={getTotalComponentsByType(
-                        MonetaryComponentType.discount,
-                      )}
-                    />
-                    <PriceComponentRow
-                      label={t("taxes")}
-                      components={getUnitComponentsByType(
-                        MonetaryComponentType.tax,
-                      )}
-                      totalPriceComponents={getTotalComponentsByType(
-                        MonetaryComponentType.tax,
-                      )}
-                    />
-                    <tr className="bg-muted/30 font-medium">
-                      <td className="py-2 pl-8">{t("total")}</td>
-                      <td></td>
-                      <td></td>
-                      <td className="py-2 text-right">
-                        <MonetaryDisplay amount={item.total_price} />
-                      </td>
-                    </tr>
-                  </React.Fragment>
+                  <TableRow key={item.id} className="border-b">
+                    <TableCell className="p-1 align-top">
+                      {item.title}
+                    </TableCell>
+                    <TableCell className="p-1 align-top">
+                      <MonetaryDisplay amount={baseAmount} />
+                    </TableCell>
+                    <TableCell className="p-1 align-top">
+                      {item.quantity}
+                    </TableCell>
+                    <TableCell className="p-1 px-0 align-top">
+                      {(() => {
+                        const totalAmount = getTotalComponentsByType(
+                          item,
+                          MonetaryComponentType.discount,
+                        ).reduce(
+                          (acc: number, curr: { amount?: number }) =>
+                            acc + (curr.amount || 0),
+                          0,
+                        );
+                        return (
+                          totalAmount !== 0 && (
+                            <MonetaryDisplay amount={totalAmount} />
+                          )
+                        );
+                      })()}
+                    </TableCell>
+                    {getApplicableTaxColumns(invoice).map((taxCode) => (
+                      <TableCell key={taxCode} className="p-1 align-top">
+                        {(() => {
+                          const totalAmount = item.total_price_components.find(
+                            (c) => c.code?.code === taxCode,
+                          )?.amount;
+                          const unitAmount = item.unit_price_components.find(
+                            (c) => c.code?.code === taxCode,
+                          );
+                          return (
+                            <div className="flex flex-col items-center gap-px">
+                              <MonetaryDisplay amount={totalAmount} />
+                              <div className="text-xs text-gray-500">
+                                {totalAmount && (
+                                  <>
+                                    {`(`}
+                                    <MonetaryDisplay {...unitAmount} />
+                                    {`)`}
+                                  </>
+                                )}
+                              </div>
+                            </div>
+                          );
+                        })()}
+                      </TableCell>
+                    ))}
+                    <TableCell className="p-1 align-top">
+                      <MonetaryDisplay amount={item.total_price} />
+                    </TableCell>
+                  </TableRow>
                 );
               })}
-            </tbody>
-          </table>
+            </TableBody>
+          </Table>
         </div>
 
         {/* Totals */}
