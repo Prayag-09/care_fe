@@ -18,11 +18,11 @@ x : Done
 - [-] Add support for information components in chargeDef and Charge Item. - Rithvik
 - [-] Consider disabling onWheelChange for input[type=number] fields. - [hold till @bodhi confirms]
 - [ ] When Creating charge item in questionnaire we should allow users to pick discount and tax and quantitiy
-- [-] Move account as a pill in the encounter, it should only fetch the account if its clicked, show the account details in a sheet and show option to navigate to the accounts page (Sheet - Render account details/Create account button) - Yash
+- [x] Move account as a pill in the encounter, it should only fetch the account if its clicked, show the account details in a sheet and show option to navigate to the accounts page (Sheet - Render account details/Create account button) - Yash
 
 ## Labs
 
-- [ ] Print all Barcodes button for a service request with page setup
+- [-] Print all Barcodes button for a service request with page setup - Yaswanth
 - [-] Add support for multiple diagnostic report for a service request - [hold till @bodhi confirms]
 - [-] Service Request - Show specimen.collection.collector details instead of UUID (After BE change) - Vignesh
 - [-] Service Request - Show specimen.processing.performer details instead of UUID (After BE change) - Vignesh
