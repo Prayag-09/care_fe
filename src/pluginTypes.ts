@@ -1,6 +1,8 @@
 import { LazyExoticComponent } from "react";
 import { UseFormReturn } from "react-hook-form";
 
+import { NavigationLink } from "@/components/ui/sidebar/nav-main";
+
 import { EncounterTabProps } from "@/pages/Encounters/EncounterShow";
 import { DeviceDetail } from "@/types/device/device";
 import { Encounter } from "@/types/emr/encounter";
@@ -102,6 +104,7 @@ export type PluginManifest = {
   plugin: string;
   routes?: AppRoutes;
   extends?: readonly SupportedPluginExtensions[];
+  navItems?: NavigationLink[];
   components?: PluginComponentMap;
   encounterTabs?: Record<string, LazyComponent<React.FC<EncounterTabProps>>>;
   devices?: readonly PluginDeviceManifest[];

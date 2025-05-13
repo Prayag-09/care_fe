@@ -4,6 +4,7 @@ import {
   ChevronDown,
   CircleCheck,
   CircleDashed,
+  CircleDollarSign,
   Clock,
   Droplet,
   UserRound,
@@ -33,6 +34,7 @@ import { Avatar } from "@/components/Common/Avatar";
 import EncounterActions from "@/components/Encounter/EncounterActions";
 import { LocationSheet } from "@/components/Location/LocationSheet";
 import { LocationTree } from "@/components/Location/LocationTree";
+import { AccountSheetButton } from "@/components/Patient/AccountSheet";
 import LinkDepartmentsSheet from "@/components/Patient/LinkDepartmentsSheet";
 
 import { PLUGIN_Component } from "@/PluginEngine";
@@ -452,6 +454,18 @@ export default function PatientInfoCard(props: PatientInfoCardProps) {
                           {canWrite
                             ? t("manage_care_team")
                             : t("view_care_team")}
+                        </div>
+                      }
+                      canWrite={canWrite}
+                    />
+                  </Badge>
+                  <Badge variant="outline">
+                    <AccountSheetButton
+                      encounter={encounter}
+                      trigger={
+                        <div className="flex items-center gap-1 text-gray-950 py-0.5 cursor-pointer hover:bg-secondary-100 capitalize">
+                          <CircleDollarSign className="size-4 text-green-600" />
+                          {t("account")}
                         </div>
                       }
                       canWrite={canWrite}

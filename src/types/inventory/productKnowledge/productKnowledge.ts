@@ -48,7 +48,7 @@ export interface ProductKnowledgeBase {
   name: string;
   names: ProductName[];
   storage_guidelines: StorageGuideline[];
-  defenitional?: ProductDefinition;
+  definitional?: ProductDefinition;
 }
 
 export interface ProductKnowledgeCreate
