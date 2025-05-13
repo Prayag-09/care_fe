@@ -4,6 +4,8 @@ import { Fragment, useState } from "react";
 
 import { cn } from "@/lib/utils";
 
+import { IconName } from "@/CAREUI/icons/CareIcon";
+
 import {
   Collapsible,
   CollapsibleContent,
