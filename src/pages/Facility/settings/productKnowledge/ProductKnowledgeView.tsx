@@ -242,7 +242,7 @@ export default function ProductKnowledgeView({
             </Card>
           )}
 
-        {product.defenitional && (
+        {product.definitional && (
           <Card>
             <CardHeader>
               <CardTitle>{t("product_definition")}</CardTitle>
@@ -254,17 +254,17 @@ export default function ProductKnowledgeView({
                     {t("dosage_form")}
                   </p>
                   <div className="rounded-lg border bg-gray-50/50 p-3">
-                    <CodeDisplay code={product.defenitional.dosage_form} />
+                    <CodeDisplay code={product.definitional.dosage_form} />
                   </div>
                 </div>
-                {product.defenitional.intended_routes &&
-                  product.defenitional.intended_routes.length > 0 && (
+                {product.definitional.intended_routes &&
+                  product.definitional.intended_routes.length > 0 && (
                     <div>
                       <p className="mb-2 text-sm text-gray-500">
                         {t("intended_routes")}
                       </p>
                       <div className="space-y-2">
-                        {product.defenitional.intended_routes.map(
+                        {product.definitional.intended_routes.map(
                           (route, index) => (
                             <div
                               key={index}
