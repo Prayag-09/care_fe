@@ -1,6 +1,6 @@
 import { ChevronRight } from "lucide-react";
 import { ActiveLink } from "raviger";
-import { Fragment, useState } from "react";
+import { Fragment, ReactNode, useState } from "react";
 
 import { cn } from "@/lib/utils";
 
@@ -38,7 +38,7 @@ const isChildActive = (link: NavigationLink) => {
 export interface NavigationLink {
   name: string;
   url: string;
-  icon?: IconName;
+  icon?: ReactNode;
   visibility?: boolean;
   children?: NavigationLink[];
 }
