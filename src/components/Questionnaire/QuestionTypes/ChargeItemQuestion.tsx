@@ -260,7 +260,7 @@ export function ChargeItemQuestion({
         title: selectedCID.title,
         status: ChargeItemStatus.billable,
         quantity: 1,
-        unit_price_components: selectedCID.price_component,
+        unit_price_components: selectedCID.price_components,
         note: undefined,
         override_reason: undefined,
         encounter: encounterId,

@@ -14,7 +14,7 @@ export interface ChargeItemDefinitionBase {
   derived_from_uri: string | null;
   description: string | null;
   purpose: string | null;
-  price_component: MonetaryComponent[];
+  price_components: MonetaryComponent[];
 }
 
 export interface ChargeItemDefinitionRead extends ChargeItemDefinitionBase {

@@ -73,7 +73,7 @@ const formSchema = z.object({
   description: z.string().nullable(),
   purpose: z.string().nullable(),
   derived_from_uri: z.string().url().nullable(),
-  price_component: z.array(priceComponentSchema).refine(
+  price_components: z.array(priceComponentSchema).refine(
     (components) => {
       // Ensure there is exactly one base price component and it's the first one
       return (
@@ -276,7 +276,7 @@ export function ChargeItemDefinitionForm({
       description: initialData?.description || null,
       purpose: initialData?.purpose || null,
       derived_from_uri: initialData?.derived_from_uri || null,
-      price_component: initialData?.price_component || [
+      price_components: initialData?.price_components || [
         {
           monetary_component_type: MonetaryComponentType.base,
           amount: 0,
@@ -286,8 +286,8 @@ export function ChargeItemDefinitionForm({
   });
 
   // Get current form values
-  const priceComponents = form.watch("price_component");
-  const basePrice = form.watch("price_component.0.amount");
+  const priceComponents = form.watch("price_components");
+  const basePrice = form.watch("price_components.0.amount");
 
   // Calculate price summary
   const priceSummary = useMemo(() => {
@@ -343,7 +343,7 @@ export function ChargeItemDefinitionForm({
     selected: boolean,
     type: MonetaryComponentType = MonetaryComponentType.tax,
   ) => {
-    const currentComponents = form.getValues("price_component");
+    const currentComponents = form.getValues("price_components");
     let newComponents: MonetaryComponent[];
 
     if (selected) {
@@ -357,7 +357,7 @@ export function ChargeItemDefinitionForm({
       );
     }
 
-    form.setValue("price_component", newComponents, { shouldValidate: true });
+    form.setValue("price_components", newComponents, { shouldValidate: true });
   };
 
   // Handle component value change
@@ -365,7 +365,7 @@ export function ChargeItemDefinitionForm({
     component: MonetaryComponent,
     value: number,
   ) => {
-    const currentComponents = form.getValues("price_component");
+    const currentComponents = form.getValues("price_components");
     const componentIndex = currentComponents.findIndex((c) =>
       monetaryComponentIsEqual(c, component),
     );
@@ -378,7 +378,7 @@ export function ChargeItemDefinitionForm({
       [component.factor != null ? "factor" : "amount"]: value,
     };
 
-    form.setValue("price_component", newComponents, { shouldValidate: true });
+    form.setValue("price_components", newComponents, { shouldValidate: true });
   };
 
   // // Function to handle MRP changes
@@ -572,7 +572,7 @@ export function ChargeItemDefinitionForm({
                   <div className="w-48">
                     <FormField
                       control={form.control}
-                      name="price_component.0.amount"
+                      name="price_components.0.amount"
                       render={({ field }) => (
                         <MonetaryAmountInput
                           {...field}

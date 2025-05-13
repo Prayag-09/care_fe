@@ -189,13 +189,13 @@ export function ChargeItemDefinitionDetail({
               <CardTitle>{t("price_components")}</CardTitle>
             </CardHeader>
             <CardContent>
-              {chargeItemDefinition.price_component.length === 0 ? (
+              {chargeItemDefinition.price_components.length === 0 ? (
                 <div className="py-4 text-center text-gray-500">
                   <p>{t("no_price_components")}</p>
                 </div>
               ) : (
                 <div>
-                  {chargeItemDefinition.price_component
+                  {chargeItemDefinition.price_components
                     .sort(
                       (a, b) =>
                         MonetaryComponentOrder[a.monetary_component_type] -
@@ -205,7 +205,7 @@ export function ChargeItemDefinitionDetail({
                       <div key={index}>
                         {renderPriceComponent(component)}
                         {index <
-                          chargeItemDefinition.price_component.length - 1 && (
+                          chargeItemDefinition.price_components.length - 1 && (
                           <Separator className="my-2" />
                         )}
                       </div>

@@ -115,7 +115,7 @@ export default function AddMultipleChargeItemsSheet({
           title: selectedCID.title,
           status: ChargeItemStatus.billable,
           quantity: 1,
-          unit_price_components: selectedCID.price_component,
+          unit_price_components: selectedCID.price_components,
           note: "",
           encounter: request.encounter.id,
           service_resource: "service_request",
