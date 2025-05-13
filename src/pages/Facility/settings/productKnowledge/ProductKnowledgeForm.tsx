@@ -37,6 +37,7 @@ import { DOSAGE_UNITS_CODES } from "@/types/emr/medicationRequest";
 import {
   ProductKnowledgeBase,
   ProductKnowledgeCreate,
+  ProductKnowledgeStatus,
   ProductKnowledgeType,
   ProductKnowledgeUpdate,
   ProductNameTypes,
@@ -54,6 +55,7 @@ const formSchema = z.object({
   name: z.string().min(1, "Name is required"),
   slug: z.string().min(1, "Slug is required"),
   product_type: z.nativeEnum(ProductKnowledgeType),
+  status: z.nativeEnum(ProductKnowledgeStatus),
   code: codeSchema.nullable(),
   names: z
     .array(
@@ -158,7 +160,8 @@ function ProductKnowledgeFormContent({
         name: existingData.name,
         slug: existingData.slug,
         product_type: existingData.product_type,
-        code: existingData.code || null,
+        status: existingData.status,
+        code: existingData.code?.code ? existingData.code : null,
         names: existingData.names || [],
         storage_guidelines: existingData.storage_guidelines || [],
         defenitional: existingData.defenitional || null,
@@ -365,6 +368,38 @@ function ProductKnowledgeFormContent({
                       />
                     </div>
                   </div>
+                </div>
+
+                <div className="grid gap-4 md:grid-cols-2">
+                  <FormField
+                    control={form.control}
+                    name="status"
+                    render={({ field }) => (
+                      <FormItem>
+                        <FormLabel>{t("status")}</FormLabel>
+                        <Select
+                          onValueChange={field.onChange}
+                          defaultValue={field.value}
+                        >
+                          <FormControl>
+                            <SelectTrigger>
+                              <SelectValue placeholder={t("status")} />
+                            </SelectTrigger>
+                          </FormControl>
+                          <SelectContent>
+                            {Object.values(ProductKnowledgeStatus).map(
+                              (status) => (
+                                <SelectItem key={status} value={status}>
+                                  {t(status)}
+                                </SelectItem>
+                              ),
+                            )}
+                          </SelectContent>
+                        </Select>
+                        <FormMessage />
+                      </FormItem>
+                    )}
+                  />
                 </div>
               </div>
             </div>

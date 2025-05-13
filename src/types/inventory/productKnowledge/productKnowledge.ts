@@ -7,6 +7,12 @@ export enum ProductKnowledgeType {
   consumable = "consumable",
 }
 
+export enum ProductKnowledgeStatus {
+  active = "active",
+  draft = "draft",
+  retired = "retired",
+}
+
 export enum ProductNameTypes {
   trade_name = "trade_name",
   alias = "alias",
@@ -37,6 +43,7 @@ export interface ProductKnowledgeBase {
   id: string;
   slug: string;
   product_type: ProductKnowledgeType;
+  status: ProductKnowledgeStatus;
   code?: Code;
   name: string;
   names: ProductName[];
