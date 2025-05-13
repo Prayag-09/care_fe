@@ -1,6 +1,7 @@
 import { UserBareMinimum } from "@/components/Users/models";
 
 import { Code } from "@/types/base/code/code";
+import { ProductKnowledgeBase } from "@/types/inventory/productKnowledge/productKnowledge";
 
 export const DOSAGE_UNITS_CODES = [
   {
@@ -175,6 +176,8 @@ export interface MedicationRequest {
   note?: string;
   authored_on: string;
   created_by?: UserBareMinimum;
+  requested_product?: string;
+  requested_product_internal?: ProductKnowledgeBase;
 }
 
 export interface MedicationRequestRead {
@@ -194,6 +197,7 @@ export interface MedicationRequestRead {
   created_by: UserBareMinimum;
   updated_by: UserBareMinimum;
   authored_on: string;
+  requested_product?: ProductKnowledgeBase;
 }
 
 export const MEDICATION_REQUEST_TIMING_OPTIONS: Record<
@@ -520,7 +524,8 @@ export const MEDICATION_REQUEST_TIMING_OPTIONS: Record<
  * You can extend the dictionaries & regex to cover more cases (IV, subcutaneous, brand names, etc.).
  */
 export function parseMedicationStringToRequest(
-  medication: Code,
+  medication?: Code,
+  productKnowledge?: ProductKnowledgeBase,
 ): MedicationRequest {
   const medicationRequest: MedicationRequest = {
     do_not_perform: false,
@@ -529,13 +534,44 @@ export function parseMedicationStringToRequest(
         as_needed_boolean: false,
       },
     ],
-    medication,
+    ...(medication ? { medication } : {}),
+    ...(productKnowledge
+      ? {
+          requested_product: productKnowledge.id,
+          requested_product_internal: productKnowledge,
+        }
+      : {}),
     status: "active",
     intent: "order",
-    category: "inpatient",
     priority: "routine",
+    category: "inpatient",
     authored_on: new Date().toISOString(),
   };
 
   return medicationRequest;
+}
+
+export function displayMedicationName(
+  medication?: MedicationRequest | MedicationRequestRead,
+): string {
+  if (!medication) {
+    return "";
+  }
+  console.log(medication, "requested_product_internal" in medication);
+  if ("requested_product_internal" in medication) {
+    // This is a MedicationRequest
+    return (
+      medication.medication?.display ||
+      medication.requested_product_internal?.name ||
+      ""
+    );
+  }
+  // This is a MedicationRequestRead
+  return (
+    medication.medication?.display ||
+    (typeof medication.requested_product !== "string"
+      ? medication.requested_product?.name
+      : "") ||
+    ""
+  );
 }

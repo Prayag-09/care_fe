@@ -35,6 +35,7 @@ import {
   ACTIVE_MEDICATION_STATUSES,
   INACTIVE_MEDICATION_STATUSES,
   MedicationRequestRead,
+  displayMedicationName,
 } from "@/types/emr/medicationRequest";
 import medicationRequestApi from "@/types/emr/medicationRequest/medicationRequestApi";
 
@@ -240,7 +241,7 @@ const MedicationRow: React.FC<MedicationRowProps> = ({
             isInactive && medication.status === "ended" && "line-through",
           )}
         >
-          {medication.medication?.display}
+          {displayMedicationName(medication)}
         </div>
         <MedicationBadges medication={medication} />
         <div className="text-xs mt-1 font-medium truncate">
