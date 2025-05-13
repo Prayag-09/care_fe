@@ -1,0 +1,39 @@
+import { ProductRead } from "@/types/inventory/product/product";
+import { LocationBase } from "@/types/location/location";
+
+export enum SupplyDeliveryStatus {
+  in_progress = "in_progress",
+  completed = "completed",
+  abandoned = "abandoned",
+  entered_in_error = "entered_in_error",
+}
+
+export enum SupplyDeliveryType {
+  product = "product",
+  device = "device",
+}
+
+export enum SupplyDeliveryCondition {
+  normal = "normal",
+  damaged = "damaged",
+}
+
+export interface SupplyDeliveryBase {
+  id: string;
+  status: SupplyDeliveryStatus;
+  supplied_item_condition?: SupplyDeliveryCondition;
+}
+
+export interface SupplyDeliveryCreate extends Omit<SupplyDeliveryBase, "id"> {
+  supplied_item_quantity: number;
+  supplied_item: string; // Product ID
+  origin?: string; // Location ID
+  destination: string; // Location ID
+}
+
+export interface SupplyDeliveryRead extends SupplyDeliveryBase {
+  supplied_item_quantity: number;
+  supplied_item: ProductRead;
+  origin?: LocationBase;
+  destination: LocationBase;
+}
