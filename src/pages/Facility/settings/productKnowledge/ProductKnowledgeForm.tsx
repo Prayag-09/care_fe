@@ -76,7 +76,7 @@ const formSchema = z.object({
       }),
     )
     .default([]),
-  defenitional: z
+  definitional: z
     .object({
       dosage_form: codeSchema.nullable(),
       intended_routes: z.array(codeSchema).default([]),
@@ -164,7 +164,7 @@ function ProductKnowledgeFormContent({
         code: existingData.code?.code ? existingData.code : null,
         names: existingData.names || [],
         storage_guidelines: existingData.storage_guidelines || [],
-        defenitional: existingData.defenitional || null,
+        definitional: existingData.definitional || null,
       };
     }
 
@@ -173,7 +173,7 @@ function ProductKnowledgeFormContent({
       names: [],
       storage_guidelines: [],
       code: null,
-      defenitional: null,
+      definitional: null,
     };
   };
 
@@ -194,7 +194,7 @@ function ProductKnowledgeFormContent({
 
   const intendedRoutesArray = useFieldArray({
     control: form.control,
-    name: "defenitional.intended_routes",
+    name: "definitional.intended_routes",
   });
 
   const { mutate: createProductKnowledge, isPending: isCreating } = useMutation(
@@ -233,9 +233,9 @@ function ProductKnowledgeFormContent({
     const formattedData = {
       ...data,
       code: data.code || undefined,
-      defenitional: data.defenitional
+      definitional: data.definitional
         ? {
-            ...data.defenitional,
+            ...data.definitional,
             ingredients: [],
             nutrients: [],
             drug_characteristic: {},
@@ -648,20 +648,20 @@ function ProductKnowledgeFormContent({
                   <FormLabel>{t("dosage_form")}</FormLabel>
                   <div className="mt-2">
                     <Select
-                      value={form.watch("defenitional.dosage_form")?.code || ""}
+                      value={form.watch("definitional.dosage_form")?.code || ""}
                       onValueChange={(value) => {
                         const selectedUnit = DOSAGE_UNITS_CODES.find(
                           (unit) => unit.code === value,
                         );
                         if (selectedUnit) {
-                          if (!form.getValues("defenitional")) {
-                            form.setValue("defenitional", {
+                          if (!form.getValues("definitional")) {
+                            form.setValue("definitional", {
                               dosage_form: selectedUnit,
                               intended_routes: [],
                             });
                           } else {
                             form.setValue(
-                              "defenitional.dosage_form",
+                              "definitional.dosage_form",
                               selectedUnit,
                             );
                           }
@@ -701,8 +701,8 @@ function ProductKnowledgeFormContent({
                       variant="outline"
                       size="sm"
                       onClick={() => {
-                        if (!form.getValues("defenitional")) {
-                          form.setValue("defenitional", {
+                        if (!form.getValues("definitional")) {
+                          form.setValue("definitional", {
                             dosage_form: null,
                             intended_routes: [],
                           });
@@ -732,12 +732,12 @@ function ProductKnowledgeFormContent({
                               <ValueSetSelect
                                 system="system-route"
                                 value={form.watch(
-                                  `defenitional.intended_routes.${index}`,
+                                  `definitional.intended_routes.${index}`,
                                 )}
                                 placeholder={t("e.g., Oral, Intravenous")}
                                 onSelect={(code) => {
                                   form.setValue(
-                                    `defenitional.intended_routes.${index}`,
+                                    `definitional.intended_routes.${index}`,
                                     {
                                       code: code.code,
                                       display: code.display,

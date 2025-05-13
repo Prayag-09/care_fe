@@ -8,7 +8,7 @@ x : Done
 
 ## Pharmacy
 
-- [ ] Clean up product knowledge and fix update
+- [x] Clean up product knowledge and fix update - Khavin
 - [ ] Clean up product and support edit form product knowledge
 
 ## Billing
