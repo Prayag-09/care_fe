@@ -53,7 +53,7 @@ export function AppSidebar({
   const orgSubpathMatch = usePathParams("/organization/:id/*");
   const organizationId = orgMatch?.id || orgSubpathMatch?.id;
 
-  const facilitySidebar = sidebarFor === SidebarFor.FACILITY;
+  const facilitySidebar = !!facilityId && sidebarFor === SidebarFor.FACILITY;
   const patientSidebar = sidebarFor === SidebarFor.PATIENT;
   const adminSidebar = sidebarFor === SidebarFor.ADMIN;
   const { isMobile, setOpenMobile } = useSidebar();
