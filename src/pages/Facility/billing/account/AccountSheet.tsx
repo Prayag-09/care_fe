@@ -185,7 +185,7 @@ export function AccountSheet({
                 rules={{ required: t("name_required") }}
                 render={({ field }) => (
                   <FormItem>
-                    <FormLabel>{t("account_name")}</FormLabel>
+                    <FormLabel>{t("name")}</FormLabel>
                     <FormControl>
                       <Input {...field} disabled={isCreating} />
                     </FormControl>

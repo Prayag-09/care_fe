@@ -8,8 +8,8 @@ export enum ProductKnowledgeType {
 }
 
 export enum ProductKnowledgeStatus {
-  active = "active",
   draft = "draft",
+  active = "active",
   retired = "retired",
 }
 

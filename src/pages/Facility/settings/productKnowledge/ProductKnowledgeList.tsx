@@ -63,7 +63,7 @@ function ProductKnowledgeCard({
               </Badge>
             </div>
             <h3 className="font-medium text-gray-900">{product.name}</h3>
-            {product.code && (
+            {product.code?.code && (
               <p className="mt-1 text-sm text-gray-500">
                 {product.code.system} | {product.code.code}
               </p>
@@ -228,7 +228,7 @@ export default function ProductKnowledgeList({
                           </Badge>
                         </TableCell>
                         <TableCell>
-                          {product.code
+                          {product.code?.code
                             ? `${product.code.system} | ${product.code.code}`
                             : "-"}
                         </TableCell>

@@ -4,7 +4,6 @@ import {
   ChevronDown,
   CircleCheck,
   CircleDashed,
-  CircleDollarSign,
   Clock,
   Droplet,
   UserRound,
@@ -464,7 +463,10 @@ export default function PatientInfoCard(props: PatientInfoCardProps) {
                       encounter={encounter}
                       trigger={
                         <div className="flex items-center gap-1 text-gray-950 py-0.5 cursor-pointer hover:bg-secondary-100 capitalize">
-                          <CircleDollarSign className="size-4 text-green-600" />
+                          <CareIcon
+                            icon="l-wallet"
+                            className="size-4 text-green-600"
+                          />
                           {t("account")}
                         </div>
                       }

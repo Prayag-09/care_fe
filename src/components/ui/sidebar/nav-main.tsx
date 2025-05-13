@@ -1,6 +1,6 @@
 import { ChevronRight } from "lucide-react";
-import { ActiveLink } from "raviger";
-import { Fragment, ReactNode, useState } from "react";
+import { ActiveLink, useFullPath } from "raviger";
+import { Fragment, ReactNode, useMemo, useState } from "react";
 
 import { cn } from "@/lib/utils";
 
@@ -44,6 +44,19 @@ export interface NavigationLink {
 export function NavMain({ links }: { links: NavigationLink[] }) {
   const { state } = useSidebar();
   const isCollapsed = state === "collapsed";
+
+  const fullPath = useFullPath();
+  const fullPathMap = useMemo(
+    () =>
+      fullPath.split("/").reduce(
+        (acc, part) => ({
+          ...acc,
+          [part]: true,
+        }),
+        {} as Record<string, boolean>,
+      ),
+    [fullPath],
+  );
 
   return (
     <SidebarGroup>
@@ -96,7 +109,12 @@ export function NavMain({ links }: { links: NavigationLink[] }) {
                                 <ActiveLink
                                   href={subItem.url}
                                   className="w-full"
-                                  activeClass="bg-white text-green-700 shadow"
+                                  activeClass={cn(
+                                    subItem.url
+                                      .split("/")
+                                      .every((part) => fullPathMap[part]) &&
+                                      "bg-white text-green-700 shadow",
+                                  )}
                                   exactActiveClass="bg-white text-green-700 shadow"
                                 >
                                   {subItem.name}
