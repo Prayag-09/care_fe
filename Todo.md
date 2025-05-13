@@ -38,7 +38,6 @@ x : Done
 - [ ] Need sort by payment_datetime for Payment Reconciliation list
 - [ ] Replace Charge Item Create with ChargeItemDef to ChargeItem API
 - [ ] Add support for information codes (such as MRP)
-- [ ] Disallow same code for the same component type in Charge Item's pricing components (https://github.com/ohcnetwork/care/pull/3033) - Rithvik
 - [ ] Create Charge Item from Charge Definition
 - [ ] Observation Interpretation
 - [ ] Spec for Ingredients, Nutrients, Drug_characteristic are incomplete in Product Knowledge
