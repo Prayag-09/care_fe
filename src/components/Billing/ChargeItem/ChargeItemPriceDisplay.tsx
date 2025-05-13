@@ -35,7 +35,7 @@ export default function ChargeItemPriceDisplay({
 
   return (
     <div className="p-3">
-      <p className="font-medium text-sm mb-2">{t("single_item_breakdown")}</p>
+      <p className="font-medium text-sm mb-2">{t("item_wise_breakdown")}</p>
       <div className="space-y-1 text-xs">
         <div className="flex justify-between">
           <span>{t("base_amount")}</span>

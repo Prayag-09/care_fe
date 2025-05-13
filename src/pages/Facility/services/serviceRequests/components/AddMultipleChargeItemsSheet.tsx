@@ -29,7 +29,7 @@ import {
 } from "@/components/ui/table";
 import { Textarea } from "@/components/ui/textarea";
 
-import ChargeItemPriceSummary from "@/components/Billing/ChargeItemPriceSummary";
+import ChargeItemPriceDisplay from "@/components/Billing/ChargeItem/ChargeItemPriceDisplay";
 
 import mutate from "@/Utils/request/mutate";
 import query from "@/Utils/request/query";
@@ -180,8 +180,8 @@ export default function AddMultipleChargeItemsSheet({
             </div>
 
             {selectedItems.length > 0 && (
-              <div className="space-y-4">
-                <h3 className="font-medium">{t("selected_items")}</h3>
+              <div className="space-y-2">
+                <h3 className="text-base font-medium">{t("selected_items")}</h3>
                 <Table>
                   <TableHeader>
                     <TableRow>
@@ -225,7 +225,7 @@ export default function AddMultipleChargeItemsSheet({
                                   <InfoIcon className="h-4 w-4 text-gray-700 cursor-pointer" />
                                 </PopoverTrigger>
                                 <PopoverContent side="right" className="p-0">
-                                  <ChargeItemPriceSummary
+                                  <ChargeItemPriceDisplay
                                     priceComponents={item.unit_price_components}
                                   />
                                 </PopoverContent>
