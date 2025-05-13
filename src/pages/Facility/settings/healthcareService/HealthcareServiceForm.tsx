@@ -16,6 +16,13 @@ import {
   FormMessage,
 } from "@/components/ui/form";
 import { Input } from "@/components/ui/input";
+import {
+  Select,
+  SelectContent,
+  SelectItem,
+  SelectTrigger,
+  SelectValue,
+} from "@/components/ui/select";
 import { Textarea } from "@/components/ui/textarea";
 
 import IconPicker from "@/components/Common/IconPicker";
@@ -31,6 +38,7 @@ import {
   type HealthcareServiceCreateSpec,
   type HealthcareServiceReadSpec,
   type HealthcareServiceUpdateSpec,
+  InternalType,
 } from "@/types/healthcareService/healthcareService";
 import healthcareServiceApi from "@/types/healthcareService/healthcareServiceApi";
 import locationApi from "@/types/location/locationApi";
@@ -48,6 +56,7 @@ const formSchema = z.object({
     })
     .nullable(),
   extra_details: z.string(),
+  internal_type: z.nativeEnum(InternalType).optional(),
   locations: z.array(z.string()).min(1, "At least one location is required"),
 });
 
@@ -134,6 +143,7 @@ function HealthcareServiceFormContent({
             // service_type: existingData.service_type,
             styling_metadata: existingData.styling_metadata,
             extra_details: existingData.extra_details,
+            internal_type: existingData.internal_type,
             locations: existingData.locations.map((loc) => loc.id),
           }
         : {
@@ -256,6 +266,35 @@ function HealthcareServiceFormContent({
                     />
                   </div>
                 </div> */}
+                <FormField
+                  control={form.control}
+                  name="internal_type"
+                  render={({ field }) => (
+                    <FormItem>
+                      <FormLabel>{t("internal_type")}</FormLabel>
+                      <FormControl>
+                        <Select
+                          onValueChange={field.onChange}
+                          value={field.value}
+                        >
+                          <SelectTrigger>
+                            <SelectValue
+                              placeholder={t("select_internal_type")}
+                            />
+                          </SelectTrigger>
+                          <SelectContent>
+                            {Object.values(InternalType).map((type) => (
+                              <SelectItem key={type} value={type}>
+                                {t(type)}
+                              </SelectItem>
+                            ))}
+                          </SelectContent>
+                        </Select>
+                      </FormControl>
+                      <FormMessage />
+                    </FormItem>
+                  )}
+                />
 
                 <FormField
                   control={form.control}

@@ -6,12 +6,18 @@ export interface StylingMetadata {
   careIcon: string;
 }
 
+export enum InternalType {
+  pharmacy = "pharmacy",
+  lab = "lab",
+}
+
 export interface BaseHealthcareServiceSpec {
   id: string;
   //   service_type: Code
   name: string;
   styling_metadata: StylingMetadata | null;
   extra_details: string;
+  internal_type?: InternalType;
 }
 
 export interface HealthcareServiceCreateSpec
