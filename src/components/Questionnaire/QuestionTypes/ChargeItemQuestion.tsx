@@ -21,7 +21,7 @@ import {
 } from "@/components/ui/select";
 import { Skeleton } from "@/components/ui/skeleton";
 
-import ChargeItemPriceSummary from "@/components/Billing/ChargeItemPriceSummary";
+import ChargeItemPriceDisplay from "@/components/Billing/ChargeItem/ChargeItemPriceDisplay";
 import { FieldError } from "@/components/Questionnaire/QuestionTypes/FieldError";
 
 import query from "@/Utils/request/query";
@@ -106,7 +106,7 @@ function ChargeItemForm({
                       </div>
                     </PopoverTrigger>
                     <PopoverContent side="right" className="p-0">
-                      <ChargeItemPriceSummary
+                      <ChargeItemPriceDisplay
                         priceComponents={chargeItem.unit_price_components}
                       />
                     </PopoverContent>

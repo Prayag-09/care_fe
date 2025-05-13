@@ -11,7 +11,7 @@ interface ChargeItemPriceSummaryProps {
   priceComponents: MonetaryComponent[];
 }
 
-function ChargeItemPriceSummary({
+export default function ChargeItemPriceDisplay({
   priceComponents,
 }: ChargeItemPriceSummaryProps) {
   const { t } = useTranslation();
@@ -119,5 +119,3 @@ function ChargeItemPriceSummary({
     </div>
   );
 }
-
-export default ChargeItemPriceSummary;
