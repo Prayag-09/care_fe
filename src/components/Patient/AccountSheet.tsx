@@ -4,7 +4,6 @@ import { navigate } from "raviger";
 import React, { useState } from "react";
 import { useTranslation } from "react-i18next";
 
-import { Badge } from "@/components/ui/badge";
 import { Button } from "@/components/ui/button";
 import {
   Sheet,
@@ -12,21 +11,10 @@ import {
   SheetHeader,
   SheetTitle,
 } from "@/components/ui/sheet";
-import {
-  Tooltip,
-  TooltipContent,
-  TooltipProvider,
-  TooltipTrigger,
-} from "@/components/ui/tooltip";
 
 import query from "@/Utils/request/query";
 import AccountSheet from "@/pages/Facility/billing/account/AccountSheet";
-import {
-  AccountRead,
-  AccountStatus,
-  billingStatusColorMap,
-  statusColorMap,
-} from "@/types/billing/account/Account";
+import { AccountRead, AccountStatus } from "@/types/billing/account/Account";
 import accountApi from "@/types/billing/account/accountApi";
 import { Encounter } from "@/types/emr/encounter";
 
@@ -59,19 +47,14 @@ export function AccountSheetButton({
       pathParams: { facilityId: encounter.facility.id },
       queryParams: {
         patient: encounter.patient.id,
-        limit: 5,
+        status: AccountStatus.active,
+        limit: 1,
       },
     }),
     enabled: false,
   });
 
-  const allAccounts = (response?.results as AccountRead[]) || [];
-
-  const accounts = allAccounts.filter(
-    (account) => account.status === AccountStatus.active,
-  );
-
-  const hasActiveAccount = accounts.length > 0;
+  const accounts = (response?.results as AccountRead[]) || [];
 
   const handleCreateAccountClick = () => {
     setCreateAccountOpen(true);
@@ -105,20 +88,44 @@ export function AccountSheetButton({
       </div>
 
       <Sheet open={sheetOpen} onOpenChange={handleSheetOpenChange}>
-        <SheetContent>
-          <SheetHeader>
-            <SheetTitle>{t("accounts")}</SheetTitle>
+        <SheetContent className="sm:max-w-md md:max-w-lg">
+          <SheetHeader className="mb-6">
+            <SheetTitle className="text-xl flex items-center justify-start gap-2">
+              {t("account")}
+              <div className="flex items-center gap-2">
+                <Button
+                  variant="ghost"
+                  size="sm"
+                  className="flex items-center gap-1"
+                  onClick={(e) => handleViewAccount(accounts[0], e)}
+                >
+                  <ExternalLink className="h-4 w-4" />
+                  {t("more_details")}
+                </Button>
+                {canWrite && (
+                  <Button
+                    variant="outline"
+                    size="sm"
+                    className="flex items-center gap-1"
+                    onClick={(e) => handleEditAccount(accounts[0], e)}
+                  >
+                    <Edit className="h-4 w-4" />
+                    {t("edit")}
+                  </Button>
+                )}
+              </div>
+            </SheetTitle>
           </SheetHeader>
           {isLoading ? (
             <div className="flex justify-center items-center h-40">
               <div className="animate-spin rounded-full h-8 w-8 border-b-2 border-primary"></div>
             </div>
           ) : (
-            <div className="mt-6 space-y-6">
+            <div className="space-y-5 pr-2 max-h-[calc(100vh-120px)] overflow-y-auto">
               {accounts.length === 0 ? (
-                <div className="text-center py-8">
+                <div className="text-center py-8 bg-gray-50 rounded-lg">
                   <p className="text-gray-500 mb-4">
-                    {t("no_active_accounts_found")}
+                    {t("no_active_account_found")}
                   </p>
                   {canWrite && (
                     <Button
@@ -130,100 +137,129 @@ export function AccountSheetButton({
                   )}
                 </div>
               ) : (
-                <>
-                  {accounts.map((account) => (
-                    <div key={account.id} className="rounded-lg border p-4">
-                      <div className="mb-2 flex items-center justify-between">
-                        <h3 className="font-medium">{account.name}</h3>
-                        <div className="flex items-center gap-2">
-                          <Badge
-                            variant={statusColorMap[account.status] as any}
-                          >
-                            {t(account.status)}
-                          </Badge>
-                          <Badge
-                            variant={
-                              billingStatusColorMap[
-                                account.billing_status
-                              ] as any
-                            }
-                          >
-                            {t(account.billing_status)}
-                          </Badge>
-
-                          <TooltipProvider>
-                            <Tooltip>
-                              <TooltipTrigger asChild>
-                                <Button
-                                  variant="ghost"
-                                  size="icon"
-                                  className="h-8 w-8"
-                                  onClick={(e) => handleViewAccount(account, e)}
-                                >
-                                  <ExternalLink className="h-4 w-4" />
-                                </Button>
-                              </TooltipTrigger>
-                              <TooltipContent>
-                                <p>{t("view_account")}</p>
-                              </TooltipContent>
-                            </Tooltip>
-                          </TooltipProvider>
-
-                          {canWrite && (
-                            <TooltipProvider>
-                              <Tooltip>
-                                <TooltipTrigger asChild>
-                                  <Button
-                                    variant="ghost"
-                                    size="icon"
-                                    className="h-8 w-8"
-                                    onClick={(e) =>
-                                      handleEditAccount(account, e)
-                                    }
-                                  >
-                                    <Edit className="h-4 w-4" />
-                                  </Button>
-                                </TooltipTrigger>
-                                <TooltipContent>
-                                  <p>{t("edit_account")}</p>
-                                </TooltipContent>
-                              </Tooltip>
-                            </TooltipProvider>
-                          )}
+                <div className="space-y-6">
+                  <div className="flex items-start justify-between">
+                    <div>
+                      <h2 className="text-xl font-semibold">
+                        {accounts[0].name}
+                      </h2>
+                      {accounts[0].description && (
+                        <div className="text-sm text-gray-500 max-w-lg">
+                          {accounts[0].description}
                         </div>
-                      </div>
-                      <div className="text-sm text-gray-500">
-                        {account.description}
-                      </div>
-                      <div className="mt-2 flex items-center justify-between">
-                        <span>{t("balance")}</span>
-                        <span
-                          className={
-                            account.total_balance > 0
-                              ? "text-red-600"
-                              : "text-green-700"
-                          }
-                        >
-                          {account.total_balance.toLocaleString(undefined, {
-                            style: "currency",
-                            currency: "INR",
-                          })}
+                      )}
+                    </div>
+                  </div>
+
+                  <div className="space-y-6">
+                    <div>
+                      <h3 className="text-lg font-medium border-b pb-2 mb-4">
+                        {t("account_details")}
+                      </h3>
+
+                      <div className="grid grid-cols-2 gap-y-2 text-sm">
+                        <span className="text-gray-500">{t("status")}</span>
+                        <span className="font-medium">
+                          {t(accounts[0].status)}
+                        </span>
+
+                        <span className="text-gray-500">
+                          {t("billing_status")}
+                        </span>
+                        <span className="font-medium">
+                          {t(accounts[0].billing_status)}
+                        </span>
+
+                        <span className="text-gray-500">{t("start_date")}</span>
+                        <span className="font-medium">
+                          {accounts[0].service_period &&
+                          accounts[0].service_period.start
+                            ? new Date(
+                                accounts[0].service_period.start,
+                              ).toLocaleDateString(undefined, {
+                                day: "numeric",
+                                month: "long",
+                                year: "numeric",
+                              })
+                            : "-"}
+                        </span>
+
+                        <span className="text-gray-500">{t("end_date")}</span>
+                        <span className="font-medium">
+                          {accounts[0].service_period &&
+                          accounts[0].service_period.end
+                            ? new Date(
+                                accounts[0].service_period.end,
+                              ).toLocaleDateString(undefined, {
+                                day: "numeric",
+                                month: "long",
+                                year: "numeric",
+                              })
+                            : "-"}
                         </span>
                       </div>
                     </div>
-                  ))}
 
-                  {canWrite && !hasActiveAccount && (
-                    <div className="flex justify-end">
-                      <Button
-                        onClick={handleCreateAccountClick}
-                        variant="outline"
-                      >
-                        {t("create_new_account")}
-                      </Button>
+                    <div>
+                      <h3 className="text-lg font-medium border-b pb-2 mb-4">
+                        {t("account_summary")}
+                      </h3>
+
+                      <div className="space-y-3">
+                        <div className="flex justify-between items-center">
+                          <span className="text-gray-600">
+                            {t("total_balance")}
+                          </span>
+                          <span className="text-lg font-semibold text-red-600">
+                            {accounts[0].total_balance.toLocaleString(
+                              undefined,
+                              {
+                                style: "currency",
+                                currency: "INR",
+                              },
+                            )}
+                          </span>
+                        </div>
+
+                        <div className="flex justify-between items-center">
+                          <span className="text-gray-600">
+                            {t("total_gross")}
+                          </span>
+                          <span className="font-medium">
+                            {accounts[0].total_gross.toLocaleString(undefined, {
+                              style: "currency",
+                              currency: "INR",
+                            })}
+                          </span>
+                        </div>
+
+                        <div className="flex justify-between items-center">
+                          <span className="text-gray-600">
+                            {t("total_net")}
+                          </span>
+                          <span className="font-medium">
+                            {accounts[0].total_net.toLocaleString(undefined, {
+                              style: "currency",
+                              currency: "INR",
+                            })}
+                          </span>
+                        </div>
+
+                        <div className="flex justify-between items-center">
+                          <span className="text-gray-600">
+                            {t("total_paid")}
+                          </span>
+                          <span className="font-medium text-green-600">
+                            {accounts[0].total_paid.toLocaleString(undefined, {
+                              style: "currency",
+                              currency: "INR",
+                            })}
+                          </span>
+                        </div>
+                      </div>
                     </div>
-                  )}
-                </>
+                  </div>
+                </div>
               )}
             </div>
           )}
