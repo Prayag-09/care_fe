@@ -1,15 +1,12 @@
-import careConfig from "@careConfig";
 import { QRCodeSVG } from "qrcode.react";
 import { useEffect, useState } from "react";
 import { useTranslation } from "react-i18next";
 
 import CareIcon from "@/CAREUI/icons/CareIcon";
-import PrintPreview from "@/CAREUI/misc/PrintPreview";
 
 import { Badge } from "@/components/ui/badge";
 import { Button } from "@/components/ui/button";
 import { Checkbox } from "@/components/ui/checkbox";
-import { Dialog, DialogContent } from "@/components/ui/dialog";
 import { ScrollArea } from "@/components/ui/scroll-area";
 import {
   Sheet,
@@ -20,6 +17,8 @@ import {
 } from "@/components/ui/sheet";
 
 import { SpecimenRead } from "@/types/emr/specimen/specimen";
+
+import { PrintableQRCodeArea } from "./PrintableQRCodeArea";
 
 interface MultiQRCodePrintSheetProps {
   specimens: SpecimenRead[];
@@ -41,7 +40,7 @@ export function MultiQRCodePrintSheet({
   );
   const [localSpecimens, setLocalSpecimens] =
     useState<SpecimenRead[]>(specimens);
-  const [isPrintView, setIsPrintView] = useState(false);
+  const [isPrinting, setIsPrinting] = useState(false);
 
   // Calculate logo size as 25% of QR code size
   const qrCodeSize = 120;
@@ -89,8 +88,7 @@ export function MultiQRCodePrintSheet({
   };
 
   const handlePrint = () => {
-    // Switch to print view and close the sheet
-    setIsPrintView(true);
+    setIsPrinting(true);
     handleOpenChange(false);
   };
 
@@ -98,6 +96,17 @@ export function MultiQRCodePrintSheet({
   const selectedSpecimenData = Array.from(selectedSpecimens)
     .map((id) => localSpecimens.find((s) => s.id === id))
     .filter(Boolean) as SpecimenRead[];
+
+  // useEffect to trigger window.print when isPrinting is true
+  useEffect(() => {
+    if (isPrinting && selectedSpecimenData.length > 0) {
+      const timeoutId = setTimeout(() => {
+        window.print();
+        setIsPrinting(false); // Reset after print dialog is shown/closed
+      }, 100); // Small delay to ensure DOM is updated
+      return () => clearTimeout(timeoutId);
+    }
+  }, [isPrinting, selectedSpecimenData]);
 
   return (
     <>
@@ -184,77 +193,16 @@ export function MultiQRCodePrintSheet({
         </SheetContent>
       </Sheet>
 
-      <Dialog open={isPrintView} onOpenChange={setIsPrintView}>
-        <DialogContent className="min-w-4xl overflow-x-auto">
-          <PrintPreview title={t("qr_codes")}>
-            <div className="space-y-8">
-              {/* Header */}
-              <div className="flex justify-between items-start pb-2 border-b border-gray-200">
-                <div className="space-y-4 flex-1">
-                  <div>
-                    <h2 className="text-gray-500 uppercase text-sm tracking-wide font-semibold mt-1">
-                      {t("qr_codes")}
-                    </h2>
-                  </div>
-                </div>
-                <img
-                  src={careConfig.mainLogo?.dark}
-                  alt="Care Logo"
-                  className="h-10 w-auto object-contain ml-6"
-                />
-              </div>
-
-              {/* QR Codes Grid */}
-              <div className="grid grid-cols-1 gap-8 sm:grid-cols-2">
-                {selectedSpecimenData.map((specimen) => (
-                  <div key={specimen.id} className="page-break-inside-avoid">
-                    <div className="flex gap-6 p-4 border border-gray-200 rounded-lg">
-                      <div className="shrink-0">
-                        <QRCodeSVG
-                          value={specimen.id}
-                          size={printSize}
-                          className="bg-white"
-                          imageSettings={{
-                            src: "/images/care_logo_mark.svg",
-                            height: logoSize,
-                            width: logoSize,
-                            excavate: true,
-                          }}
-                          level="H"
-                        />
-                      </div>
-                      <div>
-                        {specimen.specimen_type?.display && (
-                          <div className="text-lg font-semibold pt-2.5">
-                            {specimen.specimen_type.display}
-                          </div>
-                        )}
-                        {specimen.specimen_definition?.title && (
-                          <div className="text-sm text-gray-600">
-                            {specimen.specimen_definition.title}
-                          </div>
-                        )}
-                        {specimen.id && (
-                          <div className="font-semibold uppercase text-sm text-gray-700">
-                            {specimen.id}
-                          </div>
-                        )}
-                      </div>
-                    </div>
-                  </div>
-                ))}
-              </div>
-
-              {/* Footer */}
-              <div className="mt-8 space-y-1 pt-2 text-[10px] text-gray-500 flex justify-between">
-                <p>
-                  {t("generated_on")} {new Date().toLocaleDateString()}
-                </p>
-              </div>
-            </div>
-          </PrintPreview>
-        </DialogContent>
-      </Dialog>
+      {/* Conditional rendering for the printable area, styled via global CSS for print only */}
+      {isPrinting && selectedSpecimenData.length > 0 && (
+        <div className="print-only">
+          <PrintableQRCodeArea
+            specimens={selectedSpecimenData}
+            logoSize={logoSize} // Pass calculated logoSize
+            printSize={printSize} // Pass calculated printSize
+          />
+        </div>
+      )}
     </>
   );
 }
