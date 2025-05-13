@@ -9,8 +9,8 @@ export enum ProductKnowledgeType {
 
 export enum ProductKnowledgeStatus {
   active = "active",
-  draft = "draft",
-  retired = "retired",
+  inactive = "inactive",
+  entered_in_error = "entered_in_error",
 }
 
 export enum ProductNameTypes {
