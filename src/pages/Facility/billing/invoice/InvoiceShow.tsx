@@ -51,7 +51,6 @@ import query from "@/Utils/request/query";
 import PaymentReconciliationSheet from "@/pages/Facility/billing/PaymentReconciliationSheet";
 import EditInvoiceSheet from "@/pages/Facility/billing/invoice/EditInvoiceSheet";
 import { MonetaryComponentType } from "@/types/base/monetaryComponent/monetaryComponent";
-import { CHARGE_ITEM_STATUS_STYLES } from "@/types/billing/chargeItem/chargeItem";
 import chargeItemApi from "@/types/billing/chargeItem/chargeItemApi";
 import {
   InvoiceCreate,
@@ -473,7 +472,6 @@ export function InvoiceShow({
                         <TableHead key={taxCode}>{t(taxCode)}</TableHead>
                       ))}
                       <TableHead>{t("total")}</TableHead>
-                      <TableHead className="w-[120px]">{t("status")}</TableHead>
                       {invoice?.status === InvoiceStatus.draft && (
                         <TableHead className="w-[60px]">
                           {t("actions")}
@@ -557,16 +555,6 @@ export function InvoiceShow({
                               )}
                             <TableCell className="align-top">
                               <MonetaryDisplay amount={item.total_price} />
-                            </TableCell>
-                            <TableCell className="align-top">
-                              <Badge
-                                variant="outline"
-                                className={
-                                  CHARGE_ITEM_STATUS_STYLES[item.status]
-                                }
-                              >
-                                {t(item.status)}
-                              </Badge>
                             </TableCell>
                             <TableCell className="align-top">
                               {invoice.status === InvoiceStatus.draft && (
