@@ -1,5 +1,10 @@
 import { useMutation, useQuery, useQueryClient } from "@tanstack/react-query";
-import { ArrowLeftIcon, MoreVertical, PlusIcon } from "lucide-react";
+import {
+  ArrowLeftIcon,
+  MoreVertical,
+  PlusIcon,
+  PrinterIcon,
+} from "lucide-react";
 import { navigate } from "raviger";
 import { useState } from "react";
 import { useTranslation } from "react-i18next";
@@ -33,6 +38,7 @@ import AddMultipleChargeItemsSheet from "./components/AddMultipleChargeItemsShee
 import { ChargeItemCard } from "./components/ChargeItemCard";
 import { DiagnosticReportForm } from "./components/DiagnosticReportForm";
 import { DiagnosticReportReview } from "./components/DiagnosticReportReview";
+import { MultiQRCodePrintSheet } from "./components/MultiQRCodePrintSheet";
 import { PatientHeader } from "./components/PatientHeader";
 import { ServiceRequestDetails } from "./components/ServiceRequestDetails";
 import { SpecimenForm } from "./components/SpecimenForm";
@@ -61,6 +67,8 @@ export default function ServiceRequestShow({
   });
 
   const [isMultiAddOpen, setIsMultiAddOpen] = useState(false);
+  const [isPrintingAllQRCodes, setIsPrintingAllQRCodes] = useState(false);
+  const [isQRCodeSheetOpen, setIsQRCodeSheetOpen] = useState(false);
   const [selectedSpecimenDefinition, setSelectedSpecimenDefinition] =
     useState<SpecimenDefinitionRead | null>(null);
 
@@ -88,7 +96,10 @@ export default function ServiceRequestShow({
     enabled: !!serviceRequestId,
   });
 
-  const { mutate: createDraftSpecimenFromDefinition } = useMutation({
+  const {
+    mutate: createDraftSpecimenFromDefinition,
+    isPending: isCreatingDraftSpecimen,
+  } = useMutation({
     mutationFn: mutate(specimenApi.createSpecimenFromDefinition, {
       pathParams: {
         facilityId,
@@ -190,6 +201,56 @@ export default function ServiceRequestShow({
   const diagnosticReports = request.diagnostic_reports || [];
 
   const assignedSpecimenIds = new Set<string>();
+
+  const preparePrintAllQRCodes = async () => {
+    // First create drafts for any specimen definitions without specimens
+    const missingDraftDefinitions = specimenRequirements.filter(
+      (requirement) => {
+        // Check if there's no draft or available specimen for this definition
+        return !request.specimens.some(
+          (spec) =>
+            spec.specimen_definition?.id === requirement.id &&
+            (spec.status === SpecimenStatus.draft ||
+              spec.status === SpecimenStatus.available),
+        );
+      },
+    );
+
+    if (missingDraftDefinitions.length > 0) {
+      setIsPrintingAllQRCodes(true);
+
+      // Create drafts for each missing definition
+      for (const requirement of missingDraftDefinitions) {
+        await createDraftSpecimenFromDefinition({
+          specimen_definition: requirement.id,
+          specimen: {
+            status: SpecimenStatus.draft,
+            specimen_type: requirement.type_collected,
+            accession_identifier: "",
+            received_time: null,
+            collection: {
+              method: requirement.collection,
+              body_site: null,
+              collector: null,
+              collected_date_time: null,
+              quantity: null,
+              procedure: null,
+              fasting_status_codeable_concept: null,
+              fasting_status_duration: null,
+            },
+            processing: [],
+            condition: [],
+            note: null,
+          },
+        });
+      }
+
+      setIsPrintingAllQRCodes(false);
+    }
+
+    setIsQRCodeSheetOpen(true);
+  };
+
   return (
     <div className="flex flex-col lg:flex-row min-h-screen bg-gray-50 relative">
       <div className="flex-1 p-4 max-w-6xl mx-auto">
@@ -272,25 +333,46 @@ export default function ServiceRequestShow({
             <div className="space-y-6">
               <div className="flex items-center justify-between">
                 <h2 className="text-xl font-semibold">{t("specimens")}</h2>
-                <DropdownMenu>
-                  <DropdownMenuTrigger asChild>
-                    <Button variant="ghost" size="icon">
-                      <MoreVertical className="size-4" />
+                <div className="flex items-center gap-2">
+                  <MultiQRCodePrintSheet
+                    specimens={request?.specimens || []}
+                    open={isQRCodeSheetOpen}
+                    onOpenChange={setIsQRCodeSheetOpen}
+                  >
+                    <Button
+                      variant="outline"
+                      size="sm"
+                      onClick={preparePrintAllQRCodes}
+                      disabled={isCreatingDraftSpecimen || isPrintingAllQRCodes}
+                    >
+                      <PrinterIcon className="h-4 w-4 mr-2" />
+                      {isPrintingAllQRCodes
+                        ? t("preparing")
+                        : t("print_all_qr_codes")}
                     </Button>
-                  </DropdownMenuTrigger>
-                  <DropdownMenuContent align="end">
-                    <SpecimenHistorySheet specimens={request?.specimens || []}>
-                      <DropdownMenuItem
-                        onSelect={(e) => e.preventDefault()}
-                        onClick={(e) => {
-                          e.stopPropagation();
-                        }}
+                  </MultiQRCodePrintSheet>
+                  <DropdownMenu>
+                    <DropdownMenuTrigger asChild>
+                      <Button variant="ghost" size="icon">
+                        <MoreVertical className="size-4" />
+                      </Button>
+                    </DropdownMenuTrigger>
+                    <DropdownMenuContent align="end">
+                      <SpecimenHistorySheet
+                        specimens={request?.specimens || []}
                       >
-                        {t("view_specimen_history")}
-                      </DropdownMenuItem>
-                    </SpecimenHistorySheet>
-                  </DropdownMenuContent>
-                </DropdownMenu>
+                        <DropdownMenuItem
+                          onSelect={(e) => e.preventDefault()}
+                          onClick={(e) => {
+                            e.stopPropagation();
+                          }}
+                        >
+                          {t("view_specimen_history")}
+                        </DropdownMenuItem>
+                      </SpecimenHistorySheet>
+                    </DropdownMenuContent>
+                  </DropdownMenu>
+                </div>
               </div>
               {specimenRequirements.map((requirement) => {
                 const allMatchingForThisDefId = request.specimens.filter(
