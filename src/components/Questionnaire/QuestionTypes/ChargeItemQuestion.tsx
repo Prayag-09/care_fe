@@ -26,7 +26,6 @@ import { FieldError } from "@/components/Questionnaire/QuestionTypes/FieldError"
 
 import query from "@/Utils/request/query";
 import {
-  ChargeItemBase,
   ChargeItemStatus,
   ChargeItemUpsert,
 } from "@/types/billing/chargeItem/chargeItem";
@@ -264,6 +263,7 @@ export function ChargeItemQuestion({
         unit_price_components: selectedCID.price_component,
         note: undefined,
         override_reason: undefined,
+        encounter: encounterId,
       });
     }
   }, [
@@ -314,7 +314,7 @@ export function ChargeItemQuestion({
 
   useEffect(() => {
     const initialChargeItems =
-      (questionnaireResponse.values?.[0]?.value as ChargeItemBase[]) || [];
+      (questionnaireResponse.values?.[0]?.value as ChargeItemUpsert[]) || [];
 
     if (JSON.stringify(initialChargeItems) !== JSON.stringify(chargeItems)) {
       setChargeItems(initialChargeItems);

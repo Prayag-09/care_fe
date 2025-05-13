@@ -56,16 +56,10 @@ export interface ChargeItemCreate
 }
 
 export interface ChargeItemUpsert
-  extends Omit<
-    ChargeItemBase,
-    | "id"
-    | "service_resource_id"
-    | "service_resource"
-    | "paid_invoice"
-    | "total_price"
-  > {
+  extends Omit<ChargeItemBase, "id" | "paid_invoice" | "total_price"> {
   id?: string;
   account?: string;
+  encounter: string;
 }
 export interface ChargeItemUpdate
   extends Omit<

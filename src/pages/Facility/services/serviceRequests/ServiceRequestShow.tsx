@@ -1,5 +1,5 @@
 import { useMutation, useQuery, useQueryClient } from "@tanstack/react-query";
-import { ArrowLeftIcon, MoreVertical } from "lucide-react";
+import { ArrowLeftIcon, MoreVertical, PlusIcon } from "lucide-react";
 import { navigate } from "raviger";
 import { useState } from "react";
 import { useTranslation } from "react-i18next";
@@ -29,6 +29,7 @@ import { SpecimenRead, SpecimenStatus } from "@/types/emr/specimen/specimen";
 import specimenApi from "@/types/emr/specimen/specimenApi";
 import { SpecimenDefinitionRead } from "@/types/emr/specimenDefinition/specimenDefinition";
 
+import AddMultipleChargeItemsSheet from "./components/AddMultipleChargeItemsSheet";
 import { ChargeItemCard } from "./components/ChargeItemCard";
 import { DiagnosticReportForm } from "./components/DiagnosticReportForm";
 import { DiagnosticReportReview } from "./components/DiagnosticReportReview";
@@ -59,6 +60,7 @@ export default function ServiceRequestShow({
     lg: false,
   });
 
+  const [isMultiAddOpen, setIsMultiAddOpen] = useState(false);
   const [selectedSpecimenDefinition, setSelectedSpecimenDefinition] =
     useState<SpecimenDefinitionRead | null>(null);
 
@@ -235,11 +237,37 @@ export default function ServiceRequestShow({
             request={request}
             activityDefinition={activityDefinition}
           />
-          {chargeItems &&
-            chargeItems.results.length > 0 &&
-            chargeItems.results.map((chargeItem) => (
-              <ChargeItemCard key={chargeItem.id} chargeItem={chargeItem} />
-            ))}
+          <div className="space-y-4">
+            <div className="flex items-center justify-between">
+              <h2 className="text-xl font-semibold">{t("charge_items")}</h2>
+              <Button
+                variant="outline"
+                size="sm"
+                onClick={() => setIsMultiAddOpen(true)}
+              >
+                <PlusIcon className="h-4 w-4 mr-2" />
+                {t("add_charge_items")}
+              </Button>
+            </div>
+            {chargeItems &&
+              chargeItems.results.length > 0 &&
+              chargeItems.results.map((chargeItem) => (
+                <ChargeItemCard key={chargeItem.id} chargeItem={chargeItem} />
+              ))}
+          </div>
+
+          <AddMultipleChargeItemsSheet
+            open={isMultiAddOpen}
+            onOpenChange={setIsMultiAddOpen}
+            facilityId={facilityId}
+            serviceRequestId={serviceRequestId}
+            onChargeItemsAdded={() => {
+              queryClient.invalidateQueries({
+                queryKey: ["chargeItems", serviceRequestId],
+              });
+            }}
+          />
+
           {specimenRequirements.length > 0 && !selectedSpecimenDefinition && (
             <div className="space-y-6">
               <div className="flex items-center justify-between">

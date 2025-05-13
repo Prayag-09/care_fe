@@ -17,9 +17,8 @@ x : Done
 - [-] All instance level tax codes should be shown as an option in the charge item def creator - Check with Vignesh
 - [-] Add support for information components in chargeDef and Charge Item. - Rithvik
 - [-] Consider disabling onWheelChange for input[type=number] fields. - [hold till @bodhi confirms]
-- [-] When Creating charge item in questionnaire we should allow users to pick discount and tax and quantitiy. - Amjith
-- [x] When Creating charge item in questionnaire we should display applicable discounts and tax and amounts from the charge item def as read-only - Yaswanth
-- [ ] Move account as a pill in the encounter, it should only fetch the account if its clicked, show the account details as a popover and show option to navigate to the accounts page
+- [ ] When Creating charge item in questionnaire we should allow users to pick discount and tax and quantitiy
+- [-] Move account as a pill in the encounter, it should only fetch the account if its clicked, show the account details in a sheet and show option to navigate to the accounts page (Sheet - Render account details/Create account button) - Yash
 
 ## Labs
 
@@ -27,7 +26,6 @@ x : Done
 - [-] Add support for multiple diagnostic report for a service request - [hold till @bodhi confirms]
 - [-] Service Request - Show specimen.collection.collector details instead of UUID (After BE change) - Vignesh
 - [-] Service Request - Show specimen.processing.performer details instead of UUID (After BE change) - Vignesh
-- [ ] Service request should show linked cahrge items along with its status [check for backend support]
 
 ## Back End
 
@@ -81,6 +79,7 @@ x : Done
 - [x] Charge Item Update - Jeevan & Rithvik
 - [x] Build a flow for account balanceing and closing (Close button - mark as inactive and select close reason dropdown) - Jeevan
 - [x] Allow serch for discount codes - Rithvik
+- [x] When Creating charge item in questionnaire we should display applicable discounts and tax and amounts from the charge item def as read-only - Yaswanth
 
 ## Labs
 
@@ -104,3 +103,4 @@ x : Done
 - [x] Hide the sidebar on SR show - (Sugegstion from Vinu) - Yaswanth
 - [x] Show the specimen history inside a sheet on SR show - Yaswanth
 - [x] [!BUG!] Allow re-creating the draft specimen after discrard - when the specimen is not in available or draft status - Yaswanth
+- [x] Service request should show linked cahrge items along with its status - Amjith
