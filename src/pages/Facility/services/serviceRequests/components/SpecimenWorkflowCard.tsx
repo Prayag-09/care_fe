@@ -427,7 +427,7 @@ export function SpecimenWorkflowCard({
                   Collection Pending
                 </Badge>
 
-                <Badge variant="outline" className="bg-blue-100 text-blue-900">
+                <Badge variant="outline" className="bg-gray-100 text-gray-900">
                   <FileText className="h-4 w-4 mr-1.5 stroke-1.5" />
                   Draft
                 </Badge>

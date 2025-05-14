@@ -2,6 +2,8 @@ import { QRCodeSVG } from "qrcode.react";
 import { useEffect, useState } from "react";
 import { useTranslation } from "react-i18next";
 
+import { cn } from "@/lib/utils";
+
 import CareIcon from "@/CAREUI/icons/CareIcon";
 
 import { Badge } from "@/components/ui/badge";
@@ -18,7 +20,10 @@ import {
   SheetTrigger,
 } from "@/components/ui/sheet";
 
-import { SpecimenRead } from "@/types/emr/specimen/specimen";
+import {
+  SPECIMEN_STATUS_COLOR_MAP,
+  SpecimenRead,
+} from "@/types/emr/specimen/specimen";
 
 import { PrintableQRCodeArea } from "./PrintableQRCodeArea";
 
@@ -186,7 +191,10 @@ export function MultiQRCodePrintSheet({
                       </div>
                       <Badge
                         variant="outline"
-                        className="capitalize bg-green-50 text-green-700"
+                        className={cn(
+                          "capitalize",
+                          SPECIMEN_STATUS_COLOR_MAP[specimen.status],
+                        )}
                       >
                         {specimen.status}
                       </Badge>
