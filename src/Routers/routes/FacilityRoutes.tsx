@@ -13,6 +13,7 @@ import PrintInvoice from "@/pages/Facility/billing/invoice/PrintInvoice";
 import PaymentReconciliationList from "@/pages/Facility/billing/paymentReconciliation/PaymentReconciliationList";
 import PaymentReconciliationShow from "@/pages/Facility/billing/paymentReconciliation/PaymentReconciliationShow";
 import PrintPaymentReconciliation from "@/pages/Facility/billing/paymentReconciliation/PrintPaymentReconciliation";
+import { LocationLayout } from "@/pages/Facility/locations/LocationLayout";
 import { FacilityOverview } from "@/pages/Facility/overview";
 import FacilityServices from "@/pages/Facility/services/FacilityServices";
 import HealthcareServiceShow from "@/pages/Facility/services/HealthcareServiceShow";
@@ -40,6 +41,10 @@ const FacilityRoutes: AppRoutes = {
   "/facility/:facilityId/settings*": ({ facilityId }) => (
     <SettingsLayout facilityId={facilityId} />
   ),
+  "/facility/:facilityId/locations/:locationId*": ({
+    facilityId,
+    locationId,
+  }) => <LocationLayout facilityId={facilityId} locationId={locationId} />,
   "/facility/:facilityId/services": ({ facilityId }) => (
     <FacilityServices facilityId={facilityId} />
   ),

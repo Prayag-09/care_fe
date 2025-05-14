@@ -2,10 +2,6 @@ import { NavMain, NavigationLink } from "@/components/ui/sidebar/nav-main";
 
 import { Organization } from "@/types/organization/organization";
 
-interface OrgNavProps {
-  organizations: Organization[];
-}
-
 function generateOrganizationLinks(
   organizations: Organization[],
 ): NavigationLink[] {
@@ -15,6 +11,6 @@ function generateOrganizationLinks(
   }));
 }
 
-export function OrgNav({ organizations }: OrgNavProps) {
+export function OrgNav({ organizations }: { organizations: Organization[] }) {
   return <NavMain links={generateOrganizationLinks(organizations)} />;
 }
