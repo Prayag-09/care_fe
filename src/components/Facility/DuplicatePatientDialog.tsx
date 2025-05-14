@@ -21,7 +21,7 @@ import {
   TableRow,
 } from "@/components/ui/table";
 
-import { PartialPatientModel } from "@/types/emr/newPatient";
+import { PartialPatientModel } from "@/types/emr/patient/patient";
 
 interface Props {
   open: boolean;

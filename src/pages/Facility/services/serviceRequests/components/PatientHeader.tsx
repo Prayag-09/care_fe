@@ -4,7 +4,7 @@ import { Link } from "raviger";
 import CareIcon from "@/CAREUI/icons/CareIcon";
 
 import { formatPatientAge } from "@/Utils/utils";
-import { Patient } from "@/types/emr/newPatient";
+import { Patient } from "@/types/emr/patient/patient";
 
 interface PatientHeaderProps {
   patient: Patient;

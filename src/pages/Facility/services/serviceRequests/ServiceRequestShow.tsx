@@ -24,6 +24,7 @@ import { Skeleton } from "@/components/ui/skeleton";
 
 import useBreakpoints from "@/hooks/useBreakpoints";
 
+import routes from "@/Utils/request/api";
 import mutate from "@/Utils/request/mutate";
 import query from "@/Utils/request/query";
 import chargeItemApi from "@/types/billing/chargeItem/chargeItemApi";
@@ -113,6 +114,21 @@ export default function ServiceRequestShow({
     },
     onError: () => {
       toast.error(t("specimen_draft_create_error"));
+    },
+  });
+
+  const { mutate: executeBatch } = useMutation({
+    mutationFn: mutate(routes.batchRequest, { silent: true }),
+    onSuccess: () => {
+      queryClient.invalidateQueries({
+        queryKey: ["serviceRequest", serviceRequestId],
+      });
+      setIsPrintingAllQRCodes(false);
+      setIsQRCodeSheetOpen(true);
+    },
+    onError: () => {
+      toast.error(t("specimen_draft_create_error"));
+      setIsPrintingAllQRCodes(false);
     },
   });
 
@@ -219,36 +235,38 @@ export default function ServiceRequestShow({
     if (missingDraftDefinitions.length > 0) {
       setIsPrintingAllQRCodes(true);
 
-      // Create drafts for each missing definition
-      for (const requirement of missingDraftDefinitions) {
-        await createDraftSpecimenFromDefinition({
-          specimen_definition: requirement.id,
-          specimen: {
-            status: SpecimenStatus.draft,
-            specimen_type: requirement.type_collected,
-            accession_identifier: "",
-            received_time: null,
-            collection: {
-              method: requirement.collection,
-              body_site: null,
-              collector: null,
-              collected_date_time: null,
-              quantity: null,
-              procedure: null,
-              fasting_status_codeable_concept: null,
-              fasting_status_duration: null,
+      executeBatch({
+        requests: missingDraftDefinitions.map((requirement, index) => ({
+          url: `/api/v1/facility/${facilityId}/service_request/${serviceRequestId}/create_specimen_from_definition/`,
+          method: "POST",
+          reference_id: `create_specimen_${index}`,
+          body: {
+            specimen_definition: requirement.id,
+            specimen: {
+              status: SpecimenStatus.draft,
+              specimen_type: requirement.type_collected,
+              accession_identifier: "",
+              received_time: null,
+              collection: {
+                method: requirement.collection,
+                body_site: null,
+                collector: null,
+                collected_date_time: null,
+                quantity: null,
+                procedure: null,
+                fasting_status_codeable_concept: null,
+                fasting_status_duration: null,
+              },
+              processing: [],
+              condition: [],
+              note: null,
             },
-            processing: [],
-            condition: [],
-            note: null,
           },
-        });
-      }
-
-      setIsPrintingAllQRCodes(false);
+        })),
+      });
+    } else {
+      setIsQRCodeSheetOpen(true);
     }
-
-    setIsQRCodeSheetOpen(true);
   };
 
   return (

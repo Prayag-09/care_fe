@@ -2,11 +2,15 @@ import { QRCodeSVG } from "qrcode.react";
 import { useEffect, useState } from "react";
 import { useTranslation } from "react-i18next";
 
+import { cn } from "@/lib/utils";
+
 import CareIcon from "@/CAREUI/icons/CareIcon";
 
 import { Badge } from "@/components/ui/badge";
 import { Button } from "@/components/ui/button";
 import { Checkbox } from "@/components/ui/checkbox";
+import { Label } from "@/components/ui/label";
+import { RadioGroup, RadioGroupItem } from "@/components/ui/radio-group";
 import { ScrollArea } from "@/components/ui/scroll-area";
 import {
   Sheet,
@@ -16,7 +20,10 @@ import {
   SheetTrigger,
 } from "@/components/ui/sheet";
 
-import { SpecimenRead } from "@/types/emr/specimen/specimen";
+import {
+  SPECIMEN_STATUS_COLOR_MAP,
+  SpecimenRead,
+} from "@/types/emr/specimen/specimen";
 
 import { PrintableQRCodeArea } from "./PrintableQRCodeArea";
 
@@ -41,8 +48,8 @@ export function MultiQRCodePrintSheet({
   const [localSpecimens, setLocalSpecimens] =
     useState<SpecimenRead[]>(specimens);
   const [isPrinting, setIsPrinting] = useState(false);
+  const [showDetails, setShowDetails] = useState(true);
 
-  // Calculate logo size as 25% of QR code size
   const qrCodeSize = 120;
   const logoSize = Math.floor(qrCodeSize * 0.25);
   const printSize = 80;
@@ -56,7 +63,6 @@ export function MultiQRCodePrintSheet({
     }
   }, [specimens]);
 
-  // Handle controlled open state
   useEffect(() => {
     if (open !== undefined) {
       setIsOpen(open);
@@ -103,7 +109,7 @@ export function MultiQRCodePrintSheet({
       const timeoutId = setTimeout(() => {
         window.print();
         setIsPrinting(false); // Reset after print dialog is shown/closed
-      }, 100); // Small delay to ensure DOM is updated
+      }, 200); // Small delay to ensure DOM is updated
       return () => clearTimeout(timeoutId);
     }
   }, [isPrinting, selectedSpecimenData]);
@@ -133,6 +139,26 @@ export function MultiQRCodePrintSheet({
               <CareIcon icon="l-print" className="mr-2 h-4 w-4" />
               {t("print_selected")}
             </Button>
+          </div>
+
+          <div className="mb-4 p-3 border rounded-lg">
+            <p className="text-sm font-medium mb-2">
+              {t("show_patient_details_and_specimen_id")}
+            </p>
+            <RadioGroup
+              value={showDetails ? "yes" : "no"}
+              onValueChange={(value) => setShowDetails(value === "yes")}
+              className="flex gap-4"
+            >
+              <div className="flex items-center space-x-2">
+                <RadioGroupItem value="yes" id="option-yes" />
+                <Label htmlFor="option-yes">{t("yes")}</Label>
+              </div>
+              <div className="flex items-center space-x-2">
+                <RadioGroupItem value="no" id="option-no" />
+                <Label htmlFor="option-no">{t("no")}</Label>
+              </div>
+            </RadioGroup>
           </div>
 
           <ScrollArea className="h-[calc(100vh-12rem)] pr-4">
@@ -165,7 +191,10 @@ export function MultiQRCodePrintSheet({
                       </div>
                       <Badge
                         variant="outline"
-                        className="capitalize bg-green-50 text-green-700"
+                        className={cn(
+                          "capitalize",
+                          SPECIMEN_STATUS_COLOR_MAP[specimen.status],
+                        )}
                       >
                         {specimen.status}
                       </Badge>
@@ -193,13 +222,13 @@ export function MultiQRCodePrintSheet({
         </SheetContent>
       </Sheet>
 
-      {/* Conditional rendering for the printable area, styled via global CSS for print only */}
       {isPrinting && selectedSpecimenData.length > 0 && (
         <div className="print-only">
           <PrintableQRCodeArea
             specimens={selectedSpecimenData}
-            logoSize={logoSize} // Pass calculated logoSize
-            printSize={printSize} // Pass calculated printSize
+            logoSize={logoSize}
+            printSize={printSize}
+            showDetails={showDetails}
           />
         </div>
       )}

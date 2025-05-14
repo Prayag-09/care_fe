@@ -426,6 +426,12 @@ export function SpecimenWorkflowCard({
                   <CircleDashed className="h-4 w-4 mr-1.5" />
                   Collection Pending
                 </Badge>
+
+                <Badge variant="outline" className="bg-gray-100 text-gray-900">
+                  <FileText className="h-4 w-4 mr-1.5 stroke-1.5" />
+                  Draft
+                </Badge>
+
                 <Button onClick={onCollect} variant="outline_primary">
                   <Plus className="h-4 w-4" />
                   Collect Specimen
