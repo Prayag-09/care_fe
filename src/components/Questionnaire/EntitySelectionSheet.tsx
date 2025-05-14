@@ -26,7 +26,9 @@ import {
 } from "@/components/ui/sheet";
 
 import { Code } from "@/types/base/code/code";
+import { ProductKnowledgeBase } from "@/types/inventory/productKnowledge/productKnowledge";
 
+import MedicationValueSetSelect from "./MedicationValueSetSelect";
 import ValueSetSelect from "./ValueSetSelect";
 
 interface EntitySelectionSheetProps {
@@ -102,6 +104,16 @@ export function EntitySelectionSheet({
     onEntitySelected(code);
   };
 
+  const handleProductSelect = (product: ProductKnowledgeBase) => {
+    const code: Code = {
+      display: product.name,
+      code: String(product.id),
+      system: "product",
+    };
+    setSelectedEntity(code);
+    onEntitySelected(code);
+  };
+
   const handleBack = () => {
     if (selectedEntity) {
       setSelectedEntity(null);
@@ -115,14 +127,25 @@ export function EntitySelectionSheet({
 
   return (
     <>
-      <ValueSetSelect
-        system={system}
-        placeholder={placeholder}
-        onSelect={handleSelect}
-        disabled={disabled}
-        searchPostFix={searchPostFix}
-        title={t(`select_${entityType}`)}
-      />
+      {system === "system-medication" ? (
+        <MedicationValueSetSelect
+          onSelect={handleSelect}
+          onProductSelect={handleProductSelect}
+          disabled={disabled}
+          placeholder={placeholder || t(`select_${entityType}`)}
+          title={t(`select_${entityType}`)}
+          value={selectedEntity || undefined}
+        />
+      ) : (
+        <ValueSetSelect
+          system={system}
+          placeholder={placeholder}
+          onSelect={handleSelect}
+          disabled={disabled}
+          searchPostFix={searchPostFix}
+          title={t(`select_${entityType}`)}
+        />
+      )}
       <Sheet open={open} onOpenChange={onOpenChange}>
         <SheetContent
           className="px-0 pt-2 pb-0 rounded-t-3xl sm:max-w-md sm:mx-auto [&>button:first-child]:hidden"
@@ -153,6 +176,14 @@ export function EntitySelectionSheet({
               </SheetHeader>
               <div className="flex-1 overflow-y-auto pb-safe">{children}</div>
             </div>
+          ) : system === "system-medication" ? (
+            <MedicationValueSetSelect
+              onSelect={handleSelect}
+              onProductSelect={handleProductSelect}
+              disabled={disabled}
+              hideTrigger={true}
+              title={t(`select_${entityType}`)}
+            />
           ) : (
             <ValueSetSelect
               system={system}
