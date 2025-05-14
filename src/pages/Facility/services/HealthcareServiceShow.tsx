@@ -51,7 +51,7 @@ function LocationCard({
             <Button
               onClick={() =>
                 navigate(
-                  `/facility/${facilityId}/services/${serviceId}/medication_requests/locations/${location.id}`,
+                  `/facility/${facilityId}/locations/${location.id}/medication_requests/`,
                 )
               }
               variant="outline"

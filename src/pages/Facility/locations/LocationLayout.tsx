@@ -2,13 +2,13 @@ import { useRoutes } from "raviger";
 
 import ErrorPage from "@/components/ErrorPages/DefaultErrorPage";
 
+import MedicationRequestList from "@/pages/Facility/services/pharmacy/MedicationRequestList";
 import SupplyDeliveryForm from "@/pages/Facility/services/supply/SupplyDeliveryForm";
 import SupplyDeliveryList from "@/pages/Facility/services/supply/SupplyDeliveryList";
 import SupplyDeliveryView from "@/pages/Facility/services/supply/SupplyDeliveryView";
 import SupplyRequestForm from "@/pages/Facility/services/supply/SupplyRequestForm";
 import SupplyRequestList from "@/pages/Facility/services/supply/SupplyRequestList";
 import SupplyRequestView from "@/pages/Facility/services/supply/SupplyRequestView";
-import { GeneralSettings } from "@/pages/Facility/settings/general/general";
 
 interface LocationLayoutProps {
   facilityId: string;
@@ -16,11 +16,9 @@ interface LocationLayoutProps {
 }
 
 const getRoutes = (facilityId: string, locationId: string) => ({
-  "/general": () => <GeneralSettings facilityId={facilityId} />,
-  //   Todo remove the following route
-  "/general_": () => <GeneralSettings facilityId={locationId} />,
-
-  // Supply Request Routes
+  "/medication_requests": () => (
+    <MedicationRequestList facilityId={facilityId} />
+  ),
   "/supply_requests": () => (
     <SupplyRequestList facilityId={facilityId} locationId={locationId} />
   ),

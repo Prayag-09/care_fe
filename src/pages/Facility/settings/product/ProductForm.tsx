@@ -37,13 +37,13 @@ import { FormSkeleton } from "@/components/Common/SkeletonLoading";
 
 import mutate from "@/Utils/request/mutate";
 import query from "@/Utils/request/query";
-import ProductApi from "@/types/inventory/product/ProductApi";
 import {
   ProductCreate,
   ProductRead,
   ProductStatusOptions,
   ProductUpdate,
 } from "@/types/inventory/product/product";
+import productApi from "@/types/inventory/product/productApi";
 import productKnowledgeApi from "@/types/inventory/productKnowledge/productKnowledgeApi";
 
 const formSchema = z.object({
@@ -73,7 +73,7 @@ export default function ProductForm({
 
   const { data: existingData, isFetching } = useQuery({
     queryKey: ["product", productId],
-    queryFn: query(ProductApi.retrieveProduct, {
+    queryFn: query(productApi.retrieveProduct, {
       pathParams: {
         facilityId,
         productId: productId!,
@@ -154,7 +154,7 @@ function ProductFormContent({
   });
 
   const { mutate: createProduct, isPending: isCreating } = useMutation({
-    mutationFn: mutate(ProductApi.createProduct, {
+    mutationFn: mutate(productApi.createProduct, {
       pathParams: { facilityId },
     }),
     onSuccess: () => {
@@ -165,7 +165,7 @@ function ProductFormContent({
   });
 
   const { mutate: updateProduct, isPending: isUpdating } = useMutation({
-    mutationFn: mutate(ProductApi.updateProduct, {
+    mutationFn: mutate(productApi.updateProduct, {
       pathParams: {
         facilityId,
         productId: productId || "",

@@ -42,7 +42,7 @@ import { FormSkeleton } from "@/components/Common/SkeletonLoading";
 import routes from "@/Utils/request/api";
 import mutate from "@/Utils/request/mutate";
 import query from "@/Utils/request/query";
-import ProductApi from "@/types/inventory/product/ProductApi";
+import productApi from "@/types/inventory/product/productApi";
 import {
   SupplyDeliveryCondition,
   SupplyDeliveryStatus,
@@ -101,7 +101,7 @@ function SupplyDeliveryFormContent({
 
   const { data: products, isLoading: isLoadingProducts } = useQuery({
     queryKey: ["product", facilityId, searchItem],
-    queryFn: query.debounced(ProductApi.listProduct, {
+    queryFn: query.debounced(productApi.listProduct, {
       pathParams: { facilityId },
       queryParams: { search: searchItem },
     }),

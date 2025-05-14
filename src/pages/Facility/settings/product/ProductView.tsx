@@ -19,7 +19,7 @@ import {
 import Page from "@/components/Common/Page";
 
 import query from "@/Utils/request/query";
-import ProductApi from "@/types/inventory/product/ProductApi";
+import productApi from "@/types/inventory/product/productApi";
 
 interface Props {
   facilityId: string;
@@ -59,7 +59,7 @@ export default function ProductView({ facilityId, productId }: Props) {
     isError,
   } = useQuery({
     queryKey: ["product", productId],
-    queryFn: query(ProductApi.retrieveProduct, {
+    queryFn: query(productApi.retrieveProduct, {
       pathParams: {
         facilityId,
         productId,
