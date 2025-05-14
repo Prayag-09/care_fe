@@ -2,18 +2,22 @@ import careConfig from "@careConfig";
 import { QRCodeSVG } from "qrcode.react";
 import { useTranslation } from "react-i18next";
 
+import { cn } from "@/lib/utils";
+
 import { SpecimenRead } from "@/types/emr/specimen/specimen";
 
 interface PrintableQRCodeAreaProps {
   specimens: SpecimenRead[];
   logoSize: number;
   printSize: number;
+  showDetails?: boolean;
 }
 
 export function PrintableQRCodeArea({
   specimens,
   logoSize,
   printSize,
+  showDetails = true,
 }: PrintableQRCodeAreaProps) {
   const { t } = useTranslation();
 
@@ -39,8 +43,8 @@ export function PrintableQRCodeArea({
       <div className="grid grid-cols-1 gap-8 sm:grid-cols-2 mt-8">
         {specimens.map((specimen) => (
           <div key={specimen.id} className="page-break-inside-avoid">
-            <div className="flex gap-6 p-4 border border-gray-200 rounded-lg print:border-gray-300">
-              <div className="shrink-0">
+            <div className="flex gap-6 p-4 rounded-lg border border-gray-200 print:border-gray-300">
+              <div className={cn("shrink-0", !showDetails && "mx-auto")}>
                 <QRCodeSVG
                   value={specimen.id}
                   size={printSize}
@@ -54,23 +58,25 @@ export function PrintableQRCodeArea({
                   level="H"
                 />
               </div>
-              <div>
-                {specimen.specimen_type?.display && (
-                  <div className="text-lg font-semibold pt-2.5 print:text-base">
-                    {specimen.specimen_type.display}
-                  </div>
-                )}
-                {specimen.specimen_definition?.title && (
-                  <div className="text-sm text-gray-600 print:text-xs">
-                    {specimen.specimen_definition.title}
-                  </div>
-                )}
-                {specimen.id && (
-                  <div className="font-semibold uppercase text-sm text-gray-700 print:text-xs">
-                    {specimen.id}
-                  </div>
-                )}
-              </div>
+              {showDetails && (
+                <div>
+                  {specimen.specimen_type?.display && (
+                    <div className="text-lg font-semibold pt-2.5 print:text-base">
+                      {specimen.specimen_type.display}
+                    </div>
+                  )}
+                  {specimen.specimen_definition?.title && (
+                    <div className="text-sm text-gray-600 print:text-xs">
+                      {specimen.specimen_definition.title}
+                    </div>
+                  )}
+                  {specimen.id && (
+                    <div className="font-semibold uppercase text-sm text-gray-700 print:text-xs">
+                      {specimen.id}
+                    </div>
+                  )}
+                </div>
+              )}
             </div>
           </div>
         ))}
