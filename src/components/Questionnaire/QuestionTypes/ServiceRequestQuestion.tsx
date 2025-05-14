@@ -468,6 +468,7 @@ export function ServiceRequestQuestion({
     (questionnaireResponse.values?.[0]
       ?.value as unknown as ServiceRequestApplyActivityDefinitionSpec[]) || [],
   );
+  const [activityDefinitionSearch, setActivityDefinitionSearch] = useState("");
 
   const { data: locations } = useQuery({
     queryKey: ["locations", facilityId],
@@ -478,10 +479,10 @@ export function ServiceRequestQuestion({
   });
 
   const { data: activityDefinitions } = useQuery({
-    queryKey: ["activity_definitions"],
-    queryFn: query(activityDefinitionApi.listActivityDefinition, {
+    queryKey: ["activity_definitions", facilityId, activityDefinitionSearch],
+    queryFn: query.debounced(activityDefinitionApi.listActivityDefinition, {
       pathParams: { facilityId: facilityId },
-      queryParams: { limit: 100 },
+      queryParams: { limit: 100, title: activityDefinitionSearch },
     }),
   });
 
@@ -752,16 +753,17 @@ export function ServiceRequestQuestion({
               <CommandInput
                 placeholder={t("search_activity_definitions")}
                 className="h-9"
+                value={activityDefinitionSearch}
+                onValueChange={setActivityDefinitionSearch}
               />
               <CommandEmpty>{t("no_activity_definitions_found")}</CommandEmpty>
               <CommandGroup>
                 {activityDefinitionOptions.map((ad) => (
                   <CommandItem
                     key={ad.id}
-                    value={ad.id}
+                    value={ad.title}
                     onSelect={() => {
                       handleActivityDefinitionSelect(ad.id);
-                      setSelectedActivityDefinition(ad.id);
                     }}
                   >
                     <Check
