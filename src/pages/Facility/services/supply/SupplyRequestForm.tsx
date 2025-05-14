@@ -73,14 +73,12 @@ const formSchema = z.object({
 
 interface Props {
   facilityId: string;
-  serviceId: string;
   locationId: string;
   supplyRequestId?: string;
 }
 
 export default function SupplyRequestForm({
   facilityId,
-  serviceId,
   locationId,
   supplyRequestId,
 }: Props) {
@@ -115,7 +113,6 @@ export default function SupplyRequestForm({
       facilityId={facilityId}
       supplyRequestId={supplyRequestId}
       existingData={existingData}
-      serviceId={serviceId}
       locationId={locationId}
     />
   );
@@ -123,7 +120,6 @@ export default function SupplyRequestForm({
 
 function SupplyRequestFormContent({
   facilityId,
-  serviceId,
   locationId,
   supplyRequestId,
   existingData,
@@ -131,7 +127,6 @@ function SupplyRequestFormContent({
   facilityId: string;
   supplyRequestId?: string;
   existingData?: any;
-  serviceId: string;
   locationId: string;
 }) {
   const { t } = useTranslation();
@@ -217,7 +212,7 @@ function SupplyRequestFormContent({
       );
       queryClient.invalidateQueries({ queryKey: ["supplyRequests"] });
       navigate(
-        `/facility/${facilityId}/services/${serviceId}/medication_requests/locations/${locationId}/supply_requests`,
+        `/facility/${facilityId}/locations/${locationId}/supply_requests`,
       );
     },
     onError: (error) => {
@@ -580,7 +575,7 @@ function SupplyRequestFormContent({
                 variant="outline"
                 onClick={() =>
                   navigate(
-                    `/facility/${facilityId}/services/${serviceId}/medication_requests/locations/${locationId}/supply_requests`,
+                    `/facility/${facilityId}/locations/${locationId}/supply_requests`,
                   )
                 }
               >

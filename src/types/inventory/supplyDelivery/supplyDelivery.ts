@@ -1,5 +1,5 @@
 import { ProductRead } from "@/types/inventory/product/product";
-import { LocationBase } from "@/types/location/location";
+import { LocationDetail } from "@/types/location/location";
 
 export enum SupplyDeliveryStatus {
   in_progress = "in_progress",
@@ -22,6 +22,7 @@ export interface SupplyDeliveryBase {
   id: string;
   status: SupplyDeliveryStatus;
   supplied_item_condition?: SupplyDeliveryCondition;
+  supplied_item_type: SupplyDeliveryType;
 }
 
 export interface SupplyDeliveryCreate extends Omit<SupplyDeliveryBase, "id"> {
@@ -34,6 +35,6 @@ export interface SupplyDeliveryCreate extends Omit<SupplyDeliveryBase, "id"> {
 export interface SupplyDeliveryRead extends SupplyDeliveryBase {
   supplied_item_quantity: number;
   supplied_item: ProductRead;
-  origin?: LocationBase;
-  destination: LocationBase;
+  origin?: LocationDetail;
+  destination: LocationDetail;
 }

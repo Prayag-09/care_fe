@@ -47,6 +47,21 @@ export function LocationNav() {
             },
           ],
         },
+        {
+          name: t("inventory"),
+          url: `${baseUrl}/inventory`,
+          icon: <CareIcon icon="l-shop" />,
+          children: [
+            {
+              name: t("supply_request"),
+              url: `${baseUrl}/supply_requests`,
+            },
+            {
+              name: t("supply_delivery"),
+              url: `${baseUrl}/supply_deliveries`,
+            },
+          ],
+        },
       ]}
     />
   );

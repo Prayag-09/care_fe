@@ -2,6 +2,12 @@ import { useRoutes } from "raviger";
 
 import ErrorPage from "@/components/ErrorPages/DefaultErrorPage";
 
+import SupplyDeliveryForm from "@/pages/Facility/services/supply/SupplyDeliveryForm";
+import SupplyDeliveryList from "@/pages/Facility/services/supply/SupplyDeliveryList";
+import SupplyDeliveryView from "@/pages/Facility/services/supply/SupplyDeliveryView";
+import SupplyRequestForm from "@/pages/Facility/services/supply/SupplyRequestForm";
+import SupplyRequestList from "@/pages/Facility/services/supply/SupplyRequestList";
+import SupplyRequestView from "@/pages/Facility/services/supply/SupplyRequestView";
 import { GeneralSettings } from "@/pages/Facility/settings/general/general";
 
 interface LocationLayoutProps {
@@ -13,6 +19,50 @@ const getRoutes = (facilityId: string, locationId: string) => ({
   "/general": () => <GeneralSettings facilityId={facilityId} />,
   //   Todo remove the following route
   "/general_": () => <GeneralSettings facilityId={locationId} />,
+
+  // Supply Request Routes
+  "/supply_requests": () => (
+    <SupplyRequestList facilityId={facilityId} locationId={locationId} />
+  ),
+  "/supply_requests/new": () => (
+    <SupplyRequestForm facilityId={facilityId} locationId={locationId} />
+  ),
+  "/supply_requests/:id": ({ id }: { id: string }) => (
+    <SupplyRequestView
+      facilityId={facilityId}
+      locationId={locationId}
+      supplyRequestId={id}
+    />
+  ),
+  "/supply_requests/:id/edit": ({ id }: { id: string }) => (
+    <SupplyRequestForm
+      facilityId={facilityId}
+      locationId={locationId}
+      supplyRequestId={id}
+    />
+  ),
+
+  // Supply Delivery Routes
+  "/supply_deliveries": () => (
+    <SupplyDeliveryList facilityId={facilityId} locationId={locationId} />
+  ),
+  "/supply_deliveries/new": () => (
+    <SupplyDeliveryForm facilityId={facilityId} locationId={locationId} />
+  ),
+  "/supply_deliveries/:id": ({ id }: { id: string }) => (
+    <SupplyDeliveryView
+      facilityId={facilityId}
+      locationId={locationId}
+      supplyDeliveryId={id}
+    />
+  ),
+  "/supply_deliveries/:id/edit": ({ id }: { id: string }) => (
+    <SupplyDeliveryForm
+      facilityId={facilityId}
+      locationId={locationId}
+      supplyDeliveryId={id}
+    />
+  ),
 
   "*": () => <ErrorPage />,
 });

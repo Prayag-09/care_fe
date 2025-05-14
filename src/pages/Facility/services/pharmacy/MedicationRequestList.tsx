@@ -1,5 +1,4 @@
 import { useQuery } from "@tanstack/react-query";
-import { navigate } from "raviger";
 import { useTranslation } from "react-i18next";
 
 import { cn } from "@/lib/utils";
@@ -49,12 +48,8 @@ const PRIORITY_BADGES = {
 
 export default function MedicationRequestList({
   facilityId,
-  serviceId,
-  locationId,
 }: {
   facilityId: string;
-  serviceId: string;
-  locationId: string;
 }) {
   const { t } = useTranslation();
   const { qParams, updateQuery } = useFilters({
@@ -89,16 +84,6 @@ export default function MedicationRequestList({
             className="w-full"
           />
         </div>
-        <Button
-          variant="outline"
-          onClick={() =>
-            navigate(
-              `/facility/${facilityId}/services/${serviceId}/medication_requests/locations/${locationId}/supply_requests`,
-            )
-          }
-        >
-          {t("Supply Requests")}
-        </Button>
         <div className="flex items-center gap-2">
           <Button
             variant={!qParams.priority ? "default" : "outline"}

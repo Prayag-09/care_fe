@@ -56,14 +56,12 @@ function LoadingSkeleton() {
 
 interface Props {
   facilityId: string;
-  serviceId: string;
   locationId: string;
   supplyRequestId: string;
 }
 
 export default function SupplyRequestView({
   facilityId,
-  serviceId,
   locationId,
   supplyRequestId,
 }: Props) {
@@ -102,7 +100,7 @@ export default function SupplyRequestView({
             className="mt-4"
             onClick={() =>
               navigate(
-                `/facility/${facilityId}/services/${serviceId}/medication_requests/locations/${locationId}/supply_requests`,
+                `/facility/${facilityId}/locations/${locationId}/supply_requests`,
               )
             }
           >
@@ -132,7 +130,7 @@ export default function SupplyRequestView({
                 variant="outline"
                 onClick={() =>
                   navigate(
-                    `/facility/${facilityId}/services/${serviceId}/medication_requests/locations/${locationId}/supply_requests`,
+                    `/facility/${facilityId}/locations/${locationId}/supply_requests`,
                   )
                 }
               >
@@ -142,7 +140,7 @@ export default function SupplyRequestView({
                 variant="outline"
                 onClick={() =>
                   navigate(
-                    `/facility/${facilityId}/services/${serviceId}/medication_requests/locations/${locationId}/supply_requests/${supplyRequestId}/edit`,
+                    `/facility/${facilityId}/locations/${locationId}/supply_requests/${supplyRequestId}/edit`,
                   )
                 }
               >

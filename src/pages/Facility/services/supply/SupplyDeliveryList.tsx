@@ -25,26 +25,16 @@ import useFilters from "@/hooks/useFilters";
 
 import query from "@/Utils/request/query";
 import {
-  SupplyRequestPriority,
-  SupplyRequestRead,
-  SupplyRequestStatus,
-} from "@/types/inventory/supplyRequest/supplyRequest";
-import supplyRequestApi from "@/types/inventory/supplyRequest/supplyRequestApi";
+  SupplyDeliveryRead,
+  SupplyDeliveryStatus,
+} from "@/types/inventory/supplyDelivery/supplyDelivery";
+import supplyDeliveryApi from "@/types/inventory/supplyDelivery/supplyDeliveryApi";
 
 const STATUS_COLORS: Record<string, string> = {
-  active: "bg-green-100 text-green-700",
-  completed: "bg-blue-100 text-blue-700",
-  cancelled: "bg-red-100 text-red-700",
-  draft: "bg-gray-100 text-gray-700",
-  on_hold: "bg-amber-100 text-amber-700",
-  unknown: "bg-gray-100 text-gray-700",
-};
-
-const PRIORITY_COLORS: Record<string, string> = {
-  routine: "bg-blue-100 text-blue-700",
-  urgent: "bg-red-100 text-red-700",
-  asap: "bg-amber-100 text-amber-700",
-  stat: "bg-purple-100 text-purple-700",
+  in_progress: "bg-amber-100 text-amber-700",
+  completed: "bg-green-100 text-green-700",
+  abandoned: "bg-red-100 text-red-700",
+  entered_in_error: "bg-red-100 text-red-700",
 };
 
 interface Props {
@@ -52,7 +42,7 @@ interface Props {
   locationId: string;
 }
 
-export default function SupplyRequestList({ facilityId, locationId }: Props) {
+export default function SupplyDeliveryList({ facilityId, locationId }: Props) {
   const { t } = useTranslation();
   const { qParams, updateQuery, Pagination, resultsPerPage } = useFilters({
     limit: 14,
@@ -60,39 +50,38 @@ export default function SupplyRequestList({ facilityId, locationId }: Props) {
   });
 
   const { data: response, isLoading } = useQuery({
-    queryKey: ["supplyRequests", qParams],
-    queryFn: query.debounced(supplyRequestApi.listSupplyRequest, {
+    queryKey: ["supplyDeliveries", qParams],
+    queryFn: query.debounced(supplyDeliveryApi.listSupplyDelivery, {
       queryParams: {
         facility: facilityId,
         limit: resultsPerPage,
         offset: ((qParams.page ?? 1) - 1) * resultsPerPage,
         search: qParams.search,
         status: qParams.status,
-        priority: qParams.priority,
-        deliver_to: locationId,
+        origin: locationId,
       },
     }),
   });
 
-  const requests = response?.results || [];
+  const deliveries = response?.results || [];
 
   return (
-    <Page title={t("supply_requests")} hideTitleOnPage>
+    <Page title={t("supply_deliveries")} hideTitleOnPage>
       <div className="container mx-auto">
         <div className="mb-6">
           <div className="flex flex-col sm:flex-row items-start sm:items-center justify-between gap-4">
             <h1 className="text-xl font-semibold text-gray-900">
-              {t("supply_requests")}
+              {t("supply_deliveries")}
             </h1>
             <Button
               onClick={() =>
                 navigate(
-                  `/facility/${facilityId}/locations/${locationId}/supply_requests/new`,
+                  `/facility/${facilityId}/locations/${locationId}/supply_deliveries/new`,
                 )
               }
             >
               <CareIcon icon="l-plus" className="mr-2 size-4" />
-              {t("create_supply_request")}
+              {t("create_supply_delivery")}
             </Button>
           </div>
         </div>
@@ -100,7 +89,7 @@ export default function SupplyRequestList({ facilityId, locationId }: Props) {
         <div className="mb-4 flex flex-col sm:flex-row items-start sm:items-center gap-4">
           <div className="flex-1">
             <Input
-              placeholder={t("search_supply_requests")}
+              placeholder={t("search_supply_deliveries")}
               value={qParams.search}
               onChange={(e) => updateQuery({ search: e.target.value })}
               className="w-full"
@@ -112,18 +101,9 @@ export default function SupplyRequestList({ facilityId, locationId }: Props) {
               <FilterSelect
                 value={qParams.status || ""}
                 onValueChange={(value) => updateQuery({ status: value })}
-                options={Object.values(SupplyRequestStatus)}
+                options={Object.values(SupplyDeliveryStatus)}
                 label="status"
                 onClear={() => updateQuery({ status: undefined })}
-              />
-            </div>
-            <div className="flex-1 sm:flex-initial sm:w-auto">
-              <FilterSelect
-                value={qParams.priority || ""}
-                onValueChange={(value) => updateQuery({ priority: value })}
-                options={Object.values(SupplyRequestPriority)}
-                label="priority"
-                onClear={() => updateQuery({ priority: undefined })}
               />
             </div>
           </div>
@@ -131,10 +111,10 @@ export default function SupplyRequestList({ facilityId, locationId }: Props) {
 
         {isLoading ? (
           <TableSkeleton count={5} />
-        ) : requests.length === 0 ? (
+        ) : deliveries.length === 0 ? (
           <EmptyState
-            title={t("no_supply_requests_found")}
-            description={t("no_supply_requests_found_description")}
+            title={t("no_supply_deliveries_found")}
+            description={t("no_supply_deliveries_found_description")}
             icon="l-box"
           />
         ) : (
@@ -145,36 +125,30 @@ export default function SupplyRequestList({ facilityId, locationId }: Props) {
                   <TableRow>
                     <TableHead>{t("item")}</TableHead>
                     <TableHead>{t("quantity")}</TableHead>
-                    <TableHead>{t("deliver_from")}</TableHead>
-                    <TableHead>{t("deliver_to")}</TableHead>
+                    <TableHead>{t("destination")}</TableHead>
                     <TableHead>{t("status")}</TableHead>
-                    <TableHead>{t("priority")}</TableHead>
                     <TableHead className="w-[100px]">{t("actions")}</TableHead>
                   </TableRow>
                 </TableHeader>
                 <TableBody>
-                  {requests.map((request: SupplyRequestRead) => (
-                    <TableRow key={request.id}>
-                      <TableCell>{request.item.name}</TableCell>
-                      <TableCell>{request.quantity}</TableCell>
+                  {deliveries.map((delivery: SupplyDeliveryRead) => (
+                    <TableRow key={delivery.id}>
                       <TableCell>
-                        {request.deliver_from?.name || t("not_specified")}
+                        {delivery.supplied_item.product_knowledge.name}
+                        {delivery.supplied_item.batch && (
+                          <div className="text-xs text-gray-500 font-normal">
+                            Lot #{delivery.supplied_item.batch.lot_number}
+                          </div>
+                        )}
                       </TableCell>
-                      <TableCell>{request.deliver_to.name}</TableCell>
+                      <TableCell>{delivery.supplied_item_quantity}</TableCell>
+                      <TableCell>{delivery.destination.name}</TableCell>
                       <TableCell>
                         <Badge
-                          className={STATUS_COLORS[request.status]}
+                          className={STATUS_COLORS[delivery.status]}
                           variant="secondary"
                         >
-                          {t(request.status)}
-                        </Badge>
-                      </TableCell>
-                      <TableCell>
-                        <Badge
-                          className={PRIORITY_COLORS[request.priority]}
-                          variant="secondary"
-                        >
-                          {t(request.priority)}
+                          {t(delivery.status)}
                         </Badge>
                       </TableCell>
                       <TableCell>
@@ -183,7 +157,7 @@ export default function SupplyRequestList({ facilityId, locationId }: Props) {
                           size="sm"
                           onClick={() =>
                             navigate(
-                              `/facility/${facilityId}/locations/${locationId}/supply_requests/${request.id}`,
+                              `/facility/${facilityId}/locations/${locationId}/supply_deliveries/${delivery.id}`,
                             )
                           }
                         >
