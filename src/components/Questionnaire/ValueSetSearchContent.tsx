@@ -1,7 +1,9 @@
 import { StarFilledIcon, StarIcon } from "@radix-ui/react-icons";
 import { useMutation, useQuery, useQueryClient } from "@tanstack/react-query";
-import { useEffect, useRef } from "react";
+import { useEffect, useRef, useState } from "react";
 import { useTranslation } from "react-i18next";
+
+import { cn } from "@/lib/utils";
 
 import {
   Command,
@@ -11,6 +13,7 @@ import {
   CommandItem,
   CommandList,
 } from "@/components/ui/command";
+import { Tabs, TabsList, TabsTrigger } from "@/components/ui/tabs";
 
 import routes from "@/Utils/request/api";
 import mutate from "@/Utils/request/mutate";
@@ -85,6 +88,7 @@ export default function ValueSetSearchContent({
   const { t } = useTranslation();
   const queryClient = useQueryClient();
   const inputRef = useRef<HTMLInputElement>(null);
+  const [activeTab, setActiveTab] = useState(0);
 
   const searchQuery = useQuery({
     queryKey: ["valueset", system, "expand", count, search],
@@ -163,11 +167,25 @@ export default function ValueSetSearchContent({
 
   return (
     <Command filter={() => 1} className="rounded-t-3xl">
-      {title && (
-        <div className="py-3 px-3 border-b border-gray-200">
-          <h3 className="text-base font-semibold">{title}</h3>
-        </div>
-      )}
+      <div className="py-3 px-3 border-b border-gray-200 flex justify-between items-center">
+        {title && <h3 className="text-base font-semibold">{title}</h3>}
+        <Tabs
+          value={activeTab.toString()}
+          onValueChange={(value) => {
+            setActiveTab(Number(value));
+          }}
+          className="md:hidden"
+        >
+          <TabsList className="flex w-full">
+            <TabsTrigger value={"0"} className="flex-1">
+              {t("search")}
+            </TabsTrigger>
+            <TabsTrigger value={"1"} className="flex-1">
+              {t("starred")}
+            </TabsTrigger>
+          </TabsList>
+        </Tabs>
+      </div>
       <CommandInput
         ref={inputRef}
         placeholder={placeholder}
@@ -189,7 +207,12 @@ export default function ValueSetSearchContent({
           )}
         </CommandEmpty>
         <div className="flex">
-          <div className="flex-1 overflow-auto h-[300px]">
+          <div
+            className={cn(
+              activeTab === 0 ? "block" : "hidden",
+              "md:block flex-1 overflow-auto h-[300px]",
+            )}
+          >
             <CommandGroup>
               {resultsWithRecents.map((option) => (
                 <Item
@@ -221,7 +244,17 @@ export default function ValueSetSearchContent({
             </CommandGroup>
           </div>
 
-          <div className="flex-1 border-l border-gray-200">
+          <div
+            className={cn(
+              activeTab === 1 ? "block" : "hidden",
+              "md:block flex-1",
+              (search.length < 3 && !searchQuery.isFetching) ||
+                (!favourites?.length && !resultsWithRecents.length)
+                ? ""
+                : "md:border-l",
+              "border-gray-200",
+            )}
+          >
             <CommandGroup>
               <div className="flex items-center justify-between">
                 <span className="text-xs font-normal text-gray-700 p-1">
