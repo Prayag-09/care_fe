@@ -1,4 +1,4 @@
-import { Patient } from "@/types/emr/newPatient";
+import { Patient } from "@/types/emr/patient/patient";
 import { Period } from "@/types/questionnaire/base";
 
 export enum AccountStatus {
