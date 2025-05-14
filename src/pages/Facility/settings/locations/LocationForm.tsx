@@ -101,7 +101,7 @@ export default function LocationForm({
   };
 
   const { data: location, isLoading } = useQuery({
-    queryKey: ["location", locationId],
+    queryKey: ["location", facilityId, locationId],
     queryFn: query(locationApi.get, {
       pathParams: { facility_id: facilityId, id: locationId },
     }),
