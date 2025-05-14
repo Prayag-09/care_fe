@@ -17,12 +17,10 @@ import healthcareServiceApi from "@/types/healthcareService/healthcareServiceApi
 function LocationCard({
   location,
   facilityId,
-  serviceId,
   service_type,
 }: {
   location: { id: string; name: string; description?: string };
   facilityId: string;
-  serviceId: string;
   service_type: InternalType | undefined;
 }) {
   const { t } = useTranslation();
@@ -66,7 +64,7 @@ function LocationCard({
             <Button
               onClick={() =>
                 navigate(
-                  `/facility/${facilityId}/services/${serviceId}/requests/locations/${location.id}`,
+                  `/facility/${facilityId}/locations/${location.id}/service_requests/`,
                 )
               }
               variant="outline"
@@ -168,7 +166,6 @@ export default function HealthcareServiceShow({
                 key={location.id}
                 location={location}
                 facilityId={facilityId}
-                serviceId={serviceId}
                 service_type={service.internal_type}
               />
             ))

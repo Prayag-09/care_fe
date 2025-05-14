@@ -19,8 +19,6 @@ import FacilityServices from "@/pages/Facility/services/FacilityServices";
 import HealthcareServiceShow from "@/pages/Facility/services/HealthcareServiceShow";
 import DiagnosticReportPrint from "@/pages/Facility/services/diagnosticReports/DiagnosticReportPrint";
 import DiagnosticReportView from "@/pages/Facility/services/diagnosticReports/DiagnosticReportView";
-import MedicationRequestList from "@/pages/Facility/services/pharmacy/MedicationRequestList";
-import ServiceRequestList from "@/pages/Facility/services/serviceRequests/ServiceRequestList";
 import ServiceRequestShow from "@/pages/Facility/services/serviceRequests/ServiceRequestShow";
 import { SettingsLayout } from "@/pages/Facility/settings/layout";
 
@@ -48,30 +46,6 @@ const FacilityRoutes: AppRoutes = {
   "/facility/:facilityId/services/:serviceId": ({ facilityId, serviceId }) => (
     <HealthcareServiceShow facilityId={facilityId} serviceId={serviceId} />
   ),
-  "/facility/:facilityId/services/:serviceId/medication_requests/locations/:locationId":
-    ({ facilityId, _serviceId, _locationId }) => (
-      <MedicationRequestList facilityId={facilityId} />
-    ),
-  "/facility/:facilityId/services/:serviceId/requests/locations/:locationId": ({
-    facilityId,
-    serviceId,
-    locationId,
-  }) => (
-    <ServiceRequestList
-      facilityId={facilityId}
-      serviceId={serviceId}
-      locationId={locationId}
-    />
-  ),
-  "/facility/:facilityId/services/:serviceId/requests/locations/:locationId/service_requests/:serviceRequestId":
-    ({ facilityId, serviceId, locationId, serviceRequestId }) => (
-      <ServiceRequestShow
-        facilityId={facilityId}
-        serviceId={serviceId}
-        locationId={locationId}
-        serviceRequestId={serviceRequestId}
-      />
-    ),
   "/facility/:facilityId/services_requests/:serviceRequestId": ({
     facilityId,
     serviceRequestId,

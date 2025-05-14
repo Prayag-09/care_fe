@@ -2,7 +2,10 @@ import { useRoutes } from "raviger";
 
 import ErrorPage from "@/components/ErrorPages/DefaultErrorPage";
 
+import BedList from "@/pages/Facility/locations/LocationList";
 import MedicationRequestList from "@/pages/Facility/services/pharmacy/MedicationRequestList";
+import ServiceRequestList from "@/pages/Facility/services/serviceRequests/ServiceRequestList";
+import ServiceRequestShow from "@/pages/Facility/services/serviceRequests/ServiceRequestShow";
 import SupplyDeliveryForm from "@/pages/Facility/services/supply/SupplyDeliveryForm";
 import SupplyDeliveryList from "@/pages/Facility/services/supply/SupplyDeliveryList";
 import SupplyDeliveryView from "@/pages/Facility/services/supply/SupplyDeliveryView";
@@ -16,8 +19,23 @@ interface LocationLayoutProps {
 }
 
 const getRoutes = (facilityId: string, locationId: string) => ({
+  "/beds": () => <BedList facilityId={facilityId} locationId={locationId} />,
   "/medication_requests": () => (
     <MedicationRequestList facilityId={facilityId} />
+  ),
+  "/service_requests": () => (
+    <ServiceRequestList facilityId={facilityId} locationId={locationId} />
+  ),
+  "/service_requests/:serviceRequestId": ({
+    serviceRequestId,
+  }: {
+    serviceRequestId: string;
+  }) => (
+    <ServiceRequestShow
+      facilityId={facilityId}
+      locationId={locationId}
+      serviceRequestId={serviceRequestId}
+    />
   ),
   "/supply_requests": () => (
     <SupplyRequestList facilityId={facilityId} locationId={locationId} />

@@ -19,14 +19,20 @@ export function LocationNav() {
     <NavMain
       links={[
         {
-          name: t("general"),
-          url: `${baseUrl}/general`,
-          icon: <CareIcon icon="l-location-arrow-alt" />,
+          name: t("Beds"),
+          url: `${baseUrl}/beds`,
+          icon: <CareIcon icon="l-bed" />,
         },
         {
           name: t("laboratory"),
           url: `${baseUrl}/laboratory`,
           icon: <CareIcon icon="l-microscope" />,
+          children: [
+            {
+              name: t("service_requests"),
+              url: `${baseUrl}/service_requests`,
+            },
+          ],
         },
         {
           name: t("pharmacy"),
@@ -34,16 +40,8 @@ export function LocationNav() {
           icon: <CareIcon icon="l-medical-drip" />,
           children: [
             {
-              name: t("pharmacy_sub_item_1"),
-              url: `${baseUrl}/pharmacy_sub_item_1`,
-            },
-            {
-              name: t("pharmacy_sub_item_2"),
-              url: `${baseUrl}/pharmacy_sub_item_2`,
-            },
-            {
-              name: t("pharmacy_sub_item_3"),
-              url: `${baseUrl}/pharmacy_sub_item_3`,
+              name: t("prescription_queue"),
+              url: `${baseUrl}/medication_requests`,
             },
           ],
         },

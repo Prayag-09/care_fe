@@ -28,7 +28,6 @@ interface QRScanDialogProps {
   open: boolean;
   onOpenChange: (open: boolean) => void;
   facilityId: string;
-  serviceId: string;
   locationId: string;
 }
 
@@ -36,7 +35,6 @@ export function QRScanDialog({
   open,
   onOpenChange,
   facilityId,
-  serviceId,
   locationId,
 }: QRScanDialogProps) {
   const { t } = useTranslation();
@@ -102,7 +100,7 @@ export function QRScanDialog({
       return;
     }
     navigate(
-      `/facility/${facilityId}/services/${serviceId}/requests/locations/${locationId}/service_requests/${serviceRequestId}`,
+      `/facility/${facilityId}/locations/${locationId}/service_requests/${serviceRequestId}`,
     );
     setShowSuccess(false);
     onOpenChange(false);

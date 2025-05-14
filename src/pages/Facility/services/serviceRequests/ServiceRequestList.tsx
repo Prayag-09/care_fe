@@ -81,12 +81,10 @@ function EmptyState() {
 function ServiceRequestCard({
   request,
   facilityId,
-  serviceId,
   locationId,
 }: {
   request: ServiceRequestReadSpec;
   facilityId: string;
-  serviceId: string;
   locationId: string;
 }) {
   const { t } = useTranslation();
@@ -128,7 +126,7 @@ function ServiceRequestCard({
             size="sm"
             onClick={() =>
               navigate(
-                `/facility/${facilityId}/services/${serviceId}/requests/locations/${locationId}/service_requests/${request.id}`,
+                `/facility/${facilityId}/locations/${locationId}/service_requests/${request.id}`,
               )
             }
           >
@@ -150,12 +148,10 @@ function ServiceRequestCard({
 function ServiceRequestTable({
   requests,
   facilityId,
-  serviceId,
   locationId,
 }: {
   requests: ServiceRequestReadSpec[];
   facilityId: string;
-  serviceId: string;
   locationId: string;
 }) {
   const { t } = useTranslation();
@@ -206,7 +202,7 @@ function ServiceRequestTable({
                   size="sm"
                   onClick={() =>
                     navigate(
-                      `/facility/${facilityId}/services/${serviceId}/requests/locations/${locationId}/service_requests/${request.id}`,
+                      `/facility/${facilityId}/locations/${locationId}/service_requests/${request.id}`,
                     )
                   }
                 >
@@ -284,11 +280,9 @@ function FilterSelect({
 
 export default function ServiceRequestList({
   facilityId,
-  serviceId,
   locationId,
 }: {
   facilityId: string;
-  serviceId: string;
   locationId: string;
 }) {
   const { t } = useTranslation();
@@ -338,17 +332,6 @@ export default function ServiceRequestList({
     <Page title={t("service_requests")} hideTitleOnPage>
       <div className="flex justify-between items-center gap-4 mb-4">
         <Button
-          variant="outline"
-          onClick={() =>
-            navigate(`/facility/${facilityId}/services/${serviceId}`)
-          }
-          className="gap-2"
-          size="sm"
-        >
-          <CareIcon icon="l-arrow-left" className="size-4" />
-          {t("back")}
-        </Button>
-        <Button
           variant="primary"
           size="sm"
           onClick={() => setBarcodeOpen(true)}
@@ -361,7 +344,6 @@ export default function ServiceRequestList({
         open={isBarcodeOpen}
         onOpenChange={setBarcodeOpen}
         facilityId={facilityId}
-        serviceId={serviceId}
         locationId={locationId}
       />
       <div className="container mx-auto py-8">
@@ -443,7 +425,6 @@ export default function ServiceRequestList({
                   key={request.id}
                   request={request}
                   facilityId={facilityId}
-                  serviceId={serviceId}
                   locationId={locationId}
                 />
               ))}
@@ -454,7 +435,6 @@ export default function ServiceRequestList({
               <ServiceRequestTable
                 requests={serviceRequests}
                 facilityId={facilityId}
-                serviceId={serviceId}
                 locationId={locationId}
               />
             </div>
