@@ -10,6 +10,11 @@ x : Done
 
 - [x] Clean up product knowledge and fix update - Khavin
 - [ ] Clean up product and support edit form product knowledge
+- [-] List - Supply request & delivery - Incoming/Requested filter - url wise - Amjith
+- [-] Request inside delivery, and vice versa - Amjith
+- [-] Create delivery inside request - Amjith
+- [ ] Charge item inside Product (Select and Create new)
+- [ ] Inventory list
 
 ## Billing
 
@@ -39,6 +44,7 @@ x : Done
 - [ ] Create Charge Item from Charge Definition
 - [ ] Observation Interpretation
 - [ ] Spec for Ingredients, Nutrients, Drug_characteristic are incomplete in Product Knowledge
+- [ ] Find which location a product is in within a facility
 
 # Archived
 
