@@ -27,12 +27,12 @@ import { FilterSelect } from "@/components/definition-list/FilterSelect";
 import useFilters from "@/hooks/useFilters";
 
 import query from "@/Utils/request/query";
+import productApi from "@/types/inventory/product/ProductApi";
 import {
   ProductBase,
   ProductRead,
   ProductStatusOptions,
 } from "@/types/inventory/product/product";
-import productApi from "@/types/inventory/product/productApi";
 
 const PRODUCT_STATUS_COLORS: Record<string, string> = {
   active: "bg-green-100 text-green-700",

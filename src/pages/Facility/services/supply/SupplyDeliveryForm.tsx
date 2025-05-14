@@ -42,7 +42,7 @@ import { FormSkeleton } from "@/components/Common/SkeletonLoading";
 import routes from "@/Utils/request/api";
 import mutate from "@/Utils/request/mutate";
 import query from "@/Utils/request/query";
-import productApi from "@/types/inventory/product/productApi";
+import productApi from "@/types/inventory/product/ProductApi";
 import {
   SupplyDeliveryCondition,
   SupplyDeliveryStatus,

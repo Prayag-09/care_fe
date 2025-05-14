@@ -37,13 +37,13 @@ import { FormSkeleton } from "@/components/Common/SkeletonLoading";
 
 import mutate from "@/Utils/request/mutate";
 import query from "@/Utils/request/query";
+import productApi from "@/types/inventory/product/ProductApi";
 import {
   ProductCreate,
   ProductRead,
   ProductStatusOptions,
   ProductUpdate,
 } from "@/types/inventory/product/product";
-import productApi from "@/types/inventory/product/productApi";
 import productKnowledgeApi from "@/types/inventory/productKnowledge/productKnowledgeApi";
 
 const formSchema = z.object({
