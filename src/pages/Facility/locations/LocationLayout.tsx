@@ -4,7 +4,7 @@ import ErrorPage from "@/components/ErrorPages/DefaultErrorPage";
 
 import { GeneralSettings } from "@/pages/Facility/settings/general/general";
 
-interface FacilityLayoutProps {
+interface LocationLayoutProps {
   facilityId: string;
   locationId: string;
 }
@@ -17,10 +17,10 @@ const getRoutes = (facilityId: string, locationId: string) => ({
   "*": () => <ErrorPage />,
 });
 
-export function FacilityLayout({
+export function LocationLayout({
   facilityId,
   locationId,
-}: FacilityLayoutProps) {
+}: LocationLayoutProps) {
   const basePath = `/facility/${facilityId}/locations/${locationId}`;
   const routeResult = useRoutes(getRoutes(facilityId, locationId), {
     basePath,
