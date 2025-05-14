@@ -1,5 +1,5 @@
 import { ProductKnowledgeBase } from "@/types/inventory/productKnowledge/productKnowledge";
-import { LocationBase } from "@/types/location/location";
+import { LocationDetail } from "@/types/location/location";
 
 export enum SupplyRequestStatus {
   draft = "draft",
@@ -56,6 +56,6 @@ export interface SupplyRequestCreate extends Omit<SupplyRequestBase, "id"> {
 
 export interface SupplyRequestRead extends SupplyRequestBase {
   item: ProductKnowledgeBase;
-  deliver_from?: LocationBase;
-  deliver_to: LocationBase;
+  deliver_from?: LocationDetail;
+  deliver_to: LocationDetail;
 }

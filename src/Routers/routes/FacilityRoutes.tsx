@@ -21,6 +21,9 @@ import DiagnosticReportView from "@/pages/Facility/services/diagnosticReports/Di
 import MedicationRequestList from "@/pages/Facility/services/pharmacy/MedicationRequestList";
 import ServiceRequestList from "@/pages/Facility/services/serviceRequests/ServiceRequestList";
 import ServiceRequestShow from "@/pages/Facility/services/serviceRequests/ServiceRequestShow";
+import SupplyRequestForm from "@/pages/Facility/services/supply/SupplyRequestForm";
+import SupplyRequestList from "@/pages/Facility/services/supply/SupplyRequestList";
+import SupplyRequestView from "@/pages/Facility/services/supply/SupplyRequestView";
 import { SettingsLayout } from "@/pages/Facility/settings/layout";
 
 const FacilityRoutes: AppRoutes = {
@@ -44,8 +47,46 @@ const FacilityRoutes: AppRoutes = {
     <HealthcareServiceShow facilityId={facilityId} serviceId={serviceId} />
   ),
   "/facility/:facilityId/services/:serviceId/medication_requests/locations/:locationId":
-    ({ facilityId, _serviceId, _locationId }) => (
-      <MedicationRequestList facilityId={facilityId} />
+    ({ facilityId, serviceId, locationId }) => (
+      <MedicationRequestList
+        facilityId={facilityId}
+        serviceId={serviceId}
+        locationId={locationId}
+      />
+    ),
+  "/facility/:facilityId/services/:serviceId/medication_requests/locations/:locationId/supply_requests":
+    ({ facilityId, serviceId, locationId }) => (
+      <SupplyRequestList
+        facilityId={facilityId}
+        serviceId={serviceId}
+        locationId={locationId}
+      />
+    ),
+  "/facility/:facilityId/services/:serviceId/medication_requests/locations/:locationId/supply_requests/new":
+    ({ facilityId, serviceId, locationId }) => (
+      <SupplyRequestForm
+        facilityId={facilityId}
+        serviceId={serviceId}
+        locationId={locationId}
+      />
+    ),
+  "/facility/:facilityId/services/:serviceId/medication_requests/locations/:locationId/supply_requests/:id":
+    ({ facilityId, serviceId, locationId, id }) => (
+      <SupplyRequestView
+        facilityId={facilityId}
+        serviceId={serviceId}
+        locationId={locationId}
+        supplyRequestId={id}
+      />
+    ),
+  "/facility/:facilityId/services/:serviceId/medication_requests/locations/:locationId/supply_requests/:id/edit":
+    ({ facilityId, serviceId, locationId, id }) => (
+      <SupplyRequestForm
+        facilityId={facilityId}
+        serviceId={serviceId}
+        locationId={locationId}
+        supplyRequestId={id}
+      />
     ),
   "/facility/:facilityId/services/:serviceId/requests/locations/:locationId": ({
     facilityId,
