@@ -1,6 +1,7 @@
 import { UserBareMinimum } from "@/components/Users/models";
 
 import { Code } from "@/types/base/code/code";
+import { Encounter } from "@/types/emr/encounter";
 import { ProductKnowledgeBase } from "@/types/inventory/productKnowledge/productKnowledge";
 
 export const DOSAGE_UNITS_CODES = [
@@ -180,13 +181,20 @@ export interface MedicationRequest {
   requested_product_internal?: ProductKnowledgeBase;
 }
 
+export enum MedicationPriority {
+  STAT = "stat",
+  URGENT = "urgent",
+  ASAP = "asap",
+  ROUTINE = "routine",
+}
+
 export interface MedicationRequestRead {
   id: string;
   status: MedicationRequestStatus;
   status_reason?: MedicationRequestStatusReason;
   intent: MedicationRequestIntent;
   category: "inpatient" | "outpatient" | "community" | "discharge";
-  priority: "stat" | "urgent" | "asap" | "routine";
+  priority: MedicationPriority;
   do_not_perform: boolean;
   medication: Code;
   encounter: string;
@@ -198,6 +206,12 @@ export interface MedicationRequestRead {
   updated_by: UserBareMinimum;
   authored_on: string;
   requested_product?: ProductKnowledgeBase;
+}
+
+export interface MedicationRequestSummary {
+  encounter: Encounter;
+  priority: MedicationPriority;
+  count: number;
 }
 
 export const MEDICATION_REQUEST_TIMING_OPTIONS: Record<

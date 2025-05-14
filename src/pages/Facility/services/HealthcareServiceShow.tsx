@@ -11,16 +11,19 @@ import { Card, CardContent } from "@/components/ui/card";
 import { CardListSkeleton } from "@/components/Common/SkeletonLoading";
 
 import query from "@/Utils/request/query";
+import { InternalType } from "@/types/healthcareService/healthcareService";
 import healthcareServiceApi from "@/types/healthcareService/healthcareServiceApi";
 
 function LocationCard({
   location,
   facilityId,
   serviceId,
+  service_type,
 }: {
   location: { id: string; name: string; description?: string };
   facilityId: string;
   serviceId: string;
+  service_type: InternalType | undefined;
 }) {
   const { t } = useTranslation();
 
@@ -43,19 +46,37 @@ function LocationCard({
               {location.description}
             </p>
           </div>
-          <Button
-            onClick={() =>
-              navigate(
-                `/facility/${facilityId}/services/${serviceId}/requests/locations/${location.id}`,
-              )
-            }
-            variant="outline"
-            size="sm"
-            className="shrink-0 w-full sm:w-auto px-3 text-xs"
-          >
-            {t("view_requests")}
-            <CareIcon icon="l-arrow-right" className="size-3 ml-1" />
-          </Button>
+
+          {service_type === InternalType.pharmacy && (
+            <Button
+              onClick={() =>
+                navigate(
+                  `/facility/${facilityId}/services/${serviceId}/medication_requests/locations/${location.id}`,
+                )
+              }
+              variant="outline"
+              size="sm"
+              className="shrink-0 w-full sm:w-auto px-3 text-xs"
+            >
+              {t("view_prescriptions")}
+              <CareIcon icon="l-arrow-right" className="size-3 ml-1" />
+            </Button>
+          )}
+          {service_type === InternalType.lab && (
+            <Button
+              onClick={() =>
+                navigate(
+                  `/facility/${facilityId}/services/${serviceId}/requests/locations/${location.id}`,
+                )
+              }
+              variant="outline"
+              size="sm"
+              className="shrink-0 w-full sm:w-auto px-3 text-xs"
+            >
+              {t("view_requests")}
+              <CareIcon icon="l-arrow-right" className="size-3 ml-1" />
+            </Button>
+          )}
         </div>
       </CardContent>
     </Card>
@@ -148,6 +169,7 @@ export default function HealthcareServiceShow({
                 location={location}
                 facilityId={facilityId}
                 serviceId={serviceId}
+                service_type={service.internal_type}
               />
             ))
           )}

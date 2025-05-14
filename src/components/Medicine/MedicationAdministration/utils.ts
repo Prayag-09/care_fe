@@ -1,7 +1,7 @@
 import { format } from "date-fns";
 
 import { MedicationAdministrationRequest } from "@/types/emr/medicationAdministration/medicationAdministration";
-import { MedicationRequestRead } from "@/types/emr/medicationRequest";
+import { MedicationRequestRead } from "@/types/emr/medicationRequest/medicationRequest";
 
 // Constants
 export const TIME_SLOTS = [

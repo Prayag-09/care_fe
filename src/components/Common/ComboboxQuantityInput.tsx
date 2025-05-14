@@ -21,7 +21,7 @@ import { Code } from "@/types/base/code/code";
 import {
   DOSAGE_UNITS_CODES,
   DosageQuantity,
-} from "@/types/emr/medicationRequest";
+} from "@/types/emr/medicationRequest/medicationRequest";
 import { QuantitySpec } from "@/types/emr/specimenDefinition/specimenDefinition";
 
 interface Props {

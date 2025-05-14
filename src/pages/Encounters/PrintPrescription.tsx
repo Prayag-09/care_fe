@@ -14,7 +14,7 @@ import { formatDosage, formatSig } from "@/components/Medicine/utils";
 import api from "@/Utils/request/api";
 import query from "@/Utils/request/query";
 import { formatName, formatPatientAge } from "@/Utils/utils";
-import { MedicationRequestRead } from "@/types/emr/medicationRequest";
+import { MedicationRequestRead } from "@/types/emr/medicationRequest/medicationRequest";
 import medicationRequestApi from "@/types/emr/medicationRequest/medicationRequestApi";
 
 export const PrintPrescription = (props: {

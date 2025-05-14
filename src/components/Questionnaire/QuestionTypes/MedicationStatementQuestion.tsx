@@ -55,7 +55,7 @@ import {
   MedicationRequest,
   MedicationRequestRead,
   displayMedicationName,
-} from "@/types/emr/medicationRequest";
+} from "@/types/emr/medicationRequest/medicationRequest";
 import medicationRequestApi from "@/types/emr/medicationRequest/medicationRequestApi";
 import {
   MEDICATION_STATEMENT_STATUS,

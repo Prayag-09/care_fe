@@ -33,7 +33,7 @@ import ValueSetSelect from "@/components/Questionnaire/ValueSetSelect";
 import mutate from "@/Utils/request/mutate";
 import query from "@/Utils/request/query";
 import { Code } from "@/types/base/code/code";
-import { DOSAGE_UNITS_CODES } from "@/types/emr/medicationRequest";
+import { DOSAGE_UNITS_CODES } from "@/types/emr/medicationRequest/medicationRequest";
 import {
   ProductKnowledgeBase,
   ProductKnowledgeCreate,

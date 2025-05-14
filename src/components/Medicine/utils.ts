@@ -1,4 +1,4 @@
-import { MedicationRequestDosageInstruction } from "@/types/emr/medicationRequest";
+import { MedicationRequestDosageInstruction } from "@/types/emr/medicationRequest/medicationRequest";
 
 // Helper function to format dosage in Rx style
 export function formatDosage(instruction: MedicationRequestDosageInstruction) {

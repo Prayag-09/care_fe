@@ -1,7 +1,7 @@
 import { UserBareMinimum } from "@/components/Users/models";
 
 import { Code } from "@/types/base/code/code";
-import { DosageQuantity } from "@/types/emr/medicationRequest";
+import { DosageQuantity } from "@/types/emr/medicationRequest/medicationRequest";
 import { Quantity } from "@/types/questionnaire/quantity";
 
 export const MEDICATION_ADMINISTRATION_STATUS = [

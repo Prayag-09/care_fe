@@ -20,7 +20,7 @@ import { getPermissions } from "@/common/Permissions";
 import query from "@/Utils/request/query";
 import { usePermissions } from "@/context/PermissionContext";
 import { Encounter, inactiveEncounterStatus } from "@/types/emr/encounter";
-import { MedicationRequestRead } from "@/types/emr/medicationRequest";
+import { MedicationRequestRead } from "@/types/emr/medicationRequest/medicationRequest";
 import medicationRequestApi from "@/types/emr/medicationRequest/medicationRequestApi";
 import { Patient } from "@/types/emr/newPatient";
 

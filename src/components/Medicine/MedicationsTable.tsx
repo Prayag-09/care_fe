@@ -20,7 +20,7 @@ import {
   MedicationRequestDosageInstruction,
   MedicationRequestRead,
   displayMedicationName,
-} from "@/types/emr/medicationRequest";
+} from "@/types/emr/medicationRequest/medicationRequest";
 
 import { formatDosage, formatSig } from "./utils";
 

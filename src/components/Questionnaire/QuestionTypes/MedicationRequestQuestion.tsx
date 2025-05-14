@@ -68,7 +68,7 @@ import {
   UCUM_TIME_UNITS,
   displayMedicationName,
   parseMedicationStringToRequest,
-} from "@/types/emr/medicationRequest";
+} from "@/types/emr/medicationRequest/medicationRequest";
 import medicationRequestApi from "@/types/emr/medicationRequest/medicationRequestApi";
 import { MedicationStatementRead } from "@/types/emr/medicationStatement";
 import medicationStatementApi from "@/types/emr/medicationStatement/medicationStatementApi";

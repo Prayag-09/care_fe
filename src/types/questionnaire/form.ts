@@ -5,7 +5,7 @@ import { ChargeItemUpsert } from "@/types/billing/chargeItem/chargeItem";
 import { AllergyIntoleranceRequest } from "@/types/emr/allergyIntolerance/allergyIntolerance";
 import { DiagnosisRequest } from "@/types/emr/diagnosis/diagnosis";
 import { EncounterEditRequest } from "@/types/emr/encounter";
-import { MedicationRequest } from "@/types/emr/medicationRequest";
+import { MedicationRequest } from "@/types/emr/medicationRequest/medicationRequest";
 import { MedicationStatementRequest } from "@/types/emr/medicationStatement";
 import { SymptomRequest } from "@/types/emr/symptom/symptom";
 import { FileUploadQuestion } from "@/types/files/files";
