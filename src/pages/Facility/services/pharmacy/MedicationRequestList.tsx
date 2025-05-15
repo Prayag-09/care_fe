@@ -1,4 +1,5 @@
 import { useQuery } from "@tanstack/react-query";
+import { navigate } from "raviger";
 import { useTranslation } from "react-i18next";
 
 import { cn } from "@/lib/utils";
@@ -48,8 +49,10 @@ const PRIORITY_BADGES = {
 
 export default function MedicationRequestList({
   facilityId,
+  locationId,
 }: {
   facilityId: string;
+  locationId: string;
 }) {
   const { t } = useTranslation();
   const { qParams, updateQuery } = useFilters({
@@ -184,7 +187,9 @@ export default function MedicationRequestList({
                         variant="ghost"
                         size="sm"
                         onClick={() => {
-                          // Handle view details
+                          navigate(
+                            `/facility/${facilityId}/locations/${locationId}/medication_requests/patient/${item.encounter.patient.id}`,
+                          );
                         }}
                       >
                         {t("View")}

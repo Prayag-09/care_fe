@@ -5,6 +5,7 @@ import ErrorPage from "@/components/ErrorPages/DefaultErrorPage";
 import BedList from "@/pages/Facility/locations/LocationList";
 import { InventoryList } from "@/pages/Facility/services/inventory/InventoryList";
 import MedicationRequestList from "@/pages/Facility/services/pharmacy/MedicationRequestList";
+import PharmacyMedicationList from "@/pages/Facility/services/pharmacy/PharmacyMedicationList";
 import ServiceRequestList from "@/pages/Facility/services/serviceRequests/ServiceRequestList";
 import ServiceRequestShow from "@/pages/Facility/services/serviceRequests/ServiceRequestShow";
 import SupplyDeliveryForm from "@/pages/Facility/services/supply/SupplyDeliveryForm";
@@ -29,7 +30,7 @@ const getRoutes = (facilityId: string, locationId: string) => ({
 
   // Pharmacy
   "/medication_requests": () => (
-    <MedicationRequestList facilityId={facilityId} />
+    <MedicationRequestList facilityId={facilityId} locationId={locationId} />
   ),
 
   // Laboratory
@@ -125,6 +126,13 @@ const getRoutes = (facilityId: string, locationId: string) => ({
       locationId={locationId}
       supplyDeliveryId={id}
     />
+  ),
+  "/medication_requests/patient/:patientId": ({
+    patientId,
+  }: {
+    patientId: string;
+  }) => (
+    <PharmacyMedicationList facilityId={facilityId} patientId={patientId} />
   ),
 
   "*": () => <ErrorPage />,
