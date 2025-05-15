@@ -18,7 +18,7 @@ export function LocationSwitcher() {
   const { state } = useSidebar();
   const { goBack } = useAppHistory();
 
-  const fallbackUrl = `/facility/${facilityId}/general`;
+  const fallbackUrl = `/facility/${facilityId}/overview`;
 
   if (state === "collapsed") {
     return (

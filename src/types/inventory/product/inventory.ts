@@ -1,7 +1,13 @@
 import { ProductRead } from "@/types/inventory/product/product";
 import { LocationList } from "@/types/location/location";
 
-export type InventoryStatus = "active" | "inactive" | "entered_in_error";
+export const InventoryStatusOptions = [
+  "active",
+  "inactive",
+  "entered_in_error",
+] as const;
+
+export type InventoryStatus = (typeof InventoryStatusOptions)[number];
 
 interface InventoryBase {
   status: InventoryStatus;
