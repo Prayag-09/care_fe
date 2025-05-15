@@ -3,6 +3,7 @@ import { Redirect, useRoutes } from "raviger";
 import ErrorPage from "@/components/ErrorPages/DefaultErrorPage";
 
 import BedList from "@/pages/Facility/locations/LocationList";
+import { InventoryList } from "@/pages/Facility/services/inventory/InventoryList";
 import MedicationRequestList from "@/pages/Facility/services/pharmacy/MedicationRequestList";
 import ServiceRequestList from "@/pages/Facility/services/serviceRequests/ServiceRequestList";
 import ServiceRequestShow from "@/pages/Facility/services/serviceRequests/ServiceRequestShow";
@@ -16,7 +17,6 @@ import SupplyRequestList, {
   SupplyRequestTab,
 } from "@/pages/Facility/services/supply/SupplyRequestList";
 import SupplyRequestView from "@/pages/Facility/services/supply/SupplyRequestView";
-import ProductList from "@/pages/Facility/settings/product/ProductList";
 
 interface LocationLayoutProps {
   facilityId: string;
@@ -49,7 +49,9 @@ const getRoutes = (facilityId: string, locationId: string) => ({
   ),
 
   // Inventory
-  "/inventory": () => <ProductList facilityId={facilityId} />,
+  "/inventory": () => (
+    <InventoryList facilityId={facilityId} locationId={locationId} />
+  ),
   "/supply_requests": () => (
     <Redirect
       to={`/facility/${facilityId}/locations/${locationId}/supply_requests/incoming`}
