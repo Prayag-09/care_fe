@@ -1,4 +1,5 @@
 import { useQuery } from "@tanstack/react-query";
+import { ArrowUpRightSquare } from "lucide-react";
 import { navigate } from "raviger";
 import React from "react";
 import { useTranslation } from "react-i18next";
@@ -14,7 +15,6 @@ import { MonetaryDisplay } from "@/components/ui/monetary-display";
 import {
   Select,
   SelectContent,
-  SelectGroup,
   SelectItem,
   SelectTrigger,
   SelectValue,
@@ -86,6 +86,10 @@ export function AccountList({
     disableCache: true,
   });
 
+  const tableHeadClass =
+    "border-x p-3 text-gray-700 text-sm font-medium leading-5";
+  const tableCellClass = "border-x p-3 text-gray-950";
+
   const { data: response, isLoading } = useQuery({
     queryKey: ["accounts", qParams],
     queryFn: query(accountApi.listAccount, {
@@ -109,7 +113,7 @@ export function AccountList({
       hideTitleOnPage={hideTitleOnPage}
       className={cn(hideTitleOnPage && "md:px-0", className)}
     >
-      <div className={cn("container mx-auto", !hideTitleOnPage && "mt-2")}>
+      <div className={cn("mx-auto", !hideTitleOnPage && "mt-2")}>
         <div className="mb-4">
           <AccountSheet
             open={sheetOpen}
@@ -122,7 +126,78 @@ export function AccountList({
             initialValues={editingAccount ? editingAccount : undefined}
             isEdit={!!editingAccount}
           />
-          <div className="mb-4 flex flex-wrap items-center gap-4">
+          <div className="mb-4 flex flex-wrap items-center justify-between gap-4">
+            <div className="flex flex-wrap gap-4">
+              <Tabs
+                value={qParams.status ?? "all"}
+                onValueChange={(value) =>
+                  updateQuery({ status: value === "all" ? undefined : value })
+                }
+                className="overflow-y-auto max-w-[calc(100%)] max-sm:hidden text-gray-950"
+              >
+                <TabsList>
+                  <TabsTrigger value="all">{t("all_accounts")}</TabsTrigger>
+                  {Object.keys(statusColorMap).map((key) => (
+                    <TabsTrigger key={key} value={key}>
+                      <span className="text-gray-950 font-medium text-sm">
+                        {t(key)}
+                      </span>
+                    </TabsTrigger>
+                  ))}
+                </TabsList>
+              </Tabs>
+
+              <Select
+                defaultValue={qParams.status ?? "all"}
+                onValueChange={(value) =>
+                  updateQuery({ status: value === "all" ? undefined : value })
+                }
+              >
+                <SelectTrigger className="sm:hidden">
+                  <SelectValue placeholder={t("filter_by_status")} />
+                </SelectTrigger>
+                <SelectContent>
+                  <SelectItem value="all">
+                    <span className="text-gray-950 font-medium text-sm">
+                      {t("all")}
+                    </span>
+                  </SelectItem>
+                  {Object.keys(statusColorMap).map((key) => (
+                    <SelectItem key={key} value={key}>
+                      {t(key)}
+                    </SelectItem>
+                  ))}
+                </SelectContent>
+              </Select>
+              <div className="border-1 border-gray-300 rounded-md">
+                <Select
+                  value={qParams.billing_status ?? "all"}
+                  onValueChange={(value) =>
+                    updateQuery({
+                      billing_status: value === "all" ? undefined : value,
+                    })
+                  }
+                >
+                  <SelectTrigger>
+                    <SelectValue placeholder={t("all_billing_statuses")} />
+                  </SelectTrigger>
+                  <SelectContent>
+                    <SelectItem value="all">
+                      <span className="text-gray-950 font-medium text-sm">
+                        {t("all_billing_statuses")}
+                      </span>
+                    </SelectItem>
+                    {Object.keys(billingStatusColorMap).map((key) => (
+                      <SelectItem key={key} value={key}>
+                        <span className="text-gray-950 font-medium text-sm">
+                          {t(key)}
+                        </span>
+                      </SelectItem>
+                    ))}
+                  </SelectContent>
+                </Select>
+              </div>
+            </div>
             <Input
               placeholder={t("search_accounts")}
               value={qParams.search || ""}
@@ -131,69 +206,8 @@ export function AccountList({
               }
               className="sm:max-w-xs w-[calc(100%)]"
             />
-            <Tabs
-              value={qParams.status ?? "all"}
-              onValueChange={(value) =>
-                updateQuery({ status: value === "all" ? undefined : value })
-              }
-              className="overflow-y-auto max-w-[calc(100%)] max-sm:hidden"
-            >
-              <TabsList>
-                <TabsTrigger value="all">{t("all_statuses")}</TabsTrigger>
-                {Object.keys(statusColorMap).map((key) => (
-                  <TabsTrigger key={key} value={key}>
-                    {t(key)}
-                  </TabsTrigger>
-                ))}
-              </TabsList>
-            </Tabs>
-
-            <Select
-              defaultValue={qParams.status ?? "all"}
-              onValueChange={(value) =>
-                updateQuery({ status: value === "all" ? undefined : value })
-              }
-            >
-              <SelectTrigger className="sm:hidden">
-                <SelectValue placeholder={t("filter_by_status")} />
-              </SelectTrigger>
-              <SelectContent>
-                <SelectGroup>
-                  <SelectItem value="all">t("all")</SelectItem>
-                  {Object.values(statusColorMap).map((key) => (
-                    <SelectItem key={key} value={key}>
-                      {t(key)}
-                    </SelectItem>
-                  ))}
-                </SelectGroup>
-              </SelectContent>
-            </Select>
           </div>
           <div className="flex flex-wrap gap-4">
-            <div className="w-full sm:w-64">
-              <Select
-                value={qParams.billing_status ?? "all"}
-                onValueChange={(value) =>
-                  updateQuery({
-                    billing_status: value === "all" ? undefined : value,
-                  })
-                }
-              >
-                <SelectTrigger>
-                  <SelectValue placeholder={t("all_billing_statuses")} />
-                </SelectTrigger>
-                <SelectContent>
-                  <SelectItem value="all">
-                    {t("all_billing_statuses")}
-                  </SelectItem>
-                  {Object.keys(billingStatusColorMap).map((key) => (
-                    <SelectItem key={key} value={key}>
-                      {t(key)}
-                    </SelectItem>
-                  ))}
-                </SelectContent>
-              </Select>
-            </div>
             <div>
               {patientId && (
                 <Button onClick={() => setSheetOpen(true)}>
@@ -208,94 +222,108 @@ export function AccountList({
         ) : accounts.length === 0 ? (
           <EmptyState />
         ) : (
-          <div className="rounded-lg border">
-            <Table>
-              <TableHeader>
-                <TableRow>
-                  <TableHead>{t("patient")}</TableHead>
-                  <TableHead>{t("balance")}</TableHead>
-                  <TableHead>{t("status")}</TableHead>
-                  <TableHead>{t("billing_status")}</TableHead>
-                  <TableHead>{t("period")}</TableHead>
-                  <TableHead className="text-right">{t("actions")}</TableHead>
-                </TableRow>
-              </TableHeader>
-              <TableBody>
-                {accounts.map((account: AccountRead) => (
-                  <TableRow key={account.id}>
-                    <TableCell>
-                      <div className="flex items-center gap-3">
-                        <Avatar name={account.name} className="size-8" />
-                        <div>
-                          <div className="font-medium">{account.name}</div>
-                          <div className="text-xs text-gray-500">
-                            {account.id}
-                          </div>
+          <Table className="rounded-lg border shadow-base">
+            <TableHeader className="bg-gray-100">
+              <TableRow className="border-b">
+                <TableHead className={tableHeadClass}>{t("patient")}</TableHead>
+                <TableHead className={tableHeadClass}>{t("balance")}</TableHead>
+                <TableHead className={tableHeadClass}>
+                  {t("account_status")}
+                </TableHead>
+                <TableHead className={tableHeadClass}>
+                  {t("billing_status")}
+                </TableHead>
+                <TableHead className={tableHeadClass}>{t("period")}</TableHead>
+                <TableHead className={cn(tableHeadClass)}>
+                  {t("action")}
+                </TableHead>
+              </TableRow>
+            </TableHeader>
+            <TableBody className="bg-wgite">
+              {accounts.map((account: AccountRead) => (
+                <TableRow
+                  key={account.id}
+                  className="border-b hover:bg-gray-50"
+                >
+                  <TableCell className={tableCellClass}>
+                    <div className="flex items-center gap-3">
+                      <Avatar name={account.name} className="size-8" />
+                      <div>
+                        <div className="text-base font-medium leading-6">
+                          {account.name}
                         </div>
                       </div>
-                    </TableCell>
-                    <TableCell
-                      className={cn(
-                        account.total_balance > 0
-                          ? "text-red-600"
-                          : "text-green-700",
-                      )}
+                    </div>
+                  </TableCell>
+                  <TableCell
+                    className={cn(
+                      "border-x p-3 text-base font-medium leading-6",
+                      account.total_balance > 0
+                        ? "text-gray-950"
+                        : "text-green-700 italic",
+                    )}
+                  >
+                    <MonetaryDisplay amount={account.total_balance} />
+                  </TableCell>
+                  <TableCell className={tableCellClass}>
+                    <Badge
+                      variant="outline"
+                      className={statusColorMap[account.status]}
                     >
-                      <MonetaryDisplay amount={account.total_balance} />
-                    </TableCell>
-                    <TableCell>
-                      <Badge variant={statusColorMap[account.status] as any}>
-                        {t(account.status)}
-                      </Badge>
-                    </TableCell>
-                    <TableCell>
-                      <Badge
-                        variant={
-                          billingStatusColorMap[account.billing_status] as any
-                        }
-                      >
-                        {t(account.billing_status)}
-                      </Badge>
-                    </TableCell>
-                    <TableCell>
+                      {t(account.status)}
+                    </Badge>
+                  </TableCell>
+                  <TableCell className={tableCellClass}>
+                    <Badge
+                      variant="outline"
+                      className={billingStatusColorMap[account.billing_status]}
+                    >
+                      {t(account.billing_status)}
+                    </Badge>
+                  </TableCell>
+                  <TableCell className={tableCellClass}>
+                    <span className="text-gray-950 font-medium">
                       {formatDate(account.service_period?.start)}
                       {account.service_period?.end &&
                         ` - ${formatDate(account.service_period?.end)}`}
-                    </TableCell>
-                    <TableCell className="text-right">
-                      <div className="flex justify-end gap-2">
-                        <Button
-                          variant="ghost"
-                          size="icon"
-                          onClick={() => {
-                            setEditingAccount(account);
-                            setSheetOpen(true);
-                          }}
-                          aria-label={t("edit")}
-                        >
-                          <CareIcon icon="l-pen" className="size-4" />
-                          <span className="sr-only">{t("edit")}</span>
-                        </Button>
-                        <Button
-                          variant="ghost"
-                          size="icon"
-                          onClick={() =>
-                            navigate(
-                              `/facility/${facilityId}/billing/account/${account.id}`,
-                            )
-                          }
-                          aria-label={t("view")}
-                        >
-                          <CareIcon icon="l-eye" className="size-4" />
-                          <span className="sr-only">{t("view")}</span>
-                        </Button>
-                      </div>
-                    </TableCell>
-                  </TableRow>
-                ))}
-              </TableBody>
-            </Table>
-          </div>
+                    </span>
+                  </TableCell>
+                  <TableCell className={cn(tableCellClass)}>
+                    <div className="flex gap-2">
+                      <Button
+                        variant="ghost"
+                        className="gap-1"
+                        onClick={() => {
+                          setEditingAccount(account);
+                          setSheetOpen(true);
+                        }}
+                      >
+                        <CareIcon
+                          icon="l-edit"
+                          className="size-5 text-gray-700 stroke-1"
+                        />
+                        <span className="text-gray-950 font-medium underline">
+                          {t("edit")}
+                        </span>
+                      </Button>
+                      <Button
+                        variant="outline"
+                        className="border-gray-400 border-1 shadow-sm"
+                        onClick={() =>
+                          navigate(
+                            `/facility/${facilityId}/billing/account/${account.id}`,
+                          )
+                        }
+                      >
+                        <ArrowUpRightSquare className="size-5 text-gray-700 stroke-2" />
+                        {t("go_to_account")}
+                      </Button>
+                    </div>
+                  </TableCell>
+                </TableRow>
+              ))}
+            </TableBody>
+          </Table>
         )}
         {response && response.count > resultsPerPage && (
           <div className="mt-4 flex justify-center">

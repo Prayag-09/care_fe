@@ -60,20 +60,20 @@ export interface AccountCreate extends Omit<AccountBase, "id"> {
 }
 
 export const statusColorMap: Record<AccountStatus, string> = {
-  active: "primary",
-  inactive: "secondary",
-  entered_in_error: "destructive",
-  on_hold: "outline",
+  active: "bg-green-100 text-green-900 border-green-200",
+  inactive: "bg-gray-100 text-gray-900 border-gray-200",
+  entered_in_error: "bg-red-100 text-red-900 border-red-200",
+  on_hold: "bg-yellow-100 text-yellow-900 border-yellow-200",
 };
 
 export const billingStatusColorMap: Record<AccountBillingStatus, string> = {
-  open: "primary",
-  carecomplete_notbilled: "secondary",
-  billing: "secondary",
-  closed_baddebt: "destructive",
-  closed_voided: "destructive",
-  closed_completed: "success",
-  closed_combined: "success",
+  open: "bg-green-100 text-green-900 border-green-200",
+  carecomplete_notbilled: "bg-gray-100 text-gray-900 border-gray-200",
+  billing: "bg-gray-100 text-gray-900 border-gray-200",
+  closed_baddebt: "bg-red-100 text-red-900 border-red-200",
+  closed_voided: "bg-red-100 text-red-900 border-red-200",
+  closed_completed: "bg-blue-100 text-blue-900 border-blue-200",
+  closed_combined: "bg-blue-100 text-blue-900 border-blue-200",
 };
 
 export const closeBillingStatusColorMap: Partial<
