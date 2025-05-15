@@ -19,7 +19,7 @@ import {
 import Page from "@/components/Common/Page";
 
 import query from "@/Utils/request/query";
-import productApi from "@/types/inventory/product/ProductApi";
+import productApi from "@/types/inventory/product/productApi";
 
 interface Props {
   facilityId: string;
