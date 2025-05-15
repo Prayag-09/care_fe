@@ -173,7 +173,7 @@ export default function HealthcareServiceShow({
                         size="icon"
                         onClick={() =>
                           navigate(
-                            `/facility/${facilityId}/location/${location.id}`,
+                            `/facility/${facilityId}/locations/${location.id}`,
                           )
                         }
                       >
