@@ -39,7 +39,6 @@ import {
 import Page from "@/components/Common/Page";
 import { FormSkeleton } from "@/components/Common/SkeletonLoading";
 
-import routes from "@/Utils/request/api";
 import mutate from "@/Utils/request/mutate";
 import query from "@/Utils/request/query";
 import productKnowledgeApi from "@/types/inventory/productKnowledge/productKnowledgeApi";
@@ -204,8 +203,10 @@ function SupplyRequestFormContent({
     name: "requests",
   });
 
-  const { mutate: executeBatch, isPending } = useMutation({
-    mutationFn: mutate(routes.batchRequest, { silent: true }),
+  const { mutate: upsertSupplyRequest, isPending } = useMutation({
+    mutationFn: mutate(supplyRequestApi.upsertSupplyRequest, {
+      pathParams: { facilityId },
+    }),
     onSuccess: () => {
       toast.success(
         isEditMode ? t("supply_request_updated") : t("supply_requests_created"),
@@ -217,80 +218,50 @@ function SupplyRequestFormContent({
     },
     onError: (error) => {
       const errorData = error.cause as {
-        results?: Array<{
-          reference_id: string;
-          status_code: number;
-          data: {
-            errors?: Array<{
-              msg?: string;
-              error?: string;
-              type?: string;
-              loc?: string[];
-            }>;
-            non_field_errors?: string[];
-            detail?: string;
-          };
+        errors?: Array<{
+          msg?: string;
+          error?: string;
+          type?: string;
+          loc?: string[];
         }>;
+        non_field_errors?: string[];
+        detail?: string;
       };
 
-      if (errorData?.results) {
-        const failedResults = errorData.results.filter(
-          (result) => result.status_code !== 200,
-        );
+      let errorDisplayed = false;
 
-        let errorDisplayed = false;
-        failedResults.forEach((result) => {
-          const errors = result.data?.errors || [];
-          const nonFieldErrors = result.data?.non_field_errors || [];
-          const detailError = result.data?.detail;
-
-          errors.forEach((error) => {
-            const message = error.msg || error.error || t("validation_failed");
-            toast.error(message);
-            errorDisplayed = true;
-          });
-
-          nonFieldErrors.forEach((message) => {
-            toast.error(message);
-            errorDisplayed = true;
-          });
-
-          if (detailError) {
-            toast.error(detailError);
-            errorDisplayed = true;
-          }
+      if (errorData?.errors) {
+        errorData.errors.forEach((error) => {
+          const message = error.msg || error.error || t("validation_failed");
+          toast.error(message);
+          errorDisplayed = true;
         });
+      }
 
-        if (failedResults.length > 0 && !errorDisplayed) {
-          toast.error(t("error_updating_supply_request"));
-        }
-      } else {
+      if (errorData?.non_field_errors) {
+        errorData.non_field_errors.forEach((message) => {
+          toast.error(message);
+          errorDisplayed = true;
+        });
+      }
+
+      if (errorData?.detail) {
+        toast.error(errorData.detail);
+        errorDisplayed = true;
+      }
+
+      if (!errorDisplayed) {
         toast.error(t("error_updating_supply_request"));
       }
     },
   });
 
   async function onSubmit(data: z.infer<typeof formSchema>) {
+    console.log("data", data.requests);
     if (isEditMode) {
-      executeBatch({
-        requests: [
-          {
-            url: `/api/v1/supply_request/${supplyRequestId}/`,
-            method: "PUT",
-            reference_id: "update_supply_request",
-            body: data.requests[0],
-          },
-        ],
-      });
+      upsertSupplyRequest({ datapoints: data.requests });
     } else {
-      executeBatch({
-        requests: data.requests.map((request, index) => ({
-          url: "/api/v1/supply_request/",
-          method: "POST",
-          reference_id: `create_supply_request_${index}`,
-          body: request,
-        })),
-      });
+      upsertSupplyRequest({ datapoints: data.requests });
     }
   }
 

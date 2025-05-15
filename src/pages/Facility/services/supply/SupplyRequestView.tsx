@@ -1,34 +1,35 @@
 import { useQuery } from "@tanstack/react-query";
 import { navigate } from "raviger";
+import { useState } from "react";
 import { useTranslation } from "react-i18next";
 
 import CareIcon from "@/CAREUI/icons/CareIcon";
 
 import { Alert, AlertDescription, AlertTitle } from "@/components/ui/alert";
-import { Badge } from "@/components/ui/badge";
 import { Button } from "@/components/ui/button";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
+import {
+  Sheet,
+  SheetContent,
+  SheetHeader,
+  SheetTitle,
+} from "@/components/ui/sheet";
 
 import Page from "@/components/Common/Page";
 
 import query from "@/Utils/request/query";
+import {
+  SupplyDeliveryCondition,
+  SupplyDeliveryStatus,
+  SupplyDeliveryType,
+} from "@/types/inventory/supplyDelivery/supplyDelivery";
+import supplyDeliveryApi from "@/types/inventory/supplyDelivery/supplyDeliveryApi";
 import supplyRequestApi from "@/types/inventory/supplyRequest/supplyRequestApi";
 
-const STATUS_COLORS: Record<string, string> = {
-  active: "bg-green-100 text-green-700",
-  completed: "bg-blue-100 text-blue-700",
-  cancelled: "bg-red-100 text-red-700",
-  draft: "bg-gray-100 text-gray-700",
-  suspended: "bg-amber-100 text-amber-700",
-  entered_in_error: "bg-red-100 text-red-700",
-};
-
-const PRIORITY_COLORS: Record<string, string> = {
-  routine: "bg-blue-100 text-blue-700",
-  urgent: "bg-red-100 text-red-700",
-  asap: "bg-amber-100 text-amber-700",
-  stat: "bg-purple-100 text-purple-700",
-};
+import SupplyDeliveryForm from "./SupplyDeliveryForm";
+import { SupplyDeliveryTab } from "./SupplyDeliveryList";
+import SupplyDeliveryTable from "./components/SupplyDeliveryTable";
+import SupplyRequestDetails from "./components/SupplyRequestDetails";
 
 function LoadingSkeleton() {
   return (
@@ -66,6 +67,7 @@ export default function SupplyRequestView({
   supplyRequestId,
 }: Props) {
   const { t } = useTranslation();
+  const [isDeliverySheetOpen, setIsDeliverySheetOpen] = useState(false);
 
   const {
     data: request,
@@ -77,6 +79,20 @@ export default function SupplyRequestView({
       pathParams: { supplyRequestId },
     }),
   });
+
+  const { data: deliveriesResponse, isLoading: isLoadingDeliveries } = useQuery(
+    {
+      queryKey: ["supplyDeliveries", supplyRequestId],
+      queryFn: query(supplyDeliveryApi.listSupplyDelivery, {
+        queryParams: {
+          facility: facilityId,
+          supply_request: supplyRequestId,
+        },
+      }),
+    },
+  );
+
+  const deliveries = deliveriesResponse?.results || [];
 
   if (isLoading) {
     return (
@@ -147,94 +163,70 @@ export default function SupplyRequestView({
                 <CareIcon icon="l-pen" className="mr-2 size-4" />
                 {t("edit")}
               </Button>
+              {request.deliver_from?.id === locationId && (
+                <Button onClick={() => setIsDeliverySheetOpen(true)}>
+                  <CareIcon icon="l-truck" className="mr-2 size-4" />
+                  {t("create_delivery")}
+                </Button>
+              )}
             </div>
           </div>
         </div>
 
         <div className="space-y-6">
-          <Card>
-            <CardHeader>
-              <CardTitle>{t("request_details")}</CardTitle>
-            </CardHeader>
-            <CardContent className="space-y-4">
-              <div className="grid grid-cols-2 gap-4">
-                <div>
-                  <div className="text-sm font-medium text-gray-500">
-                    {t("status")}
-                  </div>
-                  <Badge
-                    className={STATUS_COLORS[request.status]}
-                    variant="secondary"
-                  >
-                    {t(request.status)}
-                  </Badge>
-                </div>
-                <div>
-                  <div className="text-sm font-medium text-gray-500">
-                    {t("priority")}
-                  </div>
-                  <Badge
-                    className={PRIORITY_COLORS[request.priority]}
-                    variant="secondary"
-                  >
-                    {t(request.priority)}
-                  </Badge>
-                </div>
+          <SupplyRequestDetails
+            request={request}
+            facilityId={facilityId}
+            locationId={locationId}
+          />
 
-                <div>
-                  <div className="text-sm font-medium text-gray-500">
-                    {t("item")}
-                  </div>
-                  <div className="mt-1">{request.item.name}</div>
-                </div>
-
-                <div>
-                  <div className="text-sm font-medium text-gray-500">
-                    {t("quantity")}
-                  </div>
-                  <div className="mt-1">{request.quantity}</div>
-                </div>
-
-                <div>
-                  <div className="text-sm font-medium text-gray-500">
-                    {t("deliver_from")}
-                  </div>
-                  <div className="mt-1">
-                    {request.deliver_from?.name || t("not_specified")}
-                  </div>
-                </div>
-
-                <div>
-                  <div className="text-sm font-medium text-gray-500">
-                    {t("deliver_to")}
-                  </div>
-                  <div className="mt-1">{request.deliver_to.name}</div>
-                </div>
-
-                <div>
-                  <div className="text-sm font-medium text-gray-500">
-                    {t("category")}
-                  </div>
-                  <div className="mt-1">{t(request.category)}</div>
-                </div>
-
-                <div>
-                  <div className="text-sm font-medium text-gray-500">
-                    {t("intent")}
-                  </div>
-                  <div className="mt-1">{t(request.intent)}</div>
-                </div>
-
-                <div>
-                  <div className="text-sm font-medium text-gray-500">
-                    {t("reason")}
-                  </div>
-                  <div className="mt-1">{t(request.reason)}</div>
-                </div>
-              </div>
-            </CardContent>
-          </Card>
+          {deliveries.length > 0 && (
+            <Card>
+              <CardHeader>
+                <CardTitle>{t("deliveries")}</CardTitle>
+              </CardHeader>
+              <CardContent>
+                <SupplyDeliveryTable
+                  deliveries={deliveries}
+                  isLoading={isLoadingDeliveries}
+                  facilityId={facilityId}
+                  locationId={locationId}
+                  tab={SupplyDeliveryTab.INCOMING}
+                />
+              </CardContent>
+            </Card>
+          )}
         </div>
+
+        <Sheet open={isDeliverySheetOpen} onOpenChange={setIsDeliverySheetOpen}>
+          <SheetContent className="w-full sm:max-w-3xl">
+            <SheetHeader>
+              <SheetTitle>{t("create_delivery")}</SheetTitle>
+            </SheetHeader>
+            <div className="mt-6">
+              <SupplyDeliveryForm
+                facilityId={facilityId}
+                locationId={locationId}
+                onSuccess={() => setIsDeliverySheetOpen(false)}
+                productKnowledgeId={request.item.id}
+                defaultValues={{
+                  deliveries: [
+                    {
+                      status: SupplyDeliveryStatus.in_progress,
+                      supplied_item_type: SupplyDeliveryType.product,
+                      supplied_item_quantity: request.quantity,
+                      supplied_item: request.item.id,
+                      origin: request.deliver_from?.id,
+                      destination: request.deliver_to.id,
+                      supply_request: request.id,
+                      supplied_item_condition: SupplyDeliveryCondition.normal,
+                    },
+                  ],
+                }}
+              />
+            </div>
+          </SheetContent>
+        </Sheet>
       </div>
     </Page>
   );

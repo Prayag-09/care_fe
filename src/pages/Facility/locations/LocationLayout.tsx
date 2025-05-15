@@ -1,4 +1,4 @@
-import { useRoutes } from "raviger";
+import { Redirect, useRoutes } from "raviger";
 
 import ErrorPage from "@/components/ErrorPages/DefaultErrorPage";
 
@@ -7,10 +7,14 @@ import MedicationRequestList from "@/pages/Facility/services/pharmacy/Medication
 import ServiceRequestList from "@/pages/Facility/services/serviceRequests/ServiceRequestList";
 import ServiceRequestShow from "@/pages/Facility/services/serviceRequests/ServiceRequestShow";
 import SupplyDeliveryForm from "@/pages/Facility/services/supply/SupplyDeliveryForm";
-import SupplyDeliveryList from "@/pages/Facility/services/supply/SupplyDeliveryList";
+import SupplyDeliveryList, {
+  SupplyDeliveryTab,
+} from "@/pages/Facility/services/supply/SupplyDeliveryList";
 import SupplyDeliveryView from "@/pages/Facility/services/supply/SupplyDeliveryView";
 import SupplyRequestForm from "@/pages/Facility/services/supply/SupplyRequestForm";
-import SupplyRequestList from "@/pages/Facility/services/supply/SupplyRequestList";
+import SupplyRequestList, {
+  SupplyRequestTab,
+} from "@/pages/Facility/services/supply/SupplyRequestList";
 import SupplyRequestView from "@/pages/Facility/services/supply/SupplyRequestView";
 
 interface LocationLayoutProps {
@@ -38,10 +42,26 @@ const getRoutes = (facilityId: string, locationId: string) => ({
     />
   ),
   "/supply_requests": () => (
-    <SupplyRequestList facilityId={facilityId} locationId={locationId} />
+    <Redirect
+      to={`/facility/${facilityId}/locations/${locationId}/supply_requests/incoming`}
+    />
   ),
   "/supply_requests/new": () => (
     <SupplyRequestForm facilityId={facilityId} locationId={locationId} />
+  ),
+  "/supply_requests/incoming": () => (
+    <SupplyRequestList
+      facilityId={facilityId}
+      locationId={locationId}
+      tab={SupplyRequestTab.INCOMING}
+    />
+  ),
+  "/supply_requests/requested": () => (
+    <SupplyRequestList
+      facilityId={facilityId}
+      locationId={locationId}
+      tab={SupplyRequestTab.REQUESTED}
+    />
   ),
   "/supply_requests/:id": ({ id }: { id: string }) => (
     <SupplyRequestView
@@ -60,10 +80,26 @@ const getRoutes = (facilityId: string, locationId: string) => ({
 
   // Supply Delivery Routes
   "/supply_deliveries": () => (
-    <SupplyDeliveryList facilityId={facilityId} locationId={locationId} />
+    <Redirect
+      to={`/facility/${facilityId}/locations/${locationId}/supply_deliveries/incoming`}
+    />
   ),
   "/supply_deliveries/new": () => (
     <SupplyDeliveryForm facilityId={facilityId} locationId={locationId} />
+  ),
+  "/supply_deliveries/incoming": () => (
+    <SupplyDeliveryList
+      facilityId={facilityId}
+      locationId={locationId}
+      tab={SupplyDeliveryTab.INCOMING}
+    />
+  ),
+  "/supply_deliveries/outgoing": () => (
+    <SupplyDeliveryList
+      facilityId={facilityId}
+      locationId={locationId}
+      tab={SupplyDeliveryTab.OUTGOING}
+    />
   ),
   "/supply_deliveries/:id": ({ id }: { id: string }) => (
     <SupplyDeliveryView

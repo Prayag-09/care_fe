@@ -4,6 +4,7 @@ import {
   SupplyDeliveryBase,
   SupplyDeliveryCreate,
   SupplyDeliveryRead,
+  SupplyDeliveryUpsert,
 } from "@/types/inventory/supplyDelivery/supplyDelivery";
 
 export default {
@@ -22,6 +23,12 @@ export default {
     method: HttpMethod.POST,
     TRes: Type<SupplyDeliveryBase>(),
     TBody: Type<SupplyDeliveryCreate>(),
+  },
+  upsertSupplyDelivery: {
+    path: "/api/v1/supply_delivery/upsert/",
+    method: HttpMethod.POST,
+    TRes: Type<SupplyDeliveryBase>(),
+    TBody: Type<{ datapoints: SupplyDeliveryUpsert[] }>(),
   },
   updateSupplyDelivery: {
     path: "/api/v1/supply_delivery/{supplyDeliveryId}/",

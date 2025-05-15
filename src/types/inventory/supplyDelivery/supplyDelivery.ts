@@ -1,4 +1,5 @@
 import { ProductRead } from "@/types/inventory/product/product";
+import { SupplyRequestRead } from "@/types/inventory/supplyRequest/supplyRequest";
 import { LocationDetail } from "@/types/location/location";
 
 export enum SupplyDeliveryStatus {
@@ -30,6 +31,16 @@ export interface SupplyDeliveryCreate extends Omit<SupplyDeliveryBase, "id"> {
   supplied_item: string; // Product ID
   origin?: string; // Location ID
   destination: string; // Location ID
+  supply_request?: string; // Supply Request ID
+}
+
+export interface SupplyDeliveryUpsert extends Omit<SupplyDeliveryBase, "id"> {
+  id?: string;
+  supplied_item_quantity: number;
+  supplied_item: string; // Product ID
+  origin?: string; // Location ID
+  destination: string; // Location ID
+  supply_request?: string; // Supply Request ID
 }
 
 export interface SupplyDeliveryRead extends SupplyDeliveryBase {
@@ -37,4 +48,5 @@ export interface SupplyDeliveryRead extends SupplyDeliveryBase {
   supplied_item: ProductRead;
   origin?: LocationDetail;
   destination: LocationDetail;
+  supply_request?: SupplyRequestRead;
 }

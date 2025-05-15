@@ -10,7 +10,7 @@ x : Done
 
 - [x] Clean up product knowledge and fix update - Khavin
 - [ ] Clean up product and support edit form product knowledge
-- [-] List - Supply request & delivery - Incoming/Requested filter - url wise - Amjith
+- [x] List - Supply request & delivery - Incoming/Requested filter - url wise - Amjith
 - [-] Request inside delivery, and vice versa - Amjith
 - [-] Create delivery inside request - Amjith
 - [ ] Charge item inside Product (Select and Create new)
@@ -31,6 +31,7 @@ x : Done
 - [-] Service Request - Show specimen.collection.collector details instead of UUID (After BE change) - Vignesh
 - [-] Service Request - Show specimen.processing.performer details instead of UUID (After BE change) - Vignesh
 - [x] Make Activity Definiton search inside the service request question working
+- [ ] Healthcare Service edit - Location expand missing in sheet
 
 ## Back End
 

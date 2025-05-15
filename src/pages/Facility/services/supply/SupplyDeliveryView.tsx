@@ -16,6 +16,8 @@ import Page from "@/components/Common/Page";
 import query from "@/Utils/request/query";
 import supplyDeliveryApi from "@/types/inventory/supplyDelivery/supplyDeliveryApi";
 
+import SupplyRequestDetails from "./components/SupplyRequestDetails";
+
 const STATUS_COLORS: Record<string, string> = {
   in_progress: "bg-amber-100 text-amber-700",
   completed: "bg-green-100 text-green-700",
@@ -193,6 +195,15 @@ export default function SupplyDeliveryView({
               </DefinitionList>
             </CardContent>
           </Card>
+
+          {delivery.supply_request && (
+            <SupplyRequestDetails
+              request={delivery.supply_request}
+              facilityId={facilityId}
+              locationId={locationId}
+              showViewDetails
+            />
+          )}
         </div>
       </div>
     </Page>

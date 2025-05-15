@@ -39,7 +39,6 @@ import {
 import Page from "@/components/Common/Page";
 import { FormSkeleton } from "@/components/Common/SkeletonLoading";
 
-import routes from "@/Utils/request/api";
 import mutate from "@/Utils/request/mutate";
 import query from "@/Utils/request/query";
 import productApi from "@/types/inventory/product/productApi";
@@ -59,6 +58,7 @@ const supplyDeliverySchema = z.object({
   supplied_item: z.string().min(1, "Item is required"),
   origin: z.string().optional(),
   destination: z.string().min(1, "Destination is required"),
+  supply_request: z.string().optional(),
 });
 
 const formSchema = z.object({
@@ -71,6 +71,9 @@ interface Props {
   facilityId: string;
   locationId: string;
   supplyDeliveryId?: string;
+  defaultValues?: z.infer<typeof formSchema>;
+  onSuccess?: () => void;
+  productKnowledgeId?: string;
 }
 
 function SupplyDeliveryFormContent({
@@ -78,11 +81,17 @@ function SupplyDeliveryFormContent({
   locationId,
   supplyDeliveryId,
   existingData,
+  defaultValues,
+  onSuccess,
+  productKnowledgeId,
 }: {
   facilityId: string;
   supplyDeliveryId?: string;
   existingData?: any;
   locationId: string;
+  defaultValues?: z.infer<typeof formSchema>;
+  onSuccess?: () => void;
+  productKnowledgeId?: string;
 }) {
   const { t } = useTranslation();
   const queryClient = useQueryClient();
@@ -103,7 +112,10 @@ function SupplyDeliveryFormContent({
     queryKey: ["product", facilityId, searchItem],
     queryFn: query.debounced(productApi.listProduct, {
       pathParams: { facilityId },
-      queryParams: { search: searchItem },
+      queryParams: {
+        search: searchItem,
+        product_knowledge: productKnowledgeId,
+      },
     }),
   });
 
@@ -136,7 +148,7 @@ function SupplyDeliveryFormContent({
               },
             ],
           }
-        : {
+        : defaultValues || {
             deliveries: [
               {
                 status: SupplyDeliveryStatus.in_progress,
@@ -153,8 +165,10 @@ function SupplyDeliveryFormContent({
     name: "deliveries",
   });
 
-  const { mutate: executeBatch, isPending } = useMutation({
-    mutationFn: mutate(routes.batchRequest, { silent: true }),
+  const { mutate: upsertSupplyDelivery, isPending } = useMutation({
+    mutationFn: mutate(supplyDeliveryApi.upsertSupplyDelivery, {
+      pathParams: { facilityId },
+    }),
     onSuccess: () => {
       toast.success(
         isEditMode
@@ -162,60 +176,53 @@ function SupplyDeliveryFormContent({
           : t("supply_deliveries_created"),
       );
       queryClient.invalidateQueries({ queryKey: ["supplyDeliveries"] });
-      navigate(
-        `/facility/${facilityId}/locations/${locationId}/supply_deliveries`,
-      );
+      const supplyRequestId = form.getValues("deliveries.0.supply_request");
+      onSuccess?.();
+      if (supplyRequestId) {
+        navigate(
+          `/facility/${facilityId}/locations/${locationId}/supply_requests/${supplyRequestId}`,
+        );
+      } else {
+        navigate(
+          `/facility/${facilityId}/locations/${locationId}/supply_deliveries`,
+        );
+      }
     },
     onError: (error) => {
       const errorData = error.cause as {
-        results?: Array<{
-          reference_id: string;
-          status_code: number;
-          data: {
-            errors?: Array<{
-              msg?: string;
-              error?: string;
-              type?: string;
-              loc?: string[];
-            }>;
-            non_field_errors?: string[];
-            detail?: string;
-          };
+        errors?: Array<{
+          msg?: string;
+          error?: string;
+          type?: string;
+          loc?: string[];
         }>;
+        non_field_errors?: string[];
+        detail?: string;
       };
 
-      if (errorData?.results) {
-        const failedResults = errorData.results.filter(
-          (result) => result.status_code !== 200,
-        );
+      let errorDisplayed = false;
 
-        let errorDisplayed = false;
-        failedResults.forEach((result) => {
-          const errors = result.data?.errors || [];
-          const nonFieldErrors = result.data?.non_field_errors || [];
-          const detailError = result.data?.detail;
-
-          errors.forEach((error) => {
-            const message = error.msg || error.error || t("validation_failed");
-            toast.error(message);
-            errorDisplayed = true;
-          });
-
-          nonFieldErrors.forEach((message) => {
-            toast.error(message);
-            errorDisplayed = true;
-          });
-
-          if (detailError) {
-            toast.error(detailError);
-            errorDisplayed = true;
-          }
+      if (errorData?.errors) {
+        errorData.errors.forEach((error) => {
+          const message = error.msg || error.error || t("validation_failed");
+          toast.error(message);
+          errorDisplayed = true;
         });
+      }
 
-        if (failedResults.length > 0 && !errorDisplayed) {
-          toast.error(t("error_updating_supply_delivery"));
-        }
-      } else {
+      if (errorData?.non_field_errors) {
+        errorData.non_field_errors.forEach((message) => {
+          toast.error(message);
+          errorDisplayed = true;
+        });
+      }
+
+      if (errorData?.detail) {
+        toast.error(errorData.detail);
+        errorDisplayed = true;
+      }
+
+      if (!errorDisplayed) {
         toast.error(t("error_updating_supply_delivery"));
       }
     },
@@ -223,23 +230,19 @@ function SupplyDeliveryFormContent({
 
   async function onSubmit(data: z.infer<typeof formSchema>) {
     if (isEditMode) {
-      executeBatch({
-        requests: [
+      upsertSupplyDelivery({
+        datapoints: [
           {
-            url: `/api/v1/supply_delivery/${supplyDeliveryId}/`,
-            method: "PUT",
-            reference_id: "update_supply_delivery",
-            body: data.deliveries[0],
+            ...data.deliveries[0],
+            supply_request: data.deliveries[0].supply_request,
           },
         ],
       });
     } else {
-      executeBatch({
-        requests: data.deliveries.map((delivery, index) => ({
-          url: "/api/v1/supply_delivery/",
-          method: "POST",
-          reference_id: `create_supply_delivery_${index}`,
-          body: delivery,
+      upsertSupplyDelivery({
+        datapoints: data.deliveries.map((delivery) => ({
+          ...delivery,
+          supply_request: delivery.supply_request,
         })),
       });
     }
@@ -324,58 +327,64 @@ function SupplyDeliveryFormContent({
                   )}
                 />
 
-                <FormField
-                  control={form.control}
-                  name="deliveries.0.supplied_item_condition"
-                  render={({ field }) => (
-                    <FormItem>
-                      <FormLabel>{t("condition")}</FormLabel>
-                      <Select
-                        onValueChange={field.onChange}
-                        defaultValue={field.value}
-                      >
-                        <FormControl>
-                          <SelectTrigger>
-                            <SelectValue placeholder={t("select_condition")} />
-                          </SelectTrigger>
-                        </FormControl>
-                        <SelectContent>
-                          {Object.values(SupplyDeliveryCondition).map(
-                            (condition) => (
-                              <SelectItem key={condition} value={condition}>
-                                {t(condition)}
-                              </SelectItem>
-                            ),
-                          )}
-                        </SelectContent>
-                      </Select>
-                      <FormMessage />
-                    </FormItem>
-                  )}
-                />
+                {!defaultValues && (
+                  <FormField
+                    control={form.control}
+                    name="deliveries.0.supplied_item_condition"
+                    render={({ field }) => (
+                      <FormItem>
+                        <FormLabel>{t("condition")}</FormLabel>
+                        <Select
+                          onValueChange={field.onChange}
+                          defaultValue={field.value}
+                        >
+                          <FormControl>
+                            <SelectTrigger>
+                              <SelectValue
+                                placeholder={t("select_condition")}
+                              />
+                            </SelectTrigger>
+                          </FormControl>
+                          <SelectContent>
+                            {Object.values(SupplyDeliveryCondition).map(
+                              (condition) => (
+                                <SelectItem key={condition} value={condition}>
+                                  {t(condition)}
+                                </SelectItem>
+                              ),
+                            )}
+                          </SelectContent>
+                        </Select>
+                        <FormMessage />
+                      </FormItem>
+                    )}
+                  />
+                )}
 
-                <FormField
-                  control={form.control}
-                  name="deliveries.0.destination"
-                  render={({ field }) => (
-                    <FormItem>
-                      <FormLabel>{t("destination")}</FormLabel>
-                      <FormControl>
-                        <Autocomplete
-                          options={deliveryToOptions}
-                          value={field.value || ""}
-                          onChange={field.onChange}
-                          isLoading={isLoadingDeliveryToLocations}
-                          onSearch={setSearchDeliveryTo}
-                          placeholder={t("select_location")}
-                          inputPlaceholder={t("search_location")}
-                          noOptionsMessage={t("no_locations_found")}
-                        />
-                      </FormControl>
-                      <FormMessage />
-                    </FormItem>
-                  )}
-                />
+                {!defaultValues && (
+                  <FormField
+                    control={form.control}
+                    name="deliveries.0.destination"
+                    render={({ field }) => (
+                      <FormItem>
+                        <FormLabel>{t("destination")}</FormLabel>
+                        <FormControl>
+                          <Autocomplete
+                            options={deliveryToOptions}
+                            value={field.value || ""}
+                            onChange={field.onChange}
+                            isLoading={isLoadingDeliveryToLocations}
+                            onSearch={setSearchDeliveryTo}
+                            placeholder={t("select_location")}
+                            inputPlaceholder={t("search_location")}
+                            noOptionsMessage={t("no_locations_found")}
+                          />
+                        </FormControl>
+                        <FormMessage />
+                      </FormItem>
+                    )}
+                  />
+                )}
               </CardContent>
             </Card>
 
@@ -521,6 +530,9 @@ export default function SupplyDeliveryForm({
   facilityId,
   locationId,
   supplyDeliveryId,
+  defaultValues,
+  productKnowledgeId,
+  onSuccess,
 }: Props) {
   const { t } = useTranslation();
   const isEditMode = Boolean(supplyDeliveryId);
@@ -554,6 +566,9 @@ export default function SupplyDeliveryForm({
       supplyDeliveryId={supplyDeliveryId}
       existingData={existingData}
       locationId={locationId}
+      defaultValues={defaultValues}
+      productKnowledgeId={productKnowledgeId}
+      onSuccess={onSuccess}
     />
   );
 }
