@@ -69,6 +69,11 @@ interface EntitySelectionSheetProps {
    */
   onEntitySelected: (code: Code) => void;
   /**
+   * Callback when a product entity is selected from the ValueSet
+   * @param product The selected product
+   */
+  onProductEntitySelected?: (product: ProductKnowledgeBase) => void;
+  /**
    * Content to display when an entity is selected (the form for entity details)
    * This is provided as children for better React composition
    */
@@ -92,6 +97,7 @@ export function EntitySelectionSheet({
   searchPostFix = "",
   disabled = false,
   onEntitySelected,
+  onProductEntitySelected,
   onConfirm,
   children,
   placeholder,
@@ -111,7 +117,7 @@ export function EntitySelectionSheet({
       system: "product",
     };
     setSelectedEntity(code);
-    onEntitySelected(code);
+    onProductEntitySelected?.(product);
   };
 
   const handleBack = () => {
