@@ -16,6 +16,7 @@ import SupplyRequestList, {
   SupplyRequestTab,
 } from "@/pages/Facility/services/supply/SupplyRequestList";
 import SupplyRequestView from "@/pages/Facility/services/supply/SupplyRequestView";
+import ProductList from "@/pages/Facility/settings/product/ProductList";
 
 interface LocationLayoutProps {
   facilityId: string;
@@ -23,10 +24,15 @@ interface LocationLayoutProps {
 }
 
 const getRoutes = (facilityId: string, locationId: string) => ({
+  // Beds
   "/beds": () => <BedList facilityId={facilityId} locationId={locationId} />,
+
+  // Pharmacy
   "/medication_requests": () => (
     <MedicationRequestList facilityId={facilityId} />
   ),
+
+  // Laboratory
   "/service_requests": () => (
     <ServiceRequestList facilityId={facilityId} locationId={locationId} />
   ),
@@ -41,6 +47,9 @@ const getRoutes = (facilityId: string, locationId: string) => ({
       serviceRequestId={serviceRequestId}
     />
   ),
+
+  // Inventory
+  "/inventory": () => <ProductList facilityId={facilityId} />,
   "/supply_requests": () => (
     <Redirect
       to={`/facility/${facilityId}/locations/${locationId}/supply_requests/incoming`}

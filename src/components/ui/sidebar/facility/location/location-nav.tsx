@@ -19,7 +19,7 @@ export function LocationNav() {
     <NavMain
       links={[
         {
-          name: t("Beds"),
+          name: t("beds"),
           url: `${baseUrl}/beds`,
           icon: <CareIcon icon="l-bed" />,
         },
@@ -50,6 +50,10 @@ export function LocationNav() {
           url: `${baseUrl}/inventory`,
           icon: <CareIcon icon="l-shop" />,
           children: [
+            {
+              name: t("items"),
+              url: `${baseUrl}/inventory`,
+            },
             {
               name: t("supply_request"),
               url: `${baseUrl}/supply_requests`,
