@@ -57,13 +57,13 @@ export interface MedicationDispenseSubstitution {
 export interface MedicationDispenseBase {
   id: string;
   status: MedicationDispenseStatus;
-  not_performed_reason: MedicationDispenseNotPerformedReason;
+  not_performed_reason?: MedicationDispenseNotPerformedReason;
   category: MedicationDispenseCategory;
   when_prepared: Date;
-  when_handed_over: Date;
-  note: string;
+  when_handed_over?: Date;
+  note?: string;
   dosage_instruction: MedicationRequestDosageInstruction;
-  substitution: MedicationDispenseSubstitution;
+  substitution?: MedicationDispenseSubstitution;
 }
 
 export interface MedicationDispenseCreate

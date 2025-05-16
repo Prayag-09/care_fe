@@ -37,10 +37,7 @@ import { MonetaryComponentType } from "@/types/base/monetaryComponent/monetaryCo
 import {
   MedicationDispenseCategory,
   MedicationDispenseCreate,
-  MedicationDispenseNotPerformedReason,
   MedicationDispenseStatus,
-  SubstitutionReason,
-  SubstitutionType,
 } from "@/types/emr/medicationDispense/medicationDispense";
 import { displayMedicationName } from "@/types/emr/medicationRequest/medicationRequest";
 import { MedicationRequestRead } from "@/types/emr/medicationRequest/medicationRequest";
@@ -57,11 +54,29 @@ interface MedicationQuantity {
   quantity: number;
   isSelected: boolean;
   selectedInventoryId?: string;
+  days_supply: number;
 }
 
 type MedicationRequestWithInventory = MedicationRequestRead & {
   inventory_items_internal?: InventoryRead[];
 };
+
+function convertDurationToDays(value: number, unit: string): number {
+  switch (unit) {
+    case "h":
+      return Math.round(value / 24);
+    case "d":
+      return value;
+    case "wk":
+      return value * 7;
+    case "mo":
+      return value * 30; // approximating month as 30 days
+    case "a":
+      return value * 365; // approximating year as 365 days
+    default:
+      return value;
+  }
+}
 
 export default function MedicationDispense({ patientId }: Props) {
   const { t } = useTranslation();
@@ -140,6 +155,12 @@ export default function MedicationDispense({ patientId }: Props) {
               matchingInventory.length === 1
                 ? matchingInventory[0].id
                 : undefined,
+            days_supply: convertDurationToDays(
+              med.dosage_instruction[0]?.timing?.repeat?.bounds_duration
+                ?.value || 0,
+              med.dosage_instruction[0]?.timing?.repeat?.bounds_duration
+                ?.unit || "",
+            ),
           };
         },
       );
@@ -187,6 +208,14 @@ export default function MedicationDispense({ patientId }: Props) {
     setMedicationQuantities((prev) =>
       prev.map((item) =>
         item.id === id ? { ...item, quantity: value } : item,
+      ),
+    );
+  };
+
+  const handleDaysSupplyChange = (id: string, value: number) => {
+    setMedicationQuantities((prev) =>
+      prev.map((item) =>
+        item.id === id ? { ...item, days_supply: value } : item,
       ),
     );
   };
@@ -277,6 +306,9 @@ export default function MedicationDispense({ patientId }: Props) {
           medicationQuantities.find((q) => q.id === medication.id)?.quantity ||
           0;
         const selectedInventory = getInventoryForMedication(medication.id);
+        const daysSupply =
+          medicationQuantities.find((q) => q.id === medication.id)
+            ?.days_supply || 0;
 
         // This check is now redundant due to the validation above, but keeping for type safety
         if (!selectedInventory) {
@@ -286,26 +318,18 @@ export default function MedicationDispense({ patientId }: Props) {
         const dispenseData: MedicationDispenseCreate = {
           status: MedicationDispenseStatus.completed,
           category: MedicationDispenseCategory.outpatient,
-          not_performed_reason: MedicationDispenseNotPerformedReason.outofstock,
           when_prepared: new Date(),
-          when_handed_over: new Date(),
-          note: "",
           dosage_instruction: medication.dosage_instruction[0],
-          substitution: {
-            was_substituted: false,
-            substitution_type: SubstitutionType.N,
-            reason: SubstitutionReason.CT,
-          },
           encounter: medication.encounter,
           location: locationId,
           authorizing_prescription: medication.id,
           item: selectedInventory.id,
           quantity: quantity,
-          days_supply: 30,
+          days_supply: daysSupply,
         };
 
         return {
-          url: `/api/v1/patient/${patientId}/medication/dispense/`,
+          url: `/api/v1/medication/dispense/`,
           method: "POST",
           reference_id: `dispense_${medication.id}`,
           body: dispenseData,
@@ -364,6 +388,7 @@ export default function MedicationDispense({ patientId }: Props) {
                   <TableHead>{t("availability")}</TableHead>
                   <TableHead>{t("expiry")}</TableHead>
                   <TableHead>{t("quantity")}</TableHead>
+                  <TableHead>{t("days_supply")}</TableHead>
                   <TableHead>{t("price")}</TableHead>
                   <TableHead>{t("discount")}</TableHead>
                   {Array.from(
@@ -484,6 +509,20 @@ export default function MedicationDispense({ patientId }: Props) {
                           value={quantity}
                           onChange={(e) =>
                             handleQuantityChange(
+                              medication.id,
+                              parseInt(e.target.value) || 0,
+                            )
+                          }
+                          className="w-24"
+                        />
+                      </TableCell>
+                      <TableCell>
+                        <Input
+                          type="number"
+                          min={0}
+                          value={medicationQuantity?.days_supply || 0}
+                          onChange={(e) =>
+                            handleDaysSupplyChange(
                               medication.id,
                               parseInt(e.target.value) || 0,
                             )
