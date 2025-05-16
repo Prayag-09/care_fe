@@ -2,11 +2,13 @@ import { zodResolver } from "@hookform/resolvers/zod";
 import { useMutation, useQuery, useQueryClient } from "@tanstack/react-query";
 import { format } from "date-fns";
 import { navigate } from "raviger";
+import { useState } from "react";
 import { useForm } from "react-hook-form";
 import { useTranslation } from "react-i18next";
 import { toast } from "sonner";
 import { z } from "zod";
 
+import Autocomplete from "@/components/ui/autocomplete";
 import { Button } from "@/components/ui/button";
 import { Calendar } from "@/components/ui/calendar";
 import {
@@ -37,6 +39,9 @@ import { FormSkeleton } from "@/components/Common/SkeletonLoading";
 
 import mutate from "@/Utils/request/mutate";
 import query from "@/Utils/request/query";
+import { mergeAutocompleteOptions } from "@/Utils/utils";
+import { ChargeItemDefinitionStatus } from "@/types/billing/chargeItemDefinition/chargeItemDefinition";
+import chargeItemDefinitionApi from "@/types/billing/chargeItemDefinition/chargeItemDefinitionApi";
 import {
   ProductCreate,
   ProductRead,
@@ -121,6 +126,7 @@ function ProductFormContent({
   const { t } = useTranslation();
   const queryClient = useQueryClient();
   const isEditMode = Boolean(productId);
+  const [cidSearch, setCidSearch] = useState("");
 
   // Get product knowledge list for the dropdown
   const { data: productKnowledgeResponse } = useQuery({
@@ -133,7 +139,26 @@ function ProductFormContent({
     }),
   });
 
+  // Get charge item definition list for the dropdown with search
+  const { data: chargeItemDefinitionResponse, isLoading: isLoadingCID } =
+    useQuery({
+      queryKey: ["chargeItemDefinitions", cidSearch],
+      queryFn: query.debounced(
+        chargeItemDefinitionApi.listChargeItemDefinition,
+        {
+          pathParams: { facilityId },
+          queryParams: {
+            limit: 100,
+            status: ChargeItemDefinitionStatus.active,
+            title: cidSearch,
+          },
+        },
+      ),
+    });
+
   const productKnowledgeOptions = productKnowledgeResponse?.results || [];
+  const chargeItemDefinitionOptions =
+    chargeItemDefinitionResponse?.results || [];
 
   const form = useForm({
     resolver: zodResolver(formSchema),
@@ -354,6 +379,57 @@ function ProductFormContent({
                       <FormDescription>
                         {t("expiration_date_description")}
                       </FormDescription>
+                      <FormMessage />
+                    </FormItem>
+                  )}
+                />
+              </div>
+            </div>
+
+            <div className="rounded-lg border border-gray-200 bg-white p-6">
+              <div className="mb-4">
+                <h2 className="text-lg font-medium text-gray-900">
+                  {t("billing_information")}
+                </h2>
+                <p className="text-sm text-gray-500">
+                  {t("product_charge_item_definition_selection_description")}
+                </p>
+              </div>
+              <div className="space-y-4">
+                <FormField
+                  control={form.control}
+                  name="charge_item_definition"
+                  render={({ field }) => (
+                    <FormItem>
+                      <FormLabel>{t("charge_item_definition")}</FormLabel>
+                      <FormControl>
+                        <Autocomplete
+                          options={mergeAutocompleteOptions(
+                            chargeItemDefinitionOptions.map((cid) => ({
+                              label: cid.title,
+                              value: cid.id,
+                            })),
+                            field.value
+                              ? {
+                                  label:
+                                    chargeItemDefinitionOptions.find(
+                                      (cid) => cid.id === field.value,
+                                    )?.title || "",
+                                  value: field.value,
+                                }
+                              : undefined,
+                          )}
+                          value={field.value || ""}
+                          onChange={field.onChange}
+                          onSearch={setCidSearch}
+                          placeholder={t("select_charge_item_definition")}
+                          isLoading={isLoadingCID}
+                          noOptionsMessage={t(
+                            "no_charge_item_definitions_found",
+                          )}
+                          data-cy="charge-item-definition-search"
+                        />
+                      </FormControl>
                       <FormMessage />
                     </FormItem>
                   )}
