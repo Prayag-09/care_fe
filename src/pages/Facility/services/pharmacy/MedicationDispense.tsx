@@ -306,6 +306,24 @@ export default function MedicationDispense({ patientId }: Props) {
       medicationQuantities.find((q) => q.id === med.id && q.isSelected),
     );
 
+    // First validate that all selected medications have an inventory selected
+    const medsWithoutInventory = selectedMeds.filter((med) => {
+      const quantity = medicationQuantities.find((q) => q.id === med.id);
+      return !quantity?.selectedInventoryId;
+    });
+
+    if (medsWithoutInventory.length > 0) {
+      const medicationNames = medsWithoutInventory
+        .map((med) => displayMedicationName(med))
+        .join(", ");
+      toast.error(
+        t("please_select_inventory_for_medications", {
+          medications: medicationNames,
+        }),
+      );
+      return;
+    }
+
     const requests = selectedMeds
       .map((medication) => {
         const quantity =
@@ -313,12 +331,8 @@ export default function MedicationDispense({ patientId }: Props) {
           0;
         const selectedInventory = getInventoryForMedication(medication.id);
 
+        // This check is now redundant due to the validation above, but keeping for type safety
         if (!selectedInventory) {
-          toast.error(
-            t("please_select_inventory_item", {
-              medication: displayMedicationName(medication),
-            }),
-          );
           return null;
         }
 
