@@ -78,10 +78,18 @@ export default function SupplyDeliveryTable({
           {deliveries.map((delivery: SupplyDeliveryRead) => (
             <TableRow key={delivery.id}>
               <TableCell>
-                {delivery.supplied_item.product_knowledge.name}
-                {delivery.supplied_item.batch && (
+                {delivery.supplied_item?.product_knowledge.name ||
+                  delivery.supplied_inventory_item?.product.product_knowledge
+                    .name}
+                {delivery.supplied_item?.batch && (
                   <div className="text-xs text-gray-500 font-normal">
                     Lot #{delivery.supplied_item.batch.lot_number}
+                  </div>
+                )}
+                {delivery.supplied_inventory_item?.product.batch && (
+                  <div className="text-xs text-gray-500 font-normal">
+                    Exp. #
+                    {delivery.supplied_inventory_item?.product.batch.lot_number}
                   </div>
                 )}
               </TableCell>
