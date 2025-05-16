@@ -231,73 +231,20 @@ export default function MedicationDispense({ patientId }: Props) {
     if (!inventory)
       return {
         basePrice: 0,
-        discountPerUnit: 0,
-        taxesPerUnit: {},
       };
 
     const priceComponents =
       inventory.product.charge_item_definition.price_components;
 
-    // Get base price (per unit)
+    // Get base price
     const baseComponent = priceComponents.find(
       (component) =>
         component.monetary_component_type === MonetaryComponentType.base,
     );
     const basePrice = baseComponent?.amount || 0;
 
-    // Calculate discount per unit
-    let priceAfterSurcharge = basePrice;
-
-    // Apply surcharges per unit
-    const surchargeComponents = priceComponents.filter(
-      (component) =>
-        component.monetary_component_type === MonetaryComponentType.surcharge,
-    );
-    for (const component of surchargeComponents) {
-      if (component.factor) {
-        const amount = (priceAfterSurcharge * component.factor) / 100;
-        priceAfterSurcharge += amount;
-      } else if (component.amount) {
-        priceAfterSurcharge += component.amount;
-      }
-    }
-
-    // Apply discounts per unit
-    const discountComponents = priceComponents.filter(
-      (component) =>
-        component.monetary_component_type === MonetaryComponentType.discount,
-    );
-    let discountPerUnit = 0;
-    for (const component of discountComponents) {
-      if (component.factor) {
-        const amount = (priceAfterSurcharge * component.factor) / 100;
-        discountPerUnit += amount;
-      } else if (component.amount) {
-        discountPerUnit += component.amount;
-      }
-    }
-
-    // Calculate taxes per unit
-    const taxComponents = priceComponents.filter(
-      (component) =>
-        component.monetary_component_type === MonetaryComponentType.tax,
-    );
-    const taxesPerUnit: Record<string, number> = {};
-    const priceAfterDiscount = priceAfterSurcharge - discountPerUnit;
-
-    for (const component of taxComponents) {
-      const taxCode = component.code?.code || "tax";
-      if (component.factor) {
-        taxesPerUnit[taxCode] = (priceAfterDiscount * component.factor) / 100;
-      } else if (component.amount) {
-        taxesPerUnit[taxCode] = component.amount;
-      }
-    }
-
     return {
       basePrice,
-      discountPerUnit,
-      taxesPerUnit,
     };
   };
 
@@ -368,11 +315,6 @@ export default function MedicationDispense({ patientId }: Props) {
         (request): request is NonNullable<typeof request> => request !== null,
       );
 
-    if (requests.length === 0) {
-      toast.error(t("please_select_medications_and_inventory"));
-      return;
-    }
-
     dispense({ requests });
   };
 
@@ -384,10 +326,7 @@ export default function MedicationDispense({ patientId }: Props) {
     <Page title={t("dispense_medications")}>
       <div className="container mx-auto">
         <div className="mb-6 flex items-center justify-between">
-          <h1 className="text-xl font-semibold text-gray-900">
-            {t("dispense_medications")}
-          </h1>
-          <div className="flex gap-2">
+          <div className="flex gap-2 justify-end w-full">
             <Button
               variant="outline"
               onClick={() => navigate(`../${patientId}`)}
@@ -556,7 +495,21 @@ export default function MedicationDispense({ patientId }: Props) {
                         <MonetaryDisplay amount={prices.basePrice} />
                       </TableCell>
                       <TableCell>
-                        <MonetaryDisplay amount={prices.discountPerUnit} />
+                        {selectedInventory
+                          ? selectedInventory.product.charge_item_definition.price_components
+                              .filter(
+                                (c) =>
+                                  c.monetary_component_type ===
+                                  MonetaryComponentType.discount,
+                              )
+                              .map((component, index) => (
+                                <div key={index}>
+                                  {component.factor
+                                    ? `${component.factor}%`
+                                    : "-"}
+                                </div>
+                              ))
+                          : "-"}
                       </TableCell>
                       {allTaxCodes.map((taxCode) => {
                         const taxComponent =
@@ -569,20 +522,13 @@ export default function MedicationDispense({ patientId }: Props) {
                         return (
                           <TableCell key={`${medication.id}-${taxCode}`}>
                             {selectedInventory ? (
-                              <div className="flex flex-col items-center gap-0.5">
-                                <MonetaryDisplay
-                                  amount={prices.taxesPerUnit[taxCode] || 0}
-                                />
-                                <div className="items-center text-xs text-gray-500">
-                                  {taxComponent?.factor
-                                    ? `${taxComponent.factor}%`
-                                    : null}
-                                </div>
+                              <div>
+                                {taxComponent?.factor
+                                  ? `${taxComponent.factor}%`
+                                  : "-"}
                               </div>
                             ) : (
-                              <div className="flex flex-col items-center gap-0.5">
-                                <MonetaryDisplay amount={0} />
-                              </div>
+                              "-"
                             )}
                           </TableCell>
                         );

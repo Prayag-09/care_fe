@@ -1,5 +1,4 @@
 import { navigate } from "raviger";
-import { useEffect } from "react";
 import { useTranslation } from "react-i18next";
 
 import CareIcon from "@/CAREUI/icons/CareIcon";
@@ -44,10 +43,6 @@ export default function SupplyDeliveryTable({
   tab,
 }: Props) {
   const { t } = useTranslation();
-
-  useEffect(() => {
-    console.log(tab);
-  }, [tab]);
 
   if (isLoading) {
     return <TableSkeleton count={5} />;

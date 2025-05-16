@@ -573,7 +573,6 @@ export function displayMedicationName(
   if (!medication) {
     return "";
   }
-  console.log(medication, "requested_product_internal" in medication);
   if ("requested_product_internal" in medication) {
     // This is a MedicationRequest
     return (
