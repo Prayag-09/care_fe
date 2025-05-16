@@ -33,6 +33,12 @@ const getRoutes = (facilityId: string, locationId: string) => ({
   "/medication_requests": () => (
     <MedicationRequestList facilityId={facilityId} locationId={locationId} />
   ),
+  // "/medication_dispense_history": () => (
+  //   <MedicationDispenseHistory
+  //     facilityId={facilityId}
+  //     locationId={locationId}
+  //   />
+  // ),
 
   // Laboratory
   "/service_requests": () => (

@@ -43,6 +43,10 @@ export function LocationNav() {
               name: t("prescription_queue"),
               url: `${baseUrl}/medication_requests`,
             },
+            {
+              name: t("dispense_history"),
+              url: `${baseUrl}/medication_dispense_history`,
+            },
           ],
         },
         {
