@@ -586,7 +586,7 @@ export default function DeviceForm({ facilityId, device, onSuccess }: Props) {
               control={form.control}
               name="metadata"
               render={({ field }) => (
-                <FormItem className="space-y-0">
+                <FormItem className="space-y-0 block">
                   <PluginDeviceConfigureForm
                     type={careType}
                     facilityId={facilityId}
