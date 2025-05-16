@@ -119,121 +119,152 @@ export default function PaymentsData({
 
   return (
     <>
-      <Input
-        placeholder={t("search_payments")}
-        value={qParams.search || ""}
-        onChange={(e) => updateQuery({ search: e.target.value || undefined })}
-        className="sm:max-w-xs"
-      />
-      <div className="flex flex-row justify-between items-center gap-2 my-4 max-sm:flex-col">
-        <Tabs
-          defaultValue={qParams.status ?? "all"}
-          onValueChange={(value) =>
-            updateQuery({ status: value === "all" ? undefined : value })
-          }
-          className="max-sm:hidden"
-        >
-          <TabsList>
-            <TabsTrigger value="all">{t("all")}</TabsTrigger>
-            {Object.values(PaymentReconciliationStatus).map((status) => (
-              <TabsTrigger key={status} value={status}>
-                {t(statusMap[status].label)}
-              </TabsTrigger>
-            ))}
-          </TabsList>
-        </Tabs>
-        <Select
-          defaultValue={qParams.status ?? "all"}
-          onValueChange={(value) =>
-            updateQuery({ status: value === "all" ? undefined : value })
-          }
-        >
-          <SelectTrigger className="sm:hidden">
-            <SelectValue placeholder={t("filter_by_status")} />
-          </SelectTrigger>
-          <SelectContent>
-            <SelectGroup>
-              <SelectItem value="all">t("all")</SelectItem>
+      <div className="flex flex-row justify-between items-center gap-2 my-4 max-sm:flex-col w-full">
+        <div className="flex flex-row justify-start items-center gap-3 my-4 max-sm:flex-col w-full">
+          <Tabs
+            defaultValue={qParams.status ?? "all"}
+            onValueChange={(value) =>
+              updateQuery({ status: value === "all" ? undefined : value })
+            }
+            className="max-sm:hidden"
+          >
+            <TabsList>
+              <TabsTrigger value="all">{t("all_status")}</TabsTrigger>
               {Object.values(PaymentReconciliationStatus).map((status) => (
-                <SelectItem key={status} value={status}>
+                <TabsTrigger key={status} value={status}>
                   {t(statusMap[status].label)}
-                </SelectItem>
+                </TabsTrigger>
               ))}
-            </SelectGroup>
-          </SelectContent>
-        </Select>
+            </TabsList>
+          </Tabs>
+          <Select
+            defaultValue={qParams.status ?? "all"}
+            onValueChange={(value) =>
+              updateQuery({ status: value === "all" ? undefined : value })
+            }
+          >
+            <SelectTrigger className="sm:hidden w-full">
+              <SelectValue placeholder={t("filter_by_status")} />
+            </SelectTrigger>
+            <SelectContent>
+              <SelectGroup>
+                <SelectItem value="all">{t("all")}</SelectItem>
+                {Object.values(PaymentReconciliationStatus).map((status) => (
+                  <SelectItem key={status} value={status}>
+                    {t(statusMap[status].label)}
+                  </SelectItem>
+                ))}
+              </SelectGroup>
+            </SelectContent>
+          </Select>
 
-        <Tabs
-          defaultValue={qParams.reconciliation_type ?? "all"}
-          onValueChange={(value) =>
-            updateQuery({
-              reconciliation_type: value === "all" ? undefined : value,
-            })
-          }
-          className="max-sm:hidden"
-        >
-          <TabsList>
-            <TabsTrigger value="all">{t("all")}</TabsTrigger>
-            {Object.values(PaymentReconciliationType).map((type) => (
-              <TabsTrigger key={type} value={type}>
-                {t(typeMap[type])}
-              </TabsTrigger>
-            ))}
-          </TabsList>
-        </Tabs>
-        <Select
-          defaultValue={qParams.status ?? "all"}
-          onValueChange={(value) =>
-            updateQuery({ status: value === "all" ? undefined : value })
-          }
-        >
-          <SelectTrigger className="sm:hidden">
-            <SelectValue placeholder={t("filter_by_type")} />
-          </SelectTrigger>
-          <SelectContent>
-            <SelectGroup>
-              <SelectItem value="all">t("all")</SelectItem>
+          <Tabs
+            defaultValue={qParams.reconciliation_type ?? "all"}
+            onValueChange={(value) =>
+              updateQuery({
+                reconciliation_type: value === "all" ? undefined : value,
+              })
+            }
+            className="max-sm:hidden"
+          >
+            <TabsList>
+              <TabsTrigger value="all">{t("all_type")}</TabsTrigger>
               {Object.values(PaymentReconciliationType).map((type) => (
-                <SelectItem key={type} value={type}>
+                <TabsTrigger key={type} value={type}>
                   {t(typeMap[type])}
-                </SelectItem>
+                </TabsTrigger>
               ))}
-            </SelectGroup>
-          </SelectContent>
-        </Select>
+            </TabsList>
+          </Tabs>
+          <Select
+            defaultValue={qParams.status ?? "all"}
+            onValueChange={(value) =>
+              updateQuery({ status: value === "all" ? undefined : value })
+            }
+          >
+            <SelectTrigger className="sm:hidden">
+              <SelectValue placeholder={t("filter_by_type")} />
+            </SelectTrigger>
+            <SelectContent>
+              <SelectGroup>
+                <SelectItem value="all">{t("all")}</SelectItem>
+                {Object.values(PaymentReconciliationType).map((type) => (
+                  <SelectItem key={type} value={type}>
+                    {t(typeMap[type])}
+                  </SelectItem>
+                ))}
+              </SelectGroup>
+            </SelectContent>
+          </Select>
+        </div>
+        <div className="relative w-full sm:max-w-xs">
+          <CareIcon
+            icon="l-search"
+            className="absolute left-3 top-1/2 -translate-y-1/2 size-4 text-gray-500"
+          />
+          <Input
+            placeholder={t("search_payments")}
+            value={qParams.search || ""}
+            onChange={(e) =>
+              updateQuery({ search: e.target.value || undefined })
+            }
+            className="w-full pl-10"
+          />
+        </div>
       </div>
       {isLoading ? (
         <TableSkeleton count={3} />
       ) : (
         <div className={className}>
-          <Table>
-            <TableHeader>
-              <TableRow>
-                <TableHead>{t("payment_id")}</TableHead>
-                <TableHead>{t("invoice")}</TableHead>
-                <TableHead>{t("type")}</TableHead>
-                <TableHead>{t("method")}</TableHead>
-                <TableHead>{t("date")}</TableHead>
-                <TableHead>{t("amount")}</TableHead>
-                <TableHead>{t("status")}</TableHead>
-                <TableHead>{t("outcome")}</TableHead>
-                <TableHead>{t("actions")}</TableHead>
+          <Table className="rounded-lg border shadow-base w-full bg-white">
+            <TableHeader className="bg-gray-100">
+              <TableRow className="border-b">
+                <TableHead className="border-x p-3 text-gray-700 text-sm font-medium leading-5">
+                  {t("payment_id")}
+                </TableHead>
+                <TableHead className="border-x p-3 text-gray-700 text-sm font-medium leading-5">
+                  {t("invoice")}
+                </TableHead>
+                <TableHead className="border-x p-3 text-gray-700 text-sm font-medium leading-5">
+                  {t("type")}
+                </TableHead>
+                <TableHead className="border-x p-3 text-gray-700 text-sm font-medium leading-5">
+                  {t("method")}
+                </TableHead>
+                <TableHead className="border-x p-3 text-gray-700 text-sm font-medium leading-5">
+                  {t("date")}
+                </TableHead>
+                <TableHead className="border-x p-3 text-gray-700 text-sm font-medium leading-5">
+                  {t("amount")}
+                </TableHead>
+                <TableHead className="border-x p-3 text-gray-700 text-sm font-medium leading-5">
+                  {t("status")}
+                </TableHead>
+                <TableHead className="border-x p-3 text-gray-700 text-sm font-medium leading-5">
+                  {t("outcome")}
+                </TableHead>
+                <TableHead className="border-x p-3 text-gray-700 text-sm font-medium leading-5">
+                  {t("actions")}
+                </TableHead>
               </TableRow>
             </TableHeader>
-            <TableBody>
+            <TableBody className="bg-white">
               {!payments?.length ? (
                 <TableRow>
-                  <TableCell colSpan={7} className="text-center text-gray-500">
+                  <TableCell colSpan={9} className="text-center text-gray-500">
                     {t("no_payments")}
                   </TableCell>
                 </TableRow>
               ) : (
                 payments.map((payment) => (
-                  <TableRow key={payment.id}>
-                    <TableCell className="font-medium">
+                  <TableRow
+                    key={payment.id}
+                    className="border-b hover:bg-gray-50"
+                  >
+                    <TableCell className="border-x p-3 text-gray-950 font-medium">
                       <div>#{payment.id}</div>
                     </TableCell>
-                    <TableCell>
+                    <TableCell className="border-x p-3 text-gray-950">
                       <div className="font-medium">
                         #{payment.target_invoice?.id}
                       </div>
@@ -241,11 +272,13 @@ export default function PaymentsData({
                         {payment.target_invoice?.title}
                       </div>
                     </TableCell>
-                    <TableCell>
+                    <TableCell className="border-x p-3 text-gray-950">
                       {typeMap[payment.reconciliation_type]}
                     </TableCell>
-                    <TableCell>{methodMap[payment.method]}</TableCell>
-                    <TableCell>
+                    <TableCell className="border-x p-3 text-gray-950">
+                      {methodMap[payment.method]}
+                    </TableCell>
+                    <TableCell className="border-x p-3 text-gray-950">
                       {payment.payment_datetime
                         ? format(
                             new Date(payment.payment_datetime),
@@ -253,29 +286,38 @@ export default function PaymentsData({
                           )
                         : "-"}
                     </TableCell>
-                    <TableCell>
+                    <TableCell className="border-x p-3 text-gray-950">
                       <MonetaryDisplay amount={payment.amount} />
                     </TableCell>
-                    <TableCell>
+                    <TableCell className="border-x p-3 text-gray-950">
                       <Badge variant={statusMap[payment.status].variant}>
                         {t(statusMap[payment.status].label)}
                       </Badge>
                     </TableCell>
-                    <TableCell>
+                    <TableCell className="border-x p-3 text-gray-950">
                       <Badge variant={outcomeMap[payment.outcome].variant}>
                         {t(outcomeMap[payment.outcome].label)}
                       </Badge>
                     </TableCell>
-                    <TableCell>
-                      <div className="flex gap-2">
-                        <Button variant="ghost" size="icon" asChild>
-                          <Link
-                            href={`/facility/${facilityId}/billing/payments/${payment.id}`}
-                          >
-                            <CareIcon icon="l-eye" className="size-4" />
-                          </Link>
-                        </Button>
-                      </div>
+                    <TableCell className="border-x p-3 text-gray-950">
+                      <Button
+                        variant="secondary"
+                        className="border-gray-400 border shadow-sm bg-white"
+                        size="sm"
+                        asChild
+                      >
+                        <Link
+                          href={`/facility/${facilityId}/billing/payments/${payment.id}`}
+                        >
+                          <CareIcon
+                            icon="l-eye"
+                            className="size-4 text-gray-700"
+                          />
+                          <span className="text-gray-950 font-medium">
+                            {t("view")}
+                          </span>
+                        </Link>
+                      </Button>
                     </TableCell>
                   </TableRow>
                 ))
