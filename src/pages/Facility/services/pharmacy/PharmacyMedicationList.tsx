@@ -1,8 +1,10 @@
 import { useQuery } from "@tanstack/react-query";
+import { navigate } from "raviger";
 import { useTranslation } from "react-i18next";
 
 import { cn } from "@/lib/utils";
 
+import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import {
   Table,
@@ -21,6 +23,7 @@ import { FilterSelect } from "@/components/definition-list/FilterSelect";
 import useFilters from "@/hooks/useFilters";
 
 import query from "@/Utils/request/query";
+import useCurrentLocation from "@/pages/Facility/locations/utils/useCurrentLocation";
 import {
   ACTIVE_MEDICATION_STATUSES,
   INACTIVE_MEDICATION_STATUSES,
@@ -57,6 +60,7 @@ export default function PharmacyMedicationList({
   patientId,
 }: Props) {
   const { t } = useTranslation();
+  const { locationId } = useCurrentLocation();
   const { qParams, updateQuery, Pagination, resultsPerPage } = useFilters({
     limit: 14,
     disableCache: true,
@@ -64,7 +68,7 @@ export default function PharmacyMedicationList({
 
   const { data: response, isLoading } = useQuery({
     queryKey: ["medications", qParams, patientId],
-    queryFn: query.debounced(medicationRequestApi.list, {
+    queryFn: query(medicationRequestApi.list, {
       pathParams: { patientId },
       queryParams: {
         facility: facilityId,
@@ -87,6 +91,16 @@ export default function PharmacyMedicationList({
             <h1 className="text-xl font-semibold text-gray-900">
               {t("pharmacy_medications")}
             </h1>
+            <Button
+              onClick={() =>
+                navigate(
+                  `/facility/${facilityId}/locations/${locationId}/medication_requests/patient/${patientId}/dispense`,
+                )
+              }
+              className="w-full sm:w-auto"
+            >
+              {t("dispense_medications")}
+            </Button>
           </div>
         </div>
 

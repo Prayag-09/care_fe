@@ -237,7 +237,7 @@ export default function ProductView({ facilityId, productId }: Props) {
                     size="sm"
                     onClick={() =>
                       navigate(
-                        `/facility/${facilityId}/settings/charge_item_definition/${product.charge_item_definition.id}`,
+                        `/facility/${facilityId}/settings/charge_item_definitions/${product.charge_item_definition.id}`,
                       )
                     }
                   >

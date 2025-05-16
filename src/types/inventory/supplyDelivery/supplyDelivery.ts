@@ -1,3 +1,4 @@
+import { InventoryRead } from "@/types/inventory/product/inventory";
 import { ProductRead } from "@/types/inventory/product/product";
 import { SupplyRequestRead } from "@/types/inventory/supplyRequest/supplyRequest";
 import { LocationDetail } from "@/types/location/location";
@@ -28,7 +29,8 @@ export interface SupplyDeliveryBase {
 
 export interface SupplyDeliveryCreate extends Omit<SupplyDeliveryBase, "id"> {
   supplied_item_quantity: number;
-  supplied_item: string; // Product ID
+  supplied_item?: string; // Product ID
+  supplied_inventory_item?: string; // Inventory Item ID
   origin?: string; // Location ID
   destination: string; // Location ID
   supply_request?: string; // Supply Request ID
@@ -37,7 +39,8 @@ export interface SupplyDeliveryCreate extends Omit<SupplyDeliveryBase, "id"> {
 export interface SupplyDeliveryUpsert extends Omit<SupplyDeliveryBase, "id"> {
   id?: string;
   supplied_item_quantity: number;
-  supplied_item: string; // Product ID
+  supplied_item?: string; // Product ID
+  supplied_inventory_item?: string; // Inventory Item ID
   origin?: string; // Location ID
   destination: string; // Location ID
   supply_request?: string; // Supply Request ID
@@ -46,6 +49,7 @@ export interface SupplyDeliveryUpsert extends Omit<SupplyDeliveryBase, "id"> {
 export interface SupplyDeliveryRead extends SupplyDeliveryBase {
   supplied_item_quantity: number;
   supplied_item: ProductRead;
+  supplied_inventory_item: InventoryRead;
   origin?: LocationDetail;
   destination: LocationDetail;
   supply_request?: SupplyRequestRead;

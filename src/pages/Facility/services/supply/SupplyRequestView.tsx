@@ -215,7 +215,7 @@ export default function SupplyRequestView({
                       status: SupplyDeliveryStatus.in_progress,
                       supplied_item_type: SupplyDeliveryType.product,
                       supplied_item_quantity: request.quantity,
-                      supplied_item: request.item.id,
+                      supplied_inventory_item: request.item.id,
                       origin: request.deliver_from?.id,
                       destination: request.deliver_to.id,
                       supply_request: request.id,

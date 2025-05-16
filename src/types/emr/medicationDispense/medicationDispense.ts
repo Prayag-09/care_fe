@@ -69,9 +69,9 @@ export interface MedicationDispenseBase {
 export interface MedicationDispenseCreate
   extends Omit<MedicationDispenseBase, "id"> {
   encounter: string;
-  location: string;
+  location?: string;
   authorizing_prescription: string | null;
-  product: string;
+  item: string;
   quantity: number;
   days_supply: number;
 }

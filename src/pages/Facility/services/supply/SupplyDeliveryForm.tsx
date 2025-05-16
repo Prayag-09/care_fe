@@ -55,7 +55,7 @@ const supplyDeliverySchema = z.object({
   supplied_item_type: z.nativeEnum(SupplyDeliveryType),
   supplied_item_condition: z.nativeEnum(SupplyDeliveryCondition).optional(),
   supplied_item_quantity: z.number().min(1, "Quantity must be at least 1"),
-  supplied_item: z.string().min(1, "Item is required"),
+  supplied_inventory_item: z.string().min(1, "Item is required"),
   origin: z.string().optional(),
   destination: z.string().min(1, "Destination is required"),
   supply_request: z.string().optional(),
@@ -142,7 +142,8 @@ function SupplyDeliveryFormContent({
                 supplied_item_type: existingData.supplied_item_type,
                 supplied_item_condition: existingData.supplied_item_condition,
                 supplied_item_quantity: existingData.supplied_item_quantity,
-                supplied_item: existingData.supplied_item.id,
+                supplied_inventory_item:
+                  existingData.supplied_inventory_item.id,
                 origin: locationId,
                 destination: existingData.destination.id,
               },
@@ -223,7 +224,7 @@ function SupplyDeliveryFormContent({
       }
 
       if (!errorDisplayed) {
-        toast.error(t("error_updating_supply_delivery"));
+        toast.error(t("error_creating_supply_delivery"));
       }
     },
   });
@@ -411,7 +412,7 @@ function SupplyDeliveryFormContent({
                         <TableCell>
                           <FormField
                             control={form.control}
-                            name={`deliveries.${index}.supplied_item`}
+                            name={`deliveries.${index}.supplied_inventory_item`}
                             render={({ field }) => (
                               <FormItem>
                                 <FormControl>
@@ -486,7 +487,7 @@ function SupplyDeliveryFormContent({
                         origin: locationId,
                         destination: form.getValues("deliveries.0.destination"),
                         supplied_item_quantity: 1,
-                        supplied_item: "",
+                        supplied_inventory_item: "",
                       })
                     }
                     className="mt-4"

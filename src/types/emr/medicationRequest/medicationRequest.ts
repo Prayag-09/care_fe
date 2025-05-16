@@ -2,6 +2,7 @@ import { UserBareMinimum } from "@/components/Users/models";
 
 import { Code } from "@/types/base/code/code";
 import { Encounter } from "@/types/emr/encounter";
+import { InventoryRead } from "@/types/inventory/product/inventory";
 import { ProductKnowledgeBase } from "@/types/inventory/productKnowledge/productKnowledge";
 
 export const DOSAGE_UNITS_CODES = [
@@ -206,6 +207,7 @@ export interface MedicationRequestRead {
   updated_by: UserBareMinimum;
   authored_on: string;
   requested_product?: ProductKnowledgeBase;
+  inventory_items_internal?: InventoryRead[];
 }
 
 export interface MedicationRequestSummary {
