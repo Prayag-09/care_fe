@@ -169,7 +169,7 @@ export function AccountList({
                   ))}
                 </SelectContent>
               </Select>
-              <div className="border-1 border-gray-300 rounded-md">
+              <div className="border-1 border-gray-300 rounded-md relative sm:max-w-xs w-[calc(100%)]">
                 <Select
                   value={qParams.billing_status ?? "all"}
                   onValueChange={(value) =>
@@ -198,14 +198,20 @@ export function AccountList({
                 </Select>
               </div>
             </div>
-            <Input
-              placeholder={t("search_accounts")}
-              value={qParams.search || ""}
-              onChange={(e) =>
-                updateQuery({ search: e.target.value || undefined })
-              }
-              className="sm:max-w-xs w-[calc(100%)]"
-            />
+            <div className="relative sm:max-w-xs w-[calc(100%)]">
+              <CareIcon
+                icon="l-search"
+                className="absolute left-3 top-1/2 -translate-y-1/2 size-4 text-gray-500"
+              />
+              <Input
+                placeholder={t("search_accounts")}
+                value={qParams.search || ""}
+                onChange={(e) =>
+                  updateQuery({ search: e.target.value || undefined })
+                }
+                className="pl-10"
+              />
+            </div>
           </div>
           <div className="flex flex-wrap gap-4">
             <div>

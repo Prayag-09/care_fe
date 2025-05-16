@@ -1,6 +1,9 @@
 import { useQuery } from "@tanstack/react-query";
+import { ArrowUpRightSquare } from "lucide-react";
 import { Link } from "raviger";
 import { useTranslation } from "react-i18next";
+
+import { cn } from "@/lib/utils";
 
 import CareIcon from "@/CAREUI/icons/CareIcon";
 
@@ -36,20 +39,26 @@ import query from "@/Utils/request/query";
 import { InvoiceRead, InvoiceStatus } from "@/types/billing/invoice/invoice";
 import invoiceApi from "@/types/billing/invoice/invoiceApi";
 
-const statusMap: Record<
-  InvoiceStatus,
-  {
-    label: string;
-    variant: "default" | "secondary" | "primary" | "destructive" | "outline";
-  }
-> = {
-  [InvoiceStatus.draft]: { label: "draft", variant: "secondary" },
-  [InvoiceStatus.issued]: { label: "issued", variant: "default" },
-  [InvoiceStatus.balanced]: { label: "balanced", variant: "primary" },
-  [InvoiceStatus.cancelled]: { label: "cancelled", variant: "destructive" },
+const statusMap: Record<InvoiceStatus, { label: string; color: string }> = {
+  [InvoiceStatus.draft]: {
+    label: "draft",
+    color: "bg-gray-100 text-gray-900 border-gray-200",
+  },
+  [InvoiceStatus.issued]: {
+    label: "issued",
+    color: "bg-blue-100 text-blue-900 border-blue-200",
+  },
+  [InvoiceStatus.balanced]: {
+    label: "balanced",
+    color: "bg-green-100 text-green-900 border-green-200",
+  },
+  [InvoiceStatus.cancelled]: {
+    label: "cancelled",
+    color: "bg-red-100 text-red-900 border-red-200",
+  },
   [InvoiceStatus.entered_in_error]: {
     label: "entered_in_error",
-    variant: "destructive",
+    color: "bg-red-100 text-red-900 border-red-200",
   },
 };
 
@@ -67,6 +76,10 @@ export default function InvoicesData({
     limit: RESULTS_PER_PAGE_LIMIT,
     disableCache: true,
   });
+
+  const tableHeadClass =
+    "border-x p-3 text-gray-700 text-sm font-medium leading-5";
+  const tableCellClass = "border-x p-3 text-gray-950";
 
   const { data: response, isLoading } = useQuery({
     queryKey: ["invoices", qParams, accountId],
@@ -91,13 +104,7 @@ export default function InvoicesData({
 
   return (
     <>
-      <div className="flex flex-row justify-between items-center gap-2 max-sm:flex-col">
-        <Input
-          placeholder={t("search_invoices")}
-          value={qParams.search || ""}
-          onChange={(e) => updateQuery({ search: e.target.value || undefined })}
-          className="sm:max-w-xs"
-        />
+      <div className="flex flex-row justify-between items-center gap-2 max-sm:flex-col pb-4">
         <Tabs
           defaultValue={qParams.status ?? "all"}
           onValueChange={(value) =>
@@ -114,6 +121,20 @@ export default function InvoicesData({
             ))}
           </TabsList>
         </Tabs>
+        <div className="relative w-full sm:max-w-xs border border-gray-400 rounded-md">
+          <CareIcon
+            icon="l-search"
+            className="absolute left-3 top-1/2 -translate-y-1/2 size-4 text-gray-500"
+          />
+          <Input
+            placeholder={t("search_invoices")}
+            value={qParams.search || ""}
+            onChange={(e) =>
+              updateQuery({ search: e.target.value || undefined })
+            }
+            className="w-full pl-10"
+          />
+        </div>
 
         <Select
           defaultValue={qParams.status ?? "all"}
@@ -126,7 +147,7 @@ export default function InvoicesData({
           </SelectTrigger>
           <SelectContent>
             <SelectGroup>
-              <SelectItem value="all">t("all")</SelectItem>
+              <SelectItem value="all">{t("all")}</SelectItem>
               {Object.values(InvoiceStatus).map((status) => (
                 <SelectItem key={status} value={status}>
                   {t(statusMap[status].label)}
@@ -140,16 +161,18 @@ export default function InvoicesData({
         <TableSkeleton count={3} />
       ) : (
         <div className={className}>
-          <Table>
-            <TableHeader>
-              <TableRow>
-                <TableHead>{t("invoice_number")}</TableHead>
-                <TableHead>{t("status")}</TableHead>
-                <TableHead>{t("total")}</TableHead>
-                <TableHead>{t("actions")}</TableHead>
+          <Table className="rounded-lg border shadow-base w-full bg-white">
+            <TableHeader className="bg-gray-100">
+              <TableRow className="border-b">
+                <TableHead className={tableHeadClass}>
+                  {t("invoice_number")}
+                </TableHead>
+                <TableHead className={tableHeadClass}>{t("status")}</TableHead>
+                <TableHead className={tableHeadClass}>{t("total")}</TableHead>
+                <TableHead className={tableHeadClass}>{t("actions")}</TableHead>
               </TableRow>
             </TableHeader>
-            <TableBody>
+            <TableBody className="bg-white">
               {!invoices?.length ? (
                 <TableRow>
                   <TableCell colSpan={5} className="text-center text-gray-500">
@@ -158,36 +181,62 @@ export default function InvoicesData({
                 </TableRow>
               ) : (
                 invoices.map((invoice) => (
-                  <TableRow key={invoice.id}>
-                    <TableCell className="font-medium">
+                  <TableRow
+                    key={invoice.id}
+                    className="border-b hover:bg-gray-50"
+                  >
+                    <TableCell className={`${tableCellClass} font-medium`}>
                       <div>{invoice.title}</div>
                     </TableCell>
 
-                    <TableCell>
-                      <Badge variant={statusMap[invoice.status].variant}>
+                    <TableCell className={tableCellClass}>
+                      <Badge
+                        variant="outline"
+                        className={cn(
+                          statusMap[invoice.status].color,
+                          "text-sm font-medium",
+                        )}
+                      >
                         {t(statusMap[invoice.status].label)}
                       </Badge>
                     </TableCell>
-                    <TableCell>
+                    <TableCell className={tableCellClass}>
                       <MonetaryDisplay
                         className="font-medium"
                         amount={invoice.total_gross}
                       />
                     </TableCell>
-                    <TableCell>
-                      <div className="flex gap-2">
-                        <Button variant="ghost" size="icon" asChild>
-                          <Link
-                            href={`/facility/${facilityId}/billing/invoices/${invoice.id}`}
-                          >
-                            <CareIcon icon="l-eye" className="size-4" />
-                          </Link>
-                        </Button>
-                        <Button variant="ghost" size="icon" asChild>
+                    <TableCell className={tableCellClass}>
+                      <div className="flex gap-4">
+                        <Button
+                          variant="secondary"
+                          className="border-gray-400 border-1 shadow-sm bg-white"
+                          asChild
+                        >
                           <Link
                             href={`/facility/${facilityId}/billing/invoice/${invoice.id}/print`}
                           >
-                            <CareIcon icon="l-print" className="size-4" />
+                            <CareIcon
+                              icon="l-print"
+                              className="size-5 text-gray-700 stroke-1"
+                            />
+                            <span className="text-gray-950 font-medium underline">
+                              {t("print")}
+                            </span>
+                          </Link>
+                        </Button>
+                        <Button
+                          variant="secondary"
+                          className="border-gray-400 border-1 shadow-sm bg-white"
+                          asChild
+                        >
+                          <Link
+                            href={`/facility/${facilityId}/billing/invoices/${invoice.id}`}
+                          >
+                            <ArrowUpRightSquare className="size-5 text-gray-700 stroke-1" />
+                            <span className="text-gray-950 font-medium">
+                              {t("see_invoice")}
+                            </span>
                           </Link>
                         </Button>
                       </div>

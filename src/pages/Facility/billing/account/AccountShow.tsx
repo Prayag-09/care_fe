@@ -1,23 +1,27 @@
 import { DialogDescription } from "@radix-ui/react-dialog";
 import { useMutation, useQuery, useQueryClient } from "@tanstack/react-query";
+import { ChevronDown } from "lucide-react";
 import { Link, navigate } from "raviger";
 import { useEffect, useState } from "react";
 import { useTranslation } from "react-i18next";
 import { toast } from "sonner";
 
-import { cn } from "@/lib/utils";
-
 import CareIcon from "@/CAREUI/icons/CareIcon";
 
 import { Badge } from "@/components/ui/badge";
 import { Button } from "@/components/ui/button";
-import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import {
   Dialog,
   DialogContent,
   DialogHeader,
   DialogTitle,
 } from "@/components/ui/dialog";
+import {
+  DropdownMenu,
+  DropdownMenuContent,
+  DropdownMenuItem,
+  DropdownMenuTrigger,
+} from "@/components/ui/dropdown-menu";
 import { MonetaryDisplay } from "@/components/ui/monetary-display";
 import {
   Select,
@@ -28,7 +32,6 @@ import {
 } from "@/components/ui/select";
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
 
-import { Avatar } from "@/components/Common/Avatar";
 import { TableSkeleton } from "@/components/Common/SkeletonLoading";
 
 import mutate from "@/Utils/request/mutate";
@@ -40,18 +43,12 @@ import {
   AccountBillingStatus,
   AccountStatus,
   closeBillingStatusColorMap,
+  statusColorMap,
 } from "@/types/billing/account/Account";
 import accountApi from "@/types/billing/account/accountApi";
 
 import AccountSheet from "./AccountSheet";
 import ChargeItemsTable from "./components/ChargeItemsTable";
-
-const statusMap: Record<AccountStatus, { label: string; color: string }> = {
-  active: { label: "active", color: "primary" },
-  inactive: { label: "inactive", color: "secondary" },
-  entered_in_error: { label: "entered_in_error", color: "destructive" },
-  on_hold: { label: "on_hold", color: "outline" },
-};
 
 function formatDate(date?: string) {
   if (!date) return "-";
@@ -181,152 +178,245 @@ export function AccountShow({
   }
 
   return (
-    <div className="space-y-8">
-      {/* Account Details Section */}
-      <div className="grid gap-4 md:grid-cols-2 lg:grid-cols-3">
-        <Card className="md:col-span-2">
-          <CardHeader className="flex flex-row items-center justify-between">
+    <div className="space-y-6">
+      <div className="flex justify-between gap-2">
+        <Button
+          variant="outline"
+          className="text-gray-950 gap-1 border-gray-400"
+          onClick={() => navigate(`/facility/${facilityId}/billing/accounts`)}
+        >
+          <CareIcon icon="l-arrow-left" className="size-4" />
+          {t("back")}
+        </Button>
+        <div className="flex gap-2">
+          <div className="hidden sm:flex gap-2">
+            {account.status === AccountStatus.active &&
+              !isAccountBillingClosed && (
+                <Button
+                  variant="link"
+                  className="text-gray-950 underline gap-0"
+                  onClick={() =>
+                    setCloseAccountStatus({
+                      ...closeAccountStatus,
+                      sheetOpen: true,
+                    })
+                  }
+                >
+                  <CareIcon icon="l-check" className="size-5" />
+                  {t("settle_close")}
+                </Button>
+              )}
+            <Button
+              variant="outline"
+              className="border-gray-400 text-gray-950"
+              onClick={() =>
+                navigate(
+                  `/facility/${facilityId}/billing/account/${accountId}/invoices/create`,
+                )
+              }
+            >
+              <CareIcon icon="l-plus" className="mr-2 size-4" />
+              {t("create_invoice")}
+            </Button>
+
+            <Button
+              variant="primary"
+              onClick={() => setIsPaymentSheetOpen(true)}
+            >
+              <CareIcon icon="l-plus" className="size-4" />
+              {t("record_payment")}
+            </Button>
+          </div>
+
+          <div className="sm:hidden">
+            <DropdownMenu>
+              <DropdownMenuTrigger asChild>
+                <Button
+                  variant="outline"
+                  className="border-gray-400 text-gray-950"
+                >
+                  {t("actions")}
+                  <ChevronDown className="size-5" />
+                </Button>
+              </DropdownMenuTrigger>
+              <DropdownMenuContent align="end">
+                {account.status === AccountStatus.active &&
+                  !isAccountBillingClosed && (
+                    <DropdownMenuItem
+                      onClick={() =>
+                        setCloseAccountStatus({
+                          ...closeAccountStatus,
+                          sheetOpen: true,
+                        })
+                      }
+                    >
+                      <CareIcon icon="l-check" className="mr-2 size-5" />
+                      {t("settle_close")}
+                    </DropdownMenuItem>
+                  )}
+                <DropdownMenuItem
+                  onClick={() =>
+                    navigate(
+                      `/facility/${facilityId}/billing/account/${accountId}/invoices/create`,
+                    )
+                  }
+                >
+                  <CareIcon icon="l-plus" className="mr-2 size-4" />
+                  {t("create_invoice")}
+                </DropdownMenuItem>
+                <DropdownMenuItem onClick={() => setIsPaymentSheetOpen(true)}>
+                  <CareIcon icon="l-plus" className="mr-2 size-4" />
+                  {t("record_payment")}
+                </DropdownMenuItem>
+              </DropdownMenuContent>
+            </DropdownMenu>
+          </div>
+        </div>
+      </div>
+      <div className="bg-gray-100 p-3 space-y-4 rounded-lg">
+        <div className="bg-gray-100 rounded-lg flex flex-col md:flex-row md:items-center justify-between gap-4">
+          <div className="flex flex-col md:flex-row md:items-center gap-8">
             <div>
-              <CardTitle>{account.name}</CardTitle>
-              <p className="text-sm text-gray-500">
-                {account.description || t("no_description")}
+              <p className="text-sm text-gray-700 font-medium">
+                {t("account")}
+              </p>
+              <p className="font-medium text-base text-gray-950">
+                {account.name}
               </p>
             </div>
-            <div className="flex flex-row gap-2">
-              <Button variant="outline" onClick={() => setSheetOpen(true)}>
-                <CareIcon icon="l-pen" className="mr-2 size-4" />
-                {t("edit")}
-              </Button>
-              {account.status === AccountStatus.active &&
-                !isAccountBillingClosed && (
-                  <Button
-                    variant="destructive"
-                    onClick={() =>
-                      setCloseAccountStatus({
-                        ...closeAccountStatus,
-                        sheetOpen: true,
-                      })
-                    }
-                  >
-                    <CareIcon icon="l-trash" className="mr-2 size-4" />
-                    {t("close_account")}
-                  </Button>
-                )}
-            </div>
-          </CardHeader>
-          <CardContent>
-            <div className="grid gap-4 md:grid-cols-2">
-              <div>
-                <h3 className="font-semibold">{t("patient_details")}</h3>
-                <div className="mt-2 flex items-center gap-4">
-                  <Avatar name={account.patient.name} className="size-12" />
-                  <div>
-                    <div className="font-medium">{account.patient.name}</div>
-                    <div className="text-sm text-gray-500">
-                      {account.patient.phone_number}
-                    </div>
-                  </div>
-                </div>
-              </div>
-              <div>
-                <h3 className="font-semibold">{t("account_details")}</h3>
-                <div className="mt-2 space-y-1">
-                  <div className="flex items-center justify-between text-sm">
-                    <span className="text-gray-500">{t("status")}</span>
-                    <Badge variant={statusMap[account.status].color as any}>
-                      {t(statusMap[account.status].label)}
-                    </Badge>
-                  </div>
-                  <div className="flex items-center justify-between text-sm">
-                    <span className="text-gray-500">{t("start_date")}</span>
-                    <span>{formatDate(account.service_period?.start)}</span>
-                  </div>
-                  <div className="flex items-center justify-between text-sm">
-                    <span className="text-gray-500">{t("end_date")}</span>
-                    <span>{formatDate(account.service_period?.end)}</span>
-                  </div>
-                </div>
-              </div>
-            </div>
-          </CardContent>
-        </Card>
-
-        <Card>
-          <CardHeader>
-            <CardTitle className="text-xl font-semibold">
-              {t("account_summary")}
-            </CardTitle>
-          </CardHeader>
-          <CardContent>
-            <div className="space-y-2">
-              <div className="flex flex-col justify-between text-sm">
-                <span className="text-base font-medium text-gray-500">
-                  {t("total_balance")}
-                </span>
-                <span
-                  className={cn(
-                    account.total_balance > 0
-                      ? "text-red-600"
-                      : "text-green-600",
-                    "text-xl font-bold px-1",
-                  )}
-                >
-                  <MonetaryDisplay amount={account.total_balance} />
-                </span>
-              </div>
-              <div className="flex flex-col justify-between text-sm">
-                <span className="text-base font-medium text-gray-500">
-                  {t("total_gross")}
-                </span>
-                <span className={cn("text-xl font-bold px-1")}>
-                  <MonetaryDisplay amount={account.total_gross} />
-                </span>
-              </div>
-              <div className="flex flex-col justify-between text-sm">
-                <span className="text-base font-medium text-gray-500">
-                  {t("total_net")}
-                </span>
-                <span className={cn("text-xl font-bold px-1")}>
-                  <MonetaryDisplay amount={account.total_net} />
-                </span>
-              </div>
-              <div className="flex flex-col justify-between text-sm">
-                <span className="text-base font-medium text-gray-500">
-                  {t("total_paid")}
-                </span>
-                <span className={cn("text-xl font-bold px-1")}>
-                  <MonetaryDisplay amount={account.total_paid} />
-                </span>
-              </div>
-            </div>
-
-            <div className="space-y-2 mt-4">
-              <Button className="w-full">
-                <CareIcon icon="l-file" className="mr-2 size-4" />
-                {t("view_statement")}
-              </Button>
-              <Button
+            <div>
+              <p className="text-sm text-gray-700 font-medium">{t("status")}</p>
+              <Badge
+                className={statusColorMap[account.status]}
                 variant="outline"
-                className="w-full"
-                onClick={() => setIsPaymentSheetOpen(true)}
               >
-                <CareIcon icon="l-wallet" className="mr-2 size-4" />
-                {t("record_payment")}
-              </Button>
-              <Button
-                variant="secondary"
-                className="w-full"
-                disabled={rebalanceMutation.isPending}
-                onClick={() => rebalanceMutation.mutate({})}
-              >
-                <CareIcon icon="l-refresh" className="mr-2 size-4" />
-                {rebalanceMutation.isPending
-                  ? t("rebalancing")
-                  : t("rebalance")}
-              </Button>
+                {t(account.status)}
+              </Badge>
             </div>
-          </CardContent>
-        </Card>
+            <div>
+              <p className="text-sm text-gray-700 font-medium">
+                {t("start_date")}
+              </p>
+              <p className="font-medium text-base text-gray-950">
+                {formatDate(account.service_period?.start)}
+              </p>
+            </div>
+            <div>
+              <p className="text-sm text-gray-700 font-medium">
+                {t("end_date")}
+              </p>
+              <p className="font-medium text-base text-gray-950">
+                {account.service_period?.end
+                  ? formatDate(account.service_period?.end)
+                  : "-- (" + t("ongoing") + ")"}
+              </p>
+            </div>
+          </div>
+          <div className="flex items-center gap-2">
+            <Button variant="link" asChild className="text-gray-950 underline">
+              <Link href={`/facility/${facilityId}/billing/accounts`}>
+                {t("past_accounts")}
+              </Link>
+            </Button>
+            <Button
+              variant="outline"
+              className="border-gray-400 gap-1"
+              onClick={() => setSheetOpen(true)}
+            >
+              <CareIcon
+                icon="l-edit"
+                className="size-5 stroke-gray-450 stroke-1"
+              />
+              {t("edit")}
+            </Button>
+          </div>
+        </div>
+
+        {/* Financial Summary Section */}
+        <div className="flex flex-col md:flex-row rounded-lg border border-gray-200 bg-white flex-wrap">
+          <div className="flex-1 p-6 border-b md:border-r border-gray-200">
+            <div className="space-y-1">
+              <p className="text-sm font-medium text-gray-500">
+                {t("amount_due")}
+              </p>
+              <div className="flex items-end">
+                <p className="text-3xl font-bold text-red-500">
+                  <MonetaryDisplay
+                    amount={
+                      account.total_balance > 0 ? account.total_balance : 0
+                    }
+                  />
+                </p>
+              </div>
+              <p className="text-xs text-gray-500">
+                {t("pending_from_patient")}
+              </p>
+            </div>
+          </div>
+
+          <div className="flex-1 p-6 border-b md:border-r border-gray-200">
+            <div className="space-y-1">
+              <p className="text-sm font-medium text-gray-500">
+                {t("total_paid")}
+              </p>
+              <div className="flex items-end">
+                <p className="text-3xl font-bold text-gray-900">
+                  <MonetaryDisplay amount={account.total_paid} />
+                </p>
+              </div>
+              <p className="text-xs text-gray-500">{t("payments_received")}</p>
+            </div>
+          </div>
+
+          <div className="flex-1 p-6 border-b md:border-r border-gray-200">
+            <div className="space-y-1">
+              <p className="text-sm font-medium text-gray-500">
+                {t("net_payable")}
+              </p>
+              <div className="flex items-end">
+                <p className="text-3xl font-bold text-gray-900">
+                  <MonetaryDisplay amount={account.total_net} />
+                </p>
+              </div>
+              <p className="text-xs text-gray-500">{t("after_adjustments")}</p>
+            </div>
+          </div>
+
+          <div className="flex-1 p-6">
+            <div className="space-y-1">
+              <p className="text-sm font-medium text-gray-500">
+                {t("billed_gross")}
+              </p>
+              <div className="flex items-end">
+                <p className="text-3xl font-bold text-gray-900">
+                  <MonetaryDisplay amount={account.total_gross} />
+                </p>
+              </div>
+              <p className="text-xs text-gray-500">
+                {t("total_billed_before_adjustments")}
+              </p>
+            </div>
+          </div>
+        </div>
+
+        <div className="flex gap-2">
+          <Button
+            variant="outline"
+            className="gap-2 border-gray-400 text-gray-950"
+          >
+            <CareIcon icon="l-eye" className="size-4" />
+            {t("view_statement")}
+          </Button>
+          <Button
+            variant="link"
+            className="gap-2 underline"
+            disabled={rebalanceMutation.isPending}
+            onClick={() => rebalanceMutation.mutate({})}
+          >
+            <CareIcon icon="l-refresh" className="size-4" />
+            {rebalanceMutation.isPending ? t("rebalancing") : t("rebalance")}
+          </Button>
+        </div>
       </div>
 
       {/* Tabs Section */}
@@ -340,23 +430,26 @@ export function AccountShow({
         className="mt-8"
       >
         <div className="flex flex-row justify-between items-center">
-          <TabsList>
-            <TabsTrigger value="invoices">{t("invoices")}</TabsTrigger>
-            <TabsTrigger value="charge_items">{t("charge_items")}</TabsTrigger>
-            <TabsTrigger value="payments">{t("payments")}</TabsTrigger>
+          <TabsList className="border-b border-gray-300 w-full flex justify-start gap-0 rounded-none bg-transparent p-0">
+            <TabsTrigger
+              value="invoices"
+              className="border-b-2 px-6 py-2 text-sm font-medium data-[state=active]:border-b-primary-700 data-[state=active]:text-primary-800 rounded-none bg-transparent data-[state=active]:shadow-none data-[state=active]:bg-gray-100 data-[state=active]:font-semibold text-gray-600"
+            >
+              {t("invoices")}
+            </TabsTrigger>
+            <TabsTrigger
+              value="charge_items"
+              className="border-b-2 px-6 py-2 text-sm font-medium data-[state=active]:border-b-primary-700 data-[state=active]:text-primary-800 rounded-none bg-transparent data-[state=active]:shadow-none data-[state=active]:bg-gray-100 data-[state=active]:font-semibold text-gray-600"
+            >
+              {t("charge_items")}
+            </TabsTrigger>
+            <TabsTrigger
+              value="payments"
+              className="border-b-2 px-6 py-2 text-sm font-medium data-[state=active]:border-b-primary-700 data-[state=active]:text-primary-800 rounded-none bg-transparent data-[state=active]:shadow-none data-[state=active]:bg-gray-100 text-gray-600"
+            >
+              {t("payments")}
+            </TabsTrigger>
           </TabsList>
-
-          <Button
-            variant="outline"
-            onClick={() =>
-              navigate(
-                `/facility/${facilityId}/billing/account/${accountId}/invoices/create`,
-              )
-            }
-          >
-            <CareIcon icon="l-plus" className="mr-2 size-4" />
-            {t("create_invoice")}
-          </Button>
         </div>
 
         <TabsContent value="charge_items" className="mt-4">
@@ -364,43 +457,11 @@ export function AccountShow({
         </TabsContent>
 
         <TabsContent value="invoices" className="mt-4">
-          <Card>
-            <CardHeader className="flex flex-row items-center justify-between">
-              <div>
-                <CardTitle>{t("invoices")}</CardTitle>
-                <p className="text-sm text-gray-500">
-                  {accountId
-                    ? t("billing_statements")
-                    : t("view_and_manage_invoices")}
-                </p>
-              </div>
-            </CardHeader>
-            <CardContent>
-              <InvoicesData facilityId={facilityId} accountId={accountId} />
-            </CardContent>
-          </Card>
+          <InvoicesData facilityId={facilityId} accountId={accountId} />
         </TabsContent>
 
         <TabsContent value="payments" className="mt-4">
-          <Card>
-            <CardHeader className="flex flex-row items-center justify-between">
-              <div>
-                <CardTitle>{t("payments")}</CardTitle>
-                <p className="text-sm text-gray-500">
-                  {accountId
-                    ? t("payment_transactions")
-                    : t("view_and_manage_payments")}
-                </p>
-              </div>
-              <Button onClick={() => setIsPaymentSheetOpen(true)}>
-                <CareIcon icon="l-plus" className="mr-2 size-4" />
-                {t("record_payment")}
-              </Button>
-            </CardHeader>
-            <CardContent>
-              <PaymentsData facilityId={facilityId} accountId={accountId} />
-            </CardContent>
-          </Card>
+          <PaymentsData facilityId={facilityId} accountId={accountId} />
         </TabsContent>
       </Tabs>
 
