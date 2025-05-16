@@ -259,7 +259,7 @@ export const Demography = (props: PatientProps) => {
                       <Button
                         data-cy="edit-patient-button"
                         variant="outline"
-                        disabled={!!patientData.deceased_datetime}
+                        disabled={false}
                         onClick={() => handleEditClick(subtab.id)}
                       >
                         <CareIcon icon="l-edit-alt" className="text-md pr-1" />

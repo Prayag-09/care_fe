@@ -23,6 +23,21 @@ function generateAdminLinks(t: TFunction) {
       url: `${baseUrl}/roles`,
       icon: <CareIcon icon="d-people" />,
     },
+    {
+      name: "Organizations",
+      url: `${baseUrl}/organizations`,
+      icon: <CareIcon icon="l-building" />,
+      children: [
+        {
+          name: "Governance",
+          url: `${baseUrl}/organizations/govt`,
+        },
+        {
+          name: "Suppliers",
+          url: `${baseUrl}/organizations/product_supplier`,
+        },
+      ],
+    },
   ];
 
   return links;
