@@ -9,9 +9,14 @@ import { Patient } from "@/types/emr/patient/patient";
 interface PatientHeaderProps {
   patient: Patient;
   facilityId: string;
+  link?: string;
 }
 
-export function PatientHeader({ patient, facilityId }: PatientHeaderProps) {
+export function PatientHeader({
+  patient,
+  facilityId,
+  link,
+}: PatientHeaderProps) {
   return (
     <div>
       <div className="flex items-center gap-20 justify-between">
@@ -19,7 +24,7 @@ export function PatientHeader({ patient, facilityId }: PatientHeaderProps) {
           <div className="text-gray-600">Patient</div>
           <div className="text-gray-950 font-semibold underline underline-offset-2 flex items-center gap-1">
             <Link
-              href={`/facility/${facilityId}/patient/${patient.id}`}
+              href={link ?? `/facility/${facilityId}/patient/${patient.id}`}
               className="text-lg font-medium hover:underline"
             >
               {patient.name}

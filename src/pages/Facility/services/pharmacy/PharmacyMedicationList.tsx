@@ -1,10 +1,12 @@
 import { useQuery } from "@tanstack/react-query";
+import { ArrowLeftIcon } from "lucide-react";
 import { navigate } from "raviger";
 import { useTranslation } from "react-i18next";
 
 import { cn } from "@/lib/utils";
 
 import { Button } from "@/components/ui/button";
+import { Card } from "@/components/ui/card";
 import { Input } from "@/components/ui/input";
 import {
   Table,
@@ -22,8 +24,10 @@ import { FilterSelect } from "@/components/definition-list/FilterSelect";
 
 import useFilters from "@/hooks/useFilters";
 
+import routes from "@/Utils/request/api";
 import query from "@/Utils/request/query";
 import useCurrentLocation from "@/pages/Facility/locations/utils/useCurrentLocation";
+import { PatientHeader } from "@/pages/Facility/services/serviceRequests/components/PatientHeader";
 import {
   ACTIVE_MEDICATION_STATUSES,
   INACTIVE_MEDICATION_STATUSES,
@@ -81,10 +85,41 @@ export default function PharmacyMedicationList({
     }),
   });
 
+  const { data: patientData } = useQuery({
+    queryKey: ["patient", patientId],
+    queryFn: query(routes.patient.getPatient, {
+      pathParams: { id: patientId ?? "" },
+    }),
+    enabled: !!patientId,
+  });
+
   const medications = response?.results || [];
 
   return (
     <Page title={t("pharmacy_medications")} hideTitleOnPage>
+      <div className="container mx-auto">
+        <Button
+          variant="link"
+          className="underline underline-offset-2 text-gray-950 font-semibold pl-0 cursor-pointer"
+          onClick={() =>
+            navigate(
+              `/facility/${facilityId}/locations/${locationId}/medication_requests/`,
+            )
+          }
+        >
+          <ArrowLeftIcon className="size-4" />
+          Back to Prescription Queue
+        </Button>
+      </div>
+      {patientData && (
+        <Card className="mb-4 p-4 rounded-md shadow-none">
+          <PatientHeader
+            patient={patientData}
+            facilityId={facilityId}
+            link={``}
+          />
+        </Card>
+      )}
       <div className="container mx-auto">
         <div className="mb-6">
           <div className="flex flex-col sm:flex-row items-start sm:items-center justify-between gap-4">

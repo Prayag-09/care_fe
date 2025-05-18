@@ -1,6 +1,7 @@
 import { MonetaryComponent } from "@/types/base/monetaryComponent/monetaryComponent";
 import { ChargeItemDefinitionBase } from "@/types/billing/chargeItemDefinition/chargeItemDefinition";
 import { InvoiceRead } from "@/types/billing/invoice/invoice";
+import { BatchSuccessResponse } from "@/types/questionnaire/batch";
 
 export enum ChargeItemStatus {
   planned = "planned",
@@ -73,4 +74,16 @@ export interface ChargeItemRead extends ChargeItemBase {
   total_price_components: MonetaryComponent[];
   total_price: number;
   charge_item_definition: ChargeItemDefinitionBase;
+}
+
+export interface ChargeItemBatchResponse {
+  results: BatchSuccessResponse<{ charge_item: ChargeItemRead }>[];
+}
+
+export function extractChargeItemsFromBatchResponse(
+  response: ChargeItemBatchResponse,
+): ChargeItemRead[] {
+  return response.results
+    .map((item) => item.data?.charge_item)
+    .filter((item): item is ChargeItemRead => !!item);
 }

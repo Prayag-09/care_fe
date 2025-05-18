@@ -75,8 +75,8 @@ export interface BatchErrorResponse extends BatchResponseBase {
   data: BatchErrorData | StructuredDataError[];
 }
 
-export interface BatchSuccessResponse extends BatchResponseBase {
-  data: unknown;
+export interface BatchSuccessResponse<T = unknown> extends BatchResponseBase {
+  data: T;
 }
 
 export interface ValidationErrorResponse {
@@ -88,8 +88,12 @@ export interface ValidationErrorResponse {
 }
 
 // Type unions
-export type BatchResponse = BatchErrorResponse | BatchSuccessResponse;
+export type BatchResponse<T = unknown> =
+  | BatchErrorResponse
+  | BatchSuccessResponse<T>;
 
-export type BatchSubmissionResult = BatchRequestResult<unknown>;
+export type BatchSubmissionResult<T = unknown> = BatchRequestResult<T>;
 
-export type BatchResponseResult = ValidationErrorResponse | BatchResponse;
+export type BatchResponseResult<T = unknown> =
+  | ValidationErrorResponse
+  | BatchResponse<T>;

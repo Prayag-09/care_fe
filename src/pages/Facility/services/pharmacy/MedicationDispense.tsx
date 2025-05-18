@@ -31,9 +31,20 @@ import { TableSkeleton } from "@/components/Common/SkeletonLoading";
 import routes from "@/Utils/request/api";
 import mutate from "@/Utils/request/mutate";
 import query from "@/Utils/request/query";
+import { CreateInvoiceSheet } from "@/pages/Facility/billing/account/components/CreateInvoiceSheet";
 import useCurrentLocation from "@/pages/Facility/locations/utils/useCurrentLocation";
 import useCurrentFacility from "@/pages/Facility/utils/useCurrentFacility";
 import { MonetaryComponentType } from "@/types/base/monetaryComponent/monetaryComponent";
+import {
+  AccountBillingStatus,
+  AccountStatus,
+} from "@/types/billing/account/Account";
+import accountApi from "@/types/billing/account/accountApi";
+import {
+  ChargeItemBatchResponse,
+  extractChargeItemsFromBatchResponse,
+} from "@/types/billing/chargeItem/chargeItem";
+import { ChargeItemRead } from "@/types/billing/chargeItem/chargeItem";
 import {
   MedicationDispenseCategory,
   MedicationDispenseCreate,
@@ -87,6 +98,24 @@ export default function MedicationDispense({ patientId }: Props) {
   const [medicationQuantities, setMedicationQuantities] = useState<
     MedicationQuantity[]
   >([]);
+  const [isInvoiceSheetOpen, setIsInvoiceSheetOpen] = useState(false);
+  const [extractedChargeItems, setExtractedChargeItems] = useState<
+    ChargeItemRead[]
+  >([]);
+
+  const { data: account } = useQuery({
+    queryKey: ["accounts", patientId],
+    queryFn: query(accountApi.listAccount, {
+      pathParams: { facilityId },
+      queryParams: {
+        patient: patientId,
+        limit: 1,
+        offset: 0,
+        status: AccountStatus.active,
+        billing_status: AccountBillingStatus.open,
+      },
+    }),
+  });
 
   const { data: response, isLoading } = useQuery({
     queryKey: ["medications", patientId, "dispense"],
@@ -192,15 +221,41 @@ export default function MedicationDispense({ patientId }: Props) {
 
   const { mutate: dispense, isPending } = useMutation({
     mutationFn: mutate(routes.batchRequest),
-    onSuccess: () => {
+    onSuccess: (response) => {
       toast.success(t("medications_dispensed_successfully"));
       queryClient.invalidateQueries({ queryKey: ["medications"] });
-      navigate(`../../patient/${patientId}`);
+
+      // Extract charge items and open invoice sheet
+      const chargeItems = extractChargeItemsFromBatchResponse(
+        response as unknown as ChargeItemBatchResponse,
+      );
+      setExtractedChargeItems(chargeItems);
+      setIsInvoiceSheetOpen(true);
     },
-    onError: (error: any) => {
-      const errorMessage =
-        error?.response?.data?.detail || t("error_dispensing_medications");
-      toast.error(errorMessage);
+    onError: (error) => {
+      try {
+        const errorData = error.cause as {
+          results?: {
+            data?: { detail?: string; errors?: { msg: string }[] };
+          }[];
+        };
+
+        const errorMessages = errorData?.results
+          ?.flatMap(
+            (result) =>
+              result?.data?.errors?.map((err) => err.msg) || // Extract from `errors[].msg`
+              (result?.data?.detail ? [result.data.detail] : []), // Extract from `data.detail`
+          )
+          .filter(Boolean); // Remove undefined/null values
+
+        if (errorMessages?.length) {
+          errorMessages.forEach((msg) => toast.error(msg));
+        } else {
+          toast.error(t("error_dispensing_medications"));
+        }
+      } catch {
+        toast.error(t("error_dispensing_medications"));
+      }
     },
   });
 
@@ -281,6 +336,22 @@ export default function MedicationDispense({ patientId }: Props) {
     const selectedMeds = medications.filter((med) =>
       medicationQuantities.find((q) => q.id === med.id && q.isSelected),
     );
+
+    // First check for any selected medications with zero quantity
+    const medWithZeroQuantity = selectedMeds.find((med) => {
+      const quantity =
+        medicationQuantities.find((q) => q.id === med.id)?.quantity || 0;
+      return quantity === 0;
+    });
+
+    if (medWithZeroQuantity) {
+      toast.error(
+        t("quantity_cannot_be_zero", {
+          medication: displayMedicationName(medWithZeroQuantity),
+        }),
+      );
+      return;
+    }
 
     // First validate that all selected medications have an inventory selected
     const medsWithoutInventory = selectedMeds.filter((med) => {
@@ -587,6 +658,16 @@ export default function MedicationDispense({ patientId }: Props) {
               </TableBody>
             </Table>
           </div>
+        )}
+
+        {account?.results[0] && (
+          <CreateInvoiceSheet
+            facilityId={facilityId}
+            accountId={account?.results[0].id}
+            open={isInvoiceSheetOpen}
+            onOpenChange={setIsInvoiceSheetOpen}
+            preSelectedChargeItems={extractedChargeItems}
+          />
         )}
       </div>
     </Page>

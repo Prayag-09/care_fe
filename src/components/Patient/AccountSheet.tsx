@@ -14,7 +14,11 @@ import {
 
 import query from "@/Utils/request/query";
 import AccountSheet from "@/pages/Facility/billing/account/AccountSheet";
-import { AccountRead, AccountStatus } from "@/types/billing/account/Account";
+import {
+  AccountBillingStatus,
+  AccountRead,
+  AccountStatus,
+} from "@/types/billing/account/Account";
 import accountApi from "@/types/billing/account/accountApi";
 import { Encounter } from "@/types/emr/encounter";
 
@@ -48,6 +52,7 @@ export function AccountSheetButton({
       queryParams: {
         patient: encounter.patient.id,
         status: AccountStatus.active,
+        billing_status: AccountBillingStatus.open,
         limit: 1,
       },
     }),

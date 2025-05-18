@@ -5,7 +5,7 @@ import {
   useQueryClient,
 } from "@tanstack/react-query";
 import { ChevronDown, ChevronUp } from "lucide-react";
-import { Link } from "raviger";
+import { Link, navigate } from "raviger";
 import { useState } from "react";
 import { useForm } from "react-hook-form";
 import { useTranslation } from "react-i18next";
@@ -46,7 +46,11 @@ import {
   ChargeItemStatus,
 } from "@/types/billing/chargeItem/chargeItem";
 import chargeItemApi from "@/types/billing/chargeItem/chargeItemApi";
-import { InvoiceCreate, InvoiceStatus } from "@/types/billing/invoice/invoice";
+import {
+  InvoiceCreate,
+  InvoiceRead,
+  InvoiceStatus,
+} from "@/types/billing/invoice/invoice";
 import invoiceApi from "@/types/billing/invoice/invoiceApi";
 
 const ITEMS_PER_PAGE = 10;
@@ -64,6 +68,7 @@ type FormValues = z.infer<typeof formSchema>;
 interface CreateInvoicePageProps {
   facilityId: string;
   accountId: string;
+  preSelectedChargeItems?: ChargeItemRead[];
 }
 
 interface PriceComponentRowProps {
@@ -110,10 +115,22 @@ function PriceComponentRow({
 export function CreateInvoicePage({
   facilityId,
   accountId,
+  preSelectedChargeItems,
 }: CreateInvoicePageProps) {
   const { t } = useTranslation();
   const queryClient = useQueryClient();
-  const [selectedRows, setSelectedRows] = useState<Record<string, boolean>>({});
+  const [selectedRows, setSelectedRows] = useState<Record<string, boolean>>(
+    () => {
+      if (!preSelectedChargeItems) return {};
+      return preSelectedChargeItems.reduce(
+        (acc, item) => {
+          acc[item.id] = true;
+          return acc;
+        },
+        {} as Record<string, boolean>,
+      );
+    },
+  );
   const [expandedItems, setExpandedItems] = useState<Record<string, boolean>>(
     {},
   );
@@ -125,7 +142,7 @@ export function CreateInvoicePage({
       status: InvoiceStatus.draft,
       payment_terms: "",
       note: "",
-      charge_items: [],
+      charge_items: preSelectedChargeItems?.map((item) => item.id) || [],
     },
   });
 
@@ -157,18 +174,18 @@ export function CreateInvoicePage({
       const currentOffset = allPages.length * ITEMS_PER_PAGE;
       return currentOffset < lastPage.count ? currentOffset : null;
     },
-    enabled: !!facilityId && !!accountId,
+    enabled: !!facilityId && !!accountId && !preSelectedChargeItems,
   });
 
   const createMutation = useMutation({
     mutationFn: mutate(invoiceApi.createInvoice, {
       pathParams: { facilityId },
     }),
-    onSuccess: () => {
+    onSuccess: (invoice: InvoiceRead) => {
       queryClient.invalidateQueries({ queryKey: ["invoices", accountId] });
       toast.success(t("invoice_created_successfully"));
-      // Navigate back to invoices list
-      window.history.back();
+      // Navigate to the new invoice
+      navigate(`/facility/${facilityId}/billing/invoices/${invoice.id}`);
     },
     onError: (error) => {
       toast.error(error.message || t("failed_to_create_invoice"));
@@ -233,7 +250,9 @@ export function CreateInvoicePage({
   };
 
   const chargeItems =
-    chargeItemsData?.pages.flatMap((page) => page.results) ?? [];
+    preSelectedChargeItems ??
+    chargeItemsData?.pages.flatMap((page) => page.results) ??
+    [];
 
   return (
     <div className="container mx-auto py-6">
