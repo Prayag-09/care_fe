@@ -161,7 +161,7 @@ export default function InvoicesData({
         <TableSkeleton count={3} />
       ) : (
         <div className={className}>
-          <Table className="rounded-lg border shadow-base w-full bg-white">
+          <Table className="rounded-lg border shadow-sm w-full bg-white">
             <TableHeader className="bg-gray-100">
               <TableRow className="border-b">
                 <TableHead className={tableHeadClass}>

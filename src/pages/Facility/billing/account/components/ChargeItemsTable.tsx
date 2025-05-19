@@ -219,7 +219,7 @@ export function ChargeItemsTable({
       {isLoading ? (
         <TableSkeleton count={3} />
       ) : (
-        <Table className="rounded-lg border shadow-base w-full bg-white">
+        <Table className="rounded-lg border shadow-sm w-full bg-white">
           <TableHeader className="bg-gray-100">
             <TableRow className="border-b">
               <TableHead className="border-x p-3 text-gray-700 text-sm font-medium leading-5 w-[40px]"></TableHead>

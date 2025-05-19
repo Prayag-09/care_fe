@@ -228,7 +228,7 @@ export function AccountList({
         ) : accounts.length === 0 ? (
           <EmptyState />
         ) : (
-          <Table className="rounded-lg border shadow-base">
+          <Table className="rounded-lg border shadow-sm">
             <TableHeader className="bg-gray-100">
               <TableRow className="border-b">
                 <TableHead className={tableHeadClass}>{t("patient")}</TableHead>
