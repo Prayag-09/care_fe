@@ -164,6 +164,12 @@ export interface MedicationRequestDosageInstruction {
   max_dose_per_period?: DoseRange;
 }
 
+export enum MedicationRequestDispenseStatus {
+  complete = "complete",
+  partial = "partial",
+  incomplete = "incomplete",
+}
+
 export interface MedicationRequest {
   readonly id?: string;
   status?: MedicationRequestStatus;
@@ -180,6 +186,7 @@ export interface MedicationRequest {
   created_by?: UserBareMinimum;
   requested_product?: string;
   requested_product_internal?: ProductKnowledgeBase;
+  dispense_status?: MedicationRequestDispenseStatus;
 }
 
 export enum MedicationPriority {
@@ -208,6 +215,7 @@ export interface MedicationRequestRead {
   authored_on: string;
   requested_product?: ProductKnowledgeBase;
   inventory_items_internal?: InventoryRead[];
+  dispense_status?: MedicationRequestDispenseStatus;
 }
 
 export interface MedicationRequestSummary {

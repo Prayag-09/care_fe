@@ -3,6 +3,7 @@ import { PaginatedResponse } from "@/Utils/request/types";
 import {
   MedicationDispenseCreate,
   MedicationDispenseRead,
+  MedicationDispenseUpsert,
 } from "@/types/emr/medicationDispense/medicationDispense";
 
 export default {
@@ -16,5 +17,11 @@ export default {
     path: "/api/v1/medication/dispense/",
     method: HttpMethod.GET,
     TRes: Type<PaginatedResponse<MedicationDispenseRead>>(),
+  },
+  upsert: {
+    path: "/api/v1/medication/dispense/upsert/",
+    method: HttpMethod.POST,
+    TRes: Type<MedicationDispenseRead>(),
+    TBody: Type<{ datapoints: MedicationDispenseUpsert[] }>(),
   },
 };

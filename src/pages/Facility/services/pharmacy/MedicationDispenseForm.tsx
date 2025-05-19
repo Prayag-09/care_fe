@@ -1,5 +1,5 @@
 import { useMutation, useQuery, useQueryClient } from "@tanstack/react-query";
-import { useNavigate } from "raviger";
+import { navigate } from "raviger";
 import { useEffect, useState } from "react";
 import { useTranslation } from "react-i18next";
 import { toast } from "sonner";
@@ -66,6 +66,7 @@ interface MedicationQuantity {
   isSelected: boolean;
   selectedInventoryId?: string;
   days_supply: number;
+  isFullyDispensed: boolean;
 }
 
 type MedicationRequestWithInventory = MedicationRequestRead & {
@@ -89,9 +90,8 @@ function convertDurationToDays(value: number, unit: string): number {
   }
 }
 
-export default function MedicationDispense({ patientId }: Props) {
+export default function MedicationDispenseForm({ patientId }: Props) {
   const { t } = useTranslation();
-  const navigate = useNavigate();
   const queryClient = useQueryClient();
   const { facilityId } = useCurrentFacility();
   const { locationId } = useCurrentLocation();
@@ -118,7 +118,7 @@ export default function MedicationDispense({ patientId }: Props) {
   });
 
   const { data: response, isLoading } = useQuery({
-    queryKey: ["medications", patientId, "dispense"],
+    queryKey: ["medication_requests", patientId, "dispense"],
     queryFn: async ({ signal }) => {
       // First get the medication requests
       const medicationResponse = await query(medicationRequestApi.list, {
@@ -126,6 +126,7 @@ export default function MedicationDispense({ patientId }: Props) {
         queryParams: {
           facility: facilityId,
           limit: 100,
+          status: "active,on-hold,draft,unknown,ended,completed,cancelled",
         },
       })({ signal });
 
@@ -190,6 +191,7 @@ export default function MedicationDispense({ patientId }: Props) {
               med.dosage_instruction[0]?.timing?.repeat?.bounds_duration
                 ?.unit || "",
             ),
+            isFullyDispensed: false,
           };
         },
       );
@@ -297,6 +299,14 @@ export default function MedicationDispense({ patientId }: Props) {
     );
   };
 
+  const handleFullyDispensedChange = (id: string, checked: boolean) => {
+    setMedicationQuantities((prev) =>
+      prev.map((item) =>
+        item.id === id ? { ...item, isFullyDispensed: checked } : item,
+      ),
+    );
+  };
+
   const getInventoryForMedication = (
     medicationId: string,
   ): InventoryRead | undefined => {
@@ -371,44 +381,62 @@ export default function MedicationDispense({ patientId }: Props) {
       return;
     }
 
-    const requests = selectedMeds
-      .map((medication) => {
-        const quantity =
-          medicationQuantities.find((q) => q.id === medication.id)?.quantity ||
-          0;
-        const selectedInventory = getInventoryForMedication(medication.id);
-        const daysSupply =
-          medicationQuantities.find((q) => q.id === medication.id)
-            ?.days_supply || 0;
+    const requests = [];
 
-        // This check is now redundant due to the validation above, but keeping for type safety
-        if (!selectedInventory) {
-          return null;
-        }
-
-        const dispenseData: MedicationDispenseCreate = {
-          status: MedicationDispenseStatus.completed,
-          category: MedicationDispenseCategory.outpatient,
-          when_prepared: new Date(),
-          dosage_instruction: medication.dosage_instruction[0],
-          encounter: medication.encounter,
-          location: locationId,
-          authorizing_prescription: medication.id,
-          item: selectedInventory.id,
-          quantity: quantity,
-          days_supply: daysSupply,
-        };
-
-        return {
-          url: `/api/v1/medication/dispense/`,
-          method: "POST",
-          reference_id: `dispense_${medication.id}`,
-          body: dispenseData,
-        };
-      })
-      .filter(
-        (request): request is NonNullable<typeof request> => request !== null,
+    // Add all dispense requests
+    selectedMeds.forEach((medication) => {
+      const medicationQuantity = medicationQuantities.find(
+        (q) => q.id === medication.id,
       );
+      const quantity = medicationQuantity?.quantity || 0;
+      const selectedInventory = getInventoryForMedication(medication.id);
+      const daysSupply = medicationQuantity?.days_supply || 0;
+
+      // This check is now redundant due to the validation above, but keeping for type safety
+      if (!selectedInventory) {
+        return;
+      }
+
+      const dispenseData: MedicationDispenseCreate = {
+        status: MedicationDispenseStatus.preparation,
+        category: MedicationDispenseCategory.outpatient,
+        when_prepared: new Date(),
+        dosage_instruction: medication.dosage_instruction[0],
+        encounter: medication.encounter,
+        location: locationId,
+        authorizing_prescription: medication.id,
+        item: selectedInventory.id,
+        quantity: quantity,
+        days_supply: daysSupply,
+      };
+
+      requests.push({
+        url: `/api/v1/medication/dispense/`,
+        method: "POST",
+        reference_id: `dispense_${medication.id}`,
+        body: dispenseData,
+      });
+    });
+
+    // Get all medications marked as fully dispensed
+    const fullyDispensedMeds = selectedMeds.filter((med) =>
+      medicationQuantities.find((q) => q.id === med.id && q.isFullyDispensed),
+    );
+
+    // If there are any fully dispensed medications, add a single upsert request
+    if (fullyDispensedMeds.length > 0) {
+      requests.push({
+        url: `/api/v1/patient/${patientId}/medication/request/upsert/`,
+        method: "POST",
+        reference_id: "medication_request_updates",
+        body: {
+          datapoints: fullyDispensedMeds.map((medication) => ({
+            ...medication,
+            dispense_status: "complete",
+          })),
+        },
+      });
+    }
 
     dispense({ requests });
   };
@@ -456,7 +484,7 @@ export default function MedicationDispense({ patientId }: Props) {
                     />
                   </TableHead>
                   <TableHead>{t("medicine")}</TableHead>
-                  <TableHead>{t("availability")}</TableHead>
+                  <TableHead>{t("select_lot")}</TableHead>
                   <TableHead>{t("expiry")}</TableHead>
                   <TableHead>{t("quantity")}</TableHead>
                   <TableHead>{t("days_supply")}</TableHead>
@@ -485,6 +513,7 @@ export default function MedicationDispense({ patientId }: Props) {
                     </TableHead>
                   ))}
                   <TableHead>{t("actions")}</TableHead>
+                  <TableHead>{t("is_fully_dispensed")}</TableHead>
                 </TableRow>
               </TableHeader>
               <TableBody>
@@ -652,6 +681,14 @@ export default function MedicationDispense({ patientId }: Props) {
                           {t("alt")}
                         </Button>
                       </TableCell>
+                      <TableCell>
+                        <Checkbox
+                          checked={medicationQuantity?.isFullyDispensed}
+                          onCheckedChange={(checked) =>
+                            handleFullyDispensedChange(medication.id, !!checked)
+                          }
+                        />
+                      </TableCell>
                     </TableRow>
                   );
                 })}
@@ -667,6 +704,12 @@ export default function MedicationDispense({ patientId }: Props) {
             open={isInvoiceSheetOpen}
             onOpenChange={setIsInvoiceSheetOpen}
             preSelectedChargeItems={extractedChargeItems}
+            onSuccess={() => {
+              setIsInvoiceSheetOpen(false);
+              navigate(
+                `/facility/${facilityId}/locations/${locationId}/medication_requests/patient/${patientId}`,
+              );
+            }}
           />
         )}
       </div>

@@ -14,7 +14,10 @@ import { formatDosage, formatSig } from "@/components/Medicine/utils";
 import api from "@/Utils/request/api";
 import query from "@/Utils/request/query";
 import { formatName, formatPatientAge } from "@/Utils/utils";
-import { MedicationRequestRead } from "@/types/emr/medicationRequest/medicationRequest";
+import {
+  MedicationRequestRead,
+  displayMedicationName,
+} from "@/types/emr/medicationRequest/medicationRequest";
 import medicationRequestApi from "@/types/emr/medicationRequest/medicationRequestApi";
 
 export const PrintPrescription = (props: {
@@ -45,6 +48,14 @@ export const PrintPrescription = (props: {
     }),
     enabled: !!patientId,
   });
+
+  const medicationsWithProduct = activeMedications?.results.filter(
+    (med) => med.requested_product,
+  );
+
+  const medicationsWithoutProduct = activeMedications?.results.filter(
+    (med) => !med.requested_product,
+  );
 
   if (medicationLoading) return <Loading />;
 
@@ -134,44 +145,95 @@ export const PrintPrescription = (props: {
           <div className="text-2xl font-semibold mb-3">℞</div>
 
           {/* Medications Table */}
-          <PrintTable
-            headers={[
-              { key: "medicine" },
-              { key: "dosage" },
-              { key: "frequency" },
-              { key: "duration" },
-              { key: "instructions" },
-            ]}
-            rows={activeMedications?.results.map((medication) => {
-              const instruction = medication.dosage_instruction[0];
-              const frequency = getFrequencyDisplay(instruction?.timing);
-              const dosage = formatDosage(instruction);
-              const duration = instruction?.timing?.repeat?.bounds_duration;
-              const remarks = formatSig(instruction);
-              const notes = medication.note;
-              return {
-                medicine: medication.medication?.display,
-                status: t(`medication_status_${medication.status}`),
-                dosage: dosage,
-                frequency: instruction?.as_needed_boolean
-                  ? `${t("as_needed_prn")} (${instruction?.as_needed_for?.display ?? "-"})`
-                  : (frequency?.meaning ?? "-") +
-                    (instruction?.additional_instruction?.[0]?.display
-                      ? `, ${instruction.additional_instruction[0].display}`
-                      : ""),
-                duration: duration ? `${duration.value} ${duration.unit}` : "-",
-                instructions: `${remarks || "-"}${notes ? ` (${t("note")}: ${notes})` : ""}`,
-              };
-            })}
-          />
+          {medicationsWithProduct && medicationsWithProduct.length > 0 && (
+            <div className="mt-4">
+              <p className="text-base font-semibold mb-2">{t("medicines")}</p>
+              <PrintTable
+                headers={[
+                  { key: "medicine" },
+                  { key: "dosage" },
+                  { key: "frequency" },
+                  { key: "duration" },
+                  { key: "instructions" },
+                ]}
+                rows={medicationsWithProduct?.map((medication) => {
+                  const instruction = medication.dosage_instruction[0];
+                  const frequency = getFrequencyDisplay(instruction?.timing);
+                  const dosage = formatDosage(instruction);
+                  const duration = instruction?.timing?.repeat?.bounds_duration;
+                  const remarks = formatSig(instruction);
+                  const notes = medication.note;
+                  return {
+                    medicine: displayMedicationName(medication),
+                    status: t(`medication_status_${medication.status}`),
+                    dosage: dosage,
+                    frequency: instruction?.as_needed_boolean
+                      ? `${t("as_needed_prn")} (${instruction?.as_needed_for?.display ?? "-"})`
+                      : (frequency?.meaning ?? "-") +
+                        (instruction?.additional_instruction?.[0]?.display
+                          ? `, ${instruction.additional_instruction[0].display}`
+                          : ""),
+                    duration: duration
+                      ? `${duration.value} ${duration.unit}`
+                      : "-",
+                    instructions: `${remarks || "-"}${notes ? ` (${t("note")}: ${notes})` : ""}`,
+                  };
+                })}
+              />
+            </div>
+          )}
+
+          {/* Medications Table */}
+          {medicationsWithoutProduct &&
+            medicationsWithoutProduct.length > 0 && (
+              <div className="mt-4">
+                <p className="text-base font-semibold mb-2">
+                  {t("external_prescriptions")}
+                </p>
+                <PrintTable
+                  headers={[
+                    { key: "medicine" },
+                    { key: "dosage" },
+                    { key: "frequency" },
+                    { key: "duration" },
+                    { key: "instructions" },
+                  ]}
+                  rows={medicationsWithoutProduct?.map((medication) => {
+                    const instruction = medication.dosage_instruction[0];
+                    const frequency = getFrequencyDisplay(instruction?.timing);
+                    const dosage = formatDosage(instruction);
+                    const duration =
+                      instruction?.timing?.repeat?.bounds_duration;
+                    const remarks = formatSig(instruction);
+                    const notes = medication.note;
+                    return {
+                      medicine: displayMedicationName(medication),
+                      status: t(`medication_status_${medication.status}`),
+                      dosage: dosage,
+                      frequency: instruction?.as_needed_boolean
+                        ? `${t("as_needed_prn")} (${instruction?.as_needed_for?.display ?? "-"})`
+                        : (frequency?.meaning ?? "-") +
+                          (instruction?.additional_instruction?.[0]?.display
+                            ? `, ${instruction.additional_instruction[0].display}`
+                            : ""),
+                      duration: duration
+                        ? `${duration.value} ${duration.unit}`
+                        : "-",
+                      instructions: `${remarks || "-"}${notes ? ` (${t("note")}: ${notes})` : ""}`,
+                    };
+                  })}
+                />
+              </div>
+            )}
 
           {/* Doctor's Signature */}
-          <div className="mt-6 flex justify-end gap-8">
+          <div className="w-full items-end mt-6 flex flex-col justify-end gap-1">
+            <p className="text-sm text-gray-400">{t("prescribed_by")}</p>
             {Object.entries(medicationsByPrescriber).map(
               ([prescriberId, meds]) => {
                 const prescriber = meds[0].created_by;
                 return (
-                  <div key={prescriberId} className="text-center">
+                  <div key={prescriberId} className="text-center ">
                     <p className="text-sm text-gray-600 font-semibold">
                       {formatName(prescriber)}
                     </p>

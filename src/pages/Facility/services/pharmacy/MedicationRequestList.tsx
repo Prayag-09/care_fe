@@ -72,6 +72,7 @@ export default function MedicationRequestList({
         encounter_class: qParams.category,
         limit: qParams.limit,
         offset: ((qParams.page ?? 1) - 1) * (qParams.limit ?? 14),
+        exclude_dispense_status: "complete",
       },
     }),
   });

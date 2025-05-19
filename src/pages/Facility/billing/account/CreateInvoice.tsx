@@ -69,6 +69,8 @@ interface CreateInvoicePageProps {
   facilityId: string;
   accountId: string;
   preSelectedChargeItems?: ChargeItemRead[];
+  redirectInNewTab?: boolean;
+  onSuccess?: () => void;
 }
 
 interface PriceComponentRowProps {
@@ -116,6 +118,8 @@ export function CreateInvoicePage({
   facilityId,
   accountId,
   preSelectedChargeItems,
+  redirectInNewTab = false,
+  onSuccess,
 }: CreateInvoicePageProps) {
   const { t } = useTranslation();
   const queryClient = useQueryClient();
@@ -185,7 +189,15 @@ export function CreateInvoicePage({
       queryClient.invalidateQueries({ queryKey: ["invoices", accountId] });
       toast.success(t("invoice_created_successfully"));
       // Navigate to the new invoice
-      navigate(`/facility/${facilityId}/billing/invoices/${invoice.id}`);
+      if (redirectInNewTab) {
+        window.open(
+          `/facility/${facilityId}/billing/invoices/${invoice.id}`,
+          "_blank",
+        );
+        onSuccess?.();
+      } else {
+        navigate(`/facility/${facilityId}/billing/invoices/${invoice.id}`);
+      }
     },
     onError: (error) => {
       toast.error(error.message || t("failed_to_create_invoice"));

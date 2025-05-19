@@ -4,7 +4,7 @@ import ErrorPage from "@/components/ErrorPages/DefaultErrorPage";
 
 import BedList from "@/pages/Facility/locations/LocationList";
 import { InventoryList } from "@/pages/Facility/services/inventory/InventoryList";
-import MedicationDispense from "@/pages/Facility/services/pharmacy/MedicationDispense";
+import MedicationDispenseForm from "@/pages/Facility/services/pharmacy/MedicationDispenseForm";
 import MedicationRequestList from "@/pages/Facility/services/pharmacy/MedicationRequestList";
 import PharmacyMedicationList from "@/pages/Facility/services/pharmacy/PharmacyMedicationList";
 import ServiceRequestList from "@/pages/Facility/services/serviceRequests/ServiceRequestList";
@@ -146,7 +146,7 @@ const getRoutes = (facilityId: string, locationId: string) => ({
     patientId,
   }: {
     patientId: string;
-  }) => <MedicationDispense patientId={patientId} />,
+  }) => <MedicationDispenseForm patientId={patientId} />,
 
   "*": () => <ErrorPage />,
 });
