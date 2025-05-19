@@ -1,22 +1,49 @@
-import { MapPinIcon } from "lucide-react";
+import { useQueries, useQuery } from "@tanstack/react-query";
+import { Loader2, MapPinIcon } from "lucide-react";
+import { navigate, usePath } from "raviger";
+import { Fragment, useState } from "react";
 import { useTranslation } from "react-i18next";
+import useKeyboardShortcut from "use-keyboard-shortcut";
 
 import CareIcon from "@/CAREUI/icons/CareIcon";
 
 import { Button } from "@/components/ui/button";
+import {
+  Command,
+  CommandEmpty,
+  CommandGroup,
+  CommandInput,
+  CommandItem,
+  CommandList,
+} from "@/components/ui/command";
+import {
+  Dialog,
+  DialogContent,
+  DialogHeader,
+  DialogTitle,
+} from "@/components/ui/dialog";
 import { Separator } from "@/components/ui/separator";
 import { useSidebar } from "@/components/ui/sidebar";
 
 import useAppHistory from "@/hooks/useAppHistory";
 
+import query from "@/Utils/request/query";
 import useCurrentLocation from "@/pages/Facility/locations/utils/useCurrentLocation";
+import { LocationList } from "@/types/location/location";
+import locationApi from "@/types/location/locationApi";
 
 export function LocationSwitcher() {
   const { t } = useTranslation();
   const { facilityId } = useCurrentLocation();
-  const { location } = useCurrentLocation();
+  const { location: extractedLocation } = useCurrentLocation();
   const { state } = useSidebar();
   const { goBack } = useAppHistory();
+  const [location, setLocation] = useState<LocationList | undefined>(
+    extractedLocation
+      ? (extractedLocation as unknown as LocationList)
+      : undefined,
+  );
+  const [openDialog, setOpenDialog] = useState(false);
 
   const fallbackUrl = `/facility/${facilityId}/overview`;
 
@@ -34,26 +61,287 @@ export function LocationSwitcher() {
   }
 
   return (
-    <div className="flex flex-col items-start gap-4">
-      <Button variant="ghost" onClick={() => goBack(fallbackUrl)}>
-        <CareIcon icon="l-arrow-left" />
-        <span className="underline underline-offset-2">{t("back")}</span>
-      </Button>
+    <Fragment>
+      <LocationSelectorDialog
+        facilityId={facilityId}
+        location={location}
+        setLocation={setLocation}
+        open={openDialog}
+        setOpen={setOpenDialog}
+      />
+      <div className="flex flex-col items-start gap-4">
+        <Button variant="ghost" onClick={() => goBack(fallbackUrl)}>
+          <CareIcon icon="l-arrow-left" />
+          <span className="underline underline-offset-2">{t("back")}</span>
+        </Button>
 
-      <div className="w-full px-2">
-        <div className="flex items-center gap-3 p-2 rounded-md bg-white border border-gray-200">
-          <MapPinIcon className="size-5 text-green-600" />
-          <div className="flex flex-col">
-            <span className="text-sm font-medium text-gray-900">
-              {location?.name}
-            </span>
-            <span className="text-xs text-gray-500">
-              {t("current_location")}
-            </span>
+        <div className="w-full px-2">
+          <Button
+            variant="ghost"
+            className="w-full flex items-center justify-between gap-3 py-6 px-2 rounded-md bg-white border border-gray-200"
+            onClick={() => setOpenDialog(true)}
+          >
+            <div className="flex items-center gap-2">
+              <MapPinIcon className="size-5 text-green-600" />
+              <div className="flex flex-col items-start">
+                <span className="text-xs text-gray-500">
+                  {t("current_location")}
+                </span>
+                <span className="text-sm font-medium text-gray-900">
+                  {location?.name}
+                </span>
+              </div>
+            </div>
+            <CareIcon icon="l-sort" />
+          </Button>
+          <Separator className="mt-4" />
+        </div>
+      </div>
+    </Fragment>
+  );
+}
+
+function LocationSelectorDialog({
+  facilityId,
+  location,
+  setLocation,
+  open,
+  setOpen,
+}: {
+  facilityId: string;
+  location: LocationList | undefined;
+  setLocation: (location: LocationList | undefined) => void;
+  open: boolean;
+  setOpen: (open: boolean) => void;
+}) {
+  const { t } = useTranslation();
+  const [search, setSearch] = useState("");
+  const [locationLevel, setLocationLevel] = useState<LocationList[]>([]);
+  const path = usePath();
+  const subPath =
+    path?.match(/\/facility\/[^/]+\/locations\/[^/]+\/(.*)/)?.[1] || "";
+
+  const { data: rootLocations, isLoading: isRootLoading } = useQuery({
+    queryKey: ["locations", facilityId, search],
+    queryFn: query(locationApi.list, {
+      pathParams: { facility_id: facilityId },
+      queryParams: {
+        ...(search && { name: search }),
+      },
+    }),
+    enabled: open,
+  });
+
+  const childQueries = useQueries({
+    queries: locationLevel.map((level) => ({
+      queryKey: ["locations", level.id, search],
+      queryFn: query.debounced(locationApi.list, {
+        pathParams: { facility_id: facilityId },
+        queryParams: {
+          parent: level.id,
+          ...(search && { name: search }),
+        },
+      }),
+      enabled: !!level.id,
+    })),
+  });
+
+  const handleSelect = (location: LocationList) => {
+    if (location.has_children) {
+      setLocationLevel([...locationLevel, location]);
+    } else {
+      handleConfirmSelection(location);
+    }
+    setSearch("");
+  };
+
+  const handleConfirmSelection = (newLocation: LocationList) => {
+    const oldLocationId = location?.id;
+    setLocation(newLocation);
+    setLocationLevel([]);
+    setOpen(false);
+    if (newLocation.id !== oldLocationId) {
+      navigate(
+        `/facility/${facilityId}/locations/${newLocation.id}/${subPath}`,
+      );
+    }
+  };
+
+  useKeyboardShortcut(["Shift", "Enter"], () => {
+    handleConfirmSelection(locationLevel[locationLevel.length - 1]);
+  });
+
+  const getCurrentLocation = () => {
+    if (!location) return <></>;
+    let locationList = [location];
+    let currentLocation = location;
+    while (currentLocation?.parent && currentLocation.parent.id) {
+      locationList.unshift(currentLocation.parent);
+      currentLocation = currentLocation.parent;
+    }
+    if (locationList.length > 0) {
+      return (
+        <div className="flex flex-row items-center gap-1 text-sm font-normal">
+          <span className="text-gray-500">{t("current_location")}:</span>
+          <div className="flex flex-row gap-1 items-center p-1 rounded-md bg-gray-100">
+            {locationList.map((location, index) => (
+              <div
+                className="flex flex-row gap-1 items-center"
+                key={location?.id}
+              >
+                <div className=" ">{location?.name}</div>
+                {((index === 0 && locationList.length > 1) ||
+                  (index > 0 && index < locationList.length - 1)) && (
+                  <div>
+                    <CareIcon icon="l-arrow-right" />
+                  </div>
+                )}
+              </div>
+            ))}
           </div>
         </div>
-        <Separator className="mt-4" />
+      );
+    }
+    return <></>;
+  };
+
+  return (
+    <Dialog open={open} onOpenChange={setOpen}>
+      <DialogContent className="p-3 min-w-[calc(50vw)]">
+        <DialogHeader>
+          <DialogTitle>{getCurrentLocation()}</DialogTitle>
+        </DialogHeader>
+        {locationLevel.length > 0 && (
+          <div className="flex flex-row justify-between gap-1 bg-gray-100 p-1">
+            <div className="flex flex-row gap-1 items-center">
+              {locationLevel.map((level, index) => (
+                <>
+                  <div
+                    key={level.id}
+                    className="w-full text-xs border bg-gray-100 border-gray-200 rounded-md p-2"
+                  >
+                    {level.name}
+                  </div>
+                  {((index === 0 && locationLevel.length > 1) ||
+                    (index > 0 && index < locationLevel.length - 1)) && (
+                    <CareIcon icon="l-arrow-right" />
+                  )}
+                </>
+              ))}
+            </div>
+            <div className="flex flex-row gap-2">
+              <Button
+                variant="link"
+                size="icon"
+                className="p-2 w-full"
+                onClick={() => {
+                  setLocationLevel([]);
+                }}
+              >
+                <CareIcon icon="l-multiply" />
+                <span>{t("clear")}</span>
+              </Button>
+              <Button
+                variant="primary"
+                size="icon"
+                className="p-2 w-full"
+                onClick={() =>
+                  handleConfirmSelection(
+                    locationLevel[locationLevel.length - 1],
+                  )
+                }
+              >
+                <span>{t("done")}</span>
+                <span className="flex text-xs items-center gap-1 p-1 shadow rounded-md bg-green-900">
+                  {"shift"}
+                  {"+"}
+                  <CareIcon icon="l-corner-down-left" />
+                </span>
+              </Button>
+            </div>
+          </div>
+        )}
+        <Command className="pt-3 pb-2">
+          <div className="border border-gray-200">
+            <CommandInput
+              className="border-0 ring-0"
+              placeholder={t("search")}
+            />
+            <CommandList
+              className="max-h-[calc(100vh-30rem)]"
+              onWheel={(e) => {
+                e.stopPropagation();
+              }}
+            >
+              <CommandEmpty>
+                {isRootLoading ||
+                childQueries[locationLevel.length - 1]?.isLoading ? (
+                  <div className="flex items-center justify-center py-6">
+                    <Loader2 className="h-4 w-4 animate-spin text-gray-500" />
+                    <span className="ml-2 text-sm text-gray-500">
+                      {t("loading")}
+                    </span>
+                  </div>
+                ) : (
+                  t("no_locations_found")
+                )}
+              </CommandEmpty>
+              <CommandGroup>
+                {locationLevel.length === 0
+                  ? rootLocations?.results.map((location) => (
+                      <LocationCommandItem
+                        key={location.id}
+                        location={location}
+                        handleSelect={handleSelect}
+                        handleConfirmSelection={handleConfirmSelection}
+                      />
+                    ))
+                  : childQueries.map((query) =>
+                      query.data?.results.map((location) => (
+                        <LocationCommandItem
+                          key={location.id}
+                          location={location}
+                          handleSelect={handleSelect}
+                          handleConfirmSelection={handleConfirmSelection}
+                        />
+                      )),
+                    )}
+              </CommandGroup>
+            </CommandList>
+          </div>
+        </Command>
+      </DialogContent>
+    </Dialog>
+  );
+}
+
+function LocationCommandItem({
+  location,
+  handleSelect,
+  handleConfirmSelection,
+}: {
+  location: LocationList;
+  handleSelect: (location: LocationList) => void;
+  handleConfirmSelection: (location: LocationList) => void;
+}) {
+  const { t } = useTranslation();
+  return (
+    <CommandItem
+      key={location.id}
+      onSelect={() =>
+        location.has_children
+          ? handleSelect(location)
+          : handleConfirmSelection(location)
+      }
+      className="flex items-start sm:items-center justify-between"
+    >
+      <span>{location.name}</span>
+      <div>
+        <Button variant="white" size="xs" className="p-2 mr-4 w-full shadow">
+          <CareIcon icon="l-corner-down-left" />
+          {location.has_children ? t("view_sub_locations") : t("select")}
+        </Button>
       </div>
-    </div>
+    </CommandItem>
   );
 }
