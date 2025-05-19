@@ -2,7 +2,8 @@ import { t } from "i18next";
 import { Dispatch, SetStateAction } from "react";
 import { toast } from "sonner";
 
-import * as Notification from "@/Utils/Notifications";
+import { handleHttpError } from "./errorHandler";
+import { HTTPError } from "./types";
 
 function handleUploadPercentage(
   event: ProgressEvent,
@@ -40,9 +41,15 @@ const uploadFile = async (
         } catch {
           error = xhr.responseText;
         }
-        Notification.BadRequest({ errs: error.errors });
-        reject(new Error("Client error"));
-        reject(new Error("Client error"));
+        const httpError = new HTTPError({
+          message: "Request failed",
+          status: xhr.status,
+          silent: false,
+          cause: error,
+        });
+
+        handleHttpError(httpError);
+        reject(httpError);
       } else {
         resolve();
       }

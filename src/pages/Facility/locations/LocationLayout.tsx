@@ -2,7 +2,7 @@ import { Redirect, useRoutes } from "raviger";
 
 import ErrorPage from "@/components/ErrorPages/DefaultErrorPage";
 
-import BedList from "@/pages/Facility/locations/LocationList";
+import BedsList from "@/pages/Facility/locations/BedsList";
 import { InventoryList } from "@/pages/Facility/services/inventory/InventoryList";
 import MedicationDispenseForm from "@/pages/Facility/services/pharmacy/MedicationDispenseForm";
 import MedicationRequestList from "@/pages/Facility/services/pharmacy/MedicationRequestList";
@@ -27,8 +27,7 @@ interface LocationLayoutProps {
 
 const getRoutes = (facilityId: string, locationId: string) => ({
   // Beds
-  "/beds": () => <BedList facilityId={facilityId} locationId={locationId} />,
-
+  "/beds": () => <BedsList facilityId={facilityId} locationId={locationId} />,
   // Pharmacy
   "/medication_requests": () => (
     <MedicationRequestList facilityId={facilityId} locationId={locationId} />
