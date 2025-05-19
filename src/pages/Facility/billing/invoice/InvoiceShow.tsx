@@ -32,7 +32,10 @@ import {
   DropdownMenuSeparator,
   DropdownMenuTrigger,
 } from "@/components/ui/dropdown-menu";
-import { MonetaryDisplay } from "@/components/ui/monetary-display";
+import {
+  MonetaryDisplay,
+  getCurrencySymbol,
+} from "@/components/ui/monetary-display";
 import { Separator } from "@/components/ui/separator";
 import {
   Table,
@@ -111,6 +114,10 @@ export function InvoiceShow({
     null,
   );
   const queryClient = useQueryClient();
+
+  const tableHeadClass = "border-r border-gray-200 font-semibold text-center";
+  const tableCellClass =
+    "border-r border-gray-200 font-medium text-gray-950 text-sm";
 
   // Fetch facility data for available components
   const { data: facilityData } = useQuery({
@@ -419,7 +426,7 @@ export function InvoiceShow({
                 )}
               </CardTitle>
             </CardHeader>
-            <CardContent>
+            <CardContent className="space-y-4">
               <div className="grid gap-6 md:grid-cols-2">
                 <div>
                   <div className="font-semibold text-gray-500 mb-2">
@@ -458,22 +465,40 @@ export function InvoiceShow({
                   {/* <p className="text-sm">{formatDate(invoice.created_at)}</p> */}
                 </div>
               </div>
-              <Separator className="my-6" />
 
-              <div className="space-y-4">
+              <div className="rounded-sm border border-gray-300 shadow-xs overflow-hidden">
                 <Table>
                   <TableHeader>
-                    <TableRow>
-                      <TableHead>{t("item")}</TableHead>
-                      <TableHead>{t("unit_price")}</TableHead>
-                      <TableHead>{t("qty")}</TableHead>
-                      <TableHead>{t("discount")}</TableHead>
+                    <TableRow className="border-b border-gray-200">
+                      <TableHead className={tableHeadClass}>#</TableHead>
+                      <TableHead className={tableHeadClass}>
+                        {t("item")}
+                      </TableHead>
+                      <TableHead className={tableHeadClass}>
+                        {t("unit_price")} ({getCurrencySymbol()})
+                      </TableHead>
+                      <TableHead className={tableHeadClass}>
+                        {t("qty")}
+                      </TableHead>
+                      <TableHead className={tableHeadClass}>
+                        {t("discount")}
+                      </TableHead>
                       {getApplicableTaxColumns(invoice).map((taxCode) => (
-                        <TableHead key={taxCode}>{t(taxCode)}</TableHead>
+                        <TableHead key={taxCode} className={tableHeadClass}>
+                          {t(taxCode)}
+                        </TableHead>
                       ))}
-                      <TableHead>{t("total")}</TableHead>
+                      <TableHead
+                        className={
+                          invoice.status === InvoiceStatus.draft
+                            ? tableHeadClass
+                            : "font-semibold text-center"
+                        }
+                      >
+                        {t("total")} ({getCurrencySymbol()})
+                      </TableHead>
                       {invoice?.status === InvoiceStatus.draft && (
-                        <TableHead className="w-[60px]">
+                        <TableHead className="font-semibold text-center">
                           {t("actions")}
                         </TableHead>
                       )}
@@ -481,50 +506,93 @@ export function InvoiceShow({
                   </TableHeader>
                   <TableBody>
                     {invoice.charge_items.length === 0 ? (
-                      <TableRow>
+                      <TableRow className="border-b border-gray-200">
                         <TableCell
-                          colSpan={7}
+                          colSpan={
+                            invoice?.status === InvoiceStatus.draft
+                              ? 8 + getApplicableTaxColumns(invoice).length
+                              : 7 + getApplicableTaxColumns(invoice).length
+                          }
                           className="text-center text-gray-500"
                         >
                           {t("no_charge_items")}
                         </TableCell>
                       </TableRow>
                     ) : (
-                      invoice.charge_items.flatMap((item) => {
+                      invoice.charge_items.flatMap((item, index) => {
                         const baseComponent = getBaseComponent(item);
                         const baseAmount = baseComponent?.amount || 0;
 
                         const mainRow = (
-                          <TableRow key={item.id} className="hover:bg-muted/50">
-                            <TableCell className="font-medium align-top">
+                          <TableRow
+                            key={item.id}
+                            className="border-b border-gray-200 hover:bg-muted/50"
+                          >
+                            <TableCell
+                              className={cn(tableCellClass, "text-center")}
+                            >
+                              {index + 1}
+                            </TableCell>
+                            <TableCell
+                              className={cn(tableCellClass, "font-medium")}
+                            >
                               {item.title}
                             </TableCell>
-                            <TableCell className="align-top">
-                              <MonetaryDisplay amount={baseAmount} />
+                            <TableCell
+                              className={cn(tableCellClass, "text-right")}
+                            >
+                              <MonetaryDisplay
+                                amount={baseAmount}
+                                hideCurrency
+                              />
                             </TableCell>
-                            <TableCell className="align-top">
+                            <TableCell
+                              className={cn(tableCellClass, "text-center")}
+                            >
                               {item.quantity}
                             </TableCell>
-                            <TableCell className="align-top">
-                              <MonetaryDisplay
-                                amount={item.total_price_components
+                            <TableCell
+                              className={cn(tableCellClass, "text-right")}
+                            >
+                              <div className="flex flex-col items-end gap-0.5">
+                                <MonetaryDisplay
+                                  amount={item.total_price_components
+                                    .filter(
+                                      (c) =>
+                                        c.monetary_component_type ===
+                                        MonetaryComponentType.discount,
+                                    )
+                                    .reduce(
+                                      (acc, curr) => acc + (curr.amount || 0),
+                                      0,
+                                    )}
+                                  hideCurrency
+                                />
+                                {item.unit_price_components
                                   .filter(
                                     (c) =>
                                       c.monetary_component_type ===
                                       MonetaryComponentType.discount,
                                   )
-                                  .reduce(
-                                    (acc, curr) => acc + (curr.amount || 0),
-                                    0,
-                                  )}
-                              />
+                                  .map((discountComponent, idx) => (
+                                    <div
+                                      key={idx}
+                                      className="text-xs text-gray-500"
+                                    >
+                                      <MonetaryDisplay
+                                        {...discountComponent}
+                                        hideCurrency
+                                      />
+                                    </div>
+                                  ))}
+                              </div>
                             </TableCell>
                             {facilityData &&
                               getApplicableTaxColumns(invoice).map(
                                 (taxCode) => (
                                   <TableCell
                                     key={taxCode}
-                                    className="align-top"
+                                    className={cn(tableCellClass, "text-right")}
                                   >
                                     {(() => {
                                       const totalAmount =
@@ -536,14 +604,16 @@ export function InvoiceShow({
                                           (c) => c.code?.code === taxCode,
                                         );
                                       return (
-                                        <div className="flex flex-col items-center gap-0.5">
+                                        <div className="flex flex-col items-end gap-0.5">
                                           <MonetaryDisplay
                                             amount={totalAmount}
+                                            hideCurrency
                                           />
-                                          <div className="items-center text-xs text-gray-500">
+                                          <div className="text-xs text-gray-500">
                                             {totalAmount && (
                                               <MonetaryDisplay
                                                 {...unitAmount}
+                                                hideCurrency
                                               />
                                             )}
                                           </div>
@@ -553,11 +623,20 @@ export function InvoiceShow({
                                   </TableCell>
                                 ),
                               )}
-                            <TableCell className="align-top">
-                              <MonetaryDisplay amount={item.total_price} />
+                            <TableCell
+                              className={
+                                invoice.status === InvoiceStatus.draft
+                                  ? cn(tableCellClass, "text-right")
+                                  : "text-right"
+                              }
+                            >
+                              <MonetaryDisplay
+                                amount={item.total_price}
+                                hideCurrency
+                              />
                             </TableCell>
-                            <TableCell className="align-top">
-                              {invoice.status === InvoiceStatus.draft && (
+                            {invoice.status === InvoiceStatus.draft && (
+                              <TableCell className="text-center">
                                 <DropdownMenu>
                                   <DropdownMenuTrigger asChild>
                                     <Button
@@ -587,8 +666,8 @@ export function InvoiceShow({
                                     </DropdownMenuItem>
                                   </DropdownMenuContent>
                                 </DropdownMenu>
-                              )}
-                            </TableCell>
+                              </TableCell>
+                            )}
                           </TableRow>
                         );
 
@@ -597,105 +676,104 @@ export function InvoiceShow({
                     )}
                   </TableBody>
                 </Table>
+              </div>
 
-                <div className="flex flex-col items-end space-y-2">
-                  {/* Base Amount */}
-                  {invoice.total_price_components
-                    ?.filter(
-                      (c) =>
-                        c.monetary_component_type ===
-                        MonetaryComponentType.base,
-                    )
-                    .map((component, index) => (
-                      <div
-                        key={`base-${index}`}
-                        className="flex w-64 justify-between"
-                      >
-                        <span className="text-gray-500">
-                          {component.code?.display || t("base_amount")}
-                        </span>
-                        <MonetaryDisplay amount={component.amount} />
-                      </div>
-                    ))}
+              <div className="flex flex-col items-end space-y-2">
+                {/* Base Amount */}
+                {invoice.total_price_components
+                  ?.filter(
+                    (c) =>
+                      c.monetary_component_type === MonetaryComponentType.base,
+                  )
+                  .map((component, index) => (
+                    <div
+                      key={`base-${index}`}
+                      className="flex w-64 justify-between"
+                    >
+                      <span className="text-gray-500">
+                        {component.code?.display || t("base_amount")}
+                      </span>
+                      <MonetaryDisplay amount={component.amount} />
+                    </div>
+                  ))}
 
-                  {/* Surcharges */}
-                  {invoice.total_price_components
-                    ?.filter(
-                      (c) =>
-                        c.monetary_component_type ===
-                        MonetaryComponentType.surcharge,
-                    )
-                    .map((component, index) => (
-                      <div
-                        key={`discount-${index}`}
-                        className="flex w-64 justify-between text-gray-500 text-sm"
-                      >
-                        <span>
-                          {component.code && `${component.code.display} `}(
-                          {t("surcharge")})
-                        </span>
-                        <span>
-                          + <MonetaryDisplay {...component} />
-                        </span>
-                      </div>
-                    ))}
+                {/* Surcharges */}
+                {invoice.total_price_components
+                  ?.filter(
+                    (c) =>
+                      c.monetary_component_type ===
+                      MonetaryComponentType.surcharge,
+                  )
+                  .map((component, index) => (
+                    <div
+                      key={`discount-${index}`}
+                      className="flex w-64 justify-between text-gray-500 text-sm"
+                    >
+                      <span>
+                        {component.code && `${component.code.display} `}(
+                        {t("surcharge")})
+                      </span>
+                      <span>
+                        + <MonetaryDisplay {...component} />
+                      </span>
+                    </div>
+                  ))}
 
-                  {/* Discounts */}
-                  {invoice.total_price_components
-                    ?.filter(
-                      (c) =>
-                        c.monetary_component_type ===
-                        MonetaryComponentType.discount,
-                    )
-                    .map((component, index) => (
-                      <div
-                        key={`discount-${index}`}
-                        className="flex w-64 justify-between text-gray-500 text-sm"
-                      >
-                        <span>
-                          {component.code && `${component.code.display} `}(
-                          {t("discount")})
-                        </span>
-                        <span>
-                          - <MonetaryDisplay {...component} />
-                        </span>
-                      </div>
-                    ))}
+                {/* Discounts */}
+                {invoice.total_price_components
+                  ?.filter(
+                    (c) =>
+                      c.monetary_component_type ===
+                      MonetaryComponentType.discount,
+                  )
+                  .map((component, index) => (
+                    <div
+                      key={`discount-${index}`}
+                      className="flex w-64 justify-between text-gray-500 text-sm"
+                    >
+                      <span>
+                        {component.code && `${component.code.display} `}(
+                        {t("discount")})
+                      </span>
+                      <span>
+                        - <MonetaryDisplay {...component} />
+                      </span>
+                    </div>
+                  ))}
 
-                  {/* Taxes */}
-                  {invoice.total_price_components
-                    ?.filter(
-                      (c) =>
-                        c.monetary_component_type === MonetaryComponentType.tax,
-                    )
-                    .map((component, index) => (
-                      <div
-                        key={`tax-${index}`}
-                        className="flex w-64 justify-between text-gray-500 text-sm"
-                      >
-                        <span>
-                          {component.code && `${component.code.display} `}(
-                          {t("tax")})
-                        </span>
-                        <span>
-                          + <MonetaryDisplay {...component} />
-                        </span>
-                      </div>
-                    ))}
+                {/* Taxes */}
+                {invoice.total_price_components
+                  ?.filter(
+                    (c) =>
+                      c.monetary_component_type === MonetaryComponentType.tax,
+                  )
+                  .map((component, index) => (
+                    <div
+                      key={`tax-${index}`}
+                      className="flex w-64 justify-between text-gray-500 text-sm"
+                    >
+                      <span>
+                        {component.code && `${component.code.display} `}(
+                        {t("tax")})
+                      </span>
+                      <span>
+                        + <MonetaryDisplay {...component} />
+                      </span>
+                    </div>
+                  ))}
 
-                  <Separator className="my-2" />
+                <Separator className="my-2" />
 
-                  {/* Subtotal */}
-                  <div className="flex w-64 justify-between">
-                    <span className="text-gray-500">{t("net_amount")}</span>
-                    <MonetaryDisplay amount={invoice.total_net} />
-                  </div>
+                {/* Subtotal */}
+                <div className="flex w-64 justify-between">
+                  <span className="text-gray-500">{t("net_amount")}</span>
+                  <MonetaryDisplay amount={invoice.total_net} />
+                </div>
 
-                  {/* Total */}
-                  <div className="flex w-64 justify-between font-bold">
-                    <span>{t("total")}</span>
-                    <MonetaryDisplay amount={invoice.total_gross} />
-                  </div>
+                {/* Total */}
+                <div className="flex w-64 justify-between font-bold">
+                  <span>{t("total")}</span>
+                  <MonetaryDisplay amount={invoice.total_gross} />
                 </div>
               </div>
             </CardContent>
