@@ -5,32 +5,25 @@ import { useLocationState } from "@/hooks/useLocationState";
 
 import query from "@/Utils/request/query";
 import LocationContent from "@/pages/Facility/locations/LocationContent";
-import LocationNavbar from "@/pages/Facility/locations/LocationNavbar";
 import { LocationList as LocationListType } from "@/types/location/location";
 import locationApi from "@/types/location/locationApi";
 
-export default function LocationList({
+export default function BedsList({
   facilityId,
   locationId,
 }: {
   facilityId: string;
-  locationId?: string;
+  locationId: string;
 }) {
   const {
     selectedLocationId,
     selectedLocation,
-    expandedLocations,
     searchQuery,
     currentPage,
     handleLocationSelect,
-    handleToggleExpand,
     handleSearchChange,
     handlePageChange,
-  } = useLocationState(
-    `/facility/${facilityId}/encounters/locations`,
-    "encounters",
-    locationId,
-  );
+  } = useLocationState(`/facility/${facilityId}/locations`, "beds", locationId);
 
   // Fetch location details if locationId is provided
   const { data: locationDetail } = useQuery({
@@ -56,13 +49,6 @@ export default function LocationList({
 
   return (
     <div className="flex px-4 space-x-4 min-h-[calc(100vh-10rem)]">
-      <LocationNavbar
-        facilityId={facilityId}
-        selectedLocationId={selectedLocationId}
-        expandedLocations={expandedLocations}
-        onLocationSelect={handleLocationSelect}
-        onToggleExpand={handleToggleExpand}
-      />
       <LocationContent
         facilityId={facilityId}
         selectedLocationId={selectedLocationId}
@@ -72,6 +58,7 @@ export default function LocationList({
         onLocationSelect={handleLocationSelect}
         onSearchChange={handleSearchChange}
         onPageChange={handlePageChange}
+        hideBreadcrumbs={true}
       />
     </div>
   );

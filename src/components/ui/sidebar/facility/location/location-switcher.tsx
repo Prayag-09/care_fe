@@ -1,7 +1,7 @@
 import { useQueries, useQuery } from "@tanstack/react-query";
 import { Loader2, MapPinIcon } from "lucide-react";
 import { navigate, usePath } from "raviger";
-import { Fragment, useState } from "react";
+import { Fragment, useEffect, useState } from "react";
 import { useTranslation } from "react-i18next";
 import useKeyboardShortcut from "use-keyboard-shortcut";
 
@@ -38,14 +38,14 @@ export function LocationSwitcher() {
   const { location: extractedLocation } = useCurrentLocation();
   const { state } = useSidebar();
   const { goBack } = useAppHistory();
-  const [location, setLocation] = useState<LocationList | undefined>(
-    extractedLocation
-      ? (extractedLocation as unknown as LocationList)
-      : undefined,
-  );
+  const [location, setLocation] = useState<LocationList | undefined>(undefined);
   const [openDialog, setOpenDialog] = useState(false);
 
   const fallbackUrl = `/facility/${facilityId}/overview`;
+
+  useEffect(() => {
+    setLocation(extractedLocation as unknown as LocationList);
+  }, [extractedLocation]);
 
   if (state === "collapsed") {
     return (
