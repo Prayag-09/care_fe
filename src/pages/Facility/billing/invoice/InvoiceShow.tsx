@@ -1,7 +1,15 @@
 import careConfig from "@careConfig";
 import { useMutation, useQuery, useQueryClient } from "@tanstack/react-query";
 import { format } from "date-fns";
-import { MoreHorizontal } from "lucide-react";
+import {
+  BanknoteArrowDownIcon,
+  Building2,
+  CreditCard,
+  FileCheck,
+  FileText,
+  MoreHorizontal,
+  Wallet,
+} from "lucide-react";
 import { Link } from "raviger";
 import React, { useState } from "react";
 import { useTranslation } from "react-i18next";
@@ -81,14 +89,17 @@ const paymentStatusMap: Record<
   entered_in_error: { label: "entered_in_error", color: "destructive" },
 };
 
-const paymentMethodMap: Record<PaymentReconciliationPaymentMethod, string> = {
-  cash: "Cash",
-  ccca: "Credit Card",
-  cchk: "Credit Check",
-  cdac: "Credit Account",
-  chck: "Check",
-  ddpo: "Direct Deposit",
-  debc: "Debit Card",
+const paymentMethodMap: Record<
+  PaymentReconciliationPaymentMethod,
+  { label: string; icon: React.ReactNode }
+> = {
+  cash: { label: "Cash", icon: <BanknoteArrowDownIcon className="size-5" /> },
+  ccca: { label: "Credit Card", icon: <CreditCard className="size-5" /> },
+  cchk: { label: "Credit Check", icon: <FileCheck className="size-5" /> },
+  cdac: { label: "Credit Account", icon: <Wallet className="size-5" /> },
+  chck: { label: "Check", icon: <FileText className="size-5" /> },
+  ddpo: { label: "Direct Deposit", icon: <Building2 className="size-5" /> },
+  debc: { label: "Debit Card", icon: <CreditCard className="size-5" /> },
 };
 
 export function InvoiceShow({
@@ -107,7 +118,14 @@ export function InvoiceShow({
   const [selectedStatus, setSelectedStatus] = useState<InvoiceStatus | null>(
     null,
   );
+  const [activeTab, setActiveTab] = useState<
+    "payment_history" | "invoice_activity"
+  >("payment_history");
   const queryClient = useQueryClient();
+
+  const activeTabStyle =
+    "border-b-2 border-primary font-medium text-primary-900";
+  const inactiveTabStyle = "text-gray-500 hover:text-gray-700 font-medium";
 
   const tableHeadClass = "border-r border-gray-200 font-semibold text-center";
   const tableCellClass =
@@ -307,7 +325,7 @@ export function InvoiceShow({
           )}
           {invoice?.status === InvoiceStatus.issued && (
             <Button
-              variant="primary"
+              variant="outline_primary"
               className="w-full flex flex-row justify-stretch items-center"
               onClick={() => handleStatusChange(InvoiceStatus.balanced)}
               disabled={isUpdatingInvoice}
@@ -831,89 +849,166 @@ export function InvoiceShow({
         </div>
 
         <div className="space-y-4">
-          <Card>
-            <CardHeader>
-              <CardTitle>{t("payment_history")}</CardTitle>
-            </CardHeader>
-            <CardContent>
-              <Table>
-                <TableHeader>
-                  <TableRow>
-                    <TableHead>{t("method")}</TableHead>
-                    <TableHead>{t("date")}</TableHead>
-                    <TableHead>{t("amount")}</TableHead>
-                    <TableHead>{t("status")}</TableHead>
-                  </TableRow>
-                </TableHeader>
-                <TableBody>
-                  {!payments?.results?.length || isPaymentsLoading ? (
-                    <TableRow>
-                      <TableCell
-                        colSpan={5}
-                        className="text-center text-sm text-gray-500"
-                      >
-                        {t("no_payments_recorded")}
-                      </TableCell>
-                    </TableRow>
-                  ) : (
-                    payments.results.map((payment) => (
-                      <TableRow key={payment.id}>
-                        <TableCell>
-                          {paymentMethodMap[payment.method]}
-                        </TableCell>
-                        <TableCell>
-                          {payment.payment_datetime
-                            ? format(
-                                new Date(payment.payment_datetime),
-                                "MMM d, yyyy hh:mm a",
-                              )
-                            : "-"}
-                        </TableCell>
-                        <TableCell>
-                          <MonetaryDisplay amount={payment.amount || 0} />
-                        </TableCell>
-                        <TableCell>
-                          <Badge
-                            variant={
-                              paymentStatusMap[payment.status].color as any
-                            }
-                          >
-                            {t(paymentStatusMap[payment.status].label)}
-                          </Badge>
-                        </TableCell>
-                      </TableRow>
-                    ))
-                  )}
-                </TableBody>
-              </Table>
-            </CardContent>
-          </Card>
-
-          <Card>
-            <CardHeader>
-              <CardTitle>{t("invoice_timeline")}</CardTitle>
-            </CardHeader>
-            <CardContent>
-              <div className="space-y-4">
-                <div className="relative pl-6">
-                  <div className="absolute left-0 top-2 size-2 rounded-full bg-primary" />
-                  <p className="font-medium">{t("invoice_created")}</p>
-                  <p className="text-sm text-gray-500">
-                    {format(new Date(), "MMM dd, yyyy")}
-                  </p>
+          <div className="flex space-x-6">
+            <div
+              className={cn(
+                "pb-2 cursor-pointer",
+                activeTab === "payment_history"
+                  ? activeTabStyle
+                  : inactiveTabStyle,
+              )}
+              onClick={() => setActiveTab("payment_history")}
+            >
+              {t("payment_history")}
+            </div>
+            <div
+              className={cn(
+                "pb-2 cursor-pointer",
+                activeTab === "invoice_activity"
+                  ? activeTabStyle
+                  : inactiveTabStyle,
+              )}
+              onClick={() => setActiveTab("invoice_activity")}
+            >
+              {t("invoice_activity")}
+            </div>
+          </div>
+          {activeTab === "payment_history" ? (
+            <div>
+              {!payments?.results?.length || isPaymentsLoading ? (
+                <div className="py-8 text-center text-sm text-gray-500">
+                  {t("no_payments_recorded")}
                 </div>
-                {invoice.status === InvoiceStatus.issued && (
-                  <div className="relative pl-6">
-                    <div className="absolute left-0 top-2 size-2 rounded-full bg-primary" />
-                    <p className="font-medium">{t("invoice_issued")}</p>
-                    <p className="text-sm text-gray-500">
-                      {format(new Date(), "MMM dd, yyyy")}
-                    </p>
+              ) : (
+                payments.results.map((payment, index) => (
+                  <div
+                    key={payment.id}
+                    className="relative flex items-start py-8 px-3  group"
+                  >
+                    <div className="absolute left-[38px] top-0 bottom-0 flex flex-col items-center">
+                      {index < payments.results.length - 1 && (
+                        <div className="absolute w-0.5 bg-gray-200 h-full top-12" />
+                      )}
+                      <div className="size-12 rounded-full flex items-center justify-center border-2 border-gray-300 shadow-sm z-10 bg-white text-gray-500">
+                        {paymentMethodMap[payment.method]?.icon}
+                      </div>
+                    </div>
+                    <div className="flex pl-22 w-full">
+                      <div className="flex justify-between items-start w-full -mt-6">
+                        <div>
+                          <p className="font-semibold text-gray-900 text-sm">
+                            {getCurrencySymbol()}{" "}
+                            <MonetaryDisplay
+                              amount={payment.amount || 0}
+                              hideCurrency
+                            />{" "}
+                            {t("paid_via")}{" "}
+                            {t(
+                              paymentMethodMap[payment.method]?.label ||
+                                payment.method,
+                            )}
+                          </p>
+                          <p className="font-medium text-gray-700 text-sm">
+                            {t("on")}{" "}
+                            {payment.payment_datetime
+                              ? format(
+                                  new Date(payment.payment_datetime),
+                                  "dd MMM, yyyy h:mm a",
+                                )
+                              : "-"}
+                          </p>
+                          {payment.reference_number && (
+                            <p className="font-medium text-gray-700 text-sm">
+                              Ref: {payment.reference_number}
+                            </p>
+                          )}
+                        </div>
+                        <Badge
+                          variant={
+                            paymentStatusMap[payment.status].color as any
+                          }
+                        >
+                          {t(paymentStatusMap[payment.status].label)}
+                        </Badge>
+                      </div>
+                    </div>
                   </div>
-                )}
-              </div>
-            </CardContent>
-          </Card>
+                ))
+              )}
+            </div>
+          ) : (
+            <div>
+              {(() => {
+                const events = [];
+
+                events.push({
+                  icon: <FileText className="size-5" />,
+                  title: t("invoice_created"),
+                });
+
+                if (
+                  invoice.status === InvoiceStatus.issued ||
+                  invoice.status === InvoiceStatus.balanced
+                ) {
+                  events.push({
+                    icon: <FileCheck className="size-5" />,
+                    title: t("invoice_issued"),
+                  });
+                }
+
+                if (invoice.status === InvoiceStatus.balanced) {
+                  events.push({
+                    icon: <Wallet className="size-5" />,
+                    title: t("invoice_balanced"),
+                  });
+                }
+
+                if (
+                  invoice.status === InvoiceStatus.cancelled ||
+                  invoice.status === InvoiceStatus.entered_in_error
+                ) {
+                  events.push({
+                    icon: <CareIcon icon="l-times-circle" className="size-5" />,
+                    title:
+                      invoice.status === InvoiceStatus.cancelled
+                        ? t("invoice_cancelled")
+                        : t("invoice") + " " + t("entered_in_error"),
+                  });
+                }
+
+                return events.length === 0 ? (
+                  <div className="py-8 text-center text-sm text-gray-500">
+                    {t("no_activity_recorded")}
+                  </div>
+                ) : (
+                  events.map((event, index) => (
+                    <div
+                      key={index}
+                      className="relative flex items-start py-10 px-3 group"
+                    >
+                      <div className="absolute left-[38px] top-0 bottom-0 flex flex-col items-center">
+                        {index < events.length - 1 && (
+                          <div className="absolute w-0.5 bg-gray-200 h-full top-12" />
+                        )}
+                        <div className="size-12 rounded-full flex items-center justify-center border-2 border-gray-300 shadow-sm z-10 bg-white text-gray-500">
+                          {event.icon}
+                        </div>
+                      </div>
+                      <div className="flex pl-22 w-full">
+                        <div className="flex justify-between items-start w-full -mt-6">
+                          <div>
+                            <p className="font-semibold text-gray-900 text-sm">
+                              {event.title}
+                            </p>
+                          </div>
+                        </div>
+                      </div>
+                    </div>
+                  ))
+                );
+              })()}
+            </div>
+          )}
         </div>
       </div>
 
