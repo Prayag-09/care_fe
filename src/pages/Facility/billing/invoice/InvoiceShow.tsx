@@ -1,3 +1,4 @@
+import careConfig from "@careConfig";
 import { useMutation, useQuery, useQueryClient } from "@tanstack/react-query";
 import { format } from "date-fns";
 import { MoreHorizontal } from "lucide-react";
@@ -56,6 +57,7 @@ import EditInvoiceSheet from "@/pages/Facility/billing/invoice/EditInvoiceSheet"
 import { MonetaryComponentType } from "@/types/base/monetaryComponent/monetaryComponent";
 import chargeItemApi from "@/types/billing/chargeItem/chargeItemApi";
 import {
+  INVOICE_STATUS_STYLES,
   InvoiceCreate,
   InvoiceRead,
   InvoiceStatus,
@@ -68,14 +70,6 @@ import {
 } from "@/types/billing/paymentReconciliation/paymentReconciliation";
 import paymentReconciliationApi from "@/types/billing/paymentReconciliation/paymentReconciliationApi";
 import facilityApi from "@/types/facility/facilityApi";
-
-const statusMap: Record<InvoiceStatus, { label: string; color: string }> = {
-  draft: { label: "Draft", color: "secondary" },
-  issued: { label: "Issued", color: "primary" },
-  balanced: { label: "Balanced", color: "success" },
-  cancelled: { label: "Cancelled", color: "destructive" },
-  entered_in_error: { label: "Error", color: "destructive" },
-};
 
 const paymentStatusMap: Record<
   PaymentReconciliationStatus,
@@ -289,38 +283,26 @@ export function InvoiceShow({
     <div className="space-y-8">
       <div className="flex items-center justify-between">
         <div className="flex items-center gap-4">
-          <Button variant="ghost" asChild>
+          <Button variant="outline" className="border-gray-400 gap-1" asChild>
             {/* TODO: Redirect to the account that the invoice is for once the API is updated */}
             <Link
               href={`/facility/${facilityId}/billing/account/${invoice.account.id}`}
             >
               <CareIcon icon="l-arrow-left" className="size-4" />
+              <span className="text-gray-950 font-medium">{t("back")}</span>
             </Link>
           </Button>
-          <div className="flex flex-col gap-1">
-            <div className="flex items-center gap-1">
-              <h1 className="text-2xl font-bold">{t("invoice")}</h1>
-
-              <Badge
-                variant={statusMap[invoice.status].color as any}
-                className="ml-2"
-              >
-                {statusMap[invoice.status].label}
-              </Badge>
-            </div>
-            <span className="text-sm text-gray-500"> {invoice.id}</span>
-          </div>
         </div>
         <div className="flex gap-2">
           {invoice?.status === InvoiceStatus.draft && (
             <Button
-              variant="primary"
+              variant="outline_primary"
               className="w-full flex flex-row justify-stretch items-center"
               onClick={() => handleStatusChange(InvoiceStatus.issued)}
               disabled={isUpdatingInvoice}
             >
-              <CareIcon icon="l-wallet" className="mr-1" />
-              {t("mark_as_issued")}
+              <CareIcon icon="l-check" className="size-5" />
+              {t("issue_invoice")}
             </Button>
           )}
           {invoice?.status === InvoiceStatus.issued && (
@@ -334,67 +316,9 @@ export function InvoiceShow({
               {t("mark_as_balanced")}
             </Button>
           )}
-          {canEdit && (
-            <DropdownMenu>
-              <DropdownMenuTrigger asChild>
-                <Button
-                  variant="outline"
-                  data-cy="invoice-actions-button"
-                  className="px-2"
-                >
-                  <CareIcon icon="l-ellipsis-v" />
-                </Button>
-              </DropdownMenuTrigger>
-              <DropdownMenuContent align="end">
-                <DropdownMenuItem asChild className="text-primary-900">
-                  <Button
-                    variant="ghost"
-                    onClick={() => handleStatusChange(InvoiceStatus.cancelled)}
-                    disabled={isCancelPending}
-                    className="w-full flex flex-row justify-stretch items-center"
-                    data-cy="invoice-cancel-button"
-                  >
-                    <CareIcon icon="l-times-circle" className="mr-1" />
-                    <span>{t("mark_as_cancelled")}</span>
-                  </Button>
-                </DropdownMenuItem>
-                <DropdownMenuItem asChild className="text-primary-900">
-                  <Button
-                    variant="ghost"
-                    onClick={() =>
-                      handleStatusChange(InvoiceStatus.entered_in_error)
-                    }
-                    disabled={isCancelPending}
-                    className="w-full flex flex-row justify-stretch items-center"
-                    data-cy="invoice-mark-error-button"
-                  >
-                    <CareIcon icon="l-exclamation-circle" className="mr-1" />
-                    <span>{t("mark_as_entered_in_error")}</span>
-                  </Button>
-                </DropdownMenuItem>
-              </DropdownMenuContent>
-            </DropdownMenu>
-          )}
-          <EditInvoiceSheet
-            facilityId={facilityId}
-            invoiceId={invoiceId}
-            onSuccess={() => {
-              queryClient.invalidateQueries({
-                queryKey: ["invoice", invoiceId],
-              });
-            }}
-          />
-          <Button variant="outline" asChild>
-            <Link
-              href={`/facility/${facilityId}/billing/invoice/${invoiceId}/print`}
-            >
-              <CareIcon icon="l-print" className="mr-2 size-4" />
-              {t("print")}
-            </Link>
-          </Button>
           {invoice.status === InvoiceStatus.issued && (
             <Button onClick={() => setIsPaymentSheetOpen(true)}>
-              <CareIcon icon="l-wallet" className="mr-2 size-4" />
+              <CareIcon icon="l-plus" className="mr-2 size-4" />
               {t("record_payment")}
             </Button>
           )}
@@ -403,43 +327,138 @@ export function InvoiceShow({
 
       <div className="grid gap-4 md:grid-cols-3">
         <div className="md:col-span-2">
-          <Card>
-            <CardHeader>
-              <CardTitle className="flex flex-row justify-between items-center">
-                <div className="space-y-1">
-                  <div className="font-medium text-xl">
-                    {t("invoice_details")}
+          <div className="flex flex-row justify-between items-center mb-4">
+            <div className="flex flex-row items-center gap-2">
+              <span className="font-semibold text-gray-950 text-base">
+                {t("invoice")}: {invoice.title || invoice.id}
+              </span>
+              <Badge
+                variant="outline"
+                className={cn(INVOICE_STATUS_STYLES[invoice.status])}
+              >
+                {t(invoice.status)}
+              </Badge>
+            </div>
+            <div className="flex flex-row gap-2">
+              <EditInvoiceSheet
+                facilityId={facilityId}
+                invoiceId={invoiceId}
+                onSuccess={() => {
+                  queryClient.invalidateQueries({
+                    queryKey: ["invoice", invoiceId],
+                  });
+                }}
+              />
+              <Button
+                variant="outline"
+                asChild
+                className="border-gray-400 gap-1"
+              >
+                <Link
+                  href={`/facility/${facilityId}/billing/invoice/${invoiceId}/print`}
+                >
+                  <CareIcon icon="l-print" className="size-4" />
+                  {t("print")}
+                </Link>
+              </Button>
+              {canEdit && (
+                <DropdownMenu>
+                  <DropdownMenuTrigger asChild>
+                    <Button
+                      variant="outline"
+                      data-cy="invoice-actions-button"
+                      className="border-gray-400 px-2"
+                    >
+                      <CareIcon icon="l-ellipsis-v" />
+                    </Button>
+                  </DropdownMenuTrigger>
+                  <DropdownMenuContent align="end">
+                    <DropdownMenuItem asChild className="text-primary-900">
+                      <Button
+                        variant="ghost"
+                        onClick={() =>
+                          handleStatusChange(InvoiceStatus.cancelled)
+                        }
+                        disabled={isCancelPending}
+                        className="w-full flex flex-row justify-stretch items-center"
+                        data-cy="invoice-cancel-button"
+                      >
+                        <CareIcon icon="l-times-circle" className="mr-1" />
+                        <span>{t("mark_as_cancelled")}</span>
+                      </Button>
+                    </DropdownMenuItem>
+                    <DropdownMenuItem asChild className="text-primary-900">
+                      <Button
+                        variant="ghost"
+                        onClick={() =>
+                          handleStatusChange(InvoiceStatus.entered_in_error)
+                        }
+                        disabled={isCancelPending}
+                        className="w-full flex flex-row justify-stretch items-center"
+                        data-cy="invoice-mark-error-button"
+                      >
+                        <CareIcon
+                          icon="l-exclamation-circle"
+                          className="mr-1"
+                        />
+                        <span>{t("mark_as_entered_in_error")}</span>
+                      </Button>
+                    </DropdownMenuItem>
+                  </DropdownMenuContent>
+                </DropdownMenu>
+              )}
+            </div>
+          </div>
+          <Card className="rounded-sm shadow-sm">
+            <CardHeader className="px-4 py-0">
+              <CardTitle>
+                <div className="flex flex-row mb-6 justify-between items-center pt-2">
+                  <img
+                    src={careConfig.mainLogo?.dark}
+                    alt="Care Logo"
+                    className="h-10 w-auto object-contain"
+                  />
+                  <div className="flex flex-col text-right">
+                    <div className="font-semibold text-gray-950 text-base uppercase">
+                      {facilityData?.name}
+                    </div>
+                    <div className="text-gray-600 text-sm font-medium">
+                      {facilityData?.address}
+                    </div>
+                    <div className="text-gray-600 text-sm font-medium">
+                      {facilityData?.phone_number}
+                    </div>
                   </div>
                 </div>
-                {invoice.status === InvoiceStatus.draft && (
-                  <AddChargeItemSheet
-                    facilityId={facilityId}
-                    invoiceId={invoiceId}
-                    accountId={invoice.account.id}
-                    trigger={
-                      <Button variant="primary">
-                        <CareIcon icon="l-plus" className="mr-2 size-4" />
-                        {t("add_charge_item")}
-                      </Button>
-                    }
-                  />
-                )}
+                <div>
+                  <div className="font-semibold text-gray-950 text-base uppercase">
+                    {t("tax_invoice")}
+                  </div>
+                  <div className="text-gray-600 text-sm font-medium">
+                    {invoice.title || invoice.id}
+                  </div>
+                </div>
               </CardTitle>
             </CardHeader>
-            <CardContent className="space-y-4">
+
+            <div className="px-4 py-0 my-4 text-gray-200">
+              <Separator />
+            </div>
+
+            <CardContent className="space-y-4 px-4 pt-0 pb-8">
               <div className="grid gap-6 md:grid-cols-2">
                 <div>
-                  <div className="font-semibold text-gray-500 mb-2">
-                    {t("bill_to")}
+                  <div className="font-medium text-gray-700 text-sm">
+                    {t("bill_to")}:
                   </div>
                   <div>
-                    <p className="font-medium">
+                    <p className="font-semibold text-gray-950 text-base">
                       {invoice.account.patient.name}
                     </p>
-                    <p className="font-normal whitespace-pre-wrap">
+                    <p className="font-medium text-gray-700 text-sm">
                       {invoice.account.patient.address}
                     </p>
-                    <p className="text-sm text-gray-500">
+                    <p className="font-medium text-gray-700 text-sm">
                       {t("phone")}:{" "}
                       {formatPhoneNumberIntl(
                         invoice.account.patient.phone_number,
@@ -450,23 +469,17 @@ export function InvoiceShow({
                     {invoice.note && <p>{invoice.note}</p>}
                   </div>
                 </div>
-              </div>
-              <div className="grid grid-cols-3 gap-4 mb-6 mt-4">
-                <div>
-                  <h3 className="text-sm font-medium text-gray-500 mb-1">
-                    Invoice Number
-                  </h3>
-                  <p className="text-sm">{invoice.title || invoice.id}</p>
-                </div>
-                <div>
-                  <h3 className="text-sm font-medium text-gray-500 mb-1">
-                    Issue Date
-                  </h3>
-                  {/* <p className="text-sm">{formatDate(invoice.created_at)}</p> */}
+                <div className="text-right">
+                  <div className="font-medium text-gray-700 text-sm">
+                    {t("issue_date")}:
+                  </div>
+                  <p className="font-medium text-gray-950 text-sm">
+                    {/* {formatDate(invoice.created_at, "MM/dd/yyyy")} */}
+                  </p>
                 </div>
               </div>
 
-              <div className="rounded-sm border border-gray-300 shadow-xs overflow-hidden">
+              <div className="rounded-t-sm border border-gray-300">
                 <Table>
                   <TableHeader>
                     <TableRow className="border-b border-gray-200">
@@ -678,110 +691,135 @@ export function InvoiceShow({
                 </Table>
               </div>
 
-              <div className="flex flex-col items-end space-y-2">
-                {/* Base Amount */}
-                {invoice.total_price_components
-                  ?.filter(
-                    (c) =>
-                      c.monetary_component_type === MonetaryComponentType.base,
-                  )
-                  .map((component, index) => (
-                    <div
-                      key={`base-${index}`}
-                      className="flex w-64 justify-between"
-                    >
-                      <span className="text-gray-500">
-                        {component.code?.display || t("base_amount")}
-                      </span>
-                      <MonetaryDisplay amount={component.amount} />
-                    </div>
-                  ))}
+              <div className="border-x border-b border-gray-300 rounded-b-md p-2 -mt-4 border-t-none space-y-2">
+                {invoice.status === InvoiceStatus.draft && (
+                  <AddChargeItemSheet
+                    facilityId={facilityId}
+                    invoiceId={invoiceId}
+                    accountId={invoice.account.id}
+                    trigger={
+                      <Button
+                        variant="ghost"
+                        className="w-full border border-gray-400 text-gray-950 font-semibold text-sm shadow-sm"
+                      >
+                        <CareIcon icon="l-plus" className="mr-2 size-4" />
+                        {t("add_charge_item")}
+                      </Button>
+                    }
+                  />
+                )}
 
-                {/* Surcharges */}
-                {invoice.total_price_components
-                  ?.filter(
-                    (c) =>
-                      c.monetary_component_type ===
-                      MonetaryComponentType.surcharge,
-                  )
-                  .map((component, index) => (
-                    <div
-                      key={`discount-${index}`}
-                      className="flex w-64 justify-between text-gray-500 text-sm"
-                    >
-                      <span>
-                        {component.code && `${component.code.display} `}(
-                        {t("surcharge")})
-                      </span>
-                      <span>
-                        + <MonetaryDisplay {...component} />
-                      </span>
-                    </div>
-                  ))}
+                <div className="flex flex-col items-end space-y-2 text-gray-950 font-mormal text-sm mb-4">
+                  {/* Base Amount */}
+                  {invoice.total_price_components
+                    ?.filter(
+                      (c) =>
+                        c.monetary_component_type ===
+                        MonetaryComponentType.base,
+                    )
+                    .map((component, index) => (
+                      <div
+                        key={`base-${index}`}
+                        className="flex w-64 justify-between"
+                      >
+                        <span className="">
+                          {component.code?.display || t("base_amount")}:
+                        </span>
+                        <span className="font-semibold">
+                          <MonetaryDisplay amount={component.amount} />
+                        </span>
+                      </div>
+                    ))}
 
-                {/* Discounts */}
-                {invoice.total_price_components
-                  ?.filter(
-                    (c) =>
-                      c.monetary_component_type ===
-                      MonetaryComponentType.discount,
-                  )
-                  .map((component, index) => (
-                    <div
-                      key={`discount-${index}`}
-                      className="flex w-64 justify-between text-gray-500 text-sm"
-                    >
-                      <span>
-                        {component.code && `${component.code.display} `}(
-                        {t("discount")})
-                      </span>
-                      <span>
-                        - <MonetaryDisplay {...component} />
-                      </span>
-                    </div>
-                  ))}
+                  {/* Surcharges */}
+                  {invoice.total_price_components
+                    ?.filter(
+                      (c) =>
+                        c.monetary_component_type ===
+                        MonetaryComponentType.surcharge,
+                    )
+                    .map((component, index) => (
+                      <div
+                        key={`discount-${index}`}
+                        className="flex w-64 justify-between text-gray-500 text-sm"
+                      >
+                        <span>
+                          {component.code && `${component.code.display} `}(
+                          {t("surcharge")})
+                        </span>
+                        <span>
+                          + <MonetaryDisplay {...component} />
+                        </span>
+                      </div>
+                    ))}
 
-                {/* Taxes */}
-                {invoice.total_price_components
-                  ?.filter(
-                    (c) =>
-                      c.monetary_component_type === MonetaryComponentType.tax,
-                  )
-                  .map((component, index) => (
-                    <div
-                      key={`tax-${index}`}
-                      className="flex w-64 justify-between text-gray-500 text-sm"
-                    >
-                      <span>
-                        {component.code && `${component.code.display} `}(
-                        {t("tax")})
-                      </span>
-                      <span>
-                        + <MonetaryDisplay {...component} />
-                      </span>
-                    </div>
-                  ))}
+                  {/* Discounts */}
+                  {invoice.total_price_components
+                    ?.filter(
+                      (c) =>
+                        c.monetary_component_type ===
+                        MonetaryComponentType.discount,
+                    )
+                    .map((component, index) => (
+                      <div
+                        key={`discount-${index}`}
+                        className="flex w-64 justify-between text-gray-500 text-sm"
+                      >
+                        <span>
+                          {component.code && `${component.code.display} `}(
+                          {t("discount")})
+                        </span>
+                        <span>
+                          - <MonetaryDisplay {...component} />
+                        </span>
+                      </div>
+                    ))}
 
-                <Separator className="my-2" />
+                  {/* Taxes */}
+                  {invoice.total_price_components
+                    ?.filter(
+                      (c) =>
+                        c.monetary_component_type === MonetaryComponentType.tax,
+                    )
+                    .map((component, index) => (
+                      <div
+                        key={`tax-${index}`}
+                        className="flex w-64 justify-between text-gray-500 text-sm"
+                      >
+                        <span>
+                          {component.code && `${component.code.display} `}(
+                          {t("tax")})
+                        </span>
+                        <span>
+                          + <MonetaryDisplay {...component} />
+                        </span>
+                      </div>
+                    ))}
 
-                {/* Subtotal */}
-                <div className="flex w-64 justify-between">
-                  <span className="text-gray-500">{t("net_amount")}</span>
-                  <MonetaryDisplay amount={invoice.total_net} />
-                </div>
+                  {/* Subtotal */}
+                  <div className="flex w-64 justify-between">
+                    <span className="text-gray-500">{t("net_amount")}</span>
+                    <MonetaryDisplay amount={invoice.total_net} />
+                  </div>
 
-                {/* Total */}
-                <div className="flex w-64 justify-between font-bold">
-                  <span>{t("total")}</span>
-                  <MonetaryDisplay amount={invoice.total_gross} />
+                  <div className="p-1 border-t-2 border-dashed border-gray-200 w-full" />
+
+                  {/* Total */}
+                  <div className="flex w-64 justify-between font-bold">
+                    <span>{t("total")}</span>
+                    <MonetaryDisplay amount={invoice.total_gross} />
+                  </div>
+                  <div className="p-1 border-b-2 border-dashed border-gray-200 w-full" />
                 </div>
               </div>
             </CardContent>
           </Card>
           <div>
             {invoice.payment_terms && (
-              <Card className="mt-4">
-                <CardHeader>{t("payment_terms")}</CardHeader>
+              <Card className="mt-8 rounded-sm shadow-sm">
+                <CardHeader className="font-semibold text-gray-950">
+                  {t("payment_terms")}
+                </CardHeader>
                 <CardContent>
                   <p className="prose w-full text-sm">
                     {invoice.payment_terms}

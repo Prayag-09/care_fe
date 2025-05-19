@@ -131,9 +131,12 @@ export default function EditInvoiceSheet({
     <Sheet open={open} onOpenChange={setOpen}>
       <SheetTrigger asChild>
         {trigger || (
-          <Button variant="outline">
-            <CareIcon icon="l-pen" className="mr-2 size-4" />
-            {t("edit_invoice")}
+          <Button variant="outline" className="border-gray-400 gap-1">
+            <CareIcon
+              icon="l-edit"
+              className="size-5 stroke-gray-400 stroke-0 font-normal"
+            />
+            <span className="text-gray-950 font-medium">{t("edit")}</span>
           </Button>
         )}
       </SheetTrigger>
