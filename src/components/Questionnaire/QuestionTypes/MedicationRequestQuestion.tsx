@@ -853,6 +853,7 @@ const MedicationRequestGridRow: React.FC<MedicationRequestGridRowProps> = ({
               }));
             }}
             disabled={disabled || isReadOnly}
+            className="lg:max-w-[200px]"
           />
         </div>
         <div>
@@ -870,6 +871,7 @@ const MedicationRequestGridRow: React.FC<MedicationRequestGridRowProps> = ({
               }));
             }}
             disabled={disabled || !localDoseRange.low.value || isReadOnly}
+            className="lg:max-w-[200px]"
           />
         </div>
         <div className="flex justify-end gap-2">
@@ -999,6 +1001,7 @@ const MedicationRequestGridRow: React.FC<MedicationRequestGridRowProps> = ({
                     });
                   }}
                   disabled={disabled || isReadOnly}
+                  className="lg:max-w-[200px]"
                 />
               </div>
               <div className="flex justify-end">
