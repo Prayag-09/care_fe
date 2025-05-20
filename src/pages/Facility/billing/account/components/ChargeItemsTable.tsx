@@ -132,7 +132,7 @@ export function ChargeItemsTable({
   const [expandedItems, setExpandedItems] = useState<Record<string, boolean>>(
     {},
   );
-  const { qParams, updateQuery } = useFilters({
+  const { qParams, updateQuery, Pagination, resultsPerPage } = useFilters({
     limit: 15,
     disableCache: true,
   });
@@ -144,9 +144,14 @@ export function ChargeItemsTable({
       queryParams: {
         account: accountId,
         status: qParams.charge_item_status,
+        limit: resultsPerPage,
+        offset: ((qParams.page ?? 1) - 1) * resultsPerPage,
       },
     }),
-  }) as { data: { results: ChargeItemRead[] } | undefined; isLoading: boolean };
+  }) as {
+    data: { results: ChargeItemRead[]; count: number } | undefined;
+    isLoading: boolean;
+  };
 
   const toggleItemExpand = (itemId: string) => {
     setExpandedItems((prev) => ({
@@ -412,6 +417,7 @@ export function ChargeItemsTable({
           </TableBody>
         </Table>
       )}
+      <Pagination totalCount={chargeItems?.count || 0} />
     </div>
   );
 }
