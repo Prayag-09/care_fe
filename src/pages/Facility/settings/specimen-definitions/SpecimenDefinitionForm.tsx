@@ -234,7 +234,7 @@ export function SpecimenDefinitionForm({
                   control={form.control}
                   name="title"
                   render={({ field }) => (
-                    <FormItem>
+                    <FormItem className="flex flex-col">
                       <FormLabel>{t("title")}</FormLabel>
                       <FormControl>
                         <Input placeholder={t("title")} {...field} />
@@ -248,7 +248,7 @@ export function SpecimenDefinitionForm({
                   control={form.control}
                   name="slug"
                   render={({ field }) => (
-                    <FormItem>
+                    <FormItem className="flex flex-col">
                       <FormLabel>{t("slug")}</FormLabel>
                       <FormControl>
                         <Input
@@ -268,7 +268,7 @@ export function SpecimenDefinitionForm({
                   control={form.control}
                   name="status"
                   render={({ field }) => (
-                    <FormItem>
+                    <FormItem className="flex flex-col">
                       <FormLabel>{t("status")}</FormLabel>
                       <Select
                         onValueChange={field.onChange}
@@ -296,7 +296,7 @@ export function SpecimenDefinitionForm({
                   control={form.control}
                   name="derived_from_uri"
                   render={({ field }) => (
-                    <FormItem>
+                    <FormItem className="flex flex-col">
                       <FormLabel>{t("derived_from_uri")}</FormLabel>
                       <FormControl>
                         <Input
@@ -315,7 +315,7 @@ export function SpecimenDefinitionForm({
                 control={form.control}
                 name="description"
                 render={({ field }) => (
-                  <FormItem>
+                  <FormItem className="flex flex-col">
                     <FormLabel>{t("description")}</FormLabel>
                     <FormControl>
                       <Textarea placeholder={t("description")} {...field} />
@@ -334,7 +334,7 @@ export function SpecimenDefinitionForm({
                   control={form.control}
                   name="type_collected"
                   render={({ field }) => (
-                    <FormItem>
+                    <FormItem className="flex flex-col">
                       <FormLabel>{t("type_collected")}</FormLabel>
                       <FormControl>
                         <ValueSetSelect
@@ -354,7 +354,7 @@ export function SpecimenDefinitionForm({
                   control={form.control}
                   name="collection"
                   render={({ field }) => (
-                    <FormItem>
+                    <FormItem className="flex flex-col">
                       <FormLabel>{t("collection")}</FormLabel>
                       <FormControl>
                         <ValueSetSelect
@@ -375,7 +375,7 @@ export function SpecimenDefinitionForm({
                 control={form.control}
                 name="patient_preparation"
                 render={({ field }) => (
-                  <FormItem>
+                  <FormItem className="flex flex-col">
                     <FormLabel>{t("patient_preparation")}</FormLabel>
                     <div className="space-y-2">
                       {field.value.map(
@@ -467,7 +467,7 @@ export function SpecimenDefinitionForm({
                   control={form.control}
                   name="type_tested.specimen_type"
                   render={({ field }) => (
-                    <FormItem>
+                    <FormItem className="flex flex-col">
                       <FormLabel>{t("specimen_type")}</FormLabel>
                       <FormControl>
                         <ValueSetSelect
@@ -489,7 +489,7 @@ export function SpecimenDefinitionForm({
                   control={form.control}
                   name="type_tested.preference"
                   render={({ field }) => (
-                    <FormItem>
+                    <FormItem className="flex flex-col">
                       <FormLabel>{t("preference")}</FormLabel>
                       <Select
                         onValueChange={field.onChange}
@@ -518,7 +518,7 @@ export function SpecimenDefinitionForm({
                   control={form.control}
                   name="type_tested.retention_time"
                   render={({ field }) => (
-                    <FormItem>
+                    <FormItem className="flex flex-col">
                       <FormLabel>{t("retention_time")}</FormLabel>
                       <FormControl>
                         <ComboboxQuantityInput
@@ -544,7 +544,7 @@ export function SpecimenDefinitionForm({
                   control={form.control}
                   name="type_tested.requirement"
                   render={({ field }) => (
-                    <FormItem>
+                    <FormItem className="flex flex-col">
                       <FormLabel>{t("requirement")}</FormLabel>
                       <FormControl>
                         <Textarea
@@ -567,7 +567,7 @@ export function SpecimenDefinitionForm({
                   control={form.control}
                   name="type_tested.container.description"
                   render={({ field }) => (
-                    <FormItem>
+                    <FormItem className="flex flex-col">
                       <FormLabel>{t("description")}</FormLabel>
                       <FormControl>
                         <Textarea
@@ -587,7 +587,7 @@ export function SpecimenDefinitionForm({
                       control={form.control}
                       name="type_tested.container.capacity"
                       render={({ field }) => (
-                        <FormItem>
+                        <FormItem className="flex flex-col">
                           <FormLabel>{t("capacity")}</FormLabel>
                           <FormControl>
                             <ComboboxQuantityInput
@@ -639,7 +639,7 @@ export function SpecimenDefinitionForm({
                             control={form.control}
                             name="type_tested.container.minimum_volume.quantity"
                             render={({ field }) => (
-                              <FormItem>
+                              <FormItem className="flex flex-col">
                                 <FormControl>
                                   <ComboboxQuantityInput
                                     quantity={
@@ -674,7 +674,7 @@ export function SpecimenDefinitionForm({
                             control={form.control}
                             name="type_tested.container.minimum_volume.string"
                             render={({ field }) => (
-                              <FormItem>
+                              <FormItem className="flex flex-col">
                                 <FormControl>
                                   <Input
                                     placeholder={t("enter_minimum_volume")}
@@ -704,7 +704,7 @@ export function SpecimenDefinitionForm({
                     control={form.control}
                     name="type_tested.container.cap"
                     render={({ field }) => (
-                      <FormItem>
+                      <FormItem className="flex flex-col">
                         <FormLabel>{t("cap")}</FormLabel>
                         <FormControl>
                           <ValueSetSelect
@@ -724,7 +724,7 @@ export function SpecimenDefinitionForm({
                   control={form.control}
                   name="type_tested.container.preparation"
                   render={({ field }) => (
-                    <FormItem>
+                    <FormItem className="flex flex-col">
                       <FormLabel>{t("preparation")}</FormLabel>
                       <FormControl>
                         <Textarea

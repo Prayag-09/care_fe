@@ -8,14 +8,7 @@ x : Done
 
 ## Pharmacy
 
-- [x] Clean up product knowledge and fix update - Khavin
-- [ ] Clean up product and support edit form product knowledge
-- [x] List - Supply request & delivery - Incoming/Requested filter - url wise - Amjith
-- [-] Request inside delivery, and vice versa - Amjith
-- [-] Create delivery inside request - Amjith
-- [ ] Charge item inside Product (Select and Create new)
-- [ ] Inventory list
-- [ ] Fix search, navigation and scroll for Suppliers page
+- [- ] Fix search, navigation and scroll for Suppliers page - Yash
 - [ ] Add option to archive suppliers
 - [ ] Add status based filters for product knowledge
 
@@ -26,24 +19,23 @@ x : Done
 - [-] Add support for information components in chargeDef and Charge Item. - Rithvik
 - [-] Consider disabling onWheelChange for input[type=number] fields. - [hold till @bodhi confirms]
 - [ ] When Creating charge item in questionnaire we should allow users to pick discount and tax and quantitiy
-- [x] Move account as a pill in the encounter, it should only fetch the account if its clicked, show the account details in a sheet and show option to navigate to the accounts page (Sheet - Render account details/Create account button) - Yash
 
 ## Labs
 
 - [-] Add support for multiple diagnostic report for a service request - [hold till @bodhi confirms]
 - [-] Service Request - Show specimen.collection.collector details instead of UUID (After BE change) - Vignesh
 - [-] Service Request - Show specimen.processing.performer details instead of UUID (After BE change) - Vignesh
-- [x] Make Activity Definiton search inside the service request question working
+
 - [ ] Healthcare Service edit - Location expand missing in sheet
-- [ ] Specimen Definition - The 2x2 grid UI breaks when the error message is triggered and only one of the fields/columns is filled
-- [ ] Specimen Definition - Add * for required fields and frontend validation for Retention Time, Capacity, Minimum Volume, Type Collected, Title, and Slug
-- [ ] Specimen Definition - Remove 0 prefilled value in Retention time, capacity, and minimum value
+- [x] Specimen Definition - The 2x2 grid UI breaks when the error message is triggered and only one of the fields/columns is filled - Amjith
+- [ ] Specimen Definition - Add \* for required fields and frontend validation for Retention Time, Capacity, Minimum Volume, Type Collected, Title, and Slug
+- [-] Specimen Definition - Remove 0 prefilled value in Retention time, capacity, and minimum value - Yash
 - [ ] Specimen Definition - Add frontend permission check for the Specimen Definition page at the facility level.
 - [ ] Specimen Definition - The cancel button in the form is not working
 - [ ] Specimen Definition - Increase the width of retention time and capacity to full width in the edit page
 - [ ] Specimen Definition - Add URL validation to the field Derived from URL
-- [ ] Create Observation Definition - Add * to Title, Slug, Description, Category, Status, and Data Type fields.
-- [ ] Create Observation Definition - Add missing asterisk and frontend validation for the LOINC field 
+- [ ] Create Observation Definition - Add \* to Title, Slug, Description, Category, Status, and Data Type fields.
+- [ ] Create Observation Definition - Add missing asterisk and frontend validation for the LOINC field
 - [ ] Create Observation Definition - Add missing translation for edit_observation_definition form heading
 - [ ] Create Observation Definition - The category filter in the list view is not working
 - [ ] Active Definition - Add asterisks to Title, Slug, Description, Usage, and Category fields.
@@ -62,7 +54,6 @@ x : Done
 - [ ] SR Details page - Disable the process step once the report generation is done | Confirm with Bodhi before working on this
 - [ ] SR overview page - Show the current status of the service request. Upon completion, update the status from active to complete
 - [ ] SR Questionnaire - Investigate placement of Priority and Urgent text fields, as the text field appears in Overview and the request in the SR tab upon submission. Currently, Priority is recorded both as structured data and plain text in the same question.
-
 
 ## Back End
 
@@ -117,6 +108,7 @@ x : Done
 - [x] Build a flow for account balanceing and closing (Close button - mark as inactive and select close reason dropdown) - Jeevan
 - [x] Allow serch for discount codes - Rithvik
 - [x] When Creating charge item in questionnaire we should display applicable discounts and tax and amounts from the charge item def as read-only - Yaswanth
+- [x] Move account as a pill in the encounter, it should only fetch the account if its clicked, show the account details in a sheet and show option to navigate to the accounts page (Sheet - Render account details/Create account button) - Yash
 
 ## Labs
 
@@ -142,3 +134,14 @@ x : Done
 - [x] [!BUG!] Allow re-creating the draft specimen after discrard - when the specimen is not in available or draft status - Yaswanth
 - [x] Service request should show linked cahrge items along with its status - Amjith
 - [x] Print all Barcodes button for a service request with page setup - Yaswanth
+- [x] Make Activity Definiton search inside the service request question working
+
+## Pharmacy
+
+- [x] Clean up product knowledge and fix update - Khavin
+- [x] Clean up product and support edit form product knowledge
+- [x] List - Supply request & delivery - Incoming/Requested filter - url wise - Amjith
+- [x] Request inside delivery, and vice versa - Amjith
+- [x] Create delivery inside request - Amjith
+- [x] Charge item inside Product (Select and Create new)
+- [x] Inventory list
