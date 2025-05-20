@@ -1,4 +1,3 @@
-import { ExternalLinkIcon } from "@radix-ui/react-icons";
 import { useMutation, useQuery, useQueryClient } from "@tanstack/react-query";
 import { useState } from "react";
 import { useTranslation } from "react-i18next";
@@ -38,9 +37,7 @@ import { EmptyState } from "@/components/definition-list/EmptyState";
 import useFilters from "@/hooks/useFilters";
 
 import query from "@/Utils/request/query";
-import { AccountStatus } from "@/types/billing/account/Account";
-import { AccountBillingStatus } from "@/types/billing/account/Account";
-import accountApi from "@/types/billing/account/accountApi";
+import ViewDefaultAccountButton from "@/pages/Facility/billing/account/ViewDefaultAccountButton";
 import { ChargeItemStatus } from "@/types/billing/chargeItem/chargeItem";
 import {
   MedicationDispenseCategory,
@@ -188,20 +185,6 @@ export default function DispensedMedicationList({
     disableCache: true,
   });
 
-  const { data: account } = useQuery({
-    queryKey: ["accounts", patientId],
-    queryFn: query(accountApi.listAccount, {
-      pathParams: { facilityId },
-      queryParams: {
-        patient: patientId,
-        limit: 1,
-        offset: 0,
-        status: AccountStatus.active,
-        billing_status: AccountBillingStatus.open,
-      },
-    }),
-  });
-
   const { data: response, isLoading } = useQuery({
     queryKey: ["medication_dispense", qParams, patientId],
     queryFn: query(medicationDispenseApi.list, {
@@ -262,19 +245,11 @@ export default function DispensedMedicationList({
             <h1 className="text-xl font-semibold text-gray-900">
               {t("medications_dispense")}
             </h1>
-            <Button
-              variant="outline_primary"
-              onClick={() =>
-                window.open(
-                  `/facility/${facilityId}/billing/account/${account?.results[0].id}`,
-                  "_blank",
-                )
-              }
+            <ViewDefaultAccountButton
+              facilityId={facilityId}
+              patientId={patientId}
               disabled={isPending}
-            >
-              {t("view_account")}
-              <ExternalLinkIcon className="w-4 h-4" />
-            </Button>
+            />
           </div>
 
           {selectedMedications.length > 0 && (
