@@ -1,4 +1,4 @@
-import { useQueries, useQuery } from "@tanstack/react-query";
+import { useQuery } from "@tanstack/react-query";
 import { Loader2, MapPinIcon } from "lucide-react";
 import { navigate, usePath } from "raviger";
 import { Fragment, useEffect, useState } from "react";
@@ -26,6 +26,7 @@ import { Separator } from "@/components/ui/separator";
 import { useSidebar } from "@/components/ui/sidebar";
 
 import useAppHistory from "@/hooks/useAppHistory";
+import useFilters from "@/hooks/useFilters";
 
 import query from "@/Utils/request/query";
 import useCurrentLocation from "@/pages/Facility/locations/utils/useCurrentLocation";
@@ -115,35 +116,42 @@ function LocationSelectorDialog({
   setOpen: (open: boolean) => void;
 }) {
   const { t } = useTranslation();
-  const [search, setSearch] = useState("");
   const [locationLevel, setLocationLevel] = useState<LocationList[]>([]);
+  const [searchValue, setSearchValue] = useState("");
+  const { qParams, updateQuery, Pagination, resultsPerPage } = useFilters({
+    limit: 14,
+    disableCache: true,
+  });
   const path = usePath();
   const subPath =
     path?.match(/\/facility\/[^/]+\/locations\/[^/]+\/(.*)/)?.[1] || "";
 
-  const { data: rootLocations, isLoading: isRootLoading } = useQuery({
-    queryKey: ["locations", facilityId, search],
+  const currentParentId = locationLevel.length
+    ? locationLevel[locationLevel.length - 1].id
+    : "";
+
+  const { data: locations, isLoading: isLoading } = useQuery({
+    queryKey: [
+      "locations",
+      facilityId,
+      currentParentId,
+      qParams.locationSearch,
+      qParams.page,
+    ],
     queryFn: query(locationApi.list, {
       pathParams: { facility_id: facilityId },
       queryParams: {
-        ...(search && { name: search }),
+        parent: currentParentId,
+        ...(currentParentId === "" && {
+          mode: "kind",
+        }),
+        ordering: "sort_index",
+        ...(qParams.locationSearch && { name: qParams.locationSearch }),
+        limit: resultsPerPage,
+        offset: ((qParams.page ?? 1) - 1) * resultsPerPage,
       },
     }),
     enabled: open,
-  });
-
-  const childQueries = useQueries({
-    queries: locationLevel.map((level) => ({
-      queryKey: ["locations", level.id, search],
-      queryFn: query.debounced(locationApi.list, {
-        pathParams: { facility_id: facilityId },
-        queryParams: {
-          parent: level.id,
-          ...(search && { name: search }),
-        },
-      }),
-      enabled: !!level.id,
-    })),
   });
 
   const handleSelect = (location: LocationList) => {
@@ -152,7 +160,8 @@ function LocationSelectorDialog({
     } else {
       handleConfirmSelection(location);
     }
-    setSearch("");
+    setSearchValue("");
+    updateQuery({ locationSearch: "" });
   };
 
   const handleConfirmSelection = (newLocation: LocationList) => {
@@ -160,11 +169,25 @@ function LocationSelectorDialog({
     setLocation(newLocation);
     setLocationLevel([]);
     setOpen(false);
+    setSearchValue("");
+    updateQuery({ locationSearch: "" });
     if (newLocation.id !== oldLocationId) {
       navigate(
         `/facility/${facilityId}/locations/${newLocation.id}/${subPath}`,
       );
     }
+  };
+
+  const handleLocationClick = (location: LocationList) => {
+    let currentLocation = location;
+    const locationList = [location];
+    while (currentLocation?.parent && currentLocation.parent.id) {
+      locationList.unshift(currentLocation.parent);
+      currentLocation = currentLocation.parent;
+    }
+    setLocationLevel(locationList);
+    setSearchValue("");
+    updateQuery({ locationSearch: "" });
   };
 
   useKeyboardShortcut(["Shift", "Enter"], () => {
@@ -189,7 +212,17 @@ function LocationSelectorDialog({
                 className="flex flex-row gap-1 items-center"
                 key={location?.id}
               >
-                <div className=" ">{location?.name}</div>
+                {location.has_children ? (
+                  <Button
+                    variant="link"
+                    className="p-0 text-nowrap h-5"
+                    onClick={() => handleLocationClick(location)}
+                  >
+                    {location?.name}
+                  </Button>
+                ) : (
+                  <span className="text-nowrap h-5">{location?.name}</span>
+                )}
                 {((index === 0 && locationList.length > 1) ||
                   (index > 0 && index < locationList.length - 1)) && (
                   <div>
@@ -206,7 +239,16 @@ function LocationSelectorDialog({
   };
 
   return (
-    <Dialog open={open} onOpenChange={setOpen}>
+    <Dialog
+      open={open}
+      onOpenChange={(open) => {
+        setOpen(open);
+        if (!open) {
+          setSearchValue("");
+          updateQuery({ locationSearch: "" });
+        }
+      }}
+    >
       <DialogContent className="p-3 min-w-[calc(50vw)]">
         <DialogHeader>
           <DialogTitle>{getCurrentLocation()}</DialogTitle>
@@ -216,12 +258,23 @@ function LocationSelectorDialog({
             <div className="flex flex-row gap-1 items-center">
               {locationLevel.map((level, index) => (
                 <>
-                  <div
-                    key={level.id}
-                    className="w-full text-xs border bg-gray-100 border-gray-200 rounded-md p-2"
-                  >
-                    {level.name}
-                  </div>
+                  {level.has_children ? (
+                    <Button
+                      key={level.id}
+                      variant="link"
+                      className="w-full text-nowrap text-xs border bg-gray-100 border-gray-200 rounded-md p-2"
+                      onClick={() => handleLocationClick(level)}
+                    >
+                      {level.name}
+                    </Button>
+                  ) : (
+                    <div
+                      key={level.id}
+                      className="w-full text-xs border bg-gray-100 border-gray-200 rounded-md p-2"
+                    >
+                      {level?.name}
+                    </div>
+                  )}
                   {((index === 0 && locationLevel.length > 1) ||
                     (index > 0 && index < locationLevel.length - 1)) && (
                     <CareIcon icon="l-arrow-right" />
@@ -236,6 +289,8 @@ function LocationSelectorDialog({
                 className="p-2 w-full"
                 onClick={() => {
                   setLocationLevel([]);
+                  setSearchValue("");
+                  updateQuery({ locationSearch: "" });
                 }}
               >
                 <CareIcon icon="l-multiply" />
@@ -261,11 +316,16 @@ function LocationSelectorDialog({
             </div>
           </div>
         )}
-        <Command className="pt-3 pb-2">
+        <Command className="pt-3 pb-2" shouldFilter={false}>
           <div className="border border-gray-200">
             <CommandInput
               className="border-0 ring-0"
               placeholder={t("search")}
+              onValueChange={(value) => {
+                setSearchValue(value);
+                updateQuery({ locationSearch: value });
+              }}
+              value={searchValue}
             />
             <CommandList
               className="max-h-[calc(100vh-30rem)]"
@@ -274,8 +334,7 @@ function LocationSelectorDialog({
               }}
             >
               <CommandEmpty>
-                {isRootLoading ||
-                childQueries[locationLevel.length - 1]?.isLoading ? (
+                {isLoading ? (
                   <div className="flex items-center justify-center py-6">
                     <Loader2 className="h-4 w-4 animate-spin text-gray-500" />
                     <span className="ml-2 text-sm text-gray-500">
@@ -287,29 +346,19 @@ function LocationSelectorDialog({
                 )}
               </CommandEmpty>
               <CommandGroup>
-                {locationLevel.length === 0
-                  ? rootLocations?.results.map((location) => (
-                      <LocationCommandItem
-                        key={location.id}
-                        location={location}
-                        handleSelect={handleSelect}
-                        handleConfirmSelection={handleConfirmSelection}
-                      />
-                    ))
-                  : childQueries.map((query) =>
-                      query.data?.results.map((location) => (
-                        <LocationCommandItem
-                          key={location.id}
-                          location={location}
-                          handleSelect={handleSelect}
-                          handleConfirmSelection={handleConfirmSelection}
-                        />
-                      )),
-                    )}
+                {locations?.results.map((location) => (
+                  <LocationCommandItem
+                    key={location.id}
+                    location={location}
+                    handleSelect={handleSelect}
+                    handleConfirmSelection={handleConfirmSelection}
+                  />
+                ))}
               </CommandGroup>
             </CommandList>
           </div>
         </Command>
+        <Pagination totalCount={locations?.count || 0} />
       </DialogContent>
     </Dialog>
   );
