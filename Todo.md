@@ -33,8 +33,8 @@ x : Done
 - [ ] Specimen Definition - Add frontend permission check for the Specimen Definition page at the facility level.
 - [x] Specimen Definition - The cancel button in the form is not working - Amjith
 - [x] Specimen Definition - Increase the width of retention time and capacity to full width in the edit page - Jeevan
-- [ ] Specimen Definition - Add URL validation to the field Derived from URL
-- [ ] Create Observation Definition - Add \* to Title, Slug, Description, Category, Status, and Data Type fields.
+- [x] Specimen Definition - Add URL validation to the field Derived from URL - Jeevan
+- [-] Create Observation Definition - Add \* to Title, Slug, Description, Category, Status, and Data Type fields. - Jeevan
 - [ ] Create Observation Definition - Add missing asterisk and frontend validation for the LOINC field
 - [ ] Create Observation Definition - Add missing translation for edit_observation_definition form heading
 - [ ] Create Observation Definition - The category filter in the list view is not working
