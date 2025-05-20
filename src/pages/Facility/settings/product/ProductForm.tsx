@@ -133,11 +133,13 @@ export function ProductFormContent({
   facilityId,
   productId,
   existingData,
+  productKnowledgeId,
   onSuccess = () => navigate(`/facility/${facilityId}/settings/product`),
 }: {
   facilityId: string;
   productId?: string;
   existingData?: ProductRead;
+  productKnowledgeId?: string;
   onSuccess?: (product: ProductRead) => void;
 }) {
   const { t } = useTranslation();
@@ -193,6 +195,7 @@ export function ProductFormContent({
           }
         : {
             status: ProductStatusOptions.active,
+            product_knowledge: productKnowledgeId,
           },
   });
 
