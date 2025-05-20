@@ -15,6 +15,9 @@ x : Done
 - [-] Create delivery inside request - Amjith
 - [ ] Charge item inside Product (Select and Create new)
 - [ ] Inventory list
+- [ ] Fix search, navigation and scroll for Suppliers page
+- [ ] Add option to archive suppliers
+- [ ] Add status based filters for product knowledge
 
 ## Billing
 
