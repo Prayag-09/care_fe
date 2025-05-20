@@ -1,7 +1,6 @@
 import { ChargeItemRead } from "@/types/billing/chargeItem/chargeItem";
 import { MedicationRequestDosageInstruction } from "@/types/emr/medicationRequest/medicationRequest";
 import { InventoryRead } from "@/types/inventory/product/inventory";
-import { ProductRead } from "@/types/inventory/product/product";
 
 export enum MedicationDispenseStatus {
   preparation = "preparation",
@@ -84,7 +83,6 @@ export interface MedicationDispenseUpsert
 }
 
 export interface MedicationDispenseRead extends MedicationDispenseBase {
-  product: ProductRead;
   item: InventoryRead;
   charge_item: ChargeItemRead;
 }
