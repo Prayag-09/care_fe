@@ -1,4 +1,5 @@
 import { zodResolver } from "@hookform/resolvers/zod";
+import { useMutation } from "@tanstack/react-query";
 import { useForm } from "react-hook-form";
 import { useTranslation } from "react-i18next";
 import { toast } from "sonner";
@@ -30,8 +31,8 @@ import {
 import Page from "@/components/Common/Page";
 import { EmptyState } from "@/components/definition-list/EmptyState";
 
-import { useBatchRequest } from "@/hooks/useBatchRequest";
-
+import routes from "@/Utils/request/api";
+import mutate from "@/Utils/request/mutate";
 import { ProductSearch } from "@/pages/Facility/services/inventory/ProductSearch";
 import { SupplierSelect } from "@/pages/Facility/services/inventory/SupplierSelect";
 import {
@@ -75,7 +76,16 @@ export function ReceiveStock({
     },
   });
 
-  const batchRequest = useBatchRequest();
+  const batchRequest = useMutation({
+    mutationFn: mutate(routes.batchRequest),
+    onSuccess: () => {
+      toast.success(t("stock_received"));
+      form.reset();
+    },
+    onError: () => {
+      toast.error(t("error_receiving_stock"));
+    },
+  });
 
   function onSubmit(data: z.infer<typeof receiveStockSchema>) {
     batchRequest.mutate({

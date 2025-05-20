@@ -46,7 +46,6 @@ export function ProductSearch({
   onChange,
   disabled,
   className,
-  value,
 }: ProductSelectProps) {
   const { t } = useTranslation();
 
@@ -100,7 +99,7 @@ export function ProductSearch({
 
       <div className="flex-1">
         <Select
-          value={value?.id}
+          value=""
           onValueChange={(selectedId) => {
             if (selectedId === "new") {
               setIsCreatingProduct(true);
