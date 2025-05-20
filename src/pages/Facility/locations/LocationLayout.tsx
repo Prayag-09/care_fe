@@ -4,10 +4,12 @@ import ErrorPage from "@/components/ErrorPages/DefaultErrorPage";
 
 import BedsList from "@/pages/Facility/locations/BedsList";
 import { InventoryList } from "@/pages/Facility/services/inventory/InventoryList";
-import MedicationDispenseForm from "@/pages/Facility/services/pharmacy/MedicationDispenseForm";
+import MedicationBillForm from "@/pages/Facility/services/pharmacy/MedicationBillForm";
 import MedicationDispenseHistory from "@/pages/Facility/services/pharmacy/MedicationDispenseHistory";
 import MedicationRequestList from "@/pages/Facility/services/pharmacy/MedicationRequestList";
-import PharmacyMedicationList from "@/pages/Facility/services/pharmacy/PharmacyMedicationList";
+import PharmacyMedicationList, {
+  PharmacyMedicationTab,
+} from "@/pages/Facility/services/pharmacy/PharmacyMedicationList";
 import ServiceRequestList from "@/pages/Facility/services/serviceRequests/ServiceRequestList";
 import ServiceRequestShow from "@/pages/Facility/services/serviceRequests/ServiceRequestShow";
 import SupplyDeliveryForm from "@/pages/Facility/services/supply/SupplyDeliveryForm";
@@ -33,8 +35,11 @@ const getRoutes = (facilityId: string, locationId: string) => ({
   "/medication_requests": () => (
     <MedicationRequestList facilityId={facilityId} locationId={locationId} />
   ),
-  "/medication_dispense_history": () => (
-    <MedicationDispenseHistory locationId={locationId} />
+  "/medication_dispense": () => (
+    <MedicationDispenseHistory
+      facilityId={facilityId}
+      locationId={locationId}
+    />
   ),
 
   // Laboratory
@@ -136,14 +141,40 @@ const getRoutes = (facilityId: string, locationId: string) => ({
   }: {
     patientId: string;
   }) => (
-    <PharmacyMedicationList facilityId={facilityId} patientId={patientId} />
+    <Redirect
+      to={`/facility/${facilityId}/locations/${locationId}/medication_requests/patient/${patientId}/prescriptions`}
+    />
+  ),
+
+  "/medication_requests/patient/:patientId/prescriptions": ({
+    patientId,
+  }: {
+    patientId: string;
+  }) => (
+    <PharmacyMedicationList
+      facilityId={facilityId}
+      patientId={patientId}
+      tab={PharmacyMedicationTab.PRESCRIPTIONS}
+    />
+  ),
+
+  "/medication_requests/patient/:patientId/to_be_dispensed": ({
+    patientId,
+  }: {
+    patientId: string;
+  }) => (
+    <PharmacyMedicationList
+      facilityId={facilityId}
+      patientId={patientId}
+      tab={PharmacyMedicationTab.TO_BE_DISPENSED}
+    />
   ),
 
   "/medication_requests/patient/:patientId/dispense": ({
     patientId,
   }: {
     patientId: string;
-  }) => <MedicationDispenseForm patientId={patientId} />,
+  }) => <MedicationBillForm patientId={patientId} />,
 
   "*": () => <ErrorPage />,
 });

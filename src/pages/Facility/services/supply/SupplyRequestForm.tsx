@@ -148,7 +148,11 @@ function SupplyRequestFormContent({
   const { data: products, isLoading: isLoadingProducts } = useQuery({
     queryKey: ["productKnowledge", facilityId, searchItem],
     queryFn: query.debounced(productKnowledgeApi.listProductKnowledge, {
-      queryParams: { facility: facilityId, search: searchItem },
+      queryParams: {
+        facility: facilityId,
+        search: searchItem,
+        status: "active",
+      },
     }),
   });
 

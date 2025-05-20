@@ -69,6 +69,7 @@ export default function MedicationValueSetSelect({
         offset: 0,
         name: search,
         product_type: "medication",
+        status: "active",
       },
     }),
   });

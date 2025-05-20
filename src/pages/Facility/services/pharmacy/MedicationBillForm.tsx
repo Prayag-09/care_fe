@@ -90,7 +90,7 @@ function convertDurationToDays(value: number, unit: string): number {
   }
 }
 
-export default function MedicationDispenseForm({ patientId }: Props) {
+export default function MedicationBillForm({ patientId }: Props) {
   const { t } = useTranslation();
   const queryClient = useQueryClient();
   const { facilityId } = useCurrentFacility();
@@ -446,7 +446,7 @@ export default function MedicationDispenseForm({ patientId }: Props) {
   };
 
   return (
-    <Page title={t("dispense_medications")}>
+    <Page title={t("bill_medications")}>
       <div className="container mx-auto">
         <div className="mb-6 flex items-center justify-between">
           <div className="flex gap-2 justify-end w-full">
@@ -462,7 +462,7 @@ export default function MedicationDispenseForm({ patientId }: Props) {
                 !medicationQuantities.some((q) => q.isSelected) || isPending
               }
             >
-              {isPending ? t("dispensing") : t("dispense_selected")}
+              {isPending ? t("billing") : t("bill_selected")}
             </Button>
           </div>
         </div>
@@ -707,7 +707,7 @@ export default function MedicationDispenseForm({ patientId }: Props) {
             onSuccess={() => {
               setIsInvoiceSheetOpen(false);
               navigate(
-                `/facility/${facilityId}/locations/${locationId}/medication_requests/patient/${patientId}`,
+                `/facility/${facilityId}/locations/${locationId}/medication_requests/patient/${patientId}/to_be_dispensed`,
               );
             }}
           />

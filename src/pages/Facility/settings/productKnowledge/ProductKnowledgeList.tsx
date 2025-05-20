@@ -107,6 +107,7 @@ export default function ProductKnowledgeList({
         offset: ((qParams.page ?? 1) - 1) * resultsPerPage,
         name: qParams.search,
         product_type: qParams.product_type,
+        status: "active",
       },
     }),
   });

@@ -1,131 +1,152 @@
 import { useQuery } from "@tanstack/react-query";
-import { X } from "lucide-react";
+import { navigate } from "raviger";
 import { useTranslation } from "react-i18next";
 
-import CareIcon from "@/CAREUI/icons/CareIcon";
+import { cn } from "@/lib/utils";
 
+import { Badge } from "@/components/ui/badge";
 import { Button } from "@/components/ui/button";
+import { Input } from "@/components/ui/input";
 import {
-  Select,
-  SelectContent,
-  SelectItem,
-  SelectTrigger,
-} from "@/components/ui/select";
-import { Separator } from "@/components/ui/separator";
+  Table,
+  TableBody,
+  TableCell,
+  TableHead,
+  TableHeader,
+  TableRow,
+} from "@/components/ui/table";
 
 import Page from "@/components/Common/Page";
-import { TableSkeleton } from "@/components/Common/SkeletonLoading";
-import { MedicationDispenseHistoryTable } from "@/components/Medicine/MedicationDispense/MedicationDispenseHistoryTable";
-import { EmptyState } from "@/components/definition-list/EmptyState";
 
 import useFilters from "@/hooks/useFilters";
 
 import query from "@/Utils/request/query";
-import { MedicationDispenseStatus } from "@/types/emr/medicationDispense/medicationDispense";
+import { PaginatedResponse } from "@/Utils/request/types";
+import { MedicationDispenseSummary } from "@/types/emr/medicationDispense/medicationDispense";
 import medicationDispenseApi from "@/types/emr/medicationDispense/medicationDispenseApi";
 
-function FilterSelect({
-  value,
-  onValueChange,
-  options,
-  onClear,
+export default function MedicationDispenseHistory({
+  facilityId,
+  locationId,
 }: {
-  value: string;
-  onValueChange: (value: string | undefined) => void;
-  options: string[];
-  onClear: () => void;
+  facilityId: string;
+  locationId: string;
 }) {
   const { t } = useTranslation();
-
-  return (
-    <div className="flex overflow-hidden rounded-lg border">
-      <Select
-        value={value}
-        onValueChange={(newValue) => onValueChange(newValue || undefined)}
-      >
-        <SelectTrigger className="border-0 hover:bg-transparent focus:ring-0 focus:ring-offset-0">
-          <div className="flex items-center gap-2">
-            <CareIcon icon="l-filter" className="size-4" />
-            {!value ? null : (
-              <>
-                <span>{t("status")}</span>
-                <span className="text-gray-500">{t("is")}</span>
-                <span>{t(value)}</span>
-              </>
-            )}
-            {!value && <span className="text-gray-500">{t("status")}</span>}
-          </div>
-        </SelectTrigger>
-        <SelectContent>
-          {options.map((option) => (
-            <SelectItem key={option} value={option}>
-              {t(option)}
-            </SelectItem>
-          ))}
-        </SelectContent>
-      </Select>
-      {value && (
-        <Button
-          variant="ghost"
-          size="sm"
-          onClick={onClear}
-          className="h-auto border-l px-2 hover:bg-transparent"
-        >
-          <X className="size-4" />
-        </Button>
-      )}
-    </div>
-  );
-}
-
-interface Props {
-  locationId: string;
-}
-
-export default function MedicationDispenseHistory({ locationId }: Props) {
-  const { t } = useTranslation();
   const { qParams, updateQuery } = useFilters({
+    limit: 14,
     disableCache: true,
   });
 
-  const { data, isLoading } = useQuery({
-    queryKey: ["medication_dispenses", locationId, qParams.status],
-    queryFn: query(medicationDispenseApi.list, {
+  const { data: prescriptionQueue, isLoading } = useQuery<
+    PaginatedResponse<MedicationDispenseSummary>
+  >({
+    queryKey: ["medicationDispenseSummary", qParams],
+    queryFn: query.debounced(medicationDispenseApi.summary, {
+      pathParams: { facilityId },
       queryParams: {
-        location: locationId,
-        status: qParams.status,
+        search: qParams.search,
+        priority: qParams.priority,
+        encounter_class: qParams.category,
+        limit: qParams.limit,
+        offset: ((qParams.page ?? 1) - 1) * (qParams.limit ?? 14),
+        exclude_dispense_status: "complete",
       },
     }),
   });
 
-  const handleClearStatus = () => {
-    updateQuery({ status: undefined });
-  };
-
   return (
-    <Page
-      title={t("medication_dispense_history")}
-      options={
-        <FilterSelect
-          value={qParams.status || ""}
-          onValueChange={(value) => updateQuery({ status: value })}
-          options={Object.values(MedicationDispenseStatus)}
-          onClear={handleClearStatus}
-        />
-      }
-    >
-      <Separator className="my-4" />
-      {isLoading ? (
-        <TableSkeleton count={5} />
-      ) : !data?.results?.length ? (
-        <EmptyState
-          icon="l-tablets"
-          title={t("no_dispenses_found")}
-          description={t("no_dispenses_found_description")}
-        />
-      ) : (
-        <MedicationDispenseHistoryTable data={data.results} />
-      )}
+    <Page title={t("medication_dispense")} className="p-4">
+      <div className="flex items-center gap-4 mb-4">
+        <div className="flex-1">
+          <Input
+            placeholder={t("Search by patient name, ID, or prescription...")}
+            value={qParams.search}
+            onChange={(e) => updateQuery({ search: e.target.value })}
+            className="w-full"
+          />
+        </div>
+      </div>
+
+      <div className="rounded-md border">
+        <Table>
+          <TableHeader>
+            <TableRow>
+              <TableHead>{t("patient")}</TableHead>
+              <TableHead>{t("category")}</TableHead>
+              <TableHead>{t("encounter_status")}</TableHead>
+              <TableHead className="text-right">{t("medications")}</TableHead>
+              <TableHead className="w-[100px]">{t("actions")}</TableHead>
+            </TableRow>
+          </TableHeader>
+          <TableBody>
+            {isLoading ? (
+              <TableRow>
+                <TableCell colSpan={5} className="text-center py-8">
+                  {t("Loading...")}
+                </TableCell>
+              </TableRow>
+            ) : prescriptionQueue?.results?.length === 0 ? (
+              <TableRow>
+                <TableCell colSpan={5} className="text-center py-8">
+                  {t("No prescriptions found")}
+                </TableCell>
+              </TableRow>
+            ) : (
+              prescriptionQueue?.results?.map(
+                (item: MedicationDispenseSummary) => (
+                  <TableRow key={item.encounter.id}>
+                    <TableCell>
+                      <div className="font-medium">
+                        {item.encounter.patient.name}
+                      </div>
+                      <div className="text-sm text-gray-500">
+                        {item.encounter.patient.id}
+                      </div>
+                    </TableCell>
+                    <TableCell>
+                      <Badge
+                        variant="outline"
+                        className={cn(
+                          "px-2 py-1 rounded-full text-xs font-medium",
+                        )}
+                      >
+                        {t(
+                          `encounter_class__${item.encounter.encounter_class}`,
+                        )}
+                      </Badge>
+                    </TableCell>
+                    <TableCell>
+                      <Badge
+                        variant="outline"
+                        className={cn(
+                          "px-2 py-1 rounded-full text-xs font-medium",
+                        )}
+                      >
+                        {t(`encounter_status__${item.encounter.status}`)}
+                      </Badge>
+                    </TableCell>
+                    <TableCell className="text-right">{item.count}</TableCell>
+                    <TableCell>
+                      <Button
+                        variant="ghost"
+                        size="sm"
+                        onClick={() => {
+                          navigate(
+                            `/facility/${facilityId}/locations/${locationId}/medication_requests/patient/${item.encounter.patient.id}/to_be_dispensed`,
+                          );
+                        }}
+                      >
+                        {t("View")}
+                      </Button>
+                    </TableCell>
+                  </TableRow>
+                ),
+              )
+            )}
+          </TableBody>
+        </Table>
+      </div>
     </Page>
   );
 }

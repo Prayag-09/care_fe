@@ -1,4 +1,5 @@
 import { ChargeItemRead } from "@/types/billing/chargeItem/chargeItem";
+import { Encounter } from "@/types/emr/encounter";
 import { MedicationRequestDosageInstruction } from "@/types/emr/medicationRequest/medicationRequest";
 import { InventoryRead } from "@/types/inventory/product/inventory";
 
@@ -85,4 +86,9 @@ export interface MedicationDispenseUpsert
 export interface MedicationDispenseRead extends MedicationDispenseBase {
   item: InventoryRead;
   charge_item: ChargeItemRead;
+}
+
+export interface MedicationDispenseSummary {
+  encounter: Encounter;
+  count: number;
 }

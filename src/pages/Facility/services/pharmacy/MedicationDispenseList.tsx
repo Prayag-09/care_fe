@@ -135,7 +135,7 @@ export default function MedicationDispenseList({
   const { t } = useTranslation();
   const { locationId } = useCurrentLocation();
   const { qParams, updateQuery, Pagination, resultsPerPage } = useFilters({
-    limit: 14,
+    limit: 100,
     disableCache: true,
   });
 
@@ -175,7 +175,7 @@ export default function MedicationDispenseList({
             }
             className="w-full sm:w-auto"
           >
-            {t("dispense_medications")}
+            {t("bill_medications")}
           </Button>
         </div>
       </div>

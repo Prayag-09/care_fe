@@ -1,4 +1,5 @@
 import { useMutation, useQuery, useQueryClient } from "@tanstack/react-query";
+import { navigate } from "raviger";
 import { useState } from "react";
 import { useTranslation } from "react-i18next";
 import { toast } from "sonner";
@@ -30,6 +31,9 @@ import { EmptyState } from "@/components/definition-list/EmptyState";
 import useFilters from "@/hooks/useFilters";
 
 import query from "@/Utils/request/query";
+import { AccountStatus } from "@/types/billing/account/Account";
+import { AccountBillingStatus } from "@/types/billing/account/Account";
+import accountApi from "@/types/billing/account/accountApi";
 import {
   MedicationDispenseCategory,
   MedicationDispenseRead,
@@ -167,8 +171,22 @@ export default function DispensedMedicationList({
   const queryClient = useQueryClient();
   const [selectedMedications, setSelectedMedications] = useState<string[]>([]);
   const { qParams, updateQuery, Pagination, resultsPerPage } = useFilters({
-    limit: 14,
+    limit: 100,
     disableCache: true,
+  });
+
+  const { data: account } = useQuery({
+    queryKey: ["accounts", patientId],
+    queryFn: query(accountApi.listAccount, {
+      pathParams: { facilityId },
+      queryParams: {
+        patient: patientId,
+        limit: 1,
+        offset: 0,
+        status: AccountStatus.active,
+        billing_status: AccountBillingStatus.open,
+      },
+    }),
   });
 
   const { data: response, isLoading } = useQuery({
@@ -227,9 +245,22 @@ export default function DispensedMedicationList({
     <div className="container mx-auto">
       <div className="mb-6">
         <div className="flex flex-col sm:flex-row items-start sm:items-center justify-between gap-4">
-          <h1 className="text-xl font-semibold text-gray-900">
-            {t("medications_dispensed")}
-          </h1>
+          <div className="flex items-center justify-between w-full">
+            <h1 className="text-xl font-semibold text-gray-900">
+              {t("medications_to_be_dispensed")}
+            </h1>
+            <Button
+              variant="outline_primary"
+              onClick={() =>
+                navigate(
+                  `/facility/${facilityId}/billing/account/${account?.results[0].id}`,
+                )
+              }
+              disabled={isPending}
+            >
+              {t("view_account")}
+            </Button>
+          </div>
           {selectedMedications.length > 0 && (
             <Button
               onClick={() =>

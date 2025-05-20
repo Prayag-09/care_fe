@@ -1,7 +1,6 @@
 import { useQuery } from "@tanstack/react-query";
 import { ArrowLeftIcon } from "lucide-react";
 import { navigate } from "raviger";
-import { useEffect, useState } from "react";
 import { useTranslation } from "react-i18next";
 
 import CareIcon from "@/CAREUI/icons/CareIcon";
@@ -20,14 +19,20 @@ import { PatientHeader } from "@/pages/Facility/services/serviceRequests/compone
 import DispensedMedicationList from "./DispensedMedicationList";
 import MedicationDispenseList from "./MedicationDispenseList";
 
+export enum PharmacyMedicationTab {
+  PRESCRIPTIONS = "prescriptions",
+  TO_BE_DISPENSED = "to_be_dispensed",
+}
 interface Props {
   facilityId: string;
   patientId: string;
+  tab?: PharmacyMedicationTab;
 }
 
 export default function PharmacyMedicationList({
   facilityId,
   patientId,
+  tab,
 }: Props) {
   const { t } = useTranslation();
   const { locationId } = useCurrentLocation();
@@ -39,14 +44,6 @@ export default function PharmacyMedicationList({
     }),
     enabled: !!patientId,
   });
-
-  const [activeTab, setActiveTab] = useState<
-    "prescriptions" | "to_be_dispensed"
-  >("prescriptions");
-
-  useEffect(() => {
-    console.log(activeTab);
-  }, [activeTab]);
 
   return (
     <Page title={t("pharmacy_medications")} hideTitleOnPage>
@@ -74,9 +71,11 @@ export default function PharmacyMedicationList({
         </Card>
       )}
       <Tabs
-        value={activeTab}
+        value={tab}
         onValueChange={(value) =>
-          setActiveTab(value as "prescriptions" | "to_be_dispensed")
+          navigate(
+            `/facility/${facilityId}/locations/${locationId}/medication_requests/patient/${patientId}/${value}`,
+          )
         }
       >
         <TabsList className="flex">

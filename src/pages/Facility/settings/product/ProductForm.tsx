@@ -135,6 +135,7 @@ function ProductFormContent({
       queryParams: {
         facility: facilityId,
         limit: 100,
+        status: "active",
       },
     }),
   });

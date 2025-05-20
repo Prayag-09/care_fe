@@ -44,8 +44,8 @@ export function LocationNav() {
               url: `${baseUrl}/medication_requests`,
             },
             {
-              name: t("dispense_history"),
-              url: `${baseUrl}/medication_dispense_history`,
+              name: t("dispense"),
+              url: `${baseUrl}/medication_dispense`,
             },
           ],
         },
