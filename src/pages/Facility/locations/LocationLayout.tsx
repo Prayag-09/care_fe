@@ -4,6 +4,7 @@ import ErrorPage from "@/components/ErrorPages/DefaultErrorPage";
 
 import BedsList from "@/pages/Facility/locations/BedsList";
 import { InventoryList } from "@/pages/Facility/services/inventory/InventoryList";
+import { ReceiveStock } from "@/pages/Facility/services/inventory/ReceiveStock";
 import MedicationBillForm from "@/pages/Facility/services/pharmacy/MedicationBillForm";
 import MedicationDispenseHistory from "@/pages/Facility/services/pharmacy/MedicationDispenseHistory";
 import MedicationRequestList from "@/pages/Facility/services/pharmacy/MedicationRequestList";
@@ -136,6 +137,10 @@ const getRoutes = (facilityId: string, locationId: string) => ({
       supplyDeliveryId={id}
     />
   ),
+  "/receive_stock": () => (
+    <ReceiveStock facilityId={facilityId} locationId={locationId} />
+  ),
+
   "/medication_requests/patient/:patientId": ({
     patientId,
   }: {

@@ -70,7 +70,7 @@ export default function ProductForm({
 }: {
   facilityId: string;
   productId?: string;
-  onSuccess?: () => void;
+  onSuccess?: (product: ProductRead) => void;
 }) {
   const { t } = useTranslation();
 
@@ -103,16 +103,33 @@ export default function ProductForm({
   }
 
   return (
-    <ProductFormContent
-      facilityId={facilityId}
-      productId={productId}
-      existingData={existingData}
-      onSuccess={onSuccess}
-    />
+    <Page
+      title={isEditMode ? t("edit_product") : t("create_product")}
+      hideTitleOnPage
+    >
+      <div className="container mx-auto max-w-3xl">
+        <div className="mb-6">
+          <h1 className="text-xl font-semibold text-gray-900">
+            {isEditMode ? t("edit_product") : t("create_product")}
+          </h1>
+          {isEditMode && (
+            <p className="text-sm text-gray-500">
+              {t("edit_product_description")}
+            </p>
+          )}
+        </div>
+        <ProductFormContent
+          facilityId={facilityId}
+          productId={productId}
+          existingData={existingData}
+          onSuccess={onSuccess}
+        />
+      </div>
+    </Page>
   );
 }
 
-function ProductFormContent({
+export function ProductFormContent({
   facilityId,
   productId,
   existingData,
@@ -121,7 +138,7 @@ function ProductFormContent({
   facilityId: string;
   productId?: string;
   existingData?: ProductRead;
-  onSuccess?: () => void;
+  onSuccess?: (product: ProductRead) => void;
 }) {
   const { t } = useTranslation();
   const queryClient = useQueryClient();
@@ -183,10 +200,10 @@ function ProductFormContent({
     mutationFn: mutate(productApi.createProduct, {
       pathParams: { facilityId },
     }),
-    onSuccess: () => {
+    onSuccess: (product: ProductRead) => {
       queryClient.invalidateQueries({ queryKey: ["products"] });
       toast.success(t("product_created_successfully"));
-      onSuccess();
+      onSuccess?.(product);
     },
   });
 
@@ -241,224 +258,198 @@ function ProductFormContent({
   }
 
   return (
-    <Page
-      title={isEditMode ? t("edit_product") : t("create_product")}
-      hideTitleOnPage
-    >
-      <div className="container mx-auto max-w-3xl">
-        <div className="mb-6">
-          <h1 className="text-xl font-semibold text-gray-900">
-            {isEditMode ? t("edit_product") : t("create_product")}
-          </h1>
-          {isEditMode && (
-            <p className="text-sm text-gray-500">
-              {t("edit_product_description")}
-            </p>
-          )}
+    <Form {...form}>
+      <form onSubmit={form.handleSubmit(onSubmit)} className="space-y-6">
+        <div className="rounded-lg border border-gray-200 bg-white p-6">
+          <div className="space-y-4">
+            <FormField
+              control={form.control}
+              name="status"
+              render={({ field }) => (
+                <FormItem>
+                  <FormLabel>{t("status")}</FormLabel>
+                  <Select
+                    onValueChange={field.onChange}
+                    defaultValue={field.value}
+                  >
+                    <FormControl>
+                      <SelectTrigger>
+                        <SelectValue placeholder={t("select_status")} />
+                      </SelectTrigger>
+                    </FormControl>
+                    <SelectContent>
+                      {Object.values(ProductStatusOptions).map((status) => (
+                        <SelectItem key={status} value={status}>
+                          {t(status)}
+                        </SelectItem>
+                      ))}
+                    </SelectContent>
+                  </Select>
+                  <FormMessage />
+                </FormItem>
+              )}
+            />
+
+            {!isEditMode && (
+              <FormField
+                control={form.control}
+                name="product_knowledge"
+                render={({ field }) => (
+                  <FormItem>
+                    <FormLabel>{t("product_knowledge")}</FormLabel>
+                    <Select
+                      onValueChange={field.onChange}
+                      defaultValue={field.value}
+                    >
+                      <FormControl>
+                        <SelectTrigger>
+                          <SelectValue
+                            placeholder={t("select_product_knowledge")}
+                          />
+                        </SelectTrigger>
+                      </FormControl>
+                      <SelectContent>
+                        {productKnowledgeOptions.map((pk) => (
+                          <SelectItem key={pk.id} value={pk.id}>
+                            {pk.name}
+                          </SelectItem>
+                        ))}
+                      </SelectContent>
+                    </Select>
+                    <FormDescription>
+                      {t("product_knowledge_selection_description")}
+                    </FormDescription>
+                    <FormMessage />
+                  </FormItem>
+                )}
+              />
+            )}
+
+            <FormField
+              control={form.control}
+              name="batch.lot_number"
+              render={({ field }) => (
+                <FormItem>
+                  <FormLabel>{t("lot_number")}</FormLabel>
+                  <FormControl>
+                    <Input
+                      placeholder={t("enter_lot_number")}
+                      {...field}
+                      value={field.value || ""}
+                    />
+                  </FormControl>
+                  <FormDescription>
+                    {t("lot_number_description")}
+                  </FormDescription>
+                  <FormMessage />
+                </FormItem>
+              )}
+            />
+
+            <FormField
+              control={form.control}
+              name="expiration_date"
+              render={({ field }) => (
+                <FormItem className="flex flex-col">
+                  <FormLabel>{t("expiration_date")}</FormLabel>
+                  <Popover>
+                    <PopoverTrigger asChild>
+                      <FormControl>
+                        <Button
+                          variant={"outline"}
+                          className={
+                            !field.value ? "text-muted-foreground" : ""
+                          }
+                        >
+                          {field.value ? (
+                            format(field.value, "PPP")
+                          ) : (
+                            <span>{t("pick_a_date")}</span>
+                          )}
+                        </Button>
+                      </FormControl>
+                    </PopoverTrigger>
+                    <PopoverContent className="w-auto p-0" align="start">
+                      <Calendar
+                        mode="single"
+                        selected={field.value || undefined}
+                        onSelect={field.onChange}
+                        initialFocus
+                      />
+                    </PopoverContent>
+                  </Popover>
+                  <FormDescription>
+                    {t("expiration_date_description")}
+                  </FormDescription>
+                  <FormMessage />
+                </FormItem>
+              )}
+            />
+          </div>
         </div>
 
-        <Form {...form}>
-          <form onSubmit={form.handleSubmit(onSubmit)} className="space-y-6">
-            <div className="rounded-lg border border-gray-200 bg-white p-6">
-              <div className="space-y-4">
-                <FormField
-                  control={form.control}
-                  name="status"
-                  render={({ field }) => (
-                    <FormItem>
-                      <FormLabel>{t("status")}</FormLabel>
-                      <Select
-                        onValueChange={field.onChange}
-                        defaultValue={field.value}
-                      >
-                        <FormControl>
-                          <SelectTrigger>
-                            <SelectValue placeholder={t("select_status")} />
-                          </SelectTrigger>
-                        </FormControl>
-                        <SelectContent>
-                          {Object.values(ProductStatusOptions).map((status) => (
-                            <SelectItem key={status} value={status}>
-                              {t(status)}
-                            </SelectItem>
-                          ))}
-                        </SelectContent>
-                      </Select>
-                      <FormMessage />
-                    </FormItem>
-                  )}
-                />
+        <div className="rounded-lg border border-gray-200 bg-white p-6">
+          <div className="mb-4">
+            <h2 className="text-lg font-medium text-gray-900">
+              {t("billing_information")}
+            </h2>
+            <p className="text-sm text-gray-500">
+              {t("product_charge_item_definition_selection_description")}
+            </p>
+          </div>
+          <div className="space-y-4">
+            <FormField
+              control={form.control}
+              name="charge_item_definition"
+              render={({ field }) => (
+                <FormItem>
+                  <FormLabel>{t("charge_item_definition")}</FormLabel>
+                  <FormControl>
+                    <Autocomplete
+                      options={mergeAutocompleteOptions(
+                        chargeItemDefinitionOptions.map((cid) => ({
+                          label: cid.title,
+                          value: cid.id,
+                        })),
+                        field.value
+                          ? {
+                              label:
+                                chargeItemDefinitionOptions.find(
+                                  (cid) => cid.id === field.value,
+                                )?.title || "",
+                              value: field.value,
+                            }
+                          : undefined,
+                      )}
+                      value={field.value || ""}
+                      onChange={field.onChange}
+                      onSearch={setCidSearch}
+                      placeholder={t("select_charge_item_definition")}
+                      isLoading={isLoadingCID}
+                      noOptionsMessage={t("no_charge_item_definitions_found")}
+                      data-cy="charge-item-definition-search"
+                    />
+                  </FormControl>
+                  <FormMessage />
+                </FormItem>
+              )}
+            />
+          </div>
+        </div>
 
-                {!isEditMode && (
-                  <FormField
-                    control={form.control}
-                    name="product_knowledge"
-                    render={({ field }) => (
-                      <FormItem>
-                        <FormLabel>{t("product_knowledge")}</FormLabel>
-                        <Select
-                          onValueChange={field.onChange}
-                          defaultValue={field.value}
-                        >
-                          <FormControl>
-                            <SelectTrigger>
-                              <SelectValue
-                                placeholder={t("select_product_knowledge")}
-                              />
-                            </SelectTrigger>
-                          </FormControl>
-                          <SelectContent>
-                            {productKnowledgeOptions.map((pk) => (
-                              <SelectItem key={pk.id} value={pk.id}>
-                                {pk.name}
-                              </SelectItem>
-                            ))}
-                          </SelectContent>
-                        </Select>
-                        <FormDescription>
-                          {t("product_knowledge_selection_description")}
-                        </FormDescription>
-                        <FormMessage />
-                      </FormItem>
-                    )}
-                  />
-                )}
-
-                <FormField
-                  control={form.control}
-                  name="batch.lot_number"
-                  render={({ field }) => (
-                    <FormItem>
-                      <FormLabel>{t("lot_number")}</FormLabel>
-                      <FormControl>
-                        <Input
-                          placeholder={t("enter_lot_number")}
-                          {...field}
-                          value={field.value || ""}
-                        />
-                      </FormControl>
-                      <FormDescription>
-                        {t("lot_number_description")}
-                      </FormDescription>
-                      <FormMessage />
-                    </FormItem>
-                  )}
-                />
-
-                <FormField
-                  control={form.control}
-                  name="expiration_date"
-                  render={({ field }) => (
-                    <FormItem className="flex flex-col">
-                      <FormLabel>{t("expiration_date")}</FormLabel>
-                      <Popover>
-                        <PopoverTrigger asChild>
-                          <FormControl>
-                            <Button
-                              variant={"outline"}
-                              className={
-                                !field.value ? "text-muted-foreground" : ""
-                              }
-                            >
-                              {field.value ? (
-                                format(field.value, "PPP")
-                              ) : (
-                                <span>{t("pick_a_date")}</span>
-                              )}
-                            </Button>
-                          </FormControl>
-                        </PopoverTrigger>
-                        <PopoverContent className="w-auto p-0" align="start">
-                          <Calendar
-                            mode="single"
-                            selected={field.value || undefined}
-                            onSelect={field.onChange}
-                            initialFocus
-                          />
-                        </PopoverContent>
-                      </Popover>
-                      <FormDescription>
-                        {t("expiration_date_description")}
-                      </FormDescription>
-                      <FormMessage />
-                    </FormItem>
-                  )}
-                />
-              </div>
-            </div>
-
-            <div className="rounded-lg border border-gray-200 bg-white p-6">
-              <div className="mb-4">
-                <h2 className="text-lg font-medium text-gray-900">
-                  {t("billing_information")}
-                </h2>
-                <p className="text-sm text-gray-500">
-                  {t("product_charge_item_definition_selection_description")}
-                </p>
-              </div>
-              <div className="space-y-4">
-                <FormField
-                  control={form.control}
-                  name="charge_item_definition"
-                  render={({ field }) => (
-                    <FormItem>
-                      <FormLabel>{t("charge_item_definition")}</FormLabel>
-                      <FormControl>
-                        <Autocomplete
-                          options={mergeAutocompleteOptions(
-                            chargeItemDefinitionOptions.map((cid) => ({
-                              label: cid.title,
-                              value: cid.id,
-                            })),
-                            field.value
-                              ? {
-                                  label:
-                                    chargeItemDefinitionOptions.find(
-                                      (cid) => cid.id === field.value,
-                                    )?.title || "",
-                                  value: field.value,
-                                }
-                              : undefined,
-                          )}
-                          value={field.value || ""}
-                          onChange={field.onChange}
-                          onSearch={setCidSearch}
-                          placeholder={t("select_charge_item_definition")}
-                          isLoading={isLoadingCID}
-                          noOptionsMessage={t(
-                            "no_charge_item_definitions_found",
-                          )}
-                          data-cy="charge-item-definition-search"
-                        />
-                      </FormControl>
-                      <FormMessage />
-                    </FormItem>
-                  )}
-                />
-              </div>
-            </div>
-
-            <div className="flex justify-end gap-4">
-              <Button
-                type="button"
-                variant="outline"
-                onClick={() =>
-                  navigate(`/facility/${facilityId}/settings/product`)
-                }
-              >
-                {t("cancel")}
-              </Button>
-              <Button type="submit" disabled={isPending}>
-                {isPending
-                  ? t("saving")
-                  : isEditMode
-                    ? t("update")
-                    : t("create")}
-              </Button>
-            </div>
-          </form>
-        </Form>
-      </div>
-    </Page>
+        <div className="flex justify-end gap-4">
+          <Button
+            type="button"
+            variant="outline"
+            onClick={() => navigate(`/facility/${facilityId}/settings/product`)}
+          >
+            {t("cancel")}
+          </Button>
+          <Button type="submit" disabled={isPending}>
+            {isPending ? t("saving") : isEditMode ? t("update") : t("create")}
+          </Button>
+        </div>
+      </form>
+    </Form>
   );
 }

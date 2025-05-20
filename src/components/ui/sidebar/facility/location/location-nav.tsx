@@ -66,6 +66,10 @@ export function LocationNav() {
               name: t("supply_delivery"),
               url: `${baseUrl}/supply_deliveries`,
             },
+            {
+              name: t("receive_stock"),
+              url: `${baseUrl}/receive_stock`,
+            },
           ],
         },
       ]}
