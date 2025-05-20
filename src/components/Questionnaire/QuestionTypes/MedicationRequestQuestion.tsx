@@ -84,8 +84,12 @@ import { validateFields } from "@/types/questionnaire/validation";
 function formatDoseRange(range?: DoseRange): string {
   if (!range?.high?.value) return "";
 
-  const formatValue = (value: number) =>
-    value.toString().includes(".") ? value.toFixed(2) : value.toString();
+  const formatValue = (value?: number | null) =>
+    value != null
+      ? value.toString().includes(".")
+        ? value.toFixed(2)
+        : value.toString()
+      : "";
 
   return `${formatValue(range.low?.value)} → ${formatValue(range.high?.value)} ${range.high?.unit?.display}`;
 }

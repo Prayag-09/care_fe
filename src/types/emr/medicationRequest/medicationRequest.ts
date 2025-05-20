@@ -105,7 +105,7 @@ export type MedicationRequestIntent =
   (typeof MEDICATION_REQUEST_INTENT)[number];
 
 export interface DosageQuantity {
-  value: number;
+  value: number | null;
   unit: Code;
 }
 

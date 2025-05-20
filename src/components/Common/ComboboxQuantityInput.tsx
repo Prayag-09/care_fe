@@ -45,7 +45,7 @@ export function ComboboxQuantityInput({
 }: Props) {
   const [open, setOpen] = React.useState(false);
   const [inputValue, setInputValue] = React.useState(
-    quantity?.value.toString() || "",
+    quantity?.value?.toString() || "",
   );
   const [selectedUnit, setSelectedUnit] = React.useState(quantity?.unit);
   const inputRef = React.useRef<HTMLInputElement>(null);
@@ -97,7 +97,7 @@ export function ComboboxQuantityInput({
   };
 
   React.useEffect(() => {
-    setInputValue(quantity?.value.toString() || "");
+    setInputValue(quantity?.value?.toString() || "");
   }, [quantity?.value]);
 
   React.useEffect(() => {

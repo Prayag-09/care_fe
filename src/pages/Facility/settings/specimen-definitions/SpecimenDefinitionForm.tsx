@@ -532,10 +532,10 @@ export function SpecimenDefinitionForm({
                           quantity={
                             field.value
                               ? {
-                                  value: field.value.value || 0,
+                                  value: field.value.value || null,
                                   unit: field.value.unit,
                                 }
-                              : { value: 0, unit: RETENTION_TIME_UNITS[0] }
+                              : { value: null, unit: RETENTION_TIME_UNITS[0] }
                           }
                           onChange={field.onChange}
                           disabled={isLoading}
@@ -622,11 +622,11 @@ export function SpecimenDefinitionForm({
                               quantity={
                                 field.value
                                   ? {
-                                      value: field.value.value || 0,
+                                      value: field.value.value || null,
                                       unit: field.value.unit,
                                     }
                                   : {
-                                      value: 0,
+                                      value: null,
                                       unit: SPECIMEN_DEFINITION_UNITS_CODES[0],
                                     }
                               }
@@ -674,11 +674,11 @@ export function SpecimenDefinitionForm({
                                   quantity={
                                     field.value
                                       ? {
-                                          value: field.value.value || 0,
+                                          value: field.value.value || null,
                                           unit: field.value.unit,
                                         }
                                       : {
-                                          value: 0,
+                                          value: null,
                                           unit: SPECIMEN_DEFINITION_UNITS_CODES[0],
                                         }
                                   }

@@ -14,7 +14,7 @@ export enum Preference {
 }
 
 export interface QuantitySpec {
-  value: number;
+  value: number | null;
   unit: Code;
 }
 
