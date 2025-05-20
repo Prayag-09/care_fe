@@ -31,7 +31,7 @@ x : Done
 - [ ] Specimen Definition - Add \* for required fields and frontend validation for Retention Time, Capacity, Minimum Volume, Type Collected, Title, and Slug
 - [-] Specimen Definition - Remove 0 prefilled value in Retention time, capacity, and minimum value - Yash
 - [ ] Specimen Definition - Add frontend permission check for the Specimen Definition page at the facility level.
-- [ ] Specimen Definition - The cancel button in the form is not working
+- [x] Specimen Definition - The cancel button in the form is not working - Amjith
 - [ ] Specimen Definition - Increase the width of retention time and capacity to full width in the edit page
 - [ ] Specimen Definition - Add URL validation to the field Derived from URL
 - [ ] Create Observation Definition - Add \* to Title, Slug, Description, Category, Status, and Data Type fields.

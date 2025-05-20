@@ -1,5 +1,6 @@
 import { zodResolver } from "@hookform/resolvers/zod";
 import { PlusCircle, XCircle } from "lucide-react";
+import { navigate } from "raviger";
 import React from "react";
 import { useForm } from "react-hook-form";
 import { useTranslation } from "react-i18next";
@@ -30,6 +31,7 @@ import { Textarea } from "@/components/ui/textarea";
 import ComboboxQuantityInput from "@/components/Common/ComboboxQuantityInput";
 import ValueSetSelect from "@/components/Questionnaire/ValueSetSelect";
 
+import useCurrentFacility from "@/pages/Facility/utils/useCurrentFacility";
 import { Code } from "@/types/base/code/code";
 import {
   Preference,
@@ -110,6 +112,8 @@ export function SpecimenDefinitionForm({
   isLoading,
 }: SpecimenDefinitionFormProps) {
   const { t } = useTranslation();
+
+  const { facilityId } = useCurrentFacility();
 
   const form = useForm<FormValues>({
     resolver: zodResolver(formSchema),
@@ -743,7 +747,13 @@ export function SpecimenDefinitionForm({
         </Card>
 
         <div className="flex justify-between">
-          <Button type="button" variant="outline">
+          <Button
+            type="button"
+            variant="outline"
+            onClick={() =>
+              navigate(`/facility/${facilityId}/settings/specimen_definitions`)
+            }
+          >
             {t("cancel")}
           </Button>
           <Button type="submit" disabled={isLoading}>
