@@ -35,6 +35,34 @@ x : Done
 - [-] Service Request - Show specimen.processing.performer details instead of UUID (After BE change) - Vignesh
 - [x] Make Activity Definiton search inside the service request question working
 - [ ] Healthcare Service edit - Location expand missing in sheet
+- [ ] Specimen Definition - The 2x2 grid UI breaks when the error message is triggered and only one of the fields/columns is filled
+- [ ] Specimen Definition - Add * for required fields and frontend validation for Retention Time, Capacity, Minimum Volume, Type Collected, Title, and Slug
+- [ ] Specimen Definition - Remove 0 prefilled value in Retention time, capacity, and minimum value
+- [ ] Specimen Definition - Add frontend permission check for the Specimen Definition page at the facility level.
+- [ ] Specimen Definition - The cancel button in the form is not working
+- [ ] Specimen Definition - Increase the width of retention time and capacity to full width in the edit page
+- [ ] Specimen Definition - Add URL validation to the field Derived from URL
+- [ ] Create Observation Definition - Add * to Title, Slug, Description, Category, Status, and Data Type fields.
+- [ ] Create Observation Definition - Add missing asterisk and frontend validation for the LOINC field 
+- [ ] Create Observation Definition - Add missing translation for edit_observation_definition form heading
+- [ ] Create Observation Definition - The category filter in the list view is not working
+- [ ] Active Definition - Add asterisks to Title, Slug, Description, Usage, and Category fields.
+- [ ] Active Definition - Add asterisk and frontend validation for code field
+- [ ] Active Definition - In the questionnaire of SR, change the autocomplete border colour from blue to keep them consistent
+- [ ] Charge Item - Add an asterisk to the Title field.
+- [ ] Charge Item - Add asterisk and frontend validation for the Base Price field.
+- [ ] Charge Item - Remove the ? from the discount dropdown
+- [ ] Charge Item - Removing prefilled data from the Discount and Tax fields causes the field state to freeze, requiring a manual page reload.
+- [ ] Charge Item - Limit the discount and tax field input to 100 max
+- [ ] SR details page - fix decimal points to two and round off amounts in charge items.
+- [ ] SR details page — In the Add Charge Item slide over, display the final amount after discount and tax, and the amount split when hovering over the (!) icon.
+- [ ] SR details page- Remove the back button from the sample identification QR print preview pop-up. / adjust the behavior to only close the pop-up
+- [ ] SR details page - Specimen ID cannot be hidden in the Service Request QR
+- [ ] SR details page - Add a hyperlink to the payment page, for better UX
+- [ ] SR Details page - Disable the process step once the report generation is done | Confirm with Bodhi before working on this
+- [ ] SR overview page - Show the current status of the service request. Upon completion, update the status from active to complete
+- [ ] SR Questionnaire - Investigate placement of Priority and Urgent text fields, as the text field appears in Overview and the request in the SR tab upon submission. Currently, Priority is recorded both as structured data and plain text in the same question.
+
 
 ## Back End
 
