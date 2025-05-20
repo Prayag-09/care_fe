@@ -31,6 +31,7 @@ export interface SupplyDeliveryCreate extends Omit<SupplyDeliveryBase, "id"> {
   supplied_item_quantity: number;
   supplied_item?: string; // Product ID
   supplied_inventory_item?: string; // Inventory Item ID
+  supplier?: string; // Product Supplier Organization ID
   origin?: string; // Location ID
   destination: string; // Location ID
   supply_request?: string; // Supply Request ID
