@@ -1,3 +1,4 @@
+import { useMutation, useQueryClient } from "@tanstack/react-query";
 import { navigate } from "raviger";
 import { useTranslation } from "react-i18next";
 
@@ -17,8 +18,13 @@ import {
 import { TableSkeleton } from "@/components/Common/SkeletonLoading";
 import { EmptyState } from "@/components/definition-list/EmptyState";
 
+import mutate from "@/Utils/request/mutate";
 import { SupplyDeliveryTab } from "@/pages/Facility/services/supply/SupplyDeliveryList";
-import { SupplyDeliveryRead } from "@/types/inventory/supplyDelivery/supplyDelivery";
+import {
+  SupplyDeliveryRead,
+  SupplyDeliveryStatus,
+} from "@/types/inventory/supplyDelivery/supplyDelivery";
+import supplyDeliveryApi from "@/types/inventory/supplyDelivery/supplyDeliveryApi";
 
 const STATUS_COLORS: Record<string, string> = {
   in_progress: "bg-amber-100 text-amber-700",
@@ -108,17 +114,22 @@ export default function SupplyDeliveryTable({
                 </Badge>
               </TableCell>
               <TableCell>
-                <Button
-                  variant="ghost"
-                  size="sm"
-                  onClick={() =>
-                    navigate(
-                      `/facility/${facilityId}/locations/${locationId}/supply_deliveries/${delivery.id}`,
-                    )
-                  }
-                >
-                  <CareIcon icon="l-eye" className="size-4" />
-                </Button>
+                <div className="flex gap-2">
+                  <Button
+                    variant="ghost"
+                    size="sm"
+                    onClick={() =>
+                      navigate(
+                        `/facility/${facilityId}/locations/${locationId}/supply_deliveries/${delivery.id}`,
+                      )
+                    }
+                  >
+                    <CareIcon icon="l-eye" className="size-4" />
+                  </Button>
+                  {delivery.status === SupplyDeliveryStatus.in_progress && (
+                    <SupplyDeliveryMarkAsCompleteButton delivery={delivery} />
+                  )}
+                </div>
               </TableCell>
             </TableRow>
           ))}
@@ -127,3 +138,41 @@ export default function SupplyDeliveryTable({
     </div>
   );
 }
+
+const SupplyDeliveryMarkAsCompleteButton = ({
+  delivery,
+}: {
+  delivery: SupplyDeliveryRead;
+}) => {
+  const queryClient = useQueryClient();
+
+  const { mutate: updateDeliveryStatus } = useMutation({
+    mutationFn: mutate(supplyDeliveryApi.updateSupplyDelivery, {
+      pathParams: { supplyDeliveryId: delivery.id },
+    }),
+    onSuccess: () => {
+      queryClient.invalidateQueries({ queryKey: ["supplyDeliveries"] });
+    },
+  });
+
+  return (
+    <Button
+      variant="ghost"
+      size="sm"
+      onClick={() =>
+        updateDeliveryStatus({
+          status: SupplyDeliveryStatus.completed,
+          supplied_item_quantity: delivery.supplied_item_quantity,
+          supplied_item: delivery.supplied_item?.id,
+          supplied_inventory_item: delivery.supplied_inventory_item?.id,
+          supplied_item_type: delivery.supplied_item_type,
+          origin: delivery.origin?.id,
+          destination: delivery.destination.id,
+          supply_request: delivery.supply_request?.id,
+        })
+      }
+    >
+      <CareIcon icon="l-check" className="size-4" />
+    </Button>
+  );
+};
