@@ -1,13 +1,25 @@
+import { zodResolver } from "@hookform/resolvers/zod";
 import { useMutation, useQuery, useQueryClient } from "@tanstack/react-query";
 import { formatDate } from "date-fns";
+import { PlusIcon } from "lucide-react";
 import { navigate } from "raviger";
 import { useEffect, useState } from "react";
+import { useFieldArray, useForm } from "react-hook-form";
 import { useTranslation } from "react-i18next";
 import { toast } from "sonner";
+import { z } from "zod";
 
 import { Badge } from "@/components/ui/badge";
 import { Button } from "@/components/ui/button";
 import { Checkbox } from "@/components/ui/checkbox";
+import {
+  Command,
+  CommandEmpty,
+  CommandGroup,
+  CommandInput,
+  CommandItem,
+  CommandList,
+} from "@/components/ui/command";
 import { Input } from "@/components/ui/input";
 import { MonetaryDisplay } from "@/components/ui/monetary-display";
 import {
@@ -51,28 +63,16 @@ import {
   MedicationDispenseCreate,
   MedicationDispenseStatus,
 } from "@/types/emr/medicationDispense/medicationDispense";
-import { displayMedicationName } from "@/types/emr/medicationRequest/medicationRequest";
 import { MedicationRequestRead } from "@/types/emr/medicationRequest/medicationRequest";
 import medicationRequestApi from "@/types/emr/medicationRequest/medicationRequestApi";
 import { InventoryRead } from "@/types/inventory/product/inventory";
 import inventoryApi from "@/types/inventory/product/inventoryApi";
+import { ProductKnowledgeBase } from "@/types/inventory/productKnowledge/productKnowledge";
+import productKnowledgeApi from "@/types/inventory/productKnowledge/productKnowledgeApi";
 
 interface Props {
   patientId: string;
 }
-
-interface MedicationQuantity {
-  id: string;
-  quantity: number;
-  isSelected: boolean;
-  selectedInventoryId?: string;
-  days_supply: number;
-  isFullyDispensed: boolean;
-}
-
-type MedicationRequestWithInventory = MedicationRequestRead & {
-  inventory_items_internal?: InventoryRead[];
-};
 
 function convertDurationToDays(value: number, unit: string): number {
   switch (unit) {
@@ -91,18 +91,46 @@ function convertDurationToDays(value: number, unit: string): number {
   }
 }
 
+const formSchema = z.object({
+  items: z.array(
+    z.object({
+      reference_id: z.string().uuid(),
+      medication: z.any(),
+      productKnowledge: z.any(),
+      quantity: z.number().min(0),
+      isSelected: z.boolean(),
+      daysSupply: z.number().min(0),
+      isFullyDispensed: z.boolean(),
+      selectedInventoryId: z.string().uuid(),
+    }),
+  ),
+});
+
 export default function MedicationBillForm({ patientId }: Props) {
   const { t } = useTranslation();
   const queryClient = useQueryClient();
   const { facilityId } = useCurrentFacility();
   const { locationId } = useCurrentLocation();
-  const [medicationQuantities, setMedicationQuantities] = useState<
-    MedicationQuantity[]
-  >([]);
+  const [productKnowledgeInventoriesMap, setProductKnowledgeInventoriesMap] =
+    useState<Record<string, InventoryRead[] | undefined>>({});
   const [isInvoiceSheetOpen, setIsInvoiceSheetOpen] = useState(false);
   const [extractedChargeItems, setExtractedChargeItems] = useState<
     ChargeItemRead[]
   >([]);
+  const [search, setSearch] = useState("");
+  const [isSearchOpen, setIsSearchOpen] = useState(false);
+
+  const form = useForm<z.infer<typeof formSchema>>({
+    resolver: zodResolver(formSchema),
+    defaultValues: {
+      items: [],
+    },
+  });
+
+  const { fields, append, update } = useFieldArray({
+    control: form.control,
+    name: "items",
+  });
 
   const { data: account } = useQuery({
     queryKey: ["accounts", patientId],
@@ -121,7 +149,6 @@ export default function MedicationBillForm({ patientId }: Props) {
   const { data: response, isLoading } = useQuery({
     queryKey: ["medication_requests", patientId, "dispense"],
     queryFn: async ({ signal }) => {
-      // First get the medication requests
       const medicationResponse = await query(medicationRequestApi.list, {
         pathParams: { patientId },
         queryParams: {
@@ -131,80 +158,88 @@ export default function MedicationBillForm({ patientId }: Props) {
         },
       })({ signal });
 
-      // For each medication request, fetch and attach its inventory items
-      const medicationsWithInventory = await Promise.all(
-        medicationResponse.results.map(
-          async (medication: MedicationRequestRead) => {
-            if (medication.requested_product?.id) {
-              const inventoryResponse = await query(inventoryApi.list, {
-                pathParams: { facilityId, locationId },
-                queryParams: {
-                  limit: 100,
-                  product_knowledge: medication.requested_product.id,
-                },
-              })({ signal });
-              return {
-                ...medication,
-                inventory_items_internal: inventoryResponse.results || [],
-              };
-            }
-            return {
-              ...medication,
-              inventory_items_internal: [],
-            };
-          },
-        ),
-      );
+      const productKnowledgeIds = medicationResponse.results
+        .filter((medication) => medication.requested_product)
+        .reduce(
+          (acc, medication) => ({
+            ...acc,
+            [medication.requested_product!.id]: undefined,
+          }),
+          {},
+        );
 
-      return {
-        ...medicationResponse,
-        results: medicationsWithInventory as MedicationRequestWithInventory[],
-      };
+      setProductKnowledgeInventoriesMap((prev) => ({
+        ...productKnowledgeIds,
+        ...prev,
+      }));
+
+      return medicationResponse;
     },
   });
 
+  useEffect(() => {
+    const fetchMissingInventories = async () => {
+      for (const [productKnowledgeId, inventories] of Object.entries(
+        productKnowledgeInventoriesMap,
+      )) {
+        if (inventories) continue;
+
+        const inventoriesResponse = await query(inventoryApi.list, {
+          pathParams: { facilityId, locationId },
+          queryParams: {
+            limit: 100,
+            product_knowledge: productKnowledgeId,
+          },
+        })({ signal: new AbortController().signal });
+
+        setProductKnowledgeInventoriesMap((prev) => ({
+          ...prev,
+          [productKnowledgeId]: inventoriesResponse.results || [],
+        }));
+      }
+    };
+
+    fetchMissingInventories();
+  }, [productKnowledgeInventoriesMap, facilityId, locationId]);
+
   const medications =
     response?.results.filter((med) => med.requested_product) || [];
+  const encounterId = response?.results[0]?.encounter;
+
+  const { data: productKnowledges, isFetching: isProductLoading } = useQuery({
+    queryKey: ["productKnowledge", "medication", search],
+    queryFn: query.debounced(productKnowledgeApi.listProductKnowledge, {
+      queryParams: {
+        facility: facilityId,
+        limit: 100,
+        offset: 0,
+        name: search,
+        product_type: "medication",
+        status: "active",
+      },
+    }),
+  });
 
   useEffect(() => {
-    if (medications.length > 0) {
-      const newMedicationQuantities = medications.map(
-        (med: MedicationRequestWithInventory) => {
-          const existingQuantity = medicationQuantities.find(
-            (q) => q.id === med.id,
-          );
-          if (existingQuantity) {
-            return existingQuantity;
-          }
-
-          const matchingInventory = med.inventory_items_internal || [];
-          return {
-            id: med.id,
-            quantity: computeInitialQuantity(med),
-            isSelected: true,
-            selectedInventoryId:
-              matchingInventory.length === 1
-                ? matchingInventory[0].id
-                : undefined,
-            days_supply: convertDurationToDays(
-              med.dosage_instruction[0]?.timing?.repeat?.bounds_duration
-                ?.value || 0,
-              med.dosage_instruction[0]?.timing?.repeat?.bounds_duration
-                ?.unit || "",
-            ),
-            isFullyDispensed: false,
-          };
-        },
-      );
-
-      if (
-        JSON.stringify(newMedicationQuantities) !==
-        JSON.stringify(medicationQuantities)
-      ) {
-        setMedicationQuantities(newMedicationQuantities);
-      }
-    }
-  }, [medications]);
+    medications.forEach((medication) => {
+      append({
+        reference_id: crypto.randomUUID(),
+        productKnowledge: medication.requested_product,
+        medication,
+        quantity: computeInitialQuantity(medication),
+        isSelected: true,
+        daysSupply: convertDurationToDays(
+          medication.dosage_instruction[0]?.timing?.repeat?.bounds_duration
+            ?.value || 0,
+          medication.dosage_instruction[0]?.timing?.repeat?.bounds_duration
+            ?.unit || "",
+        ),
+        isFullyDispensed: false,
+        selectedInventoryId: medication.inventory_items_internal?.[0]
+          ?.id as string,
+      });
+    });
+  }, [medications.length]);
 
   function computeInitialQuantity(medication: any) {
     const instruction = medication.dosage_instruction[0];
@@ -262,66 +297,6 @@ export default function MedicationBillForm({ patientId }: Props) {
     },
   });
 
-  const handleQuantityChange = (id: string, value: number) => {
-    setMedicationQuantities((prev) =>
-      prev.map((item) =>
-        item.id === id ? { ...item, quantity: value } : item,
-      ),
-    );
-  };
-
-  const handleDaysSupplyChange = (id: string, value: number) => {
-    setMedicationQuantities((prev) =>
-      prev.map((item) =>
-        item.id === id ? { ...item, days_supply: value } : item,
-      ),
-    );
-  };
-
-  const handleInventoryChange = (id: string, inventoryId: string) => {
-    setMedicationQuantities((prev) =>
-      prev.map((item) =>
-        item.id === id ? { ...item, selectedInventoryId: inventoryId } : item,
-      ),
-    );
-  };
-
-  const handleCheckboxChange = (id: string, checked: boolean) => {
-    setMedicationQuantities((prev) =>
-      prev.map((item) =>
-        item.id === id ? { ...item, isSelected: checked } : item,
-      ),
-    );
-  };
-
-  const handleSelectAll = (checked: boolean) => {
-    setMedicationQuantities((prev) =>
-      prev.map((item) => ({ ...item, isSelected: checked })),
-    );
-  };
-
-  const handleFullyDispensedChange = (id: string, checked: boolean) => {
-    setMedicationQuantities((prev) =>
-      prev.map((item) =>
-        item.id === id ? { ...item, isFullyDispensed: checked } : item,
-      ),
-    );
-  };
-
-  const getInventoryForMedication = (
-    medicationId: string,
-  ): InventoryRead | undefined => {
-    const medication = medications.find(
-      (med: MedicationRequestWithInventory) => med.id === medicationId,
-    );
-    const quantity = medicationQuantities.find((q) => q.id === medicationId);
-    if (!quantity?.selectedInventoryId || !medication) return undefined;
-
-    return medication.inventory_items_internal?.find(
-      (inv: InventoryRead) => inv.id === quantity.selectedInventoryId,
-    );
-  };
-
   const calculatePrices = (inventory: InventoryRead | undefined) => {
     if (!inventory)
       return {
@@ -344,56 +319,20 @@ export default function MedicationBillForm({ patientId }: Props) {
   };
 
   const handleDispense = () => {
-    const selectedMeds = medications.filter((med) =>
-      medicationQuantities.find((q) => q.id === med.id && q.isSelected),
-    );
-
-    // First check for any selected medications with zero quantity
-    const medWithZeroQuantity = selectedMeds.find((med) => {
-      const quantity =
-        medicationQuantities.find((q) => q.id === med.id)?.quantity || 0;
-      return quantity === 0;
-    });
-
-    if (medWithZeroQuantity) {
-      toast.error(
-        t("quantity_cannot_be_zero", {
-          medication: displayMedicationName(medWithZeroQuantity),
-        }),
-      );
-      return;
-    }
-
-    // First validate that all selected medications have an inventory selected
-    const medsWithoutInventory = selectedMeds.filter((med) => {
-      const quantity = medicationQuantities.find((q) => q.id === med.id);
-      return !quantity?.selectedInventoryId;
-    });
-
-    if (medsWithoutInventory.length > 0) {
-      const medicationNames = medsWithoutInventory
-        .map((med) => displayMedicationName(med))
-        .join(", ");
-      toast.error(
-        t("please_select_inventory_for_medications", {
-          medications: medicationNames,
-        }),
-      );
-      return;
-    }
+    const selectedItems = form
+      .getValues("items")
+      .filter((item) => item.isSelected);
 
     const requests = [];
 
     // Add all dispense requests
-    selectedMeds.forEach((medication) => {
-      const medicationQuantity = medicationQuantities.find(
-        (q) => q.id === medication.id,
-      );
-      const quantity = medicationQuantity?.quantity || 0;
-      const selectedInventory = getInventoryForMedication(medication.id);
-      const daysSupply = medicationQuantity?.days_supply || 0;
+    selectedItems.forEach((item) => {
+      const medication = item.medication as MedicationRequestRead | undefined;
+      const productKnowledge = item.productKnowledge as ProductKnowledgeBase;
+      const selectedInventory = productKnowledgeInventoriesMap[
+        productKnowledge.id
+      ]?.find((inv: InventoryRead) => inv.id === item.selectedInventoryId);
 
-      // This check is now redundant due to the validation above, but keeping for type safety
       if (!selectedInventory) {
         return;
       }
@@ -402,36 +341,36 @@ export default function MedicationBillForm({ patientId }: Props) {
         status: MedicationDispenseStatus.preparation,
         category: MedicationDispenseCategory.outpatient,
         when_prepared: new Date(),
-        dosage_instruction: medication.dosage_instruction[0],
-        encounter: medication.encounter,
+        dosage_instruction: medication?.dosage_instruction as any,
+        encounter: encounterId!,
         location: locationId,
-        authorizing_prescription: medication.id,
+        authorizing_prescription: medication?.id ?? null,
         item: selectedInventory.id,
-        quantity: quantity,
-        days_supply: daysSupply,
+        quantity: item.quantity,
+        days_supply: item.daysSupply,
       };
 
       requests.push({
         url: `/api/v1/medication/dispense/`,
         method: "POST",
-        reference_id: `dispense_${medication.id}`,
+        reference_id: `dispense_${item.reference_id}`,
         body: dispenseData,
       });
     });
 
     // Get all medications marked as fully dispensed
-    const fullyDispensedMeds = selectedMeds.filter((med) =>
-      medicationQuantities.find((q) => q.id === med.id && q.isFullyDispensed),
-    );
+    const fullyDispensedMedications = selectedItems
+      .filter((item) => item.isFullyDispensed && item.medication)
+      .map((item) => item.medication);
 
     // If there are any fully dispensed medications, add a single upsert request
-    if (fullyDispensedMeds.length > 0) {
+    if (fullyDispensedMedications.length > 0) {
       requests.push({
         url: `/api/v1/patient/${patientId}/medication/request/upsert/`,
         method: "POST",
         reference_id: "medication_request_updates",
         body: {
-          datapoints: fullyDispensedMeds.map((medication) => ({
+          datapoints: fullyDispensedMedications.map((medication) => ({
             ...medication,
             dispense_status: "complete",
           })),
@@ -442,7 +381,7 @@ export default function MedicationBillForm({ patientId }: Props) {
     dispense({ requests });
   };
 
-  const handleShowAlternatives = (_medicationId: string) => {
+  const handleShowAlternatives = (_medicationId?: string) => {
     toast.info(t("alternatives_coming_soon"));
   };
 
@@ -460,7 +399,7 @@ export default function MedicationBillForm({ patientId }: Props) {
             <Button
               onClick={handleDispense}
               disabled={
-                !medicationQuantities.some((q) => q.isSelected) || isPending
+                !form.watch("items").some((q) => q.isSelected) || isPending
               }
             >
               {isPending ? t("billing") : t("bill_selected")}
@@ -478,10 +417,17 @@ export default function MedicationBillForm({ patientId }: Props) {
                   <TableHead className="w-12">
                     <Checkbox
                       checked={
-                        medicationQuantities.length > 0 &&
-                        medicationQuantities.every((q) => q.isSelected)
+                        form.watch("items").length > 0 &&
+                        form.watch("items").every((q) => q.isSelected)
                       }
-                      onCheckedChange={(checked) => handleSelectAll(!!checked)}
+                      onCheckedChange={(checked) =>
+                        form.getValues("items").map((_, index) =>
+                          update(index, {
+                            ...fields[index],
+                            isSelected: !!checked,
+                          }),
+                        )
+                      }
                     />
                   </TableHead>
                   <TableHead>{t("medicine")}</TableHead>
@@ -518,15 +464,14 @@ export default function MedicationBillForm({ patientId }: Props) {
                 </TableRow>
               </TableHeader>
               <TableBody>
-                {medications.map((medication) => {
-                  const medicationQuantity = medicationQuantities.find(
-                    (q) => q.id === medication.id,
-                  );
-                  const quantity = medicationQuantity?.quantity || 0;
-                  const matchingInventory =
-                    medication.inventory_items_internal || [];
-                  const selectedInventory = getInventoryForMedication(
-                    medication.id,
+                {fields.map((field, index) => {
+                  const productKnowledge =
+                    field.productKnowledge as ProductKnowledgeBase;
+                  const selectedInventory = productKnowledgeInventoriesMap[
+                    productKnowledge.id
+                  ]?.find(
+                    (inv: InventoryRead) =>
+                      inv.id === field.selectedInventoryId,
                   );
                   const prices = calculatePrices(selectedInventory);
 
@@ -551,35 +496,46 @@ export default function MedicationBillForm({ patientId }: Props) {
                   );
 
                   return (
-                    <TableRow key={medication.id}>
+                    <TableRow key={field.id}>
                       <TableCell>
                         <Checkbox
-                          checked={medicationQuantity?.isSelected}
+                          checked={field.isSelected}
                           onCheckedChange={(checked) =>
-                            handleCheckboxChange(medication.id, !!checked)
+                            update(index, {
+                              ...field,
+                              isSelected: !!checked,
+                            })
                           }
                         />
                       </TableCell>
-                      <TableCell>{displayMedicationName(medication)}</TableCell>
+                      <TableCell>{productKnowledge.name}</TableCell>
                       <TableCell>
-                        {matchingInventory.length > 0 ? (
+                        {productKnowledgeInventoriesMap[productKnowledge.id]
+                          ?.length ? (
                           <Select
-                            value={medicationQuantity?.selectedInventoryId}
+                            value={field.selectedInventoryId}
                             onValueChange={(value) =>
-                              handleInventoryChange(medication.id, value)
+                              update(index, {
+                                ...field,
+                                selectedInventoryId: value,
+                              })
                             }
                           >
                             <SelectTrigger className="w-[200px]">
                               <SelectValue
                                 placeholder={
-                                  matchingInventory.length === 0
+                                  !productKnowledgeInventoriesMap[
+                                    productKnowledge.id
+                                  ]?.length
                                     ? t("no_stock")
                                     : t("select_stock")
                                 }
                               />
                             </SelectTrigger>
                             <SelectContent>
-                              {matchingInventory.map((inv) => (
+                              {productKnowledgeInventoriesMap[
+                                productKnowledge.id
+                              ]?.map((inv) => (
                                 <SelectItem key={inv.id} value={inv.id}>
                                   {"Lot #" + inv.product.batch?.lot_number}{" "}
                                   <Badge
@@ -612,12 +568,12 @@ export default function MedicationBillForm({ patientId }: Props) {
                         <Input
                           type="number"
                           min={0}
-                          value={quantity}
+                          value={field.quantity}
                           onChange={(e) =>
-                            handleQuantityChange(
-                              medication.id,
-                              parseInt(e.target.value) || 0,
-                            )
+                            update(index, {
+                              ...field,
+                              quantity: parseInt(e.target.value) || 0,
+                            })
                           }
                           className="w-24"
                         />
@@ -626,12 +582,12 @@ export default function MedicationBillForm({ patientId }: Props) {
                         <Input
                           type="number"
                           min={0}
-                          value={medicationQuantity?.days_supply || 0}
+                          value={field.daysSupply}
                           onChange={(e) =>
-                            handleDaysSupplyChange(
-                              medication.id,
-                              parseInt(e.target.value) || 0,
-                            )
+                            update(index, {
+                              ...field,
+                              daysSupply: parseInt(e.target.value) || 0,
+                            })
                           }
                           className="w-24"
                         />
@@ -665,7 +621,7 @@ export default function MedicationBillForm({ patientId }: Props) {
                               (c.code?.code || "tax_per_unit") === taxCode,
                           );
                         return (
-                          <TableCell key={`${medication.id}-${taxCode}`}>
+                          <TableCell key={`${productKnowledge?.id}-${taxCode}`}>
                             {selectedInventory ? (
                               <div>
                                 {taxComponent?.factor
@@ -682,22 +638,117 @@ export default function MedicationBillForm({ patientId }: Props) {
                         <Button
                           variant="outline"
                           size="sm"
-                          onClick={() => handleShowAlternatives(medication.id)}
+                          onClick={() =>
+                            handleShowAlternatives(productKnowledge.id)
+                          }
                         >
                           {t("alt")}
                         </Button>
                       </TableCell>
                       <TableCell>
-                        <Checkbox
-                          checked={medicationQuantity?.isFullyDispensed}
-                          onCheckedChange={(checked) =>
-                            handleFullyDispensedChange(medication.id, !!checked)
-                          }
-                        />
+                        {field.medication ? (
+                          <Checkbox
+                            checked={field.isFullyDispensed}
+                            onCheckedChange={(checked) =>
+                              update(index, {
+                                ...field,
+                                isFullyDispensed: !!checked,
+                              })
+                            }
+                          />
+                        ) : (
+                          "-"
+                        )}
                       </TableCell>
                     </TableRow>
                   );
                 })}
+                <TableRow>
+                  <TableCell colSpan={12} className="p-0">
+                    {isSearchOpen ? (
+                      <Command className="w-full rounded-none border-none">
+                        <CommandInput
+                          placeholder={t("search_products")}
+                          onValueChange={setSearch}
+                          value={search}
+                          className="h-12 border-none"
+                          onKeyDown={(e) => {
+                            if (e.key === "Escape") {
+                              setIsSearchOpen(false);
+                              setSearch("");
+                            }
+                          }}
+                        />
+                        <CommandList className="max-h-[300px] overflow-auto">
+                          <CommandEmpty>
+                            {search.length < 3 ? (
+                              <p className="p-4 text-sm text-gray-500">
+                                {t("min_char_length_error", {
+                                  min_length: 3,
+                                })}
+                              </p>
+                            ) : isProductLoading ? (
+                              <p className="p-4 text-sm text-gray-500">
+                                {t("searching")}
+                              </p>
+                            ) : (
+                              <p className="p-4 text-sm text-gray-500">
+                                {t("no_results_found")}
+                              </p>
+                            )}
+                          </CommandEmpty>
+                          <CommandGroup>
+                            {productKnowledges?.results?.map(
+                              (productKnowledge) => (
+                                <CommandItem
+                                  key={productKnowledge.id}
+                                  value={productKnowledge.name}
+                                  onSelect={() => {
+                                    append({
+                                      reference_id: crypto.randomUUID(),
+                                      productKnowledge,
+                                      quantity: 0,
+                                      isSelected: true,
+                                      daysSupply: 0,
+                                      isFullyDispensed: false,
+                                      selectedInventoryId: "",
+                                    });
+
+                                    setProductKnowledgeInventoriesMap(
+                                      (prev) => ({
+                                        [productKnowledge.id]: undefined,
+                                        ...prev,
+                                      }),
+                                    );
+                                    setIsSearchOpen(false);
+                                    setSearch("");
+                                  }}
+                                  className="cursor-pointer"
+                                >
+                                  <div className="flex flex-col">
+                                    <span className="font-medium">
+                                      {productKnowledge.name}
+                                    </span>
+                                  </div>
+                                </CommandItem>
+                              ),
+                            )}
+                          </CommandGroup>
+                        </CommandList>
+                      </Command>
+                    ) : (
+                      <Button
+                        variant="ghost"
+                        size="sm"
+                        className="w-full h-12 flex items-center justify-center gap-2 hover:bg-gray-100"
+                        onClick={() => setIsSearchOpen(true)}
+                      >
+                        <PlusIcon className="h-6 w-6" />
+                        <span>{t("add_medication")}</span>
+                      </Button>
+                    )}
+                  </TableCell>
+                </TableRow>
               </TableBody>
             </Table>
           </div>
