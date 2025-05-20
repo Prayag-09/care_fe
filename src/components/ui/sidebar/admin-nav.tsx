@@ -36,6 +36,10 @@ function generateAdminLinks(t: TFunction) {
           name: "Suppliers",
           url: `${baseUrl}/organizations/product_supplier`,
         },
+        {
+          name: "Roles",
+          url: `${baseUrl}/organizations/role`,
+        },
       ],
     },
   ];
