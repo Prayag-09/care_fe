@@ -1,4 +1,5 @@
 import { useMutation, useQuery, useQueryClient } from "@tanstack/react-query";
+import { formatDate } from "date-fns";
 import { navigate } from "raviger";
 import { useEffect, useState } from "react";
 import { useTranslation } from "react-i18next";
@@ -600,7 +601,12 @@ export default function MedicationBillForm({ patientId }: Props) {
                         )}
                       </TableCell>
                       <TableCell>
-                        {selectedInventory?.product.expiration_date || "-"}
+                        {selectedInventory?.product.expiration_date
+                          ? formatDate(
+                              selectedInventory?.product.expiration_date,
+                              "dd MMM yyyy",
+                            )
+                          : "-"}
                       </TableCell>
                       <TableCell>
                         <Input
@@ -707,7 +713,7 @@ export default function MedicationBillForm({ patientId }: Props) {
             onSuccess={() => {
               setIsInvoiceSheetOpen(false);
               navigate(
-                `/facility/${facilityId}/locations/${locationId}/medication_requests/patient/${patientId}/to_be_dispensed`,
+                `/facility/${facilityId}/locations/${locationId}/medication_requests/patient/${patientId}/dispense`,
               );
             }}
           />

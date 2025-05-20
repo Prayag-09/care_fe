@@ -21,7 +21,7 @@ import MedicationDispenseList from "./MedicationDispenseList";
 
 export enum PharmacyMedicationTab {
   PRESCRIPTIONS = "prescriptions",
-  TO_BE_DISPENSED = "to_be_dispensed",
+  DISPENSE = "dispense",
 }
 interface Props {
   facilityId: string;
@@ -63,11 +63,7 @@ export default function PharmacyMedicationList({
       </div>
       {patientData && (
         <Card className="mb-4 p-4 rounded-md shadow-none">
-          <PatientHeader
-            patient={patientData}
-            facilityId={facilityId}
-            link={``}
-          />
+          <PatientHeader patient={patientData} facilityId={facilityId} />
         </Card>
       )}
       <Tabs
@@ -83,9 +79,9 @@ export default function PharmacyMedicationList({
             <CareIcon icon="l-credit-card" className="text-lg" />
             <span>{t("prescriptions")}</span>
           </TabsTrigger>
-          <TabsTrigger value="to_be_dispensed" id="user-list-view">
+          <TabsTrigger value="dispense" id="user-list-view">
             <CareIcon icon="l-list-ul" className="text-lg" />
-            <span>{t("to_be_dispensed")}</span>
+            <span>{t("dispense")}</span>
           </TabsTrigger>
         </TabsList>
 
@@ -96,7 +92,7 @@ export default function PharmacyMedicationList({
               patientId={patientId}
             />
           </TabsContent>
-          <TabsContent value="to_be_dispensed" className="p-2">
+          <TabsContent value="dispense" className="p-2">
             <DispensedMedicationList
               facilityId={facilityId}
               patientId={patientId}

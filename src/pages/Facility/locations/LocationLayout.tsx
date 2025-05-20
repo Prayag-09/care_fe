@@ -158,7 +158,7 @@ const getRoutes = (facilityId: string, locationId: string) => ({
     />
   ),
 
-  "/medication_requests/patient/:patientId/to_be_dispensed": ({
+  "/medication_requests/patient/:patientId/dispense": ({
     patientId,
   }: {
     patientId: string;
@@ -166,11 +166,11 @@ const getRoutes = (facilityId: string, locationId: string) => ({
     <PharmacyMedicationList
       facilityId={facilityId}
       patientId={patientId}
-      tab={PharmacyMedicationTab.TO_BE_DISPENSED}
+      tab={PharmacyMedicationTab.DISPENSE}
     />
   ),
 
-  "/medication_requests/patient/:patientId/dispense": ({
+  "/medication_requests/patient/:patientId/bill": ({
     patientId,
   }: {
     patientId: string;

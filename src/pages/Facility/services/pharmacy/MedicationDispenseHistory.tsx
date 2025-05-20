@@ -133,11 +133,11 @@ export default function MedicationDispenseHistory({
                         size="sm"
                         onClick={() => {
                           navigate(
-                            `/facility/${facilityId}/locations/${locationId}/medication_requests/patient/${item.encounter.patient.id}/to_be_dispensed`,
+                            `/facility/${facilityId}/locations/${locationId}/medication_requests/patient/${item.encounter.patient.id}/dispense`,
                           );
                         }}
                       >
-                        {t("View")}
+                        {t("view")}
                       </Button>
                     </TableCell>
                   </TableRow>

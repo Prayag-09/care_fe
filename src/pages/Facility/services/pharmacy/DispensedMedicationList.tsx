@@ -1,5 +1,5 @@
+import { ExternalLinkIcon } from "@radix-ui/react-icons";
 import { useMutation, useQuery, useQueryClient } from "@tanstack/react-query";
-import { navigate } from "raviger";
 import { useState } from "react";
 import { useTranslation } from "react-i18next";
 import { toast } from "sonner";
@@ -10,6 +10,10 @@ import { Badge } from "@/components/ui/badge";
 import { Button } from "@/components/ui/button";
 import { Checkbox } from "@/components/ui/checkbox";
 import { Input } from "@/components/ui/input";
+import { SelectTrigger, SelectValue } from "@/components/ui/select";
+import { SelectItem } from "@/components/ui/select";
+import { Select } from "@/components/ui/select";
+import { SelectContent } from "@/components/ui/select";
 import {
   Table,
   TableBody,
@@ -18,6 +22,9 @@ import {
   TableHeader,
   TableRow,
 } from "@/components/ui/table";
+import { TabsTrigger } from "@/components/ui/tabs";
+import { TabsList } from "@/components/ui/tabs";
+import { Tabs } from "@/components/ui/tabs";
 import {
   Tooltip,
   TooltipContent,
@@ -34,6 +41,7 @@ import query from "@/Utils/request/query";
 import { AccountStatus } from "@/types/billing/account/Account";
 import { AccountBillingStatus } from "@/types/billing/account/Account";
 import accountApi from "@/types/billing/account/accountApi";
+import { ChargeItemStatus } from "@/types/billing/chargeItem/chargeItem";
 import {
   MedicationDispenseCategory,
   MedicationDispenseRead,
@@ -86,6 +94,9 @@ function MedicationTable({
             const frequency = instruction?.timing?.code;
             const dosage = instruction?.dose_and_rate?.dose_quantity;
             const isPaid = medication.charge_item.paid_invoice;
+            const showCheckbox =
+              medication.status === MedicationDispenseStatus.preparation ||
+              medication.status === MedicationDispenseStatus.in_progress;
 
             return (
               <TableRow key={medication.id}>
@@ -94,18 +105,20 @@ function MedicationTable({
                     <Tooltip>
                       <TooltipTrigger asChild>
                         <span>
-                          <Checkbox
-                            checked={selectedMedications.includes(
-                              medication.id,
-                            )}
-                            onCheckedChange={() =>
-                              onSelectionChange(medication.id)
-                            }
-                            disabled={!isPaid}
-                            className={
-                              !isPaid ? "cursor-not-allowed opacity-50" : ""
-                            }
-                          />
+                          {showCheckbox && (
+                            <Checkbox
+                              checked={selectedMedications.includes(
+                                medication.id,
+                              )}
+                              onCheckedChange={() =>
+                                onSelectionChange(medication.id)
+                              }
+                              disabled={!isPaid}
+                              className={
+                                !isPaid ? "cursor-not-allowed opacity-50" : ""
+                              }
+                            />
+                          )}
                         </span>
                       </TooltipTrigger>
                       {!isPaid && (
@@ -192,13 +205,13 @@ export default function DispensedMedicationList({
   const { data: response, isLoading } = useQuery({
     queryKey: ["medication_dispense", qParams, patientId],
     queryFn: query(medicationDispenseApi.list, {
-      pathParams: { patientId },
       queryParams: {
         facility: facilityId,
         limit: resultsPerPage,
         offset: ((qParams.page ?? 1) - 1) * resultsPerPage,
         search: qParams.search,
-        status: MedicationDispenseStatus.preparation,
+        status: qParams.status,
+        patient: patientId,
       },
     }),
   });
@@ -247,20 +260,23 @@ export default function DispensedMedicationList({
         <div className="flex flex-col sm:flex-row items-start sm:items-center justify-between gap-4">
           <div className="flex items-center justify-between w-full">
             <h1 className="text-xl font-semibold text-gray-900">
-              {t("medications_to_be_dispensed")}
+              {t("medications_dispense")}
             </h1>
             <Button
               variant="outline_primary"
               onClick={() =>
-                navigate(
+                window.open(
                   `/facility/${facilityId}/billing/account/${account?.results[0].id}`,
+                  "_blank",
                 )
               }
               disabled={isPending}
             >
               {t("view_account")}
+              <ExternalLinkIcon className="w-4 h-4" />
             </Button>
           </div>
+
           {selectedMedications.length > 0 && (
             <Button
               onClick={() =>
@@ -272,6 +288,48 @@ export default function DispensedMedicationList({
             </Button>
           )}
         </div>
+      </div>
+      <div className="mb-4">
+        {/* Desktop Tabs */}
+        <Tabs
+          value={qParams.status ?? "all"}
+          onValueChange={(value) =>
+            updateQuery({
+              status: value === "all" ? undefined : value,
+            })
+          }
+          className="max-sm:hidden"
+        >
+          <TabsList>
+            <TabsTrigger value="all">{t("all")}</TabsTrigger>
+            {Object.values(MedicationDispenseStatus).map((status) => (
+              <TabsTrigger key={status} value={status}>
+                {t(status)}
+              </TabsTrigger>
+            ))}
+          </TabsList>
+        </Tabs>
+        {/* Mobile Select */}
+        <Select
+          value={qParams.status ?? "all"}
+          onValueChange={(value) =>
+            updateQuery({
+              status: value === "all" ? undefined : value,
+            })
+          }
+        >
+          <SelectTrigger className="sm:hidden w-full">
+            <SelectValue placeholder={t("filter_by_status")} />
+          </SelectTrigger>
+          <SelectContent>
+            <SelectItem value="all">{t("all")}</SelectItem>
+            {Object.values(ChargeItemStatus).map((status) => (
+              <SelectItem key={status} value={status}>
+                {t(status)}
+              </SelectItem>
+            ))}
+          </SelectContent>
+        </Select>
       </div>
 
       <div className="mb-4 flex flex-col gap-4">
