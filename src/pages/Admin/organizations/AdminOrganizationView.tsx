@@ -86,7 +86,7 @@ export default function AdminOrganizationView({ id, organizationType }: Props) {
   });
 
   const { data: children, isLoading } = useQuery({
-    queryKey: ["organization", "list", organizationType, id],
+    queryKey: ["organization", "list", organizationType, qParams.search],
     queryFn: query.debounced(organizationApi.list, {
       pathParams: { id: id },
       queryParams: {
