@@ -15,13 +15,13 @@ const AdminRoutes: AppRoutes = {
   "/admin/valuesets/create": () => <ValueSetEditor />,
   "/admin/valuesets/:slug/edit": ({ slug }) => <ValueSetEditor slug={slug} />,
   "/admin/roles": () => <RolesIndex />,
-  ...["govt", "product_supplier"].reduce((acc: AppRoutes, type) => {
+  ...["govt", "product_supplier", "role"].reduce((acc: AppRoutes, type) => {
     acc[`/admin/organizations/${type}/:id`] = ({ id }) => (
       <AdminOrganizationList organizationType={type} organizationId={id} />
     );
     return acc;
   }, {}),
-  ...["govt", "product_supplier"].reduce((acc: AppRoutes, type) => {
+  ...["govt", "product_supplier", "role"].reduce((acc: AppRoutes, type) => {
     acc[`/admin/organizations/${type}`] = () => (
       <AdminOrganizationList organizationType={type} />
     );
