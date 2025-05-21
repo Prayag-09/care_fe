@@ -43,18 +43,18 @@ x : Done
 - [x] Specimen Definition - The cancel button in the form is not working - Amjith
 - [x] Specimen Definition - Increase the width of retention time and capacity to full width in the edit page - Jeevan
 - [x] Specimen Definition - Add URL validation to the field Derived from URL - Jeevan
-- [-] Create Observation Definition - Add \* to Title, Slug, Description, Category, Status, and Data Type fields. - Jeevan
-- [ ] Create Observation Definition - Add missing asterisk and frontend validation for the LOINC field
+- [x] Create Observation Definition - Add \* to Title, Slug, Description, Category, Status, and Data Type fields. - Jeevan
+- [x] Create Observation Definition - Add missing asterisk and frontend validation for the LOINC field
 - [x] Create Observation Definition - Add missing translation for edit_observation_definition form heading - Amjith
 - [-] Create Observation Definition - The category filter in the list view is not working - Amjith
 - [-] Active Definition - Add asterisks to Title, Slug, Description, Usage, and Category fields. - Amjith
 - [-] Active Definition - Add asterisk and frontend validation for code field - Amjith
 - [ ] Active Definition - In the questionnaire of SR, change the autocomplete border colour from blue to keep them consistent
-- [ ] Charge Item - Add an asterisk to the Title field.
-- [ ] Charge Item - Add asterisk and frontend validation for the Base Price field.
-- [ ] Charge Item - Remove the ? from the discount dropdown
-- [ ] Charge Item - Removing prefilled data from the Discount and Tax fields causes the field state to freeze, requiring a manual page reload.
-- [ ] Charge Item - Limit the discount and tax field input to 100 max
+- [-] Charge Item - Add an asterisk to the Title field. - Jeevan
+- [-] Charge Item - Add asterisk and frontend validation for the Base Price field. - Jeevan
+- [-] Charge Item - Remove the ? from the discount dropdown - Jeevan
+- [-] Charge Item - Removing prefilled data from the Discount and Tax fields causes the field state to freeze, requiring a manual page reload. - Jeevan
+- [-] Charge Item - Limit the discount and tax field input to 100 max - Jeevan
 - [ ] SR details page - fix decimal points to two and round off amounts in charge items.
 - [ ] SR details page — In the Add Charge Item slide over, display the final amount after discount and tax, and the amount split when hovering over the (!) icon.
 - [ ] SR details page- Remove the back button from the sample identification QR print preview pop-up. / adjust the behavior to only close the pop-up

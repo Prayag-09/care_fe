@@ -260,13 +260,13 @@ function ObservationDefinitionFormContent({
                   </p>
                 </div>
 
-                <div className="grid gap-4 md:grid-cols-2">
+                <div className="grid gap-4 md:grid-cols-2 items-start">
                   <FormField
                     control={form.control}
                     name="title"
                     render={({ field }) => (
                       <FormItem>
-                        <FormLabel>{t("title")}</FormLabel>
+                        <FormLabel aria-required>{t("title")}</FormLabel>
                         <FormControl>
                           <Input {...field} />
                         </FormControl>
@@ -280,7 +280,7 @@ function ObservationDefinitionFormContent({
                     name="slug"
                     render={({ field }) => (
                       <FormItem>
-                        <FormLabel>{t("slug")}</FormLabel>
+                        <FormLabel aria-required>{t("slug")}</FormLabel>
                         <FormControl>
                           <Input {...field} />
                         </FormControl>
@@ -295,7 +295,7 @@ function ObservationDefinitionFormContent({
                   name="description"
                   render={({ field }) => (
                     <FormItem>
-                      <FormLabel>{t("description")}</FormLabel>
+                      <FormLabel aria-required>{t("description")}</FormLabel>
                       <FormControl>
                         <Textarea {...field} className="min-h-[60px]" />
                       </FormControl>
@@ -304,7 +304,7 @@ function ObservationDefinitionFormContent({
                   )}
                 />
 
-                <div className="grid gap-4 md:grid-cols-2">
+                <div className="grid gap-4 md:grid-cols-2 items-start">
                   <FormField
                     control={form.control}
                     name="status"
@@ -338,7 +338,7 @@ function ObservationDefinitionFormContent({
                     name="category"
                     render={({ field }) => (
                       <FormItem>
-                        <FormLabel>{t("category")}</FormLabel>
+                        <FormLabel aria-required>{t("category")}</FormLabel>
                         <Select
                           onValueChange={field.onChange}
                           defaultValue={field.value}
@@ -369,7 +369,7 @@ function ObservationDefinitionFormContent({
                     render={({ field }) => {
                       return (
                         <FormItem>
-                          <FormLabel>{t("data_type")}</FormLabel>
+                          <FormLabel aria-required>{t("data_type")}</FormLabel>
                           <Select
                             onValueChange={field.onChange}
                             defaultValue={field.value}
@@ -396,7 +396,7 @@ function ObservationDefinitionFormContent({
                   />
 
                   <div>
-                    <FormLabel>{t("loinc_code")}</FormLabel>
+                    <FormLabel aria-required>{t("loinc_code")}</FormLabel>
                     <div className="mt-2">
                       <ValueSetSelect
                         system="system-observation"
@@ -411,6 +411,9 @@ function ObservationDefinitionFormContent({
                         }}
                         showCode={true}
                       />
+                      <FormMessage className="mt-2">
+                        {form.formState.errors.code?.message}
+                      </FormMessage>
                     </div>
                   </div>
                 </div>
