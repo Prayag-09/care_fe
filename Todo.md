@@ -8,7 +8,6 @@ x : Done
 
 ## Pharmacy
 
-- [-] Fix search, navigation and scroll for Suppliers page - Yash
 - [ ] Add option to archive suppliers
 - [ ] Add status based filters for product knowledge
 
@@ -38,7 +37,6 @@ x : Done
 - [ ] Healthcare Service edit - Location expand missing in sheet
 - [x] Specimen Definition - The 2x2 grid UI breaks when the error message is triggered and only one of the fields/columns is filled - Amjith
 - [ ] Specimen Definition - Add \* for required fields and frontend validation for Retention Time, Capacity, Minimum Volume, Type Collected, Title, and Slug
-- [-] Specimen Definition - Remove 0 prefilled value in Retention time, capacity, and minimum value - Yash
 - [ ] Specimen Definition - Add frontend permission check for the Specimen Definition page at the facility level.
 - [x] Specimen Definition - The cancel button in the form is not working - Amjith
 - [x] Specimen Definition - Increase the width of retention time and capacity to full width in the edit page - Jeevan
@@ -144,6 +142,7 @@ x : Done
 - [x] Service request should show linked cahrge items along with its status - Amjith
 - [x] Print all Barcodes button for a service request with page setup - Yaswanth
 - [x] Make Activity Definiton search inside the service request question working
+- [x] Specimen Definition - Remove 0 prefilled value in Retention time, capacity, and minimum value - Yash
 
 ## Pharmacy
 
@@ -154,3 +153,4 @@ x : Done
 - [x] Create delivery inside request - Amjith
 - [x] Charge item inside Product (Select and Create new)
 - [x] Inventory list
+- [x] Fix search, navigation and scroll for Suppliers page - Yash
