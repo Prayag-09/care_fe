@@ -18,8 +18,8 @@ x : Done
 - [-] Add support for information components in chargeDef and Charge Item. - Rithvik
 - [-] Consider disabling onWheelChange for input[type=number] fields. - [hold till @bodhi confirms]
 - [ ] When creating a charge item in questionnaire we should allow users to pick discount and tax and quantitiy
-- [x] Remove -- in the end date column if the billing account still ongoing
-- [ ] Change default wallet name to {patient-name} + date to keep it a little bit unique and searchable in billing account dashboard
+- [x] Remove -- in the end date column if the billing account still ongoing - Amjith
+- [-] Change default account name to {patient-name} + date to keep it a little bit unique and searchable in billing account dashboard - Amjith, Vignesh
 - [ ] When a billing account of a patient is on hold, we should restrict users from creating any charge item to the patient, as per doc, but our platform will be creating a new wallet by ignoring the on-hold account
 - [ ] Allow only one active billing account for a patient at a time , Take a product suggestion before working on this
 - [ ] When we click past account button in the account details page, it should redirect to the patient account overview page, rather than the entire hospital account overview page
