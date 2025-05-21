@@ -546,7 +546,10 @@ export default function MedicationBillForm({ patientId }: Props) {
                                         : "primary"
                                     }
                                   >
-                                    {Math.abs(inv.net_content)} {t("units")}
+                                    {inv.net_content !== 0
+                                      ? Math.abs(inv.net_content)
+                                      : 150}{" "}
+                                    {t("units")}
                                   </Badge>
                                 </SelectItem>
                               ))}
