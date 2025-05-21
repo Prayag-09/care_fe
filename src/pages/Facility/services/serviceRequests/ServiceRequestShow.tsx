@@ -137,13 +137,16 @@ export default function ServiceRequestShow({
   });
 
   const createDraftSpecimen = (requirement: SpecimenDefinitionRead) => {
-    const existingSpecimen = request?.specimens.find(
+    const matchingSpecimens = request?.specimens.filter(
       (spec) => spec.specimen_definition?.id === requirement.id,
     );
 
     if (
-      existingSpecimen?.status === SpecimenStatus.available ||
-      existingSpecimen?.status === SpecimenStatus.draft
+      matchingSpecimens?.some(
+        (spec) =>
+          spec.status === SpecimenStatus.available ||
+          spec.status === SpecimenStatus.draft,
+      )
     ) {
       return;
     }
