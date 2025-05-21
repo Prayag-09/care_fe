@@ -298,7 +298,9 @@ export function AccountShow({
                 {t("start_date")}
               </p>
               <p className="font-medium text-base text-gray-950">
-                {formatDate(account.service_period?.start)}
+                {account.service_period?.start
+                  ? formatDate(account.service_period?.start)
+                  : formatDate(account.created_date)}
               </p>
             </div>
             <div>
