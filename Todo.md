@@ -37,12 +37,11 @@ x : Done
 
 - [ ] Specimen Definition - Add \* for required fields and frontend validation for Retention Time, Capacity, Minimum Volume, Type Collected, Title, and Slug
 - [ ] Specimen Definition - Add frontend permission check for the Specimen Definition page at the facility level.
-
-- [-] Charge Item - Add an asterisk to the Title field. - Jeevan
-- [-] Charge Item - Add asterisk and frontend validation for the Base Price field. - Jeevan
-- [-] Charge Item - Remove the ? from the discount dropdown - Jeevan
-- [-] Charge Item - Removing prefilled data from the Discount and Tax fields causes the field state to freeze, requiring a manual page reload. - Jeevan
-- [-] Charge Item - Limit the discount and tax field input to 100 max - Jeevan
+- [x] Charge Item - Add an asterisk to the Title field. - Jeevan
+- [x] Charge Item - Add asterisk and frontend validation for the Base Price field. - Jeevan
+- [x] Charge Item - Remove the ? from the discount dropdown - Jeevan - Nothing to be done, data was just saved that way.
+- [x] Charge Item - Removing prefilled data from the Discount and Tax fields causes the field state to freeze, requiring a manual page reload. - Jeevan
+- [x] Charge Item - Limit the discount and tax field input to 100 max - Jeevan
 - [ ] SR details page - fix decimal points to two and round off amounts in charge items.
 - [ ] SR details page — In the Add Charge Item slide over, display the final amount after discount and tax, and the amount split when hovering over the (!) icon.
 - [ ] SR details page- Remove the back button from the sample identification QR print preview pop-up. / adjust the behavior to only close the pop-up
