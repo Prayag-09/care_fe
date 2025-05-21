@@ -46,9 +46,9 @@ x : Done
 - [-] Create Observation Definition - Add \* to Title, Slug, Description, Category, Status, and Data Type fields. - Jeevan
 - [ ] Create Observation Definition - Add missing asterisk and frontend validation for the LOINC field
 - [x] Create Observation Definition - Add missing translation for edit_observation_definition form heading - Amjith
-- [ ] Create Observation Definition - The category filter in the list view is not working
-- [ ] Active Definition - Add asterisks to Title, Slug, Description, Usage, and Category fields.
-- [ ] Active Definition - Add asterisk and frontend validation for code field
+- [-] Create Observation Definition - The category filter in the list view is not working - Amjith
+- [-] Active Definition - Add asterisks to Title, Slug, Description, Usage, and Category fields. - Amjith
+- [-] Active Definition - Add asterisk and frontend validation for code field - Amjith
 - [ ] Active Definition - In the questionnaire of SR, change the autocomplete border colour from blue to keep them consistent
 - [ ] Charge Item - Add an asterisk to the Title field.
 - [ ] Charge Item - Add asterisk and frontend validation for the Base Price field.
