@@ -123,7 +123,7 @@ export function ReceiveStock({
       <Form {...form}>
         <form
           onSubmit={form.handleSubmit(onSubmit)}
-          className="flex flex-col gap-8"
+          className="flex flex-col gap-6"
         >
           <FormField
             control={form.control}
@@ -142,97 +142,104 @@ export function ReceiveStock({
             )}
           />
 
-          {entries.length === 0 ? (
-            <EmptyState
-              icon="l-box"
-              title={t("no_products_added")}
-              description={t("add_products_to_receive")}
-            />
-          ) : (
-            <Card>
-              <Table>
-                <TableHeader>
-                  <TableRow>
-                    <TableHead>{t("product")}</TableHead>
-                    <TableHead>{t("quantity")}</TableHead>
-                    <TableHead>{t("lot")}</TableHead>
-                    <TableHead>{t("expires")}</TableHead>
-                  </TableRow>
-                </TableHeader>
-                <TableBody>
-                  {entries.map((entry, index) => (
-                    <TableRow key={entry.supplied_item.id}>
-                      <TableCell>{entry.supplied_item.name}</TableCell>
-                      <TableCell>
-                        <FormField
-                          control={form.control}
-                          name={`entries.${index}.supplied_item_quantity`}
-                          render={({ field }) => (
-                            <FormItem>
-                              <FormControl>
-                                <Input
-                                  type="number"
-                                  min={1}
-                                  className="w-32"
-                                  {...field}
-                                  onChange={(e) =>
-                                    field.onChange(Number(e.target.value))
-                                  }
-                                />
-                              </FormControl>
-                              <FormMessage />
-                            </FormItem>
-                          )}
-                        />
-                      </TableCell>
-                      <TableCell>{entry.lot_number || "-"}</TableCell>
-                      <TableCell>
-                        {entry.expiration_date
-                          ? new Date(entry.expiration_date).toLocaleDateString()
-                          : "-"}
-                      </TableCell>
-                      <TableCell>
-                        <Button
-                          variant="ghost"
-                          size="icon"
-                          onClick={() => removeEntry(index)}
-                        >
-                          <CareIcon icon="l-trash-alt" className="size-4" />
-                        </Button>
-                      </TableCell>
-                    </TableRow>
-                  ))}
-                </TableBody>
-              </Table>
-            </Card>
-          )}
+          <div className="flex flex-col gap-4">
+            <h3 className="text-lg font-medium">{t("products")}</h3>
+            <div className="flex w-full gap-2">
+              <ProductSearch
+                facilityId={facilityId}
+                onChange={(product) => {
+                  // Skip if product already exists
+                  if (
+                    entries.some(
+                      (entry) => entry.supplied_item.id === product.id,
+                    )
+                  ) {
+                    toast.info(t("product_is_already_in_the_list"));
+                    return;
+                  }
 
-          <div className="flex w-full gap-2">
-            <ProductSearch
-              facilityId={facilityId}
-              onChange={(product) => {
-                // Skip if product already exists
-                if (
-                  entries.some((entry) => entry.supplied_item.id === product.id)
-                ) {
-                  toast.info(t("product_is_already_in_the_list"));
-                  return;
-                }
-
-                form.setValue("entries", [
-                  ...entries,
-                  {
-                    supplied_item: {
-                      id: product.id,
-                      name: product.product_knowledge.name,
+                  form.setValue("entries", [
+                    ...entries,
+                    {
+                      supplied_item: {
+                        id: product.id,
+                        name: product.product_knowledge.name,
+                      },
+                      supplied_item_quantity: 1,
+                      lot_number: product.batch?.lot_number,
+                      expiration_date: product.expiration_date,
                     },
-                    supplied_item_quantity: 1,
-                    lot_number: product.batch?.lot_number,
-                    expiration_date: product.expiration_date,
-                  },
-                ]);
-              }}
-            />
+                  ]);
+                }}
+              />
+            </div>
+
+            {entries.length === 0 ? (
+              <EmptyState
+                icon="l-box"
+                title={t("no_products_added")}
+                description={t("add_products_to_receive")}
+              />
+            ) : (
+              <Card className="mt-2">
+                <Table>
+                  <TableHeader>
+                    <TableRow>
+                      <TableHead>{t("product")}</TableHead>
+                      <TableHead>{t("quantity")}</TableHead>
+                      <TableHead>{t("lot")}</TableHead>
+                      <TableHead>{t("expires")}</TableHead>
+                    </TableRow>
+                  </TableHeader>
+                  <TableBody>
+                    {entries.map((entry, index) => (
+                      <TableRow key={entry.supplied_item.id}>
+                        <TableCell>{entry.supplied_item.name}</TableCell>
+                        <TableCell>
+                          <FormField
+                            control={form.control}
+                            name={`entries.${index}.supplied_item_quantity`}
+                            render={({ field }) => (
+                              <FormItem>
+                                <FormControl>
+                                  <Input
+                                    type="number"
+                                    min={1}
+                                    className="w-32"
+                                    {...field}
+                                    onChange={(e) =>
+                                      field.onChange(Number(e.target.value))
+                                    }
+                                  />
+                                </FormControl>
+                                <FormMessage />
+                              </FormItem>
+                            )}
+                          />
+                        </TableCell>
+                        <TableCell>{entry.lot_number || "-"}</TableCell>
+                        <TableCell>
+                          {entry.expiration_date
+                            ? new Date(
+                                entry.expiration_date,
+                              ).toLocaleDateString()
+                            : "-"}
+                        </TableCell>
+                        <TableCell>
+                          <Button
+                            variant="ghost"
+                            size="icon"
+                            onClick={() => removeEntry(index)}
+                          >
+                            <CareIcon icon="l-trash-alt" className="size-4" />
+                          </Button>
+                        </TableCell>
+                      </TableRow>
+                    ))}
+                  </TableBody>
+                </Table>
+              </Card>
+            )}
           </div>
 
           <Button

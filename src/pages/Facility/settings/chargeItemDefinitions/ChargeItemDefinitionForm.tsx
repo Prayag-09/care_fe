@@ -95,7 +95,8 @@ interface ChargeItemDefinitionFormProps {
   facilityId: string;
   initialData?: ChargeItemDefinitionRead;
   isUpdate?: boolean;
-  onSuccess?: () => void;
+  onSuccess?: (chargeItemDefinition: ChargeItemDefinitionRead) => void;
+  onCancel?: () => void;
 }
 
 const monetaryComponentIsEqual = <T extends MonetaryComponent>(a: T, b: T) => {
@@ -256,6 +257,7 @@ export function ChargeItemDefinitionForm({
   isUpdate = false,
   onSuccess = () =>
     navigate(`/facility/${facilityId}/settings/charge_item_definitions`),
+  onCancel,
 }: ChargeItemDefinitionFormProps) {
   const { t } = useTranslation();
 
@@ -311,7 +313,9 @@ export function ChargeItemDefinitionForm({
       : mutate(chargeItemDefinitionApi.createChargeItemDefinition, {
           pathParams: { facilityId },
         }),
-    onSuccess,
+    onSuccess: (chargeItemDefinition: ChargeItemDefinitionRead) => {
+      onSuccess?.(chargeItemDefinition);
+    },
   });
 
   const onSubmit = (values: z.infer<typeof formSchema>) => {
@@ -417,7 +421,14 @@ export function ChargeItemDefinitionForm({
 
   return (
     <Form {...form}>
-      <form onSubmit={form.handleSubmit(onSubmit)} className="space-y-6">
+      <form
+        onSubmit={(e) => {
+          e.preventDefault();
+          e.stopPropagation();
+          form.handleSubmit(onSubmit)();
+        }}
+        className="space-y-6"
+      >
         {/* Basic Information */}
         <Card>
           <CardHeader>
@@ -677,12 +688,12 @@ export function ChargeItemDefinitionForm({
           <Button
             type="button"
             variant="outline"
-            onClick={() => onSuccess()}
             disabled={isPending}
+            onClick={onCancel}
           >
             {t("cancel")}
           </Button>
-          <Button type="submit" disabled={isPending}>
+          <Button disabled={isPending}>
             {isPending ? (
               <>
                 <Loader2 className="mr-2 h-4 w-4 animate-spin" />

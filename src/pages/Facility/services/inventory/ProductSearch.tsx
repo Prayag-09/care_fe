@@ -57,7 +57,11 @@ export function ProductSearch({
     useQuery({
       queryKey: ["productKnowledge"],
       queryFn: query(productKnowledgeApi.listProductKnowledge, {
-        queryParams: { status: ProductKnowledgeStatus.active },
+        queryParams: {
+          facility: facilityId,
+          limit: 100,
+          status: ProductKnowledgeStatus.active,
+        },
       }),
     });
 
@@ -111,6 +115,7 @@ export function ProductSearch({
             );
             if (selectedProduct) {
               onChange(selectedProduct);
+              setProductKnowledge(undefined);
             }
           }}
           disabled={disabled || !productKnowledge || isProductsFetching}
@@ -158,6 +163,7 @@ export function ProductSearch({
           <ScrollArea className="h-[calc(100vh-8rem)] mt-6">
             <ProductFormContent
               facilityId={facilityId}
+              productKnowledgeId={productKnowledge?.id}
               onSuccess={(product) => {
                 setIsCreatingProduct(false);
                 onChange(product);

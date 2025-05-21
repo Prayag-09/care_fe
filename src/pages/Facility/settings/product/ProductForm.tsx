@@ -33,6 +33,14 @@ import {
   SelectTrigger,
   SelectValue,
 } from "@/components/ui/select";
+import {
+  Sheet,
+  SheetContent,
+  SheetDescription,
+  SheetHeader,
+  SheetTitle,
+  SheetTrigger,
+} from "@/components/ui/sheet";
 
 import Page from "@/components/Common/Page";
 import { FormSkeleton } from "@/components/Common/SkeletonLoading";
@@ -40,7 +48,11 @@ import { FormSkeleton } from "@/components/Common/SkeletonLoading";
 import mutate from "@/Utils/request/mutate";
 import query from "@/Utils/request/query";
 import { mergeAutocompleteOptions } from "@/Utils/utils";
-import { ChargeItemDefinitionStatus } from "@/types/billing/chargeItemDefinition/chargeItemDefinition";
+import { ChargeItemDefinitionForm } from "@/pages/Facility/settings/chargeItemDefinitions/ChargeItemDefinitionForm";
+import {
+  ChargeItemDefinitionRead,
+  ChargeItemDefinitionStatus,
+} from "@/types/billing/chargeItemDefinition/chargeItemDefinition";
 import chargeItemDefinitionApi from "@/types/billing/chargeItemDefinition/chargeItemDefinitionApi";
 import {
   ProductCreate,
@@ -49,6 +61,7 @@ import {
   ProductUpdate,
 } from "@/types/inventory/product/product";
 import productApi from "@/types/inventory/product/productApi";
+import { ProductKnowledgeStatus } from "@/types/inventory/productKnowledge/productKnowledge";
 import productKnowledgeApi from "@/types/inventory/productKnowledge/productKnowledgeApi";
 
 const formSchema = z.object({
@@ -133,17 +146,20 @@ export function ProductFormContent({
   facilityId,
   productId,
   existingData,
+  productKnowledgeId,
   onSuccess = () => navigate(`/facility/${facilityId}/settings/product`),
 }: {
   facilityId: string;
   productId?: string;
   existingData?: ProductRead;
+  productKnowledgeId?: string;
   onSuccess?: (product: ProductRead) => void;
 }) {
   const { t } = useTranslation();
   const queryClient = useQueryClient();
   const isEditMode = Boolean(productId);
   const [cidSearch, setCidSearch] = useState("");
+  const [createCidOpen, setCreateCidOpen] = useState(false);
 
   // Get product knowledge list for the dropdown
   const { data: productKnowledgeResponse } = useQuery({
@@ -152,7 +168,7 @@ export function ProductFormContent({
       queryParams: {
         facility: facilityId,
         limit: 100,
-        status: "active",
+        status: ProductKnowledgeStatus.active,
       },
     }),
   });
@@ -193,6 +209,7 @@ export function ProductFormContent({
           }
         : {
             status: ProductStatusOptions.active,
+            product_knowledge: productKnowledgeId,
           },
   });
 
@@ -404,32 +421,69 @@ export function ProductFormContent({
               render={({ field }) => (
                 <FormItem>
                   <FormLabel>{t("charge_item_definition")}</FormLabel>
-                  <FormControl>
-                    <Autocomplete
-                      options={mergeAutocompleteOptions(
-                        chargeItemDefinitionOptions.map((cid) => ({
-                          label: cid.title,
-                          value: cid.id,
-                        })),
-                        field.value
-                          ? {
-                              label:
-                                chargeItemDefinitionOptions.find(
-                                  (cid) => cid.id === field.value,
-                                )?.title || "",
-                              value: field.value,
-                            }
-                          : undefined,
-                      )}
-                      value={field.value || ""}
-                      onChange={field.onChange}
-                      onSearch={setCidSearch}
-                      placeholder={t("select_charge_item_definition")}
-                      isLoading={isLoadingCID}
-                      noOptionsMessage={t("no_charge_item_definitions_found")}
-                      data-cy="charge-item-definition-search"
-                    />
-                  </FormControl>
+                  <div className="flex gap-2">
+                    <FormControl className="flex-1">
+                      <Autocomplete
+                        options={mergeAutocompleteOptions(
+                          chargeItemDefinitionOptions.map((cid) => ({
+                            label: cid.title,
+                            value: cid.id,
+                          })),
+                          field.value
+                            ? {
+                                label:
+                                  chargeItemDefinitionOptions.find(
+                                    (cid) => cid.id === field.value,
+                                  )?.title || "",
+                                value: field.value,
+                              }
+                            : undefined,
+                        )}
+                        value={field.value || ""}
+                        onChange={field.onChange}
+                        onSearch={setCidSearch}
+                        placeholder={t("select_charge_item_definition")}
+                        isLoading={isLoadingCID}
+                        noOptionsMessage={t("no_charge_item_definitions_found")}
+                        data-cy="charge-item-definition-search"
+                      />
+                    </FormControl>
+                    <Sheet open={createCidOpen} onOpenChange={setCreateCidOpen}>
+                      <SheetTrigger asChild>
+                        <Button type="button" variant="outline">
+                          {t("create_new")}
+                        </Button>
+                      </SheetTrigger>
+                      <SheetContent className="w-[90%] sm:max-w-2xl flex min-w-full flex-col bg-gray-100 sm:min-w-fit overflow-y-auto">
+                        <SheetHeader>
+                          <SheetTitle>
+                            {t("create_charge_item_definition")}
+                          </SheetTitle>
+                          <SheetDescription>
+                            {t("create_charge_item_definition_description")}
+                          </SheetDescription>
+                        </SheetHeader>
+                        <div className="mt-6">
+                          <ChargeItemDefinitionForm
+                            facilityId={facilityId}
+                            onSuccess={(
+                              chargeItemDefinition: ChargeItemDefinitionRead,
+                            ) => {
+                              queryClient.invalidateQueries({
+                                queryKey: ["chargeItemDefinitions"],
+                              });
+                              setCreateCidOpen(false);
+                              form.setValue(
+                                "charge_item_definition",
+                                chargeItemDefinition.id,
+                              );
+                            }}
+                            onCancel={() => setCreateCidOpen(false)}
+                          />
+                        </div>
+                      </SheetContent>
+                    </Sheet>
+                  </div>
                   <FormMessage />
                 </FormItem>
               )}

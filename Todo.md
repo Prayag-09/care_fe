@@ -8,7 +8,7 @@ x : Done
 
 ## Pharmacy
 
-- [- ] Fix search, navigation and scroll for Suppliers page - Yash
+- [-] Fix search, navigation and scroll for Suppliers page - Yash
 - [ ] Add option to archive suppliers
 - [ ] Add status based filters for product knowledge
 
@@ -18,7 +18,16 @@ x : Done
 - [-] All instance level tax codes should be shown as an option in the charge item def creator - Check with Vignesh
 - [-] Add support for information components in chargeDef and Charge Item. - Rithvik
 - [-] Consider disabling onWheelChange for input[type=number] fields. - [hold till @bodhi confirms]
-- [ ] When Creating charge item in questionnaire we should allow users to pick discount and tax and quantitiy
+- [ ] When creating a charge item in questionnaire we should allow users to pick discount and tax and quantitiy
+- [ ] Start date is missing for the automatically created billing account
+- [ ] Remove -- in the end date column if the billing account still ongoing
+- [ ] Change default wallet name to {patient-name} + date to keep it a little bit unique and searchable in billing account dashboard
+- [ ] When a billing account of a patient is on hold, we should restrict users from creating any charge item to the patient, as per doc, but our platform will be creating a new wallet by ignoring the on-hold account
+- [ ] Allow only one active billing account for a patient at a time , Take a product suggestion before working on this
+- [ ] When we click past account button in the account details page, it should redirect to the patient account overview page, rather than the entire hospital account overview page
+- [ ] When attempting to close a billing account with pending charge items that haven't been invoiced, disable the 'Close Account' button in the pop-up and display a message stating: 'You cannot close an account with pending charge items.
+- [ ] Disable record payment button in billing account details page, if the account status is not active
+- [ ] Display the negative balance in the 'Amount Due' section as well to indicate that the user has overpaid beyond their actual bill.
 
 ## Labs
 
@@ -32,9 +41,9 @@ x : Done
 - [-] Specimen Definition - Remove 0 prefilled value in Retention time, capacity, and minimum value - Yash
 - [ ] Specimen Definition - Add frontend permission check for the Specimen Definition page at the facility level.
 - [x] Specimen Definition - The cancel button in the form is not working - Amjith
-- [-] Specimen Definition - Increase the width of retention time and capacity to full width in the edit page - Jeevan
-- [ ] Specimen Definition - Add URL validation to the field Derived from URL
-- [ ] Create Observation Definition - Add \* to Title, Slug, Description, Category, Status, and Data Type fields.
+- [x] Specimen Definition - Increase the width of retention time and capacity to full width in the edit page - Jeevan
+- [x] Specimen Definition - Add URL validation to the field Derived from URL - Jeevan
+- [-] Create Observation Definition - Add \* to Title, Slug, Description, Category, Status, and Data Type fields. - Jeevan
 - [ ] Create Observation Definition - Add missing asterisk and frontend validation for the LOINC field
 - [ ] Create Observation Definition - Add missing translation for edit_observation_definition form heading
 - [ ] Create Observation Definition - The category filter in the list view is not working

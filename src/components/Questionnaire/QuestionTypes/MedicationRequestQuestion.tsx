@@ -84,8 +84,12 @@ import { validateFields } from "@/types/questionnaire/validation";
 function formatDoseRange(range?: DoseRange): string {
   if (!range?.high?.value) return "";
 
-  const formatValue = (value: number) =>
-    value.toString().includes(".") ? value.toFixed(2) : value.toString();
+  const formatValue = (value?: number | null) =>
+    value != null
+      ? value.toString().includes(".")
+        ? value.toFixed(2)
+        : value.toString()
+      : "";
 
   return `${formatValue(range.low?.value)} → ${formatValue(range.high?.value)} ${range.high?.unit?.display}`;
 }
@@ -853,6 +857,7 @@ const MedicationRequestGridRow: React.FC<MedicationRequestGridRowProps> = ({
               }));
             }}
             disabled={disabled || isReadOnly}
+            className="lg:max-w-[200px]"
           />
         </div>
         <div>
@@ -870,6 +875,7 @@ const MedicationRequestGridRow: React.FC<MedicationRequestGridRowProps> = ({
               }));
             }}
             disabled={disabled || !localDoseRange.low.value || isReadOnly}
+            className="lg:max-w-[200px]"
           />
         </div>
         <div className="flex justify-end gap-2">
@@ -999,6 +1005,7 @@ const MedicationRequestGridRow: React.FC<MedicationRequestGridRowProps> = ({
                     });
                   }}
                   disabled={disabled || isReadOnly}
+                  className="lg:max-w-[200px]"
                 />
               </div>
               <div className="flex justify-end">

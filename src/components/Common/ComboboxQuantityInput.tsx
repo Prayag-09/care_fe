@@ -31,6 +31,7 @@ interface Props {
   placeholder?: string;
   autoFocus?: boolean;
   units?: readonly Code[];
+  className?: string;
 }
 
 export function ComboboxQuantityInput({
@@ -40,10 +41,11 @@ export function ComboboxQuantityInput({
   placeholder = "Enter a number...",
   autoFocus,
   units = DOSAGE_UNITS_CODES,
+  className,
 }: Props) {
   const [open, setOpen] = React.useState(false);
   const [inputValue, setInputValue] = React.useState(
-    quantity?.value.toString() || "",
+    quantity?.value?.toString() || "",
   );
   const [selectedUnit, setSelectedUnit] = React.useState(quantity?.unit);
   const inputRef = React.useRef<HTMLInputElement>(null);
@@ -95,7 +97,7 @@ export function ComboboxQuantityInput({
   };
 
   React.useEffect(() => {
-    setInputValue(quantity?.value.toString() || "");
+    setInputValue(quantity?.value?.toString() || "");
   }, [quantity?.value]);
 
   React.useEffect(() => {
@@ -103,7 +105,7 @@ export function ComboboxQuantityInput({
   }, [quantity?.unit]);
 
   return (
-    <div className="relative flex w-full lg:max-w-[200px] flex-col gap-1">
+    <div className={cn("relative flex w-full flex-col gap-1", className)}>
       <Popover open={!disabled && open && showDropdown} onOpenChange={setOpen}>
         <PopoverTrigger asChild>
           <div className="relative">

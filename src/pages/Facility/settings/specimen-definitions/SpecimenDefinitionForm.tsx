@@ -89,7 +89,10 @@ const formSchema = z.object({
   slug: z.string().min(1, "Slug is required"),
   status: z.nativeEnum(Status),
   description: z.string().optional(),
-  derived_from_uri: z.string().nullable(),
+  derived_from_uri: z
+    .string()
+    .url({ message: "Please enter a valid URL" })
+    .nullable(),
   type_collected: z.any().nullable(), // Code type
   patient_preparation: z.array(z.any()).min(0), // Code type array
   collection: z.any().nullable(), // Code type
@@ -432,7 +435,7 @@ export function SpecimenDefinitionForm({
                 {t("type_tested_information")}
               </h3>
 
-              <div className="grid grid-cols-2 gap-4">
+              <div className="grid grid-cols-1 gap-4 md:grid-cols-2">
                 <FormField
                   control={form.control}
                   name="type_tested.is_derived"
@@ -529,10 +532,10 @@ export function SpecimenDefinitionForm({
                           quantity={
                             field.value
                               ? {
-                                  value: field.value.value || 0,
+                                  value: field.value.value || null,
                                   unit: field.value.unit,
                                 }
-                              : { value: 0, unit: RETENTION_TIME_UNITS[0] }
+                              : { value: null, unit: RETENTION_TIME_UNITS[0] }
                           }
                           onChange={field.onChange}
                           disabled={isLoading}
@@ -589,6 +592,27 @@ export function SpecimenDefinitionForm({
                   <div className="space-y-4">
                     <FormField
                       control={form.control}
+                      name="type_tested.container.cap"
+                      render={({ field }) => (
+                        <FormItem className="flex flex-col">
+                          <FormLabel>{t("cap")}</FormLabel>
+                          <FormControl>
+                            <ValueSetSelect
+                              system="system-container_cap-code"
+                              placeholder={t("select_cap")}
+                              onSelect={handleCapTypeSelect}
+                              value={field.value}
+                              disabled={isLoading}
+                            />
+                          </FormControl>
+                          <FormMessage />
+                        </FormItem>
+                      )}
+                    />
+                  </div>
+                  <div className="space-y-4">
+                    <FormField
+                      control={form.control}
                       name="type_tested.container.capacity"
                       render={({ field }) => (
                         <FormItem className="flex flex-col">
@@ -598,11 +622,11 @@ export function SpecimenDefinitionForm({
                               quantity={
                                 field.value
                                   ? {
-                                      value: field.value.value || 0,
+                                      value: field.value.value || null,
                                       unit: field.value.unit,
                                     }
                                   : {
-                                      value: 0,
+                                      value: null,
                                       unit: SPECIMEN_DEFINITION_UNITS_CODES[0],
                                     }
                               }
@@ -617,112 +641,87 @@ export function SpecimenDefinitionForm({
                       )}
                     />
                   </div>
-
-                  <div className="space-y-4">
-                    <div className="flex flex-col gap-2">
-                      <FormLabel>{t("minimum_volume")}</FormLabel>
-                      <Tabs
-                        className="w-full"
-                        defaultValue={
-                          form.watch(
-                            "type_tested.container.minimum_volume.quantity",
-                          )
-                            ? "quantity"
-                            : "text"
-                        }
-                        onValueChange={handleMinimumVolumeTypeChange}
-                      >
-                        <TabsList className="grid w-full grid-cols-2">
-                          <TabsTrigger value="quantity">
-                            {t("quantity")}
-                          </TabsTrigger>
-                          <TabsTrigger value="text">{t("text")}</TabsTrigger>
-                        </TabsList>
-                        <TabsContent value="quantity">
-                          <FormField
-                            control={form.control}
-                            name="type_tested.container.minimum_volume.quantity"
-                            render={({ field }) => (
-                              <FormItem className="flex flex-col">
-                                <FormControl>
-                                  <ComboboxQuantityInput
-                                    quantity={
-                                      field.value
-                                        ? {
-                                            value: field.value.value || 0,
-                                            unit: field.value.unit,
-                                          }
-                                        : {
-                                            value: 0,
-                                            unit: SPECIMEN_DEFINITION_UNITS_CODES[0],
-                                          }
-                                    }
-                                    onChange={(value) =>
-                                      handleMinimumVolumeChange(
-                                        "quantity",
-                                        value,
-                                      )
-                                    }
-                                    disabled={isLoading}
-                                    placeholder={t("enter_minimum_volume")}
-                                    units={SPECIMEN_DEFINITION_UNITS_CODES}
-                                  />
-                                </FormControl>
-                                <FormMessage />
-                              </FormItem>
-                            )}
-                          />
-                        </TabsContent>
-                        <TabsContent value="text">
-                          <FormField
-                            control={form.control}
-                            name="type_tested.container.minimum_volume.string"
-                            render={({ field }) => (
-                              <FormItem className="flex flex-col">
-                                <FormControl>
-                                  <Input
-                                    placeholder={t("enter_minimum_volume")}
-                                    {...field}
-                                    value={field.value || ""}
-                                    disabled={isLoading}
-                                    onChange={(e) =>
-                                      handleMinimumVolumeChange(
-                                        "string",
-                                        e.target.value,
-                                      )
-                                    }
-                                  />
-                                </FormControl>
-                                <FormMessage />
-                              </FormItem>
-                            )}
-                          />
-                        </TabsContent>
-                      </Tabs>
-                    </div>
-                  </div>
                 </div>
 
-                <div className="grid grid-cols-1 gap-4 md:grid-cols-2">
-                  <FormField
-                    control={form.control}
-                    name="type_tested.container.cap"
-                    render={({ field }) => (
-                      <FormItem className="flex flex-col">
-                        <FormLabel>{t("cap")}</FormLabel>
-                        <FormControl>
-                          <ValueSetSelect
-                            system="system-container_cap-code"
-                            placeholder={t("select_cap")}
-                            onSelect={handleCapTypeSelect}
-                            value={field.value}
-                            disabled={isLoading}
-                          />
-                        </FormControl>
-                        <FormMessage />
-                      </FormItem>
-                    )}
-                  />
+                <div className="space-y-4">
+                  <div className="flex flex-col gap-2">
+                    <FormLabel>{t("minimum_volume")}</FormLabel>
+                    <Tabs
+                      className="w-full"
+                      defaultValue={
+                        form.watch(
+                          "type_tested.container.minimum_volume.quantity",
+                        )
+                          ? "quantity"
+                          : "text"
+                      }
+                      onValueChange={handleMinimumVolumeTypeChange}
+                    >
+                      <TabsList className="grid w-full grid-cols-2">
+                        <TabsTrigger value="quantity">
+                          {t("quantity")}
+                        </TabsTrigger>
+                        <TabsTrigger value="text">{t("text")}</TabsTrigger>
+                      </TabsList>
+                      <TabsContent value="quantity">
+                        <FormField
+                          control={form.control}
+                          name="type_tested.container.minimum_volume.quantity"
+                          render={({ field }) => (
+                            <FormItem className="flex flex-col">
+                              <FormControl>
+                                <ComboboxQuantityInput
+                                  quantity={
+                                    field.value
+                                      ? {
+                                          value: field.value.value || null,
+                                          unit: field.value.unit,
+                                        }
+                                      : {
+                                          value: null,
+                                          unit: SPECIMEN_DEFINITION_UNITS_CODES[0],
+                                        }
+                                  }
+                                  onChange={(value) =>
+                                    handleMinimumVolumeChange("quantity", value)
+                                  }
+                                  disabled={isLoading}
+                                  placeholder={t("enter_minimum_volume")}
+                                  units={SPECIMEN_DEFINITION_UNITS_CODES}
+                                />
+                              </FormControl>
+                              <FormMessage />
+                            </FormItem>
+                          )}
+                        />
+                      </TabsContent>
+                      <TabsContent value="text">
+                        <FormField
+                          control={form.control}
+                          name="type_tested.container.minimum_volume.string"
+                          render={({ field }) => (
+                            <FormItem className="flex flex-col">
+                              <FormControl>
+                                <Input
+                                  placeholder={t("enter_minimum_volume")}
+                                  {...field}
+                                  value={field.value || ""}
+                                  disabled={isLoading}
+                                  onChange={(e) =>
+                                    handleMinimumVolumeChange(
+                                      "string",
+                                      e.target.value,
+                                    )
+                                  }
+                                />
+                              </FormControl>
+                              <FormMessage />
+                            </FormItem>
+                          )}
+                        />
+                      </TabsContent>
+                    </Tabs>
+                  </div>
                 </div>
                 <FormField
                   control={form.control}
