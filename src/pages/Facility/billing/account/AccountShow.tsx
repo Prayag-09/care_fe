@@ -310,7 +310,7 @@ export function AccountShow({
               <p className="font-medium text-base text-gray-950">
                 {account.service_period?.end
                   ? formatDate(account.service_period?.end)
-                  : "-- (" + t("ongoing") + ")"}
+                  : t("ongoing")}
               </p>
             </div>
           </div>
