@@ -8,7 +8,7 @@ x : Done
 
 ## Pharmacy
 
-- [- ] Fix search, navigation and scroll for Suppliers page - Yash
+- [-] Fix search, navigation and scroll for Suppliers page - Yash
 - [ ] Add option to archive suppliers
 - [ ] Add status based filters for product knowledge
 

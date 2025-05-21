@@ -277,7 +277,7 @@ export default function CreateScheduleTemplateSheet({
           </Button>
         )}
       </SheetTrigger>
-      <SheetContent className="flex min-w-full flex-col bg-gray-100 sm:min-w-fit ">
+      <SheetContent className="flex min-w-full flex-col bg-gray-100 sm:min-w-fit">
         <SheetHeader>
           <SheetTitle>{t("create_schedule_template")}</SheetTitle>
           <SheetDescription className="sr-only">

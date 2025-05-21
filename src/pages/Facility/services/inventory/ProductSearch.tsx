@@ -57,7 +57,11 @@ export function ProductSearch({
     useQuery({
       queryKey: ["productKnowledge"],
       queryFn: query(productKnowledgeApi.listProductKnowledge, {
-        queryParams: { status: ProductKnowledgeStatus.active },
+        queryParams: {
+          facility: facilityId,
+          limit: 100,
+          status: ProductKnowledgeStatus.active,
+        },
       }),
     });
 
