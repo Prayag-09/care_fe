@@ -398,7 +398,9 @@ export default function ServiceRequestShow({
                 );
 
                 const validSpecimens = allMatchingForThisDefId.filter(
-                  (spec) => spec.status === SpecimenStatus.available,
+                  (spec) =>
+                    spec.status === SpecimenStatus.available ||
+                    spec.status === SpecimenStatus.draft,
                 );
 
                 const collectedSpecimen = validSpecimens.find(
@@ -414,9 +416,8 @@ export default function ServiceRequestShow({
                     key={requirement.id}
                     facilityId={facilityId}
                     serviceRequestId={serviceRequestId}
-                    draftSpecimen={getExistingDraftSpecimen(requirement.id)}
                     requirement={requirement}
-                    collectedSpecimen={collectedSpecimen}
+                    specimen={collectedSpecimen}
                     onCollect={() => {
                       createDraftSpecimen(requirement);
                       setSelectedSpecimenDefinition(requirement);
