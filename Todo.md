@@ -18,7 +18,6 @@ x : Done
 - [-] Add support for information components in chargeDef and Charge Item. - Rithvik
 - [-] Consider disabling onWheelChange for input[type=number] fields. - [hold till @bodhi confirms]
 - [ ] When creating a charge item in questionnaire we should allow users to pick discount and tax and quantitiy
-- [-] Start date is missing for the automatically created billing account - Amjith, Vignesh
 - [ ] Remove -- in the end date column if the billing account still ongoing
 - [ ] Change default wallet name to {patient-name} + date to keep it a little bit unique and searchable in billing account dashboard
 - [ ] When a billing account of a patient is on hold, we should restrict users from creating any charge item to the patient, as per doc, but our platform will be creating a new wallet by ignoring the on-hold account
@@ -35,19 +34,10 @@ x : Done
 - [-] Service Request - Show specimen.processing.performer details instead of UUID (After BE change) - Vignesh
 
 - [ ] Healthcare Service edit - Location expand missing in sheet
-- [x] Specimen Definition - The 2x2 grid UI breaks when the error message is triggered and only one of the fields/columns is filled - Amjith
+
 - [ ] Specimen Definition - Add \* for required fields and frontend validation for Retention Time, Capacity, Minimum Volume, Type Collected, Title, and Slug
 - [ ] Specimen Definition - Add frontend permission check for the Specimen Definition page at the facility level.
-- [x] Specimen Definition - The cancel button in the form is not working - Amjith
-- [x] Specimen Definition - Increase the width of retention time and capacity to full width in the edit page - Jeevan
-- [x] Specimen Definition - Add URL validation to the field Derived from URL - Jeevan
-- [x] Create Observation Definition - Add \* to Title, Slug, Description, Category, Status, and Data Type fields. - Jeevan
-- [x] Create Observation Definition - Add missing asterisk and frontend validation for the LOINC field
-- [x] Create Observation Definition - Add missing translation for edit_observation_definition form heading - Amjith
-- [-] Create Observation Definition - The category filter in the list view is not working - Amjith, Vignesh
-- [x] Active Definition - Add asterisks to Title, Slug, Description, Usage, and Category fields. - Amjith
-- [x] Active Definition - Add asterisk and frontend validation for code field - Amjith
-- [-] Active Definition - In the questionnaire of SR, change the autocomplete border colour from blue to keep them consistent - Amjith
+
 - [-] Charge Item - Add an asterisk to the Title field. - Jeevan
 - [-] Charge Item - Add asterisk and frontend validation for the Base Price field. - Jeevan
 - [-] Charge Item - Remove the ? from the discount dropdown - Jeevan
@@ -117,6 +107,8 @@ x : Done
 - [x] When Creating charge item in questionnaire we should display applicable discounts and tax and amounts from the charge item def as read-only - Yaswanth
 - [x] Move account as a pill in the encounter, it should only fetch the account if its clicked, show the account details in a sheet and show option to navigate to the accounts page (Sheet - Render account details/Create account button) - Yash
 
+- [x] Start date is missing for the automatically created billing account - Amjith
+
 ## Labs
 
 - [x] Build service request list page based on design - Manyu
@@ -143,6 +135,18 @@ x : Done
 - [x] Print all Barcodes button for a service request with page setup - Yaswanth
 - [x] Make Activity Definiton search inside the service request question working
 - [x] Specimen Definition - Remove 0 prefilled value in Retention time, capacity, and minimum value - Yash
+
+- [x] Specimen Definition - The cancel button in the form is not working - Amjith
+- [x] Specimen Definition - Increase the width of retention time and capacity to full width in the edit page - Jeevan
+- [x] Specimen Definition - Add URL validation to the field Derived from URL - Jeevan
+- [x] Create Observation Definition - Add \* to Title, Slug, Description, Category, Status, and Data Type fields. - Jeevan
+- [x] Create Observation Definition - Add missing asterisk and frontend validation for the LOINC field
+- [x] Create Observation Definition - Add missing translation for edit_observation_definition form heading - Amjith
+- [x] Create Observation Definition - The category filter in the list view is not working - Amjith, Vignesh
+- [x] Active Definition - Add asterisks to Title, Slug, Description, Usage, and Category fields. - Amjith
+- [x] Active Definition - Add asterisk and frontend validation for code field - Amjith
+- [x] Active Definition - In the questionnaire of SR, change the autocomplete border colour from blue to keep them consistent - Amjith
+- [x] Specimen Definition - The 2x2 grid UI breaks when the error message is triggered and only one of the fields/columns is filled - Amjith
 
 ## Pharmacy
 
