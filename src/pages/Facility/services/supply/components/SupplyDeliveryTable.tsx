@@ -65,6 +65,7 @@ export default function SupplyDeliveryTable({
           <TableRow>
             <TableHead>{t("item")}</TableHead>
             <TableHead>{t("quantity")}</TableHead>
+            <TableHead>{t("condition")}</TableHead>
             {tab != null && (
               <TableHead>
                 {tab === SupplyDeliveryTab.INCOMING
@@ -96,6 +97,20 @@ export default function SupplyDeliveryTable({
                 )}
               </TableCell>
               <TableCell>{delivery.supplied_item_quantity}</TableCell>
+              <TableCell>
+                {delivery.supplied_item_condition && (
+                  <Badge
+                    variant={
+                      delivery.supplied_item_condition === "damaged"
+                        ? "destructive"
+                        : "secondary"
+                    }
+                    className="capitalize"
+                  >
+                    {t(delivery.supplied_item_condition)}
+                  </Badge>
+                )}
+              </TableCell>
               {tab != null && (
                 <TableCell>
                   {tab === SupplyDeliveryTab.INCOMING
