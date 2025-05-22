@@ -7,6 +7,8 @@ import { InventoryList } from "@/pages/Facility/services/inventory/InventoryList
 import { ReceiveStock } from "@/pages/Facility/services/inventory/ReceiveStock";
 import { ApproveExternalSupplyDelivery } from "@/pages/Facility/services/inventory/externalSupply/ApproveDeliveries";
 import { IncomingDeliveries } from "@/pages/Facility/services/inventory/externalSupply/IncomingDeliveries";
+import { PurchaseOrderForm } from "@/pages/Facility/services/inventory/externalSupply/PurchaseOrderForm";
+import { PurchaseOrders } from "@/pages/Facility/services/inventory/externalSupply/PurchaseOrders";
 import MedicationBillForm from "@/pages/Facility/services/pharmacy/MedicationBillForm";
 import MedicationDispenseHistory from "@/pages/Facility/services/pharmacy/MedicationDispenseHistory";
 import MedicationRequestList from "@/pages/Facility/services/pharmacy/MedicationRequestList";
@@ -141,6 +143,12 @@ const getRoutes = (facilityId: string, locationId: string) => ({
   ),
 
   // Inventory - External Supply
+  "/external_supply/purchase_orders": () => (
+    <PurchaseOrders facilityId={facilityId} locationId={locationId} />
+  ),
+  "/external_supply/purchase_orders/new": () => (
+    <PurchaseOrderForm facilityId={facilityId} locationId={locationId} />
+  ),
   "/external_supply/incoming_deliveries": () => (
     <IncomingDeliveries facilityId={facilityId} locationId={locationId} />
   ),

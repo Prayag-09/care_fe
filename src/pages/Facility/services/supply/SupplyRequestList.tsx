@@ -4,7 +4,6 @@ import { useTranslation } from "react-i18next";
 
 import CareIcon from "@/CAREUI/icons/CareIcon";
 
-import { Badge } from "@/components/ui/badge";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import {
@@ -15,46 +14,20 @@ import {
   SelectTrigger,
   SelectValue,
 } from "@/components/ui/select";
-import {
-  Table,
-  TableBody,
-  TableCell,
-  TableHead,
-  TableHeader,
-  TableRow,
-} from "@/components/ui/table";
 import { Tabs, TabsList, TabsTrigger } from "@/components/ui/tabs";
 
 import Page from "@/components/Common/Page";
-import { TableSkeleton } from "@/components/Common/SkeletonLoading";
-import { EmptyState } from "@/components/definition-list/EmptyState";
 import { FilterSelect } from "@/components/definition-list/FilterSelect";
 
 import useFilters from "@/hooks/useFilters";
 
 import query from "@/Utils/request/query";
+import SupplyRequestTable from "@/pages/Facility/services/supply/components/SupplyRequestTable";
 import {
   SupplyRequestPriority,
-  SupplyRequestRead,
   SupplyRequestStatus,
 } from "@/types/inventory/supplyRequest/supplyRequest";
 import supplyRequestApi from "@/types/inventory/supplyRequest/supplyRequestApi";
-
-const STATUS_COLORS: Record<string, string> = {
-  active: "bg-green-100 text-green-700",
-  completed: "bg-blue-100 text-blue-700",
-  cancelled: "bg-red-100 text-red-700",
-  draft: "bg-gray-100 text-gray-700",
-  on_hold: "bg-amber-100 text-amber-700",
-  unknown: "bg-gray-100 text-gray-700",
-};
-
-const PRIORITY_COLORS: Record<string, string> = {
-  routine: "bg-blue-100 text-blue-700",
-  urgent: "bg-red-100 text-red-700",
-  asap: "bg-amber-100 text-amber-700",
-  stat: "bg-purple-100 text-purple-700",
-};
 
 export enum SupplyRequestTab {
   INCOMING = "incoming",
@@ -188,77 +161,16 @@ export default function SupplyRequestList({
           </div>
         </div>
 
-        {isLoading ? (
-          <TableSkeleton count={5} />
-        ) : requests.length === 0 ? (
-          <EmptyState
-            title={t("no_supply_requests_found")}
-            description={t("no_supply_requests_found_description")}
-            icon="l-box"
-          />
-        ) : (
-          <>
-            <div className="rounded-md border">
-              <Table>
-                <TableHeader>
-                  <TableRow>
-                    <TableHead>{t("item")}</TableHead>
-                    <TableHead>{t("quantity")}</TableHead>
-                    <TableHead>{t("deliver_from")}</TableHead>
-                    <TableHead>{t("deliver_to")}</TableHead>
-                    <TableHead>{t("status")}</TableHead>
-                    <TableHead>{t("priority")}</TableHead>
-                    <TableHead className="w-[100px]">{t("actions")}</TableHead>
-                  </TableRow>
-                </TableHeader>
-                <TableBody>
-                  {requests.map((request: SupplyRequestRead) => (
-                    <TableRow key={request.id}>
-                      <TableCell>{request.item.name}</TableCell>
-                      <TableCell>{request.quantity}</TableCell>
-                      <TableCell>
-                        {request.deliver_from?.name || t("not_specified")}
-                      </TableCell>
-                      <TableCell>{request.deliver_to.name}</TableCell>
-                      <TableCell>
-                        <Badge
-                          className={STATUS_COLORS[request.status]}
-                          variant="secondary"
-                        >
-                          {t(request.status)}
-                        </Badge>
-                      </TableCell>
-                      <TableCell>
-                        <Badge
-                          className={PRIORITY_COLORS[request.priority]}
-                          variant="secondary"
-                        >
-                          {t(request.priority)}
-                        </Badge>
-                      </TableCell>
-                      <TableCell>
-                        <Button
-                          variant="ghost"
-                          size="sm"
-                          onClick={() =>
-                            navigate(
-                              `/facility/${facilityId}/locations/${locationId}/supply_requests/${request.id}`,
-                            )
-                          }
-                        >
-                          <CareIcon icon="l-eye" className="size-4" />
-                        </Button>
-                      </TableCell>
-                    </TableRow>
-                  ))}
-                </TableBody>
-              </Table>
-            </div>
-            <div className="mt-4">
-              <Pagination totalCount={response?.count || 0} />
-            </div>
-          </>
-        )}
+        <SupplyRequestTable
+          requests={requests}
+          isLoading={isLoading}
+          facilityId={facilityId}
+          locationId={locationId}
+        />
+
+        <div className="mt-4">
+          <Pagination totalCount={response?.count || 0} />
+        </div>
       </div>
     </Page>
   );

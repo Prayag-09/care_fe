@@ -92,14 +92,16 @@ export default function SupplyRequestForm({
     enabled: isEditMode,
   });
 
+  const title = isEditMode
+    ? t("edit_supply_request")
+    : t("create_supply_request");
+
   if (isEditMode && isFetching) {
     return (
-      <Page title={t("edit_supply_request")} hideTitleOnPage>
+      <Page title={title} hideTitleOnPage>
         <div className="container mx-auto max-w-3xl">
           <div className="mb-6">
-            <h1 className="text-xl font-semibold text-gray-900">
-              {t("edit_supply_request")}
-            </h1>
+            <h1 className="text-xl font-semibold text-gray-900">{title}</h1>
           </div>
           <FormSkeleton rows={10} />
         </div>
@@ -108,26 +110,50 @@ export default function SupplyRequestForm({
   }
 
   return (
-    <SupplyRequestFormContent
-      facilityId={facilityId}
-      supplyRequestId={supplyRequestId}
-      existingData={existingData}
-      locationId={locationId}
-    />
+    <Page title={title} hideTitleOnPage>
+      <div className="container mx-auto max-w-5xl">
+        <div className="mb-6">
+          <h1 className="text-xl font-semibold text-gray-900">{title}</h1>
+        </div>
+        <SupplyRequestFormContent
+          facilityId={facilityId}
+          supplyRequestId={supplyRequestId}
+          existingData={existingData}
+          locationId={locationId}
+          type="internal"
+          onSuccess={() => {
+            toast.success(
+              isEditMode
+                ? t("supply_request_updated")
+                : t("supply_requests_created"),
+            );
+            navigate(
+              `/facility/${facilityId}/locations/${locationId}/supply_requests`,
+            );
+          }}
+        />
+      </div>
+    </Page>
   );
 }
 
-function SupplyRequestFormContent({
-  facilityId,
-  locationId,
-  supplyRequestId,
-  existingData,
-}: {
+export interface SupplyRequestFormContentProps {
   facilityId: string;
   supplyRequestId?: string;
   existingData?: any;
   locationId: string;
-}) {
+  type: "internal" | "external";
+  onSuccess?: () => void;
+}
+
+export function SupplyRequestFormContent({
+  facilityId,
+  locationId,
+  supplyRequestId,
+  existingData,
+  type,
+  onSuccess,
+}: SupplyRequestFormContentProps) {
   const { t } = useTranslation();
   const queryClient = useQueryClient();
   const isEditMode = Boolean(supplyRequestId);
@@ -143,6 +169,7 @@ function SupplyRequestFormContent({
       pathParams: { facility_id: facilityId },
       queryParams: { search: searchDeliveryFrom, limit: 100 },
     }),
+    enabled: type === "internal",
   });
 
   const { data: products, isLoading: isLoadingProducts } = useQuery({
@@ -182,7 +209,7 @@ function SupplyRequestFormContent({
                 reason: existingData.reason,
                 quantity: existingData.quantity,
                 deliver_from: existingData.deliver_from?.id,
-                deliver_to: locationId, // Auto-set current location
+                deliver_to: locationId,
                 item: existingData.item.id,
               },
             ],
@@ -196,7 +223,7 @@ function SupplyRequestFormContent({
                 priority: SupplyRequestPriority.routine,
                 reason: SupplyRequestReason.ward_stock,
                 quantity: 1,
-                deliver_to: locationId, // Auto-set current location
+                deliver_to: locationId,
               },
             ],
           },
@@ -212,13 +239,8 @@ function SupplyRequestFormContent({
       pathParams: { facilityId },
     }),
     onSuccess: () => {
-      toast.success(
-        isEditMode ? t("supply_request_updated") : t("supply_requests_created"),
-      );
       queryClient.invalidateQueries({ queryKey: ["supplyRequests"] });
-      navigate(
-        `/facility/${facilityId}/locations/${locationId}/supply_requests`,
-      );
+      onSuccess?.();
     },
     onError: (error) => {
       const errorData = error.cause as {
@@ -260,315 +282,286 @@ function SupplyRequestFormContent({
     },
   });
 
-  async function onSubmit(data: z.infer<typeof formSchema>) {
-    console.log("data", data.requests);
-    if (isEditMode) {
-      upsertSupplyRequest({ datapoints: data.requests });
-    } else {
-      upsertSupplyRequest({ datapoints: data.requests });
-    }
+  function onSubmit(data: z.infer<typeof formSchema>) {
+    upsertSupplyRequest({ datapoints: data.requests });
   }
 
   return (
-    <Page
-      title={isEditMode ? t("edit_supply_request") : t("create_supply_request")}
-      hideTitleOnPage
-    >
-      <div className="container mx-auto max-w-5xl">
-        <div className="mb-6">
-          <h1 className="text-xl font-semibold text-gray-900">
-            {isEditMode ? t("edit_supply_request") : t("create_supply_request")}
-          </h1>
-        </div>
-
-        <Form {...form}>
-          <form onSubmit={form.handleSubmit(onSubmit)} className="space-y-6">
-            <Card>
-              <CardHeader>
-                <CardTitle>{t("request_details")}</CardTitle>
-              </CardHeader>
-              <CardContent className="space-y-4">
-                <div className="grid grid-cols-2 gap-4">
-                  <FormField
-                    control={form.control}
-                    name="requests.0.status"
-                    render={({ field }) => (
-                      <FormItem>
-                        <FormLabel>{t("status")}</FormLabel>
-                        <Select
-                          onValueChange={field.onChange}
-                          defaultValue={field.value}
-                        >
-                          <FormControl>
-                            <SelectTrigger>
-                              <SelectValue placeholder={t("select_status")} />
-                            </SelectTrigger>
-                          </FormControl>
-                          <SelectContent>
-                            {Object.values(SupplyRequestStatus).map(
-                              (status) => (
-                                <SelectItem key={status} value={status}>
-                                  {t(status)}
-                                </SelectItem>
-                              ),
-                            )}
-                          </SelectContent>
-                        </Select>
-                        <FormMessage />
-                      </FormItem>
-                    )}
-                  />
-
-                  <FormField
-                    control={form.control}
-                    name="requests.0.priority"
-                    render={({ field }) => (
-                      <FormItem>
-                        <FormLabel>{t("priority")}</FormLabel>
-                        <Select
-                          onValueChange={field.onChange}
-                          defaultValue={field.value}
-                        >
-                          <FormControl>
-                            <SelectTrigger>
-                              <SelectValue placeholder={t("select_priority")} />
-                            </SelectTrigger>
-                          </FormControl>
-                          <SelectContent>
-                            {Object.values(SupplyRequestPriority).map(
-                              (priority) => (
-                                <SelectItem key={priority} value={priority}>
-                                  {t(priority)}
-                                </SelectItem>
-                              ),
-                            )}
-                          </SelectContent>
-                        </Select>
-                        <FormMessage />
-                      </FormItem>
-                    )}
-                  />
-                </div>
-
-                <div className="grid grid-cols-2 gap-4">
-                  <FormField
-                    control={form.control}
-                    name="requests.0.category"
-                    render={({ field }) => (
-                      <FormItem>
-                        <FormLabel>{t("category")}</FormLabel>
-                        <Select
-                          onValueChange={field.onChange}
-                          defaultValue={field.value}
-                        >
-                          <FormControl>
-                            <SelectTrigger>
-                              <SelectValue placeholder={t("select_category")} />
-                            </SelectTrigger>
-                          </FormControl>
-                          <SelectContent>
-                            {Object.values(SupplyRequestCategory).map(
-                              (category) => (
-                                <SelectItem key={category} value={category}>
-                                  {t(category)}
-                                </SelectItem>
-                              ),
-                            )}
-                          </SelectContent>
-                        </Select>
-                        <FormMessage />
-                      </FormItem>
-                    )}
-                  />
-
-                  <FormField
-                    control={form.control}
-                    name="requests.0.reason"
-                    render={({ field }) => (
-                      <FormItem>
-                        <FormLabel>{t("reason")}</FormLabel>
-                        <Select
-                          onValueChange={field.onChange}
-                          defaultValue={field.value}
-                        >
-                          <FormControl>
-                            <SelectTrigger>
-                              <SelectValue placeholder={t("select_reason")} />
-                            </SelectTrigger>
-                          </FormControl>
-                          <SelectContent>
-                            {Object.values(SupplyRequestReason).map(
-                              (reason) => (
-                                <SelectItem key={reason} value={reason}>
-                                  {t(reason)}
-                                </SelectItem>
-                              ),
-                            )}
-                          </SelectContent>
-                        </Select>
-                        <FormMessage />
-                      </FormItem>
-                    )}
-                  />
-                </div>
-
-                <FormField
-                  control={form.control}
-                  name="requests.0.deliver_from"
-                  render={({ field }) => (
-                    <FormItem>
-                      <FormLabel>{t("deliver_from")}</FormLabel>
+    <Form {...form}>
+      <form onSubmit={form.handleSubmit(onSubmit)} className="space-y-6">
+        <Card>
+          <CardHeader>
+            <CardTitle>{t("request_details")}</CardTitle>
+          </CardHeader>
+          <CardContent className="space-y-4">
+            <div className="grid grid-cols-2 gap-4">
+              <FormField
+                control={form.control}
+                name="requests.0.status"
+                render={({ field }) => (
+                  <FormItem>
+                    <FormLabel>{t("status")}</FormLabel>
+                    <Select
+                      onValueChange={field.onChange}
+                      defaultValue={field.value}
+                    >
                       <FormControl>
-                        <Autocomplete
-                          options={deliveryFromOptions}
-                          value={field.value || ""}
-                          onChange={field.onChange}
-                          isLoading={isLoadingDeliveryFromLocations}
-                          onSearch={setSearchDeliveryFrom}
-                          placeholder={t("select_location")}
-                          inputPlaceholder={t("search_location")}
-                          noOptionsMessage={t("no_locations_found")}
-                        />
+                        <SelectTrigger>
+                          <SelectValue placeholder={t("select_status")} />
+                        </SelectTrigger>
                       </FormControl>
-                      <FormMessage />
-                    </FormItem>
-                  )}
-                />
-              </CardContent>
-            </Card>
-
-            <Card>
-              <CardHeader>
-                <CardTitle>{t("items")}</CardTitle>
-              </CardHeader>
-              <CardContent>
-                <Table>
-                  <TableHeader>
-                    <TableRow>
-                      <TableHead>{t("item")}</TableHead>
-                      <TableHead>{t("quantity")}</TableHead>
-                      {!isEditMode && (
-                        <TableHead className="w-[100px]">
-                          {t("actions")}
-                        </TableHead>
-                      )}
-                    </TableRow>
-                  </TableHeader>
-                  <TableBody>
-                    {fields.map((field, index) => (
-                      <TableRow key={field.id}>
-                        <TableCell>
-                          <FormField
-                            control={form.control}
-                            name={`requests.${index}.item`}
-                            render={({ field }) => (
-                              <FormItem>
-                                <FormControl>
-                                  <Autocomplete
-                                    options={productOptions}
-                                    value={field.value || ""}
-                                    onChange={field.onChange}
-                                    isLoading={isLoadingProducts}
-                                    onSearch={setSearchItem}
-                                    placeholder={t("select_product")}
-                                    inputPlaceholder={t("search_product")}
-                                    noOptionsMessage={t("no_products_found")}
-                                  />
-                                </FormControl>
-                                <FormMessage />
-                              </FormItem>
-                            )}
-                          />
-                        </TableCell>
-                        <TableCell>
-                          <FormField
-                            control={form.control}
-                            name={`requests.${index}.quantity`}
-                            render={({ field }) => (
-                              <FormItem>
-                                <FormControl>
-                                  <Input
-                                    type="number"
-                                    min={1}
-                                    {...field}
-                                    onChange={(e) =>
-                                      field.onChange(parseInt(e.target.value))
-                                    }
-                                  />
-                                </FormControl>
-                                <FormMessage />
-                              </FormItem>
-                            )}
-                          />
-                        </TableCell>
-                        {!isEditMode && (
-                          <TableCell>
-                            <Button
-                              type="button"
-                              variant="ghost"
-                              size="sm"
-                              onClick={() => remove(index)}
-                              disabled={fields.length === 1}
-                            >
-                              <Trash2 className="size-4" />
-                            </Button>
-                          </TableCell>
-                        )}
-                      </TableRow>
-                    ))}
-                  </TableBody>
-                </Table>
-
-                {!isEditMode && (
-                  <Button
-                    type="button"
-                    variant="outline"
-                    onClick={() =>
-                      append({
-                        status: form.getValues("requests.0.status"),
-                        intent: form.getValues("requests.0.intent"),
-                        category: form.getValues("requests.0.category"),
-                        priority: form.getValues("requests.0.priority"),
-                        reason: form.getValues("requests.0.reason"),
-                        deliver_from: form.getValues("requests.0.deliver_from"),
-                        deliver_to: locationId,
-                        quantity: 1,
-                        item: "",
-                      })
-                    }
-                    className="mt-4"
-                  >
-                    <PlusCircle className="mr-2 size-4" />
-                    {t("add_another_item")}
-                  </Button>
+                      <SelectContent>
+                        {Object.values(SupplyRequestStatus).map((status) => (
+                          <SelectItem key={status} value={status}>
+                            {t(status)}
+                          </SelectItem>
+                        ))}
+                      </SelectContent>
+                    </Select>
+                    <FormMessage />
+                  </FormItem>
                 )}
-              </CardContent>
-            </Card>
+              />
 
-            <div className="flex justify-end space-x-3">
+              <FormField
+                control={form.control}
+                name="requests.0.priority"
+                render={({ field }) => (
+                  <FormItem>
+                    <FormLabel>{t("priority")}</FormLabel>
+                    <Select
+                      onValueChange={field.onChange}
+                      defaultValue={field.value}
+                    >
+                      <FormControl>
+                        <SelectTrigger>
+                          <SelectValue placeholder={t("select_priority")} />
+                        </SelectTrigger>
+                      </FormControl>
+                      <SelectContent>
+                        {Object.values(SupplyRequestPriority).map(
+                          (priority) => (
+                            <SelectItem key={priority} value={priority}>
+                              {t(priority)}
+                            </SelectItem>
+                          ),
+                        )}
+                      </SelectContent>
+                    </Select>
+                    <FormMessage />
+                  </FormItem>
+                )}
+              />
+            </div>
+
+            <div className="grid grid-cols-2 gap-4">
+              <FormField
+                control={form.control}
+                name="requests.0.category"
+                render={({ field }) => (
+                  <FormItem>
+                    <FormLabel>{t("category")}</FormLabel>
+                    <Select
+                      onValueChange={field.onChange}
+                      defaultValue={field.value}
+                    >
+                      <FormControl>
+                        <SelectTrigger>
+                          <SelectValue placeholder={t("select_category")} />
+                        </SelectTrigger>
+                      </FormControl>
+                      <SelectContent>
+                        {Object.values(SupplyRequestCategory).map(
+                          (category) => (
+                            <SelectItem key={category} value={category}>
+                              {t(category)}
+                            </SelectItem>
+                          ),
+                        )}
+                      </SelectContent>
+                    </Select>
+                    <FormMessage />
+                  </FormItem>
+                )}
+              />
+
+              <FormField
+                control={form.control}
+                name="requests.0.reason"
+                render={({ field }) => (
+                  <FormItem>
+                    <FormLabel>{t("reason")}</FormLabel>
+                    <Select
+                      onValueChange={field.onChange}
+                      defaultValue={field.value}
+                    >
+                      <FormControl>
+                        <SelectTrigger>
+                          <SelectValue placeholder={t("select_reason")} />
+                        </SelectTrigger>
+                      </FormControl>
+                      <SelectContent>
+                        {Object.values(SupplyRequestReason).map((reason) => (
+                          <SelectItem key={reason} value={reason}>
+                            {t(reason)}
+                          </SelectItem>
+                        ))}
+                      </SelectContent>
+                    </Select>
+                    <FormMessage />
+                  </FormItem>
+                )}
+              />
+            </div>
+
+            {type === "internal" && (
+              <FormField
+                control={form.control}
+                name="requests.0.deliver_from"
+                render={({ field }) => (
+                  <FormItem>
+                    <FormLabel>{t("deliver_from")}</FormLabel>
+                    <FormControl>
+                      <Autocomplete
+                        options={deliveryFromOptions}
+                        value={field.value || ""}
+                        onChange={field.onChange}
+                        isLoading={isLoadingDeliveryFromLocations}
+                        onSearch={setSearchDeliveryFrom}
+                        placeholder={t("select_location")}
+                        inputPlaceholder={t("search_location")}
+                        noOptionsMessage={t("no_locations_found")}
+                      />
+                    </FormControl>
+                    <FormMessage />
+                  </FormItem>
+                )}
+              />
+            )}
+          </CardContent>
+        </Card>
+
+        <Card>
+          <CardHeader>
+            <CardTitle>{t("items")}</CardTitle>
+          </CardHeader>
+          <CardContent>
+            <Table>
+              <TableHeader>
+                <TableRow>
+                  <TableHead>{t("item")}</TableHead>
+                  <TableHead>{t("quantity")}</TableHead>
+                  {!isEditMode && (
+                    <TableHead className="w-[100px]">{t("actions")}</TableHead>
+                  )}
+                </TableRow>
+              </TableHeader>
+              <TableBody>
+                {fields.map((field, index) => (
+                  <TableRow key={field.id}>
+                    <TableCell>
+                      <FormField
+                        control={form.control}
+                        name={`requests.${index}.item`}
+                        render={({ field }) => (
+                          <FormItem>
+                            <FormControl>
+                              <Autocomplete
+                                options={productOptions}
+                                value={field.value || ""}
+                                onChange={field.onChange}
+                                isLoading={isLoadingProducts}
+                                onSearch={setSearchItem}
+                                placeholder={t("select_product")}
+                                inputPlaceholder={t("search_product")}
+                                noOptionsMessage={t("no_products_found")}
+                              />
+                            </FormControl>
+                            <FormMessage />
+                          </FormItem>
+                        )}
+                      />
+                    </TableCell>
+                    <TableCell>
+                      <FormField
+                        control={form.control}
+                        name={`requests.${index}.quantity`}
+                        render={({ field }) => (
+                          <FormItem>
+                            <FormControl>
+                              <Input
+                                type="number"
+                                min={1}
+                                {...field}
+                                onChange={(e) =>
+                                  field.onChange(parseInt(e.target.value))
+                                }
+                              />
+                            </FormControl>
+                            <FormMessage />
+                          </FormItem>
+                        )}
+                      />
+                    </TableCell>
+                    {!isEditMode && (
+                      <TableCell>
+                        <Button
+                          type="button"
+                          variant="ghost"
+                          size="sm"
+                          onClick={() => remove(index)}
+                          disabled={fields.length === 1}
+                        >
+                          <Trash2 className="size-4" />
+                        </Button>
+                      </TableCell>
+                    )}
+                  </TableRow>
+                ))}
+              </TableBody>
+            </Table>
+
+            {!isEditMode && (
               <Button
+                type="button"
                 variant="outline"
                 onClick={() =>
-                  navigate(
-                    `/facility/${facilityId}/locations/${locationId}/supply_requests`,
-                  )
+                  append({
+                    status: form.getValues("requests.0.status"),
+                    intent: form.getValues("requests.0.intent"),
+                    category: form.getValues("requests.0.category"),
+                    priority: form.getValues("requests.0.priority"),
+                    reason: form.getValues("requests.0.reason"),
+                    deliver_from: form.getValues("requests.0.deliver_from"),
+                    deliver_to: locationId,
+                    quantity: 1,
+                    item: "",
+                  })
                 }
+                className="mt-4"
               >
-                {t("cancel")}
+                <PlusCircle className="mr-2 size-4" />
+                {t("add_another_item")}
               </Button>
-              <Button type="submit" disabled={isPending}>
-                {isPending
-                  ? isEditMode
-                    ? t("saving")
-                    : t("creating")
-                  : isEditMode
-                    ? t("save")
-                    : t("create")}
-              </Button>
-            </div>
-          </form>
-        </Form>
-      </div>
-    </Page>
+            )}
+          </CardContent>
+        </Card>
+
+        <div className="flex justify-end space-x-3">
+          <Button variant="outline" onClick={onSuccess}>
+            {t("cancel")}
+          </Button>
+          <Button type="submit" disabled={isPending}>
+            {isPending
+              ? isEditMode
+                ? t("saving")
+                : t("creating")
+              : isEditMode
+                ? t("save")
+                : t("create")}
+          </Button>
+        </div>
+      </form>
+    </Form>
   );
 }

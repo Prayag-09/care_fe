@@ -1,7 +1,8 @@
 import { useQuery } from "@tanstack/react-query";
-import { CheckCircleIcon, TruckIcon } from "lucide-react";
-import { Link } from "raviger";
+import { navigate } from "raviger";
 import { useTranslation } from "react-i18next";
+
+import CareIcon from "@/CAREUI/icons/CareIcon";
 
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
@@ -12,16 +13,19 @@ import { FilterSelect } from "@/components/definition-list/FilterSelect";
 import useFilters from "@/hooks/useFilters";
 
 import query from "@/Utils/request/query";
-import SupplyDeliveryTable from "@/pages/Facility/services/supply/components/SupplyDeliveryTable";
-import { SupplyDeliveryStatus } from "@/types/inventory/supplyDelivery/supplyDelivery";
-import supplyDeliveryApi from "@/types/inventory/supplyDelivery/supplyDeliveryApi";
+import SupplyRequestTable from "@/pages/Facility/services/supply/components/SupplyRequestTable";
+import {
+  SupplyRequestPriority,
+  SupplyRequestStatus,
+} from "@/types/inventory/supplyRequest/supplyRequest";
+import supplyRequestApi from "@/types/inventory/supplyRequest/supplyRequestApi";
 
 interface Props {
   facilityId: string;
   locationId: string;
 }
 
-export function IncomingDeliveries({ facilityId, locationId }: Props) {
+export function PurchaseOrders({ facilityId, locationId }: Props) {
   const { t } = useTranslation();
   const { qParams, updateQuery, Pagination, resultsPerPage } = useFilters({
     limit: 14,
@@ -29,59 +33,47 @@ export function IncomingDeliveries({ facilityId, locationId }: Props) {
   });
 
   const { data: response, isLoading } = useQuery({
-    queryKey: ["externalSupplyDeliveries", qParams],
-    queryFn: query.debounced(supplyDeliveryApi.listSupplyDelivery, {
+    queryKey: ["purchaseOrders", qParams],
+    queryFn: query.debounced(supplyRequestApi.listSupplyRequest, {
       queryParams: {
-        facility: facilityId,
         limit: resultsPerPage,
         offset: ((qParams.page ?? 1) - 1) * resultsPerPage,
         status: qParams.status,
-        destination: locationId,
-        origin_isnull: true,
+        priority: qParams.priority,
+        deliver_to: locationId,
+        deliver_from_isnull: true,
       },
     }),
   });
 
-  const deliveries = response?.results || [];
+  const orders = response?.results || [];
 
   return (
-    <Page title={t("incoming_deliveries")} hideTitleOnPage>
+    <Page title={t("purchase_orders")} hideTitleOnPage>
       <div className="container mx-auto">
         <div className="mb-6">
           <div className="flex flex-col sm:flex-row items-start sm:items-center justify-between gap-4">
             <h1 className="text-xl font-semibold text-gray-900">
-              {t("incoming_deliveries")}
+              {t("purchase_orders")}
             </h1>
-
-            <div className="flex flex-row gap-2">
-              <Button variant="outline" size="sm" asChild>
-                <Link
-                  href="/external_supply/receive"
-                  className="flex items-center gap-2"
-                >
-                  <TruckIcon />
-                  {t("receive_stock")}
-                </Link>
-              </Button>
-              <Button variant="outline" size="sm" asChild>
-                <Link
-                  href="/external_supply/incoming_deliveries/approve"
-                  className="flex items-center gap-2"
-                >
-                  <CheckCircleIcon />
-                  {t("approve_deliveries")}
-                </Link>
-              </Button>
-            </div>
+            <Button
+              onClick={() =>
+                navigate(
+                  `/facility/${facilityId}/locations/${locationId}/external_supply/purchase_orders/new`,
+                )
+              }
+            >
+              <CareIcon icon="l-plus" />
+              {t("create_purchase_order")}
+            </Button>
           </div>
         </div>
 
         <div className="mb-4 flex flex-col gap-4">
           <div className="flex flex-col sm:flex-row items-start sm:items-center gap-4">
             <div className="flex-1">
-              {/* TODO: replace this with supplier / product knowledge filter */}
               <Input
-                placeholder={t("search_incoming_deliveries")}
+                placeholder={t("search_purchase_orders")}
                 value={qParams.search}
                 onChange={(e) => updateQuery({ search: e.target.value })}
                 className="w-full"
@@ -93,20 +85,32 @@ export function IncomingDeliveries({ facilityId, locationId }: Props) {
                 <FilterSelect
                   value={qParams.status || ""}
                   onValueChange={(value) => updateQuery({ status: value })}
-                  options={Object.values(SupplyDeliveryStatus)}
+                  options={Object.values(SupplyRequestStatus)}
                   label="status"
                   onClear={() => updateQuery({ status: undefined })}
+                />
+              </div>
+              <div className="flex-1 sm:flex-initial sm:w-auto">
+                <FilterSelect
+                  value={qParams.priority || ""}
+                  onValueChange={(value) => updateQuery({ priority: value })}
+                  options={Object.values(SupplyRequestPriority)}
+                  label="priority"
+                  onClear={() => updateQuery({ priority: undefined })}
                 />
               </div>
             </div>
           </div>
         </div>
 
-        <SupplyDeliveryTable
-          deliveries={deliveries}
+        <SupplyRequestTable
+          requests={orders}
           isLoading={isLoading}
           facilityId={facilityId}
           locationId={locationId}
+          baseUrl="external_supply/purchase_orders"
+          emptyTitle={t("no_purchase_orders_found")}
+          emptyDescription={t("no_purchase_orders_found_description")}
         />
 
         <div className="mt-4">
