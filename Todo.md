@@ -17,6 +17,8 @@ x : Done
 - [ ] Add a warning colour for low stock items in the inventory item list
 - [ ] Edit page of the supply delivery details is crashing
 - [ ] Medications added from our product cannot be administered due to missing code
+- [ ] Each modification to the pre-filled quantity in bill medication triggers a component re-render, which disrupts the editing experience.
+
 
 ## Billing
 
