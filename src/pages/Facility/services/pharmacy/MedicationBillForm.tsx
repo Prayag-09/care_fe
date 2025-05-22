@@ -635,8 +635,8 @@ export default function MedicationBillForm({ patientId }: Props) {
                         <Input
                           type="number"
                           min={0}
-                          value={field.quantity}
-                          onChange={(e) =>
+                          defaultValue={field.quantity}
+                          onBlur={(e) =>
                             update(index, {
                               ...field,
                               quantity: parseInt(e.target.value) || 0,
@@ -649,8 +649,8 @@ export default function MedicationBillForm({ patientId }: Props) {
                         <Input
                           type="number"
                           min={0}
-                          value={field.daysSupply}
-                          onChange={(e) =>
+                          defaultValue={field.daysSupply}
+                          onBlur={(e) =>
                             update(index, {
                               ...field,
                               daysSupply: parseInt(e.target.value) || 0,
