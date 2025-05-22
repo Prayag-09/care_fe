@@ -1,15 +1,34 @@
-import { useQuery } from "@tanstack/react-query";
-import { ArrowLeft, Pencil, Trash2 } from "lucide-react";
+import { useMutation, useQuery, useQueryClient } from "@tanstack/react-query";
+import { ArrowLeft, Loader2, Pencil, Trash2 } from "lucide-react";
 import { Link, navigate } from "raviger";
 import { useTranslation } from "react-i18next";
+import { toast } from "sonner";
 
+import { cn } from "@/lib/utils";
+
+import { Alert, AlertDescription, AlertTitle } from "@/components/ui/alert";
+import {
+  AlertDialog,
+  AlertDialogAction,
+  AlertDialogCancel,
+  AlertDialogContent,
+  AlertDialogDescription,
+  AlertDialogFooter,
+  AlertDialogHeader,
+  AlertDialogTitle,
+  AlertDialogTrigger,
+} from "@/components/ui/alert-dialog";
 import { Badge } from "@/components/ui/badge";
-import { Button } from "@/components/ui/button";
+import { Button, buttonVariants } from "@/components/ui/button";
 import { Card } from "@/components/ui/card";
 
+import mutate from "@/Utils/request/mutate";
 import query from "@/Utils/request/query";
 import { Code } from "@/types/base/code/code";
-import { DurationSpec } from "@/types/emr/specimenDefinition/specimenDefinition";
+import {
+  DurationSpec,
+  Status,
+} from "@/types/emr/specimenDefinition/specimenDefinition";
 import specimenDefinitionApi from "@/types/emr/specimenDefinition/specimenDefinitionApi";
 
 interface SpecimenDefinitionDetailProps {
@@ -22,6 +41,7 @@ export function SpecimenDefinitionDetail({
   specimenDefinitionId,
 }: SpecimenDefinitionDetailProps) {
   const { t } = useTranslation();
+  const queryClient = useQueryClient();
 
   const { data: specimenDefinition, isLoading } = useQuery({
     queryKey: ["specimen_definitions", facilityId, specimenDefinitionId],
@@ -29,6 +49,33 @@ export function SpecimenDefinitionDetail({
       pathParams: { facilityId, specimenDefinitionId },
     }),
   });
+
+  const { mutate: updateSpecimenDefinition, isPending: isDeleting } =
+    useMutation({
+      mutationFn: mutate(specimenDefinitionApi.updateSpecimenDefinition, {
+        pathParams: { facilityId, specimenDefinitionId },
+      }),
+      onSuccess: () => {
+        toast.success(t("specimen_definition_retired_successfully"));
+        queryClient.invalidateQueries({ queryKey: ["specimen_definitions"] });
+        queryClient.invalidateQueries({
+          queryKey: ["specimen_definitions", facilityId, specimenDefinitionId],
+        });
+
+        navigate(`/facility/${facilityId}/settings/specimen_definitions`);
+      },
+      onError: () => {
+        toast.error(t("error_retiring_specimen_definition"));
+      },
+    });
+
+  const handleDelete = () => {
+    if (!specimenDefinition) return;
+    updateSpecimenDefinition({
+      ...specimenDefinition,
+      status: Status.retired,
+    });
+  };
 
   if (isLoading) {
     return <div>{t("loading")}</div>;
@@ -72,10 +119,48 @@ export function SpecimenDefinitionDetail({
             </h1>
           </div>
           <div className="flex gap-2">
-            <Button variant="outline" className="text-destructive" size="sm">
-              <Trash2 className="h-4 w-4 mr-2" />
-              {t("delete")}
-            </Button>
+            {specimenDefinition.status !== Status.retired && (
+              <AlertDialog>
+                <AlertDialogTrigger asChild>
+                  <Button
+                    variant="outline"
+                    className="text-destructive"
+                    size="sm"
+                  >
+                    <Trash2 className="h-4 w-4 mr-2" />
+                    {t("delete")}
+                  </Button>
+                </AlertDialogTrigger>
+                <AlertDialogContent>
+                  <AlertDialogHeader>
+                    <AlertDialogTitle>{t("are_you_sure")}</AlertDialogTitle>
+                    <AlertDialogDescription>
+                      <Alert variant="destructive" className="mt-4">
+                        <AlertTitle>{t("warning")}</AlertTitle>
+                        <AlertDescription>
+                          {t("are_you_sure_want_to_delete", {
+                            name: specimenDefinition.title,
+                          })}
+                        </AlertDescription>
+                      </Alert>
+                    </AlertDialogDescription>
+                  </AlertDialogHeader>
+                  <AlertDialogFooter>
+                    <AlertDialogCancel>{t("cancel")}</AlertDialogCancel>
+                    <AlertDialogAction
+                      className={cn(buttonVariants({ variant: "destructive" }))}
+                      onClick={handleDelete}
+                    >
+                      {isDeleting ? (
+                        <Loader2 className="h-4 w-4 animate-spin mr-2" />
+                      ) : (
+                        t("confirm")
+                      )}
+                    </AlertDialogAction>
+                  </AlertDialogFooter>
+                </AlertDialogContent>
+              </AlertDialog>
+            )}
             <Link href={`/specimen_definitions/${specimenDefinitionId}/edit`}>
               <Button variant="outline" size="sm">
                 <Pencil className="h-4 w-4 mr-2" />
