@@ -225,7 +225,6 @@ export default function MedicationBillForm({ patientId }: Props) {
 
   const medications =
     response?.results.filter((med) => med.requested_product) || [];
-  const encounterId = response?.results[0]?.encounter;
 
   const { data: productKnowledges, isFetching: isProductLoading } = useQuery({
     queryKey: ["productKnowledge", "medication", search],
@@ -345,7 +344,38 @@ export default function MedicationBillForm({ patientId }: Props) {
       .getValues("items")
       .filter((item) => item.isSelected);
 
+    const medsWithZeroQuantity = selectedItems.filter((item) => {
+      return item.quantity === 0;
+    });
+
+    if (medsWithZeroQuantity.length > 0) {
+      toast.error(
+        t("please_select_quantity_for_medications", {
+          medications: medsWithZeroQuantity
+            .map((item) => item.productKnowledge.name)
+            .join(", "),
+        }),
+      );
+      return;
+    }
+
+    const medsWithoutInventory = selectedItems.filter((item) => {
+      return !item?.selectedInventoryId;
+    });
+
+    if (medsWithoutInventory.length > 0) {
+      toast.error(
+        t("please_select_inventory_for_medications", {
+          medications: medsWithoutInventory
+            .map((item) => item.productKnowledge.name)
+            .join(", "),
+        }),
+      );
+      return;
+    }
+
     const requests = [];
+    const defaultEncounterId = response?.results[0]?.encounter; // TODO: add an option to select an encounter later
 
     // Add all dispense requests
     selectedItems.forEach((item) => {
@@ -364,7 +394,7 @@ export default function MedicationBillForm({ patientId }: Props) {
         category: MedicationDispenseCategory.outpatient,
         when_prepared: new Date(),
         dosage_instruction: item.dosageInstructions ?? [],
-        encounter: encounterId!,
+        encounter: medication?.encounter ?? defaultEncounterId!,
         location: locationId,
         authorizing_prescription: medication?.id ?? null,
         item: selectedInventory.id,
@@ -544,7 +574,8 @@ export default function MedicationBillForm({ patientId }: Props) {
                         />
                       </TableCell>
                       <TableCell>
-                        {productKnowledgeInventoriesMap[productKnowledge.id] ? (
+                        {productKnowledgeInventoriesMap[productKnowledge.id]
+                          ?.length ? (
                           <Select
                             value={field.selectedInventoryId}
                             onValueChange={(value) =>
