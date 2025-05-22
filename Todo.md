@@ -33,6 +33,7 @@ x : Done
 - [x] Disable record payment button in billing account details page, if the account status is not active - Amjith
 - [ ] Display the negative balance in the 'Amount Due' section as well to indicate that the user has overpaid beyond their actual bill.
 - [ ] When an invoice is marked as 'entered in error' the transaction details should be removed from the balance summary (total amount due, net payable, etc.)
+- [ ] Add support to edit discount code & search in the billing section
 
 ## Labs
 
@@ -44,6 +45,7 @@ x : Done
 
 - [ ] Specimen Definition - Add \* for required fields and frontend validation for Retention Time, Capacity, Minimum Volume, Type Collected, Title, and Slug
 - [ ] Specimen Definition - Add frontend permission check for the Specimen Definition page at the facility level.
+- [ ] In the Specimen Definition edit form, removing data from optional fields is not working.
 - [x] Charge Item - Add an asterisk to the Title field. - Jeevan
 - [x] Charge Item - Add asterisk and frontend validation for the Base Price field. - Jeevan
 - [x] Charge Item - Remove the ? from the discount dropdown - Jeevan - Nothing to be done, data was just saved that way.
