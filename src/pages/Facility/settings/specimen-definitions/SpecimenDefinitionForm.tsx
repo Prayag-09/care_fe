@@ -1,7 +1,7 @@
 import { zodResolver } from "@hookform/resolvers/zod";
+import { t } from "i18next";
 import { PlusCircle, XCircle } from "lucide-react";
 import { navigate } from "raviger";
-import React from "react";
 import { useForm } from "react-hook-form";
 import { useTranslation } from "react-i18next";
 import * as z from "zod";
@@ -32,54 +32,51 @@ import ComboboxQuantityInput from "@/components/Common/ComboboxQuantityInput";
 import ValueSetSelect from "@/components/Questionnaire/ValueSetSelect";
 
 import useCurrentFacility from "@/pages/Facility/utils/useCurrentFacility";
-import { Code } from "@/types/base/code/code";
+import { Code, CodeSchema } from "@/types/base/code/code";
 import {
   Preference,
   RETENTION_TIME_UNITS,
   SPECIMEN_DEFINITION_UNITS_CODES,
   Status,
 } from "@/types/emr/specimenDefinition/specimenDefinition";
-import {
-  SpecimenDefinitionCreate,
-  SpecimenDefinitionUpdate,
-} from "@/types/emr/specimenDefinition/specimenDefinition";
+import { SpecimenDefinitionCreate } from "@/types/emr/specimenDefinition/specimenDefinition";
 
 const typeTestedSchema = z.object({
   is_derived: z.boolean(),
-  specimen_type: z.any(), // Code type
   preference: z.nativeEnum(Preference),
   container: z
     .object({
       description: z.string().nullable(),
       capacity: z
         .object({
-          value: z.number().nullable(),
-          unit: z.any(), // Code type
+          value: z.number(),
+          unit: CodeSchema,
         })
+        .optional()
         .nullable(),
       minimum_volume: z
         .object({
           quantity: z
             .object({
-              value: z.number().optional().nullable(),
-              unit: z.any(), // Code type
+              value: z.number(),
+              unit: CodeSchema,
             })
             .optional()
             .nullable(),
           string: z.string().optional().nullable(),
         })
-        .optional()
         .nullable(),
-      cap: z.any().nullable(), // Code type
+      cap: CodeSchema.optional().nullable(),
       preparation: z.string().nullable(),
     })
     .nullable(),
   requirement: z.string().nullable(),
   retention_time: z
     .object({
-      value: z.number().nullable(),
-      unit: z.any(), // Code type
+      value: z.number().int({ message: t("valid_integer_required") }),
+      unit: CodeSchema,
     })
+    .optional()
     .nullable(),
   single_use: z.boolean().nullable(),
 });
@@ -88,14 +85,14 @@ const formSchema = z.object({
   title: z.string().min(1, "Title is required"),
   slug: z.string().min(1, "Slug is required"),
   status: z.nativeEnum(Status),
-  description: z.string().optional(),
+  description: z.string().min(1, t("field_required")),
   derived_from_uri: z
     .string()
     .url({ message: "Please enter a valid URL" })
     .nullable(),
-  type_collected: z.any().nullable(), // Code type
-  patient_preparation: z.array(z.any()).min(0), // Code type array
-  collection: z.any().nullable(), // Code type
+  type_collected: CodeSchema,
+  patient_preparation: z.array(CodeSchema).min(0),
+  collection: CodeSchema.nullable(),
   type_tested: typeTestedSchema.nullable(),
 });
 
@@ -103,14 +100,12 @@ type FormValues = z.infer<typeof formSchema>;
 
 interface SpecimenDefinitionFormProps {
   initialData?: SpecimenDefinitionCreate;
-  specimenDefinitionId?: string;
-  onSubmit: (data: SpecimenDefinitionCreate | SpecimenDefinitionUpdate) => void;
+  onSubmit: (data: SpecimenDefinitionCreate) => void;
   isLoading?: boolean;
 }
 
 export function SpecimenDefinitionForm({
   initialData,
-  specimenDefinitionId,
   onSubmit,
   isLoading,
 }: SpecimenDefinitionFormProps) {
@@ -126,25 +121,28 @@ export function SpecimenDefinitionForm({
       status: initialData?.status || Status.active,
       description: initialData?.description || "",
       derived_from_uri: initialData?.derived_from_uri || null,
-      type_collected: initialData?.type_collected || null,
-      patient_preparation: initialData?.patient_preparation || [null],
+      type_collected: initialData?.type_collected,
+      patient_preparation: initialData?.patient_preparation || [],
       collection: initialData?.collection || null,
       type_tested: initialData?.type_tested || {
         is_derived: false,
-        specimen_type: null,
         preference: Preference.preferred,
         container: {
           description: "",
-          capacity: { value: null, unit: null },
+          capacity: initialData?.type_tested?.container?.capacity,
           minimum_volume: {
-            quantity: { value: null, unit: null },
-            string: null,
+            quantity:
+              initialData?.type_tested?.container?.minimum_volume?.quantity ||
+              null,
+            string:
+              initialData?.type_tested?.container?.minimum_volume?.string ||
+              null,
           },
-          cap: null,
+          cap: initialData?.type_tested?.container?.cap,
           preparation: "",
         },
         requirement: "",
-        retention_time: { value: null, unit: null },
+        retention_time: initialData?.type_tested?.retention_time,
         single_use: false,
       },
     },
@@ -171,7 +169,10 @@ export function SpecimenDefinitionForm({
 
   const addPatientPreparation = () => {
     const currentPreparations = form.getValues("patient_preparation");
-    form.setValue("patient_preparation", [...currentPreparations, null]);
+    form.setValue("patient_preparation", [
+      ...currentPreparations,
+      { code: "", system: "", display: "" },
+    ]);
   };
 
   const removePatientPreparation = (index: number) => {
@@ -184,27 +185,28 @@ export function SpecimenDefinitionForm({
     form.setValue("type_tested.container.minimum_volume", {
       quantity:
         type === "quantity"
-          ? { value: null, unit: SPECIMEN_DEFINITION_UNITS_CODES[0] }
+          ? { value: 0, unit: SPECIMEN_DEFINITION_UNITS_CODES[0] }
           : null,
       string: type === "text" ? "" : null,
     });
   };
 
-  const handleMinimumVolumeChange = (
-    type: "quantity" | "string",
-    value: { value: number | null; unit: Code | null } | string | null,
-  ) => {
-    if (type === "quantity") {
-      form.setValue("type_tested.container.minimum_volume", {
-        quantity: value as { value: number | null; unit: Code | null },
-        string: null,
-      });
-    } else {
-      form.setValue("type_tested.container.minimum_volume", {
-        quantity: null,
-        string: value as string,
-      });
-    }
+  const handleMinimumVolumeQuantityChange = (value: {
+    value: number | null;
+    unit: Code;
+  }) => {
+    form.setValue("type_tested.container.minimum_volume", {
+      quantity:
+        value.value !== null ? { value: value.value, unit: value.unit } : null,
+      string: null,
+    });
+  };
+
+  const handleMinimumVolumeStringChange = (value: string) => {
+    form.setValue("type_tested.container.minimum_volume", {
+      quantity: null,
+      string: value,
+    });
   };
 
   return (
@@ -215,11 +217,7 @@ export function SpecimenDefinitionForm({
           e.stopPropagation();
           form.handleSubmit(
             (data) => {
-              if (specimenDefinitionId) {
-                onSubmit(data as SpecimenDefinitionUpdate);
-              } else {
-                onSubmit(data as SpecimenDefinitionCreate);
-              }
+              onSubmit(data);
             },
             (errors) => {
               console.log("Form submission failed with errors:", errors);
@@ -470,27 +468,6 @@ export function SpecimenDefinitionForm({
                     </FormItem>
                   )}
                 />
-                <FormField
-                  control={form.control}
-                  name="type_tested.specimen_type"
-                  render={({ field }) => (
-                    <FormItem className="flex flex-col">
-                      <FormLabel>{t("specimen_type")}</FormLabel>
-                      <FormControl>
-                        <ValueSetSelect
-                          system="system-specimen_type-code"
-                          placeholder={t("select_specimen_type")}
-                          onSelect={(code) =>
-                            form.setValue("type_tested.specimen_type", code)
-                          }
-                          value={field.value}
-                          disabled={isLoading}
-                        />
-                      </FormControl>
-                      <FormMessage />
-                    </FormItem>
-                  )}
-                />
 
                 <FormField
                   control={form.control}
@@ -520,33 +497,40 @@ export function SpecimenDefinitionForm({
                     </FormItem>
                   )}
                 />
+                <div>
+                  <FormField
+                    control={form.control}
+                    name="type_tested.retention_time"
+                    render={({ field }) => (
+                      <FormItem className="flex flex-col">
+                        <FormLabel>{t("retention_time")}</FormLabel>
+                        <FormControl>
+                          <ComboboxQuantityInput
+                            quantity={
+                              field.value
+                                ? {
+                                    value: field.value.value || null,
+                                    unit: field.value.unit,
+                                  }
+                                : { value: null, unit: RETENTION_TIME_UNITS[0] }
+                            }
+                            onChange={field.onChange}
+                            disabled={isLoading}
+                            placeholder={t("enter_retention_time")}
+                            units={RETENTION_TIME_UNITS}
+                          />
+                        </FormControl>
+                      </FormItem>
+                    )}
+                  />
+                  <FormMessage>
+                    {
+                      form.formState.errors.type_tested?.retention_time?.value
+                        ?.message
+                    }
+                  </FormMessage>
+                </div>
 
-                <FormField
-                  control={form.control}
-                  name="type_tested.retention_time"
-                  render={({ field }) => (
-                    <FormItem className="flex flex-col">
-                      <FormLabel>{t("retention_time")}</FormLabel>
-                      <FormControl>
-                        <ComboboxQuantityInput
-                          quantity={
-                            field.value
-                              ? {
-                                  value: field.value.value || null,
-                                  unit: field.value.unit,
-                                }
-                              : { value: null, unit: RETENTION_TIME_UNITS[0] }
-                          }
-                          onChange={field.onChange}
-                          disabled={isLoading}
-                          placeholder={t("enter_retention_time")}
-                          units={RETENTION_TIME_UNITS}
-                        />
-                      </FormControl>
-                      <FormMessage />
-                    </FormItem>
-                  )}
-                />
                 <FormField
                   control={form.control}
                   name="type_tested.requirement"
@@ -674,16 +658,13 @@ export function SpecimenDefinitionForm({
                                   quantity={
                                     field.value
                                       ? {
-                                          value: field.value.value || null,
+                                          value: field.value.value,
                                           unit: field.value.unit,
                                         }
-                                      : {
-                                          value: null,
-                                          unit: SPECIMEN_DEFINITION_UNITS_CODES[0],
-                                        }
+                                      : undefined
                                   }
                                   onChange={(value) =>
-                                    handleMinimumVolumeChange("quantity", value)
+                                    handleMinimumVolumeQuantityChange(value)
                                   }
                                   disabled={isLoading}
                                   placeholder={t("enter_minimum_volume")}
@@ -708,8 +689,7 @@ export function SpecimenDefinitionForm({
                                   value={field.value || ""}
                                   disabled={isLoading}
                                   onChange={(e) =>
-                                    handleMinimumVolumeChange(
-                                      "string",
+                                    handleMinimumVolumeStringChange(
                                       e.target.value,
                                     )
                                   }

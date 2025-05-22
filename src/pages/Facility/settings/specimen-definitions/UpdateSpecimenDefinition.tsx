@@ -5,7 +5,6 @@ import { toast } from "sonner";
 
 import mutate from "@/Utils/request/mutate";
 import query from "@/Utils/request/query";
-import { SpecimenDefinitionUpdate } from "@/types/emr/specimenDefinition/specimenDefinition";
 import specimenDefinitionApi from "@/types/emr/specimenDefinition/specimenDefinitionApi";
 
 import { SpecimenDefinitionForm } from "./SpecimenDefinitionForm";
@@ -63,9 +62,13 @@ export function UpdateSpecimenDefinition({
       <SpecimenDefinitionForm
         initialData={specimenDefinition}
         onSubmit={(data) =>
-          updateSpecimenDefinition(data as SpecimenDefinitionUpdate)
+          updateSpecimenDefinition({
+            ...data,
+            patient_preparation:
+              data.patient_preparation?.filter((item) => item && item.code) ||
+              [],
+          })
         }
-        specimenDefinitionId={specimenDefinitionId}
         isLoading={isUpdating}
       />
     </div>
