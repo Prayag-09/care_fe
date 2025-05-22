@@ -240,7 +240,9 @@ export function SpecimenDefinitionForm({
                   name="title"
                   render={({ field }) => (
                     <FormItem className="flex flex-col">
-                      <FormLabel>{t("title")}</FormLabel>
+                      <FormLabel>
+                        {t("title")} <span className="text-red-500">*</span>
+                      </FormLabel>
                       <FormControl>
                         <Input placeholder={t("title")} {...field} />
                       </FormControl>
@@ -254,7 +256,9 @@ export function SpecimenDefinitionForm({
                   name="slug"
                   render={({ field }) => (
                     <FormItem className="flex flex-col">
-                      <FormLabel>{t("slug")}</FormLabel>
+                      <FormLabel>
+                        {t("slug")} <span className="text-red-500">*</span>
+                      </FormLabel>
                       <FormControl>
                         <Input
                           placeholder={t("unique_identifier")}
@@ -274,7 +278,9 @@ export function SpecimenDefinitionForm({
                   name="status"
                   render={({ field }) => (
                     <FormItem className="flex flex-col">
-                      <FormLabel>{t("status")}</FormLabel>
+                      <FormLabel>
+                        {t("status")} <span className="text-red-500">*</span>
+                      </FormLabel>
                       <Select
                         onValueChange={field.onChange}
                         defaultValue={field.value}
@@ -321,7 +327,9 @@ export function SpecimenDefinitionForm({
                 name="description"
                 render={({ field }) => (
                   <FormItem className="flex flex-col">
-                    <FormLabel>{t("description")}</FormLabel>
+                    <FormLabel>
+                      {t("description")} <span className="text-red-500">*</span>
+                    </FormLabel>
                     <FormControl>
                       <Textarea placeholder={t("description")} {...field} />
                     </FormControl>
@@ -340,7 +348,10 @@ export function SpecimenDefinitionForm({
                   name="type_collected"
                   render={({ field }) => (
                     <FormItem className="flex flex-col">
-                      <FormLabel>{t("type_collected")}</FormLabel>
+                      <FormLabel>
+                        {t("type_collected")}{" "}
+                        <span className="text-red-500">*</span>
+                      </FormLabel>
                       <FormControl>
                         <ValueSetSelect
                           system="system-specimen_type-code"
