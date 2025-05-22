@@ -1,6 +1,5 @@
 import { useQuery } from "@tanstack/react-query";
 import { Link } from "raviger";
-import { useState } from "react";
 import { useTranslation } from "react-i18next";
 
 import { cn } from "@/lib/utils";
@@ -28,6 +27,8 @@ import {
 import Page from "@/components/Common/Page";
 import { TableSkeleton } from "@/components/Common/SkeletonLoading";
 
+import useFilters from "@/hooks/useFilters";
+
 import query from "@/Utils/request/query";
 import {
   InventoryStatus,
@@ -42,13 +43,21 @@ interface InventoryListProps {
 
 export function InventoryList({ facilityId, locationId }: InventoryListProps) {
   const { t } = useTranslation();
-  const [status, setStatus] = useState<InventoryStatus>();
+  const { qParams, updateQuery, Pagination, resultsPerPage } = useFilters({
+    limit: 14,
+    disableCache: true,
+  });
 
   const { data, isLoading } = useQuery({
-    queryKey: ["inventory", facilityId, locationId, { status }],
+    queryKey: ["inventory", facilityId, locationId, qParams],
     queryFn: query(inventoryApi.list, {
       pathParams: { facilityId, locationId },
-      queryParams: { status },
+      queryParams: {
+        status: qParams.status,
+        facility: facilityId,
+        limit: resultsPerPage,
+        offset: ((qParams.page ?? 1) - 1) * resultsPerPage,
+      },
     }),
   });
 
@@ -57,12 +66,12 @@ export function InventoryList({ facilityId, locationId }: InventoryListProps) {
       title={t("inventory")}
       options={
         <Select
-          value={status}
+          value={qParams.status ? qParams.status : "all"}
           onValueChange={(value: InventoryStatus | "all") =>
-            setStatus(value === "all" ? undefined : value)
+            updateQuery({ status: value === "all" ? undefined : value })
           }
         >
-          <SelectTrigger className="max-w-40">
+          <SelectTrigger className="max-w-42">
             <div className="flex items-center gap-2">
               <CareIcon icon="l-filter" className="size-4" />
               <SelectValue placeholder={t("status")} />
@@ -147,6 +156,10 @@ export function InventoryList({ facilityId, locationId }: InventoryListProps) {
           </Table>
         </div>
       )}
+
+      <div className="mt-8 flex justify-center">
+        <Pagination totalCount={data?.count || 0} />
+      </div>
     </Page>
   );
 }

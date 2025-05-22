@@ -249,11 +249,9 @@ export function SpecimenDefinitionsList({
           </>
         )}
 
-        {response && response.count > resultsPerPage && (
-          <div className="mt-4 flex justify-center">
-            <Pagination totalCount={response.count} />
-          </div>
-        )}
+        <div className="mt-4 flex justify-center">
+          <Pagination totalCount={response?.count || 0} />
+        </div>
       </div>
     </Page>
   );

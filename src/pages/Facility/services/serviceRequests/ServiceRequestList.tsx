@@ -441,11 +441,9 @@ export default function ServiceRequestList({
           </>
         )}
 
-        {response && response.count > resultsPerPage && (
-          <div className="mt-8 flex justify-center">
-            <Pagination totalCount={response.count} />
-          </div>
-        )}
+        <div className="mt-8 flex justify-center">
+          <Pagination totalCount={response?.count || 0} />
+        </div>
       </div>
     </Page>
   );

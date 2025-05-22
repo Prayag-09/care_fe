@@ -55,7 +55,7 @@ export default function MedicationRequestList({
   locationId: string;
 }) {
   const { t } = useTranslation();
-  const { qParams, updateQuery } = useFilters({
+  const { qParams, updateQuery, Pagination, resultsPerPage } = useFilters({
     limit: 14,
     disableCache: true,
   });
@@ -69,9 +69,9 @@ export default function MedicationRequestList({
       queryParams: {
         search: qParams.search,
         priority: qParams.priority,
-        encounter_class: qParams.category,
-        limit: qParams.limit,
-        offset: ((qParams.page ?? 1) - 1) * (qParams.limit ?? 14),
+        encounter_class: qParams.encounter_class,
+        limit: resultsPerPage,
+        offset: ((qParams.page ?? 1) - 1) * resultsPerPage,
         exclude_dispense_status: "complete",
       },
     }),
@@ -109,16 +109,16 @@ export default function MedicationRequestList({
 
       <div className="flex items-center gap-2 mb-4">
         <Button
-          variant={!qParams.category ? "default" : "outline"}
-          onClick={() => updateQuery({ category: undefined })}
+          variant={!qParams.encounter_class ? "default" : "outline"}
+          onClick={() => updateQuery({ encounter_class: undefined })}
         >
           {t("All Categories")}
         </Button>
         {Object.entries(ENCOUNTER_CLASS).map(([key, label]) => (
           <Button
             key={key}
-            variant={qParams.category === key ? "default" : "outline"}
-            onClick={() => updateQuery({ category: key })}
+            variant={qParams.encounter_class === label ? "default" : "outline"}
+            onClick={() => updateQuery({ encounter_class: label })}
           >
             {t(label)}
           </Button>
@@ -202,6 +202,9 @@ export default function MedicationRequestList({
             )}
           </TableBody>
         </Table>
+      </div>
+      <div className="mt-8 flex justify-center">
+        <Pagination totalCount={prescriptionQueue?.count || 0} />
       </div>
     </Page>
   );

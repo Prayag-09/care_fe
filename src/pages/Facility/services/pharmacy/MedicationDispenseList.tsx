@@ -5,7 +5,6 @@ import { useTranslation } from "react-i18next";
 import { cn } from "@/lib/utils";
 
 import { Button } from "@/components/ui/button";
-import { Input } from "@/components/ui/input";
 import {
   Table,
   TableBody,
@@ -147,7 +146,6 @@ export default function MedicationDispenseList({
         facility: facilityId,
         limit: resultsPerPage,
         offset: ((qParams.page ?? 1) - 1) * resultsPerPage,
-        search: qParams.search,
         status: qParams.status,
         priority: qParams.priority,
       },
@@ -182,15 +180,6 @@ export default function MedicationDispenseList({
 
       <div className="mb-4 flex flex-col gap-4">
         <div className="flex flex-col sm:flex-row items-start sm:items-center gap-4">
-          <div className="flex-1">
-            <Input
-              placeholder={t("search_medications")}
-              value={qParams.search}
-              onChange={(e) => updateQuery({ search: e.target.value })}
-              className="w-full"
-            />
-          </div>
-
           <div className="flex flex-col sm:flex-row items-stretch gap-2 w-full sm:w-auto">
             <div className="flex-1 sm:flex-initial sm:w-auto">
               <FilterSelect

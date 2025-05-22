@@ -8,7 +8,6 @@ import { cn } from "@/lib/utils";
 import { Badge } from "@/components/ui/badge";
 import { Button } from "@/components/ui/button";
 import { Checkbox } from "@/components/ui/checkbox";
-import { Input } from "@/components/ui/input";
 import { SelectTrigger, SelectValue } from "@/components/ui/select";
 import { SelectItem } from "@/components/ui/select";
 import { Select } from "@/components/ui/select";
@@ -192,7 +191,6 @@ export default function DispensedMedicationList({
         facility: facilityId,
         limit: resultsPerPage,
         offset: ((qParams.page ?? 1) - 1) * resultsPerPage,
-        search: qParams.search,
         status: qParams.status,
         patient: patientId,
       },
@@ -305,19 +303,6 @@ export default function DispensedMedicationList({
             ))}
           </SelectContent>
         </Select>
-      </div>
-
-      <div className="mb-4 flex flex-col gap-4">
-        <div className="flex flex-col sm:flex-row items-start sm:items-center gap-4">
-          <div className="flex-1">
-            <Input
-              placeholder={t("search_medications")}
-              value={qParams.search}
-              onChange={(e) => updateQuery({ search: e.target.value })}
-              className="w-full"
-            />
-          </div>
-        </div>
       </div>
 
       {isLoading ? (
