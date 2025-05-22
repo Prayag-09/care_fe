@@ -36,7 +36,10 @@ export function SupplyDeliveryDetails({ deliveryId }: { deliveryId: string }) {
         <DefinitionList>
           <DefinitionListItem
             term={t("supplied_item")}
-            description={delivery.supplied_item.product_knowledge.name}
+            description={
+              delivery.supplied_item?.product_knowledge?.name ||
+              delivery.supplied_inventory_item?.product?.product_knowledge?.name
+            }
           />
           <DefinitionListItem
             term={t("supplied_item_quantity")}
