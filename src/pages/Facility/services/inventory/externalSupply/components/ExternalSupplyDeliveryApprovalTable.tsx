@@ -1,3 +1,4 @@
+import { useQuery } from "@tanstack/react-query";
 import { useTranslation } from "react-i18next";
 
 import CareIcon from "@/CAREUI/icons/CareIcon";
@@ -30,12 +31,14 @@ import {
 import { TableSkeleton } from "@/components/Common/SkeletonLoading";
 import { EmptyState } from "@/components/definition-list/EmptyState";
 
+import query from "@/Utils/request/query";
 import { SupplyDeliveryDetails } from "@/pages/Facility/services/supply/components/SupplyDeliveryDetails";
 import SupplyRequestDetails from "@/pages/Facility/services/supply/components/SupplyRequestDetails";
 import {
   SupplyDeliveryCondition,
   SupplyDeliveryRead,
 } from "@/types/inventory/supplyDelivery/supplyDelivery";
+import supplyDeliveryApi from "@/types/inventory/supplyDelivery/supplyDeliveryApi";
 
 interface Props {
   deliveries: SupplyDeliveryRead[];
@@ -111,7 +114,6 @@ export default function ExternalSupplyDeliveryApprovalTable({
             <TableHead>{t("supplier")}</TableHead>
             <TableHead>{t("origin")}</TableHead>
             <TableHead>{t("condition")}</TableHead>
-            <TableHead>{t("supply_request")}</TableHead>
             <TableHead />
           </TableRow>
         </TableHeader>
@@ -185,53 +187,17 @@ export default function ExternalSupplyDeliveryApprovalTable({
                   </Select>
                 </TableCell>
                 <TableCell>
-                  {delivery.supply_request ? (
-                    <div>
-                      <div>{t(delivery.supply_request.intent)}</div>
-                      <div className="text-xs text-gray-500">
-                        {t(delivery.supply_request.priority)}
-                      </div>
-                    </div>
-                  ) : (
-                    t("not_specified")
-                  )}
-                </TableCell>
-                <TableCell>
-                  <Dialog>
-                    <DialogTrigger asChild>
+                  <ViewSupplyDeliveryDialog
+                    deliveryId={delivery.id}
+                    facilityId={facilityId}
+                    locationId={locationId}
+                    trigger={
                       <Button variant="outline" size="sm">
                         <CareIcon icon="l-eye" />
                         {t("view")}
                       </Button>
-                    </DialogTrigger>
-                    <DialogContent className="max-w-3xl">
-                      <DialogHeader>
-                        <DialogTitle>
-                          <div className="flex items-center justify-between">
-                            <div>
-                              <h2 className="text-xl font-semibold text-gray-900">
-                                {t("supply_delivery_details")}
-                              </h2>
-                              <p className="mt-1 text-sm text-gray-500">
-                                {delivery.id}
-                              </p>
-                            </div>
-                          </div>
-                        </DialogTitle>
-                      </DialogHeader>
-                      <div className="space-y-6">
-                        <SupplyDeliveryDetails delivery={delivery} />
-                        {delivery.supply_request && (
-                          <SupplyRequestDetails
-                            request={delivery.supply_request}
-                            facilityId={facilityId}
-                            locationId={locationId}
-                            showViewDetails
-                          />
-                        )}
-                      </div>
-                    </DialogContent>
-                  </Dialog>
+                    }
+                  />
                 </TableCell>
               </TableRow>
             );
@@ -239,5 +205,59 @@ export default function ExternalSupplyDeliveryApprovalTable({
         </TableBody>
       </Table>
     </div>
+  );
+}
+
+interface ViewSupplyDeliveryDialogProps {
+  deliveryId: string;
+  trigger: React.ReactNode;
+  facilityId: string;
+  locationId: string;
+}
+
+function ViewSupplyDeliveryDialog({
+  deliveryId,
+  trigger,
+  facilityId,
+  locationId,
+}: ViewSupplyDeliveryDialogProps) {
+  const { t } = useTranslation();
+
+  const { data: delivery } = useQuery({
+    queryKey: ["supply-delivery", deliveryId],
+    queryFn: query(supplyDeliveryApi.retrieveSupplyDelivery, {
+      pathParams: { supplyDeliveryId: deliveryId },
+    }),
+  });
+
+  return (
+    <Dialog>
+      <DialogTrigger asChild>{trigger}</DialogTrigger>
+      <DialogContent className="max-w-3xl">
+        <DialogHeader>
+          <DialogTitle>
+            <div className="flex items-center justify-between">
+              <div>
+                <h2 className="text-xl font-semibold text-gray-900">
+                  {t("supply_delivery_details")}
+                </h2>
+                <p className="mt-1 text-sm text-gray-500">{deliveryId}</p>
+              </div>
+            </div>
+          </DialogTitle>
+        </DialogHeader>
+        <div className="space-y-6">
+          <SupplyDeliveryDetails deliveryId={deliveryId} />
+          {delivery?.supply_request && (
+            <SupplyRequestDetails
+              request={delivery.supply_request}
+              facilityId={facilityId}
+              locationId={locationId}
+              showViewDetails
+            />
+          )}
+        </div>
+      </DialogContent>
+    </Dialog>
   );
 }

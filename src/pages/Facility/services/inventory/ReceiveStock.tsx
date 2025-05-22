@@ -36,18 +36,21 @@ import routes from "@/Utils/request/api";
 import mutate from "@/Utils/request/mutate";
 import { ProductSearch } from "@/pages/Facility/services/inventory/ProductSearch";
 import { SupplierSelect } from "@/pages/Facility/services/inventory/SupplierSelect";
+import { SupplyRequestSelect } from "@/pages/Facility/services/inventory/SupplyRequestSelect";
 import {
   SupplyDeliveryCreate,
   SupplyDeliveryStatus,
   SupplyDeliveryType,
 } from "@/types/inventory/supplyDelivery/supplyDelivery";
 import supplyDeliveryApi from "@/types/inventory/supplyDelivery/supplyDeliveryApi";
+import { SupplyRequestRead } from "@/types/inventory/supplyRequest/supplyRequest";
 import { Organization } from "@/types/organization/organization";
 
 const objectReference = z.object({ id: z.string(), name: z.string() });
 
 const receiveStockSchema = z.object({
   supplier: objectReference.nullable(),
+  supply_request: z.object({ id: z.string() }).nullable(),
   entries: z
     .array(
       z.object({
@@ -74,6 +77,7 @@ export function ReceiveStock({
     resolver: zodResolver(receiveStockSchema),
     defaultValues: {
       supplier: null,
+      supply_request: null,
       entries: [],
     },
   });
@@ -98,6 +102,7 @@ export function ReceiveStock({
         reference_id: `supplied-item-${entry.supplied_item.id}`,
         body: {
           supplier: data.supplier?.id,
+          supply_request: data.supply_request?.id,
           destination: locationId,
           supplied_item: entry.supplied_item.id,
           supplied_item_quantity: entry.supplied_item_quantity,
@@ -128,22 +133,44 @@ export function ReceiveStock({
           onSubmit={form.handleSubmit(onSubmit)}
           className="flex flex-col gap-6"
         >
-          <FormField
-            control={form.control}
-            name="supplier"
-            render={({ field }) => (
-              <FormItem>
-                <FormLabel>{t("supplier")}</FormLabel>
-                <FormControl className="max-w-sm">
-                  <SupplierSelect
-                    value={field.value as Organization}
-                    onChange={field.onChange}
-                  />
-                </FormControl>
-                <FormMessage />
-              </FormItem>
-            )}
-          />
+          <div className="grid grid-cols-2 gap-4">
+            <FormField
+              control={form.control}
+              name="supply_request"
+              render={({ field }) => (
+                <FormItem>
+                  <FormLabel>{t("supply_request")}</FormLabel>
+                  <FormControl>
+                    <SupplyRequestSelect
+                      value={field.value as SupplyRequestRead}
+                      onChange={field.onChange}
+                      locationId={locationId}
+                      placeholder={t("select_purchase_order")}
+                      inputPlaceholder={t("search_purchase_orders")}
+                      noOptionsMessage={t("no_purchase_orders_found")}
+                    />
+                  </FormControl>
+                  <FormMessage />
+                </FormItem>
+              )}
+            />
+            <FormField
+              control={form.control}
+              name="supplier"
+              render={({ field }) => (
+                <FormItem>
+                  <FormLabel>{t("supplier")}</FormLabel>
+                  <FormControl>
+                    <SupplierSelect
+                      value={field.value as Organization}
+                      onChange={field.onChange}
+                    />
+                  </FormControl>
+                  <FormMessage />
+                </FormItem>
+              )}
+            />
+          </div>
 
           <div className="flex flex-col gap-4">
             <h3 className="text-lg font-medium">{t("products")}</h3>

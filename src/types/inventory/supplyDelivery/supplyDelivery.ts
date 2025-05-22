@@ -59,6 +59,9 @@ export interface SupplyDeliveryRead extends SupplyDeliveryBase {
   supplied_inventory_item: InventoryRead;
   origin?: LocationDetail;
   destination: LocationDetail;
-  supply_request?: SupplyRequestRead;
   supplier?: Organization;
+}
+
+export interface SupplyDeliveryRetrieve extends SupplyDeliveryRead {
+  supply_request?: SupplyRequestRead;
 }
