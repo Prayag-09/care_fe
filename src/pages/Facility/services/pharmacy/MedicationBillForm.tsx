@@ -22,6 +22,13 @@ import {
   CommandItem,
   CommandList,
 } from "@/components/ui/command";
+import {
+  Form,
+  FormControl,
+  FormField,
+  FormItem,
+  FormMessage,
+} from "@/components/ui/form";
 import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
 import { MonetaryDisplay } from "@/components/ui/monetary-display";
@@ -127,6 +134,8 @@ const formSchema = z.object({
   ),
 });
 
+type FormValues = z.infer<typeof formSchema>;
+
 export default function MedicationBillForm({ patientId }: Props) {
   const { t } = useTranslation();
   const queryClient = useQueryClient();
@@ -141,14 +150,14 @@ export default function MedicationBillForm({ patientId }: Props) {
   const [search, setSearch] = useState("");
   const [isSearchOpen, setIsSearchOpen] = useState(false);
 
-  const form = useForm<z.infer<typeof formSchema>>({
+  const form = useForm<FormValues>({
     resolver: zodResolver(formSchema),
     defaultValues: {
       items: [],
     },
   });
 
-  const { fields, append, update } = useFieldArray({
+  const { fields, append } = useFieldArray({
     control: form.control,
     name: "items",
   });
@@ -439,7 +448,7 @@ export default function MedicationBillForm({ patientId }: Props) {
 
   return (
     <Page title={t("bill_medications")}>
-      <div className="container mx-auto">
+      <div className="container mx-auto max-w-5xl">
         <div className="mb-6 flex items-center justify-between">
           <div className="flex gap-2 justify-end w-full">
             <Button
@@ -462,364 +471,415 @@ export default function MedicationBillForm({ patientId }: Props) {
         {isLoading ? (
           <TableSkeleton count={5} />
         ) : (
-          <div className="rounded-md border">
-            <Table>
-              <TableHeader>
-                <TableRow>
-                  <TableHead className="w-12">
-                    <Checkbox
-                      checked={
-                        form.watch("items").length > 0 &&
-                        form.watch("items").every((q) => q.isSelected)
-                      }
-                      onCheckedChange={(checked) =>
-                        form.getValues("items").map((_, index) =>
-                          update(index, {
-                            ...fields[index],
-                            isSelected: !!checked,
-                          }),
-                        )
-                      }
-                    />
-                  </TableHead>
-                  <TableHead>{t("medicine")}</TableHead>
-                  <TableHead>{t("dosage_instructions")}</TableHead>
-                  <TableHead>{t("select_lot")}</TableHead>
-                  <TableHead>{t("expiry")}</TableHead>
-                  <TableHead>{t("quantity")}</TableHead>
-                  <TableHead>{t("days_supply")}</TableHead>
-                  <TableHead>{t("price")}</TableHead>
-                  <TableHead>{t("discount")}</TableHead>
-                  {Array.from(
-                    new Set(
-                      medications
-                        .flatMap(
-                          (med) =>
-                            med.inventory_items_internal?.flatMap((inventory) =>
-                              inventory.product.charge_item_definition.price_components
-                                .filter(
-                                  (c: any) =>
-                                    c.monetary_component_type ===
-                                    MonetaryComponentType.tax,
-                                )
-                                .map((c) => c.code?.code || "tax_per_unit"),
-                            ) || [],
-                        )
-                        .filter(Boolean),
-                    ),
-                  ).map((taxCode) => (
-                    <TableHead key={taxCode}>
-                      {t(taxCode || "tax_per_unit")}
-                    </TableHead>
-                  ))}
-                  <TableHead>{t("actions")}</TableHead>
-                  <TableHead>{t("is_fully_dispensed")}</TableHead>
-                </TableRow>
-              </TableHeader>
-              <TableBody>
-                {fields.map((field, index) => {
-                  const productKnowledge =
-                    field.productKnowledge as ProductKnowledgeBase;
-                  const selectedInventory = productKnowledgeInventoriesMap[
-                    productKnowledge.id
-                  ]?.find(
-                    (inv: InventoryRead) =>
-                      inv.id === field.selectedInventoryId,
-                  );
-                  const prices = calculatePrices(selectedInventory);
-
-                  // Get all possible tax codes for the current medication
-                  const allTaxCodes = Array.from(
-                    new Set(
-                      medications
-                        .flatMap(
-                          (med) =>
-                            med.inventory_items_internal?.flatMap((inventory) =>
-                              inventory.product.charge_item_definition.price_components
-                                .filter(
-                                  (c: any) =>
-                                    c.monetary_component_type ===
-                                    MonetaryComponentType.tax,
-                                )
-                                .map((c) => c.code?.code || "tax_per_unit"),
-                            ) || [],
-                        )
-                        .filter(Boolean),
-                    ),
-                  );
-
-                  return (
-                    <TableRow key={field.id}>
-                      <TableCell>
-                        <Checkbox
-                          checked={field.isSelected}
-                          onCheckedChange={(checked) =>
-                            update(index, {
-                              ...field,
-                              isSelected: !!checked,
-                            })
-                          }
-                        />
-                      </TableCell>
-                      <TableCell>{productKnowledge.name}</TableCell>
-                      <TableCell>
-                        <AddDosageInstructionPopover
-                          dosageInstructions={field.dosageInstructions}
-                          onChange={(value) =>
-                            update(index, {
-                              ...field,
-                              dosageInstructions: value,
-                            })
-                          }
-                        />
-                      </TableCell>
-                      <TableCell>
-                        {productKnowledgeInventoriesMap[productKnowledge.id]
-                          ?.length ? (
-                          <Select
-                            value={field.selectedInventoryId}
-                            onValueChange={(value) =>
-                              update(index, {
-                                ...field,
-                                selectedInventoryId: value,
-                              })
-                            }
-                          >
-                            <SelectTrigger className="w-[200px]">
-                              <SelectValue
-                                placeholder={
-                                  !productKnowledgeInventoriesMap[
-                                    productKnowledge.id
-                                  ]?.length
-                                    ? t("no_stock")
-                                    : t("select_stock")
+          <Form {...form}>
+            <form className="rounded-md border">
+              <Table>
+                <TableHeader>
+                  <TableRow>
+                    <TableHead className="w-12">
+                      <FormField
+                        control={form.control}
+                        name="items"
+                        render={() => (
+                          <FormItem>
+                            <FormControl>
+                              <Checkbox
+                                checked={
+                                  form.watch("items").length > 0 &&
+                                  form.watch("items").every((q) => q.isSelected)
                                 }
+                                onCheckedChange={(checked) => {
+                                  const items = form.getValues("items");
+                                  items.forEach((_, index) => {
+                                    form.setValue(
+                                      `items.${index}.isSelected`,
+                                      !!checked,
+                                    );
+                                  });
+                                }}
                               />
-                            </SelectTrigger>
-                            <SelectContent>
-                              {productKnowledgeInventoriesMap[
-                                productKnowledge.id
-                              ]?.map((inv) => (
-                                <SelectItem key={inv.id} value={inv.id}>
-                                  {"Lot #" + inv.product.batch?.lot_number}{" "}
-                                  <Badge
-                                    variant={
-                                      inv.status === "active" &&
-                                      inv.net_content > 0
-                                        ? "primary"
-                                        : "primary"
-                                    }
-                                  >
-                                    {inv.net_content !== 0
-                                      ? Math.abs(inv.net_content)
-                                      : 150}{" "}
-                                    {t("units")}
-                                  </Badge>
-                                </SelectItem>
-                              ))}
-                            </SelectContent>
-                          </Select>
-                        ) : (
-                          <Badge variant="destructive">{t("no_stock")}</Badge>
+                            </FormControl>
+                          </FormItem>
                         )}
-                      </TableCell>
-                      <TableCell>
-                        {selectedInventory?.product.expiration_date
-                          ? formatDate(
-                              selectedInventory?.product.expiration_date,
-                              "dd MMM yyyy",
-                            )
-                          : "-"}
-                      </TableCell>
-                      <TableCell>
-                        <Input
-                          type="number"
-                          min={0}
-                          defaultValue={field.quantity}
-                          onBlur={(e) =>
-                            update(index, {
-                              ...field,
-                              quantity: parseInt(e.target.value) || 0,
-                            })
-                          }
-                          className="w-24"
-                        />
-                      </TableCell>
-                      <TableCell>
-                        <Input
-                          type="number"
-                          min={0}
-                          defaultValue={field.daysSupply}
-                          onBlur={(e) =>
-                            update(index, {
-                              ...field,
-                              daysSupply: parseInt(e.target.value) || 0,
-                            })
-                          }
-                          className="w-24"
-                        />
-                      </TableCell>
-                      <TableCell>
-                        <MonetaryDisplay amount={prices.basePrice} />
-                      </TableCell>
-                      <TableCell>
-                        {selectedInventory
-                          ? selectedInventory.product.charge_item_definition.price_components
-                              .filter(
-                                (c) =>
-                                  c.monetary_component_type ===
-                                  MonetaryComponentType.discount,
+                      />
+                    </TableHead>
+                    <TableHead>{t("medicine")}</TableHead>
+                    <TableHead>{t("dosage_instructions")}</TableHead>
+                    <TableHead>{t("select_lot")}</TableHead>
+                    <TableHead>{t("expiry")}</TableHead>
+                    <TableHead>{t("quantity")}</TableHead>
+                    <TableHead>{t("days_supply")}</TableHead>
+                    <TableHead>{t("price")}</TableHead>
+                    <TableHead>{t("discount")}</TableHead>
+                    {Array.from(
+                      new Set(
+                        medications
+                          .flatMap(
+                            (med) =>
+                              med.inventory_items_internal?.flatMap(
+                                (inventory) =>
+                                  inventory.product.charge_item_definition.price_components
+                                    .filter(
+                                      (c: any) =>
+                                        c.monetary_component_type ===
+                                        MonetaryComponentType.tax,
+                                    )
+                                    .map((c) => c.code?.code || "tax_per_unit"),
+                              ) || [],
+                          )
+                          .filter(Boolean),
+                      ),
+                    ).map((taxCode) => (
+                      <TableHead key={taxCode}>
+                        {t(taxCode || "tax_per_unit")}
+                      </TableHead>
+                    ))}
+                    <TableHead>{t("actions")}</TableHead>
+                    <TableHead>{t("is_fully_dispensed")}</TableHead>
+                  </TableRow>
+                </TableHeader>
+                <TableBody>
+                  {fields.map((field, index) => {
+                    const productKnowledge =
+                      field.productKnowledge as ProductKnowledgeBase;
+                    const selectedInventory = productKnowledgeInventoriesMap[
+                      productKnowledge.id
+                    ]?.find(
+                      (inv: InventoryRead) =>
+                        inv.id === field.selectedInventoryId,
+                    );
+                    const prices = calculatePrices(selectedInventory);
+
+                    // Get all possible tax codes for the current medication
+                    const allTaxCodes = Array.from(
+                      new Set(
+                        medications
+                          .flatMap(
+                            (med) =>
+                              med.inventory_items_internal?.flatMap(
+                                (inventory) =>
+                                  inventory.product.charge_item_definition.price_components
+                                    .filter(
+                                      (c: any) =>
+                                        c.monetary_component_type ===
+                                        MonetaryComponentType.tax,
+                                    )
+                                    .map((c) => c.code?.code || "tax_per_unit"),
+                              ) || [],
+                          )
+                          .filter(Boolean),
+                      ),
+                    );
+
+                    return (
+                      <TableRow key={field.id}>
+                        <TableCell>
+                          <FormField
+                            control={form.control}
+                            name={`items.${index}.isSelected`}
+                            render={({ field: formField }) => (
+                              <FormItem>
+                                <FormControl>
+                                  <Checkbox
+                                    checked={formField.value}
+                                    onCheckedChange={formField.onChange}
+                                  />
+                                </FormControl>
+                              </FormItem>
+                            )}
+                          />
+                        </TableCell>
+                        <TableCell>{productKnowledge.name}</TableCell>
+                        <TableCell>
+                          <AddDosageInstructionPopover
+                            dosageInstructions={field.dosageInstructions}
+                            onChange={(value) => {
+                              form.setValue(
+                                `items.${index}.dosageInstructions`,
+                                value,
+                              );
+                            }}
+                          />
+                        </TableCell>
+                        <TableCell>
+                          {productKnowledgeInventoriesMap[productKnowledge.id]
+                            ?.length ? (
+                            <FormField
+                              control={form.control}
+                              name={`items.${index}.selectedInventoryId`}
+                              render={({ field: formField }) => (
+                                <FormItem>
+                                  <Select
+                                    value={formField.value}
+                                    onValueChange={formField.onChange}
+                                  >
+                                    <SelectTrigger className="w-[200px]">
+                                      <SelectValue
+                                        placeholder={
+                                          !productKnowledgeInventoriesMap[
+                                            productKnowledge.id
+                                          ]?.length
+                                            ? t("no_stock")
+                                            : t("select_stock")
+                                        }
+                                      />
+                                    </SelectTrigger>
+                                    <SelectContent>
+                                      {productKnowledgeInventoriesMap[
+                                        productKnowledge.id
+                                      ]?.map((inv) => (
+                                        <SelectItem key={inv.id} value={inv.id}>
+                                          {"Lot #" +
+                                            inv.product.batch?.lot_number}{" "}
+                                          <Badge
+                                            variant={
+                                              inv.status === "active" &&
+                                              inv.net_content > 0
+                                                ? "primary"
+                                                : "primary"
+                                            }
+                                          >
+                                            {inv.net_content !== 0
+                                              ? Math.abs(inv.net_content)
+                                              : 150}{" "}
+                                            {t("units")}
+                                          </Badge>
+                                        </SelectItem>
+                                      ))}
+                                    </SelectContent>
+                                  </Select>
+                                </FormItem>
+                              )}
+                            />
+                          ) : (
+                            <Badge variant="destructive">{t("no_stock")}</Badge>
+                          )}
+                        </TableCell>
+                        <TableCell>
+                          {selectedInventory?.product.expiration_date
+                            ? formatDate(
+                                selectedInventory?.product.expiration_date,
+                                "dd MMM yyyy",
                               )
-                              .map((component, index) => (
-                                <div key={index}>
-                                  {component.factor
-                                    ? `${component.factor}%`
+                            : "-"}
+                        </TableCell>
+                        <TableCell>
+                          <FormField
+                            control={form.control}
+                            name={`items.${index}.quantity`}
+                            render={({ field: formField }) => (
+                              <FormItem>
+                                <FormControl>
+                                  <Input
+                                    type="number"
+                                    min={0}
+                                    {...formField}
+                                    onChange={(e) => {
+                                      formField.onChange(
+                                        parseInt(e.target.value) || 0,
+                                      );
+                                    }}
+                                    className="w-24"
+                                  />
+                                </FormControl>
+                                <FormMessage />
+                              </FormItem>
+                            )}
+                          />
+                        </TableCell>
+                        <TableCell>
+                          <FormField
+                            control={form.control}
+                            name={`items.${index}.daysSupply`}
+                            render={({ field: formField }) => (
+                              <FormItem>
+                                <FormControl>
+                                  <Input
+                                    type="number"
+                                    min={0}
+                                    {...formField}
+                                    onChange={(e) => {
+                                      formField.onChange(
+                                        parseInt(e.target.value) || 0,
+                                      );
+                                    }}
+                                    className="w-24"
+                                  />
+                                </FormControl>
+                                <FormMessage />
+                              </FormItem>
+                            )}
+                          />
+                        </TableCell>
+                        <TableCell>
+                          <MonetaryDisplay amount={prices.basePrice} />
+                        </TableCell>
+                        <TableCell>
+                          {selectedInventory
+                            ? selectedInventory.product.charge_item_definition.price_components
+                                .filter(
+                                  (c) =>
+                                    c.monetary_component_type ===
+                                    MonetaryComponentType.discount,
+                                )
+                                .map((component, index) => (
+                                  <div key={index}>
+                                    {component.factor
+                                      ? `${component.factor}%`
+                                      : "-"}
+                                  </div>
+                                ))
+                            : "-"}
+                        </TableCell>
+                        {allTaxCodes.map((taxCode) => {
+                          const taxComponent =
+                            selectedInventory?.product.charge_item_definition.price_components.find(
+                              (c: any) =>
+                                c.monetary_component_type ===
+                                  MonetaryComponentType.tax &&
+                                (c.code?.code || "tax_per_unit") === taxCode,
+                            );
+                          return (
+                            <TableCell
+                              key={`${productKnowledge?.id}-${taxCode}`}
+                            >
+                              {selectedInventory ? (
+                                <div>
+                                  {taxComponent?.factor
+                                    ? `${taxComponent.factor}%`
                                     : "-"}
                                 </div>
-                              ))
-                          : "-"}
-                      </TableCell>
-                      {allTaxCodes.map((taxCode) => {
-                        const taxComponent =
-                          selectedInventory?.product.charge_item_definition.price_components.find(
-                            (c: any) =>
-                              c.monetary_component_type ===
-                                MonetaryComponentType.tax &&
-                              (c.code?.code || "tax_per_unit") === taxCode,
+                              ) : (
+                                "-"
+                              )}
+                            </TableCell>
                           );
-                        return (
-                          <TableCell key={`${productKnowledge?.id}-${taxCode}`}>
-                            {selectedInventory ? (
-                              <div>
-                                {taxComponent?.factor
-                                  ? `${taxComponent.factor}%`
-                                  : "-"}
-                              </div>
-                            ) : (
-                              "-"
-                            )}
-                          </TableCell>
-                        );
-                      })}
-                      <TableCell>
-                        <Button
-                          variant="outline"
-                          size="sm"
-                          onClick={() =>
-                            handleShowAlternatives(productKnowledge.id)
-                          }
-                        >
-                          {t("alt")}
-                        </Button>
-                      </TableCell>
-                      <TableCell>
-                        {field.medication ? (
-                          <Checkbox
-                            checked={field.isFullyDispensed}
-                            onCheckedChange={(checked) =>
-                              update(index, {
-                                ...field,
-                                isFullyDispensed: !!checked,
-                              })
+                        })}
+                        <TableCell>
+                          <Button
+                            variant="outline"
+                            size="sm"
+                            onClick={() =>
+                              handleShowAlternatives(productKnowledge.id)
                             }
+                          >
+                            {t("alt")}
+                          </Button>
+                        </TableCell>
+                        <TableCell>
+                          {field.medication ? (
+                            <FormField
+                              control={form.control}
+                              name={`items.${index}.isFullyDispensed`}
+                              render={({ field: formField }) => (
+                                <FormItem>
+                                  <FormControl>
+                                    <Checkbox
+                                      checked={formField.value}
+                                      onCheckedChange={formField.onChange}
+                                    />
+                                  </FormControl>
+                                </FormItem>
+                              )}
+                            />
+                          ) : (
+                            "-"
+                          )}
+                        </TableCell>
+                      </TableRow>
+                    );
+                  })}
+                  <TableRow>
+                    <TableCell colSpan={12} className="p-0">
+                      {isSearchOpen ? (
+                        <Command className="w-full rounded-none border-none">
+                          <CommandInput
+                            placeholder={t("search_products")}
+                            onValueChange={setSearch}
+                            value={search}
+                            className="h-12 border-none"
+                            onKeyDown={(e) => {
+                              if (e.key === "Escape") {
+                                setIsSearchOpen(false);
+                                setSearch("");
+                              }
+                            }}
                           />
-                        ) : (
-                          "-"
-                        )}
-                      </TableCell>
-                    </TableRow>
-                  );
-                })}
-                <TableRow>
-                  <TableCell colSpan={12} className="p-0">
-                    {isSearchOpen ? (
-                      <Command className="w-full rounded-none border-none">
-                        <CommandInput
-                          placeholder={t("search_products")}
-                          onValueChange={setSearch}
-                          value={search}
-                          className="h-12 border-none"
-                          onKeyDown={(e) => {
-                            if (e.key === "Escape") {
-                              setIsSearchOpen(false);
-                              setSearch("");
-                            }
-                          }}
-                        />
-                        <CommandList className="max-h-[300px] overflow-auto">
-                          <CommandEmpty>
-                            {search.length < 3 ? (
-                              <p className="p-4 text-sm text-gray-500">
-                                {t("min_char_length_error", {
-                                  min_length: 3,
-                                })}
-                              </p>
-                            ) : isProductLoading ? (
-                              <p className="p-4 text-sm text-gray-500">
-                                {t("searching")}
-                              </p>
-                            ) : (
-                              <p className="p-4 text-sm text-gray-500">
-                                {t("no_results_found")}
-                              </p>
-                            )}
-                          </CommandEmpty>
-                          <CommandGroup>
-                            {productKnowledges?.results?.map(
-                              (productKnowledge) => (
-                                <CommandItem
-                                  key={productKnowledge.id}
-                                  value={productKnowledge.name}
-                                  onSelect={() => {
-                                    append({
-                                      reference_id: crypto.randomUUID(),
-                                      productKnowledge,
-                                      quantity: 0,
-                                      isSelected: true,
-                                      daysSupply: 0,
-                                      isFullyDispensed: false,
-                                      selectedInventoryId: "",
-                                      dosageInstructions: [],
-                                    });
+                          <CommandList className="max-h-[300px] overflow-auto">
+                            <CommandEmpty>
+                              {search.length < 3 ? (
+                                <p className="p-4 text-sm text-gray-500">
+                                  {t("min_char_length_error", {
+                                    min_length: 3,
+                                  })}
+                                </p>
+                              ) : isProductLoading ? (
+                                <p className="p-4 text-sm text-gray-500">
+                                  {t("searching")}
+                                </p>
+                              ) : (
+                                <p className="p-4 text-sm text-gray-500">
+                                  {t("no_results_found")}
+                                </p>
+                              )}
+                            </CommandEmpty>
+                            <CommandGroup>
+                              {productKnowledges?.results?.map(
+                                (productKnowledge) => (
+                                  <CommandItem
+                                    key={productKnowledge.id}
+                                    value={productKnowledge.name}
+                                    onSelect={() => {
+                                      append({
+                                        reference_id: crypto.randomUUID(),
+                                        productKnowledge,
+                                        quantity: 0,
+                                        isSelected: true,
+                                        daysSupply: 0,
+                                        isFullyDispensed: false,
+                                        selectedInventoryId: "",
+                                        dosageInstructions: [],
+                                      });
 
-                                    setProductKnowledgeInventoriesMap(
-                                      (prev) => ({
-                                        [productKnowledge.id]: undefined,
-                                        ...prev,
-                                      }),
-                                    );
-                                    setIsSearchOpen(false);
-                                    setSearch("");
-                                  }}
-                                  className="cursor-pointer"
-                                >
-                                  <div className="flex flex-col">
-                                    <span className="font-medium">
-                                      {productKnowledge.name}
-                                    </span>
-                                  </div>
-                                </CommandItem>
-                              ),
-                            )}
-                          </CommandGroup>
-                        </CommandList>
-                      </Command>
-                    ) : (
-                      <Button
-                        variant="ghost"
-                        size="sm"
-                        className="w-full h-12 flex items-center justify-center gap-2 hover:bg-gray-100"
-                        onClick={() => setIsSearchOpen(true)}
-                      >
-                        <PlusIcon className="h-6 w-6" />
-                        <span>{t("add_medication")}</span>
-                      </Button>
-                    )}
-                  </TableCell>
-                </TableRow>
-              </TableBody>
-            </Table>
-          </div>
+                                      setProductKnowledgeInventoriesMap(
+                                        (prev) => ({
+                                          [productKnowledge.id]: undefined,
+                                          ...prev,
+                                        }),
+                                      );
+                                      setIsSearchOpen(false);
+                                      setSearch("");
+                                    }}
+                                    className="cursor-pointer"
+                                  >
+                                    <div className="flex flex-col">
+                                      <span className="font-medium">
+                                        {productKnowledge.name}
+                                      </span>
+                                    </div>
+                                  </CommandItem>
+                                ),
+                              )}
+                            </CommandGroup>
+                          </CommandList>
+                        </Command>
+                      ) : (
+                        <Button
+                          variant="ghost"
+                          size="sm"
+                          className="w-full h-12 flex items-center justify-center gap-2 hover:bg-gray-100"
+                          onClick={() => setIsSearchOpen(true)}
+                        >
+                          <PlusIcon className="h-6 w-6" />
+                          <span>{t("add_medication")}</span>
+                        </Button>
+                      )}
+                    </TableCell>
+                  </TableRow>
+                </TableBody>
+              </Table>
+            </form>
+          </Form>
         )}
 
         {account?.results[0] && (
