@@ -1,3 +1,4 @@
+import { useQuery } from "@tanstack/react-query";
 import { useTranslation } from "react-i18next";
 
 import { Badge } from "@/components/ui/badge";
@@ -7,14 +8,24 @@ import {
   DefinitionListItem,
 } from "@/components/ui/definition-list";
 
-import { SupplyDeliveryRead } from "@/types/inventory/supplyDelivery/supplyDelivery";
+import { CardListSkeleton } from "@/components/Common/SkeletonLoading";
 
-export function SupplyDeliveryDetails({
-  delivery,
-}: {
-  delivery: SupplyDeliveryRead;
-}) {
+import query from "@/Utils/request/query";
+import supplyDeliveryApi from "@/types/inventory/supplyDelivery/supplyDeliveryApi";
+
+export function SupplyDeliveryDetails({ deliveryId }: { deliveryId: string }) {
   const { t } = useTranslation();
+
+  const { data: delivery } = useQuery({
+    queryKey: ["supply-delivery", deliveryId],
+    queryFn: query(supplyDeliveryApi.retrieveSupplyDelivery, {
+      pathParams: { supplyDeliveryId: deliveryId },
+    }),
+  });
+
+  if (!delivery) {
+    return <CardListSkeleton count={2} />;
+  }
 
   return (
     <Card>

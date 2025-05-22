@@ -139,7 +139,7 @@ export default function SupplyDeliveryView({
         </div>
 
         <div className="space-y-6">
-          <SupplyDeliveryDetails delivery={delivery} />
+          <SupplyDeliveryDetails deliveryId={delivery.id} />
 
           {delivery.supply_request && (
             <SupplyRequestDetails
