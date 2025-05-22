@@ -12,7 +12,8 @@ x : Done
 - [ ] Add status based filters for product knowledge
 - [ ] Undo absolute net quantity after video recorded
 - [ ] Healthcare Service Details View page : Hide the unwanted metadata details page & add translation for extra_details
-- [ ] Add facility-based filter & pagination in the inventory items list
+- [x] Add facility-based filter & pagination in the inventory items list - Jeevan
+- [ ] Add pagination where it's missing - Jeevan
 - [ ] Add a warning colour for low stock items in the inventory item list
 
 ## Billing
@@ -31,7 +32,7 @@ x : Done
 - [x] Disable record payment button in billing account details page, if the account status is not active - Amjith
 - [ ] Display the negative balance in the 'Amount Due' section as well to indicate that the user has overpaid beyond their actual bill.
 - [ ] When an invoice is marked as 'entered in error' the transaction details should be removed from the balance summary (total amount due, net payable, etc.)
-- [ ] 
+- [ ]
 
 ## Labs
 
