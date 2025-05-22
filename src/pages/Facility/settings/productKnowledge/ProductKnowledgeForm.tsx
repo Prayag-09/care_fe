@@ -294,7 +294,7 @@ function ProductKnowledgeFormContent({
                     control={form.control}
                     name="name"
                     render={({ field }) => (
-                      <FormItem>
+                      <FormItem className="flex flex-col">
                         <FormLabel>{t("name")}</FormLabel>
                         <FormControl>
                           <Input {...field} />
@@ -308,7 +308,7 @@ function ProductKnowledgeFormContent({
                     control={form.control}
                     name="slug"
                     render={({ field }) => (
-                      <FormItem>
+                      <FormItem className="flex flex-col">
                         <FormLabel>{t("slug")}</FormLabel>
                         <FormControl>
                           <Input {...field} />
@@ -324,7 +324,7 @@ function ProductKnowledgeFormContent({
                     control={form.control}
                     name="product_type"
                     render={({ field }) => (
-                      <FormItem>
+                      <FormItem className="flex flex-col">
                         <FormLabel>{t("product_type")}</FormLabel>
                         <Select
                           onValueChange={field.onChange}
@@ -375,7 +375,7 @@ function ProductKnowledgeFormContent({
                     control={form.control}
                     name="status"
                     render={({ field }) => (
-                      <FormItem>
+                      <FormItem className="flex flex-col">
                         <FormLabel>{t("status")}</FormLabel>
                         <Select
                           onValueChange={field.onChange}
@@ -445,7 +445,7 @@ function ProductKnowledgeFormContent({
                               control={form.control}
                               name={`names.${index}.name_type`}
                               render={({ field }) => (
-                                <FormItem>
+                                <FormItem className="flex flex-col">
                                   <FormLabel>{t("name_type")}</FormLabel>
                                   <Select
                                     onValueChange={field.onChange}
@@ -477,7 +477,7 @@ function ProductKnowledgeFormContent({
                               control={form.control}
                               name={`names.${index}.name`}
                               render={({ field }) => (
-                                <FormItem>
+                                <FormItem className="flex flex-col">
                                   <FormLabel>{t("name")}</FormLabel>
                                   <FormControl>
                                     <Input {...field} />
@@ -550,7 +550,7 @@ function ProductKnowledgeFormContent({
                             control={form.control}
                             name={`storage_guidelines.${index}.note`}
                             render={({ field }) => (
-                              <FormItem>
+                              <FormItem className="flex flex-col">
                                 <FormLabel>{t("note")}</FormLabel>
                                 <FormControl>
                                   <Textarea
@@ -568,7 +568,7 @@ function ProductKnowledgeFormContent({
                               control={form.control}
                               name={`storage_guidelines.${index}.stability_duration.value`}
                               render={({ field }) => (
-                                <FormItem>
+                                <FormItem className="flex flex-col">
                                   <FormLabel>{t("duration_value")}</FormLabel>
                                   <FormControl>
                                     <Input
