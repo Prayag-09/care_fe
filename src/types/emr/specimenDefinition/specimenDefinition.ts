@@ -1,7 +1,7 @@
 import { Code } from "@/types/base/code/code";
 import { UserBase } from "@/types/user/user";
 
-export enum Status {
+export enum SpecimenDefinitionStatus {
   draft = "draft",
   active = "active",
   retired = "retired",
@@ -83,7 +83,7 @@ export interface SpecimenDefinition {
   title: string;
   slug: string;
   derived_from_uri?: string | null;
-  status: Status;
+  status: SpecimenDefinitionStatus;
   description: string;
   type_collected: Code;
   patient_preparation?: Code[];

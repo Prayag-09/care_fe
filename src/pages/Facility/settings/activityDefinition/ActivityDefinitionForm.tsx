@@ -48,6 +48,7 @@ import {
 } from "@/types/emr/activityDefinition/activityDefinition";
 import activityDefinitionApi from "@/types/emr/activityDefinition/activityDefinitionApi";
 import observationDefinitionApi from "@/types/emr/observationDefinition/observationDefinitionApi";
+import { SpecimenDefinitionStatus } from "@/types/emr/specimenDefinition/specimenDefinition";
 import specimenDefinitionApi from "@/types/emr/specimenDefinition/specimenDefinitionApi";
 import locationApi from "@/types/location/locationApi";
 
@@ -220,7 +221,11 @@ function ActivityDefinitionFormContent({
       queryKey: ["specimenDefinitions", facilityId, specimenSearch],
       queryFn: query.debounced(specimenDefinitionApi.listSpecimenDefinitions, {
         pathParams: { facilityId },
-        queryParams: { limit: 100, search: specimenSearch },
+        queryParams: {
+          limit: 100,
+          search: specimenSearch,
+          status: SpecimenDefinitionStatus.active,
+        },
       }),
     },
   );
@@ -470,7 +475,7 @@ function ActivityDefinitionFormContent({
                     control={form.control}
                     name="title"
                     render={({ field }) => (
-                      <FormItem>
+                      <FormItem className="flex flex-col">
                         <FormLabel>
                           {t("title")} <span className="text-red-500">*</span>
                         </FormLabel>
@@ -486,7 +491,7 @@ function ActivityDefinitionFormContent({
                     control={form.control}
                     name="slug"
                     render={({ field }) => (
-                      <FormItem>
+                      <FormItem className="flex flex-col">
                         <FormLabel>
                           {t("slug")} <span className="text-red-500">*</span>
                         </FormLabel>
@@ -503,7 +508,7 @@ function ActivityDefinitionFormContent({
                   control={form.control}
                   name="description"
                   render={({ field }) => (
-                    <FormItem>
+                    <FormItem className="flex flex-col">
                       <FormLabel>
                         {t("description")}{" "}
                         <span className="text-red-500">*</span>
@@ -520,7 +525,7 @@ function ActivityDefinitionFormContent({
                   control={form.control}
                   name="usage"
                   render={({ field }) => (
-                    <FormItem>
+                    <FormItem className="flex flex-col">
                       <FormLabel>
                         {t("usage")} <span className="text-red-500">*</span>
                       </FormLabel>
@@ -537,7 +542,7 @@ function ActivityDefinitionFormContent({
                     control={form.control}
                     name="status"
                     render={({ field }) => (
-                      <FormItem>
+                      <FormItem className="flex flex-col">
                         <FormLabel>{t("status")}</FormLabel>
                         <Select
                           onValueChange={field.onChange}
@@ -565,7 +570,7 @@ function ActivityDefinitionFormContent({
                     control={form.control}
                     name="category"
                     render={({ field }) => (
-                      <FormItem>
+                      <FormItem className="flex flex-col">
                         <FormLabel>
                           {t("category")}{" "}
                           <span className="text-red-500">*</span>
@@ -598,7 +603,7 @@ function ActivityDefinitionFormContent({
                     control={form.control}
                     name="kind"
                     render={({ field }) => (
-                      <FormItem>
+                      <FormItem className="flex flex-col">
                         <FormLabel>{t("kind")}</FormLabel>
                         <Select
                           onValueChange={field.onChange}
@@ -626,7 +631,7 @@ function ActivityDefinitionFormContent({
                     control={form.control}
                     name="derived_from_uri"
                     render={({ field }) => (
-                      <FormItem>
+                      <FormItem className="flex flex-col">
                         <FormLabel>{t("derived_from_uri")}</FormLabel>
                         <FormControl>
                           <Input {...field} value={field.value || ""} />
@@ -642,7 +647,7 @@ function ActivityDefinitionFormContent({
                     control={form.control}
                     name="code"
                     render={({ field }) => (
-                      <FormItem>
+                      <FormItem className="flex flex-col">
                         <FormLabel>
                           {t("code")} <span className="text-red-500">*</span>
                         </FormLabel>
@@ -969,7 +974,7 @@ function ActivityDefinitionFormContent({
                   control={form.control}
                   name="diagnostic_report_codes"
                   render={({ field }) => (
-                    <FormItem>
+                    <FormItem className="flex flex-col">
                       <FormLabel>{t("diagnostic_report_codes")}</FormLabel>
                       <div className="space-y-3">
                         {(field.value || []).length > 0 && (

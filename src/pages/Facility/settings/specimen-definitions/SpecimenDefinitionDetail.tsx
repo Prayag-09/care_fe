@@ -27,7 +27,7 @@ import query from "@/Utils/request/query";
 import { Code } from "@/types/base/code/code";
 import {
   DurationSpec,
-  Status,
+  SpecimenDefinitionStatus,
 } from "@/types/emr/specimenDefinition/specimenDefinition";
 import specimenDefinitionApi from "@/types/emr/specimenDefinition/specimenDefinitionApi";
 
@@ -73,7 +73,7 @@ export function SpecimenDefinitionDetail({
     if (!specimenDefinition) return;
     updateSpecimenDefinition({
       ...specimenDefinition,
-      status: Status.retired,
+      status: SpecimenDefinitionStatus.retired,
     });
   };
 
@@ -119,7 +119,7 @@ export function SpecimenDefinitionDetail({
             </h1>
           </div>
           <div className="flex gap-2">
-            {specimenDefinition.status !== Status.retired && (
+            {specimenDefinition.status !== SpecimenDefinitionStatus.retired && (
               <AlertDialog>
                 <AlertDialogTrigger asChild>
                   <Button

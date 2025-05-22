@@ -37,7 +37,7 @@ import {
   Preference,
   RETENTION_TIME_UNITS,
   SPECIMEN_DEFINITION_UNITS_CODES,
-  Status,
+  SpecimenDefinitionStatus,
 } from "@/types/emr/specimenDefinition/specimenDefinition";
 import { SpecimenDefinitionCreate } from "@/types/emr/specimenDefinition/specimenDefinition";
 
@@ -84,7 +84,7 @@ const typeTestedSchema = z.object({
 const formSchema = z.object({
   title: z.string().min(1, "Title is required"),
   slug: z.string().min(1, "Slug is required"),
-  status: z.nativeEnum(Status),
+  status: z.nativeEnum(SpecimenDefinitionStatus),
   description: z.string().min(1, t("field_required")),
   derived_from_uri: z
     .string()
@@ -118,7 +118,7 @@ export function SpecimenDefinitionForm({
     defaultValues: {
       title: initialData?.title || "",
       slug: initialData?.slug || "",
-      status: initialData?.status || Status.active,
+      status: initialData?.status || SpecimenDefinitionStatus.active,
       description: initialData?.description || "",
       derived_from_uri: initialData?.derived_from_uri || null,
       type_collected: initialData?.type_collected,
@@ -291,11 +291,13 @@ export function SpecimenDefinitionForm({
                           </SelectTrigger>
                         </FormControl>
                         <SelectContent>
-                          {Object.values(Status).map((status) => (
-                            <SelectItem key={status} value={status}>
-                              {t(status)}
-                            </SelectItem>
-                          ))}
+                          {Object.values(SpecimenDefinitionStatus).map(
+                            (status) => (
+                              <SelectItem key={status} value={status}>
+                                {t(status)}
+                              </SelectItem>
+                            ),
+                          )}
                         </SelectContent>
                       </Select>
                       <FormMessage />

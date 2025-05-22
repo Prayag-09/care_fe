@@ -26,7 +26,7 @@ import { FilterSelect } from "@/components/definition-list/FilterSelect";
 import useFilters from "@/hooks/useFilters";
 
 import query from "@/Utils/request/query";
-import { Status } from "@/types/emr/specimenDefinition/specimenDefinition";
+import { SpecimenDefinitionStatus } from "@/types/emr/specimenDefinition/specimenDefinition";
 import specimenDefinitionApi from "@/types/emr/specimenDefinition/specimenDefinitionApi";
 
 const SPECIMEN_DEFINITION_STATUS_COLORS: Record<string, string> = {
@@ -157,7 +157,7 @@ export function SpecimenDefinitionsList({
                 <FilterSelect
                   value={qParams.status || ""}
                   onValueChange={(value) => updateQuery({ status: value })}
-                  options={Object.values(Status)}
+                  options={Object.values(SpecimenDefinitionStatus)}
                   label="status"
                   onClear={() => updateQuery({ status: undefined })}
                 />
