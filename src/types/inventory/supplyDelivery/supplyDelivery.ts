@@ -56,7 +56,7 @@ export interface SupplyDeliveryUpdate {
 export interface SupplyDeliveryRead extends SupplyDeliveryBase {
   supplied_item_quantity: number;
   supplied_item: ProductRead;
-  supplied_inventory_item: InventoryRead;
+  supplied_inventory_item?: InventoryRead;
   origin?: LocationDetail;
   destination: LocationDetail;
   supplier?: Organization;

@@ -44,6 +44,7 @@ import query from "@/Utils/request/query";
 import inventoryApi from "@/types/inventory/product/inventoryApi";
 import {
   SupplyDeliveryCondition,
+  SupplyDeliveryRetrieve,
   SupplyDeliveryStatus,
   SupplyDeliveryType,
 } from "@/types/inventory/supplyDelivery/supplyDelivery";
@@ -87,7 +88,7 @@ function SupplyDeliveryFormContent({
 }: {
   facilityId: string;
   supplyDeliveryId?: string;
-  existingData?: any;
+  existingData?: SupplyDeliveryRetrieve;
   locationId: string;
   defaultValues?: z.infer<typeof formSchema>;
   onSuccess?: () => void;
@@ -143,7 +144,7 @@ function SupplyDeliveryFormContent({
                 supplied_item_condition: existingData.supplied_item_condition,
                 supplied_item_quantity: existingData.supplied_item_quantity,
                 supplied_inventory_item:
-                  existingData.supplied_inventory_item.id,
+                  existingData.supplied_inventory_item?.id,
                 origin: locationId,
                 destination: existingData.destination.id,
               },
