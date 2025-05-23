@@ -8,7 +8,7 @@ x : Done
 
 ## Pharmacy
 
-- [-] Add option to archive suppliers - Yash
+- [x] Add option to archive suppliers - Yash
 - [-] Add status based filters for product knowledge - Yash
 - [ ] Undo absolute net quantity after video recorded
 - [ ] Healthcare Service Details View page : Hide the unwanted metadata details page & add translation for extra_details
