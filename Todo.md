@@ -8,8 +8,8 @@ x : Done
 
 ## Pharmacy
 
-- [ ] Add option to archive suppliers
-- [ ] Add status based filters for product knowledge
+- [-] Add option to archive suppliers - Yash
+- [-] Add status based filters for product knowledge - Yash
 - [ ] Undo absolute net quantity after video recorded
 - [ ] Healthcare Service Details View page : Hide the unwanted metadata details page & add translation for extra_details
 - [-] Add facility-based filter & pagination in the inventory items list - Jeevan. Vignesh will add filter queryset by facility later
@@ -54,7 +54,8 @@ x : Done
 - [x] Charge Item - Removing prefilled data from the Discount and Tax fields causes the field state to freeze, requiring a manual page reload. - Jeevan
 - [x] Charge Item - Limit the discount and tax field input to 100 max - Jeevan
 - [ ] SR details page - fix decimal points to two and round off amounts in charge items.
-- [ ] SR details page — In the Add Charge Item slide over, display the final amount after discount and tax, and the amount split when hovering over the (!) icon.
+- [x] SR details page — In the Add Charge Item slide over, display the final amount after discount and tax, and the amount split when hovering over the (!) icon. -> We can't show the total here as backend deos not return the total for CID and we decided to not do any manual calculations in FE, see item below: - Yash
+- [-] Add info on Charge Item created on SR show (This includes total from BE). - Yash
 - [ ] SR details page- Remove the back button from the sample identification QR print preview pop-up. / adjust the behavior to only close the pop-up
 - [ ] SR details page - Specimen ID cannot be hidden in the Service Request QR
 - [ ] SR details page - Add a hyperlink to the payment page, for better UX
