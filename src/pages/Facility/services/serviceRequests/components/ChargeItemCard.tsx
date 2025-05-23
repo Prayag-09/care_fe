@@ -1,3 +1,4 @@
+import { t } from "i18next";
 import { InfoIcon } from "lucide-react";
 
 import { Card } from "@/components/ui/card";
@@ -22,7 +23,14 @@ export function ChargeItemCard({ chargeItem }: ChargeItemCardProps) {
     <Card className="p-4 space-y-4">
       <div className="flex justify-between items-start">
         <div>
-          <div className="text-sm text-gray-600">{chargeItem.title}</div>
+          <div className="flex flex-row items-center text-sm text-gray-600">
+            {chargeItem.title}
+            {chargeItem.quantity > 1 && (
+              <span className="ml-1 text-xs font-medium text-gray-500">
+                {t("x")} {chargeItem.quantity}
+              </span>
+            )}
+          </div>
           <div className="font-semibold flex items-center gap-1">
             <span>₹{chargeItem.total_price}</span>
             {chargeItem.total_price_components?.length > 0 && (
