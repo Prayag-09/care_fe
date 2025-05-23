@@ -2,7 +2,6 @@ import { HttpMethod, Type } from "@/Utils/request/api";
 import { PaginatedResponse } from "@/Utils/request/types";
 
 import {
-  ChargeItemBase,
   ChargeItemCreate,
   ChargeItemRead,
   ChargeItemUpdate,
@@ -13,7 +12,7 @@ export default {
   listChargeItem: {
     path: "/api/v1/facility/{facilityId}/charge_item/",
     method: HttpMethod.GET,
-    TRes: Type<PaginatedResponse<ChargeItemBase>>(),
+    TRes: Type<PaginatedResponse<ChargeItemRead>>(),
   },
   retrieveChargeItem: {
     path: "/api/v1/facility/{facilityId}/charge_item/{chargeItemId}/",

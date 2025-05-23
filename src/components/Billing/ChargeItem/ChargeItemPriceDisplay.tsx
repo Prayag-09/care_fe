@@ -33,6 +33,41 @@ export default function ChargeItemPriceDisplay({
 
   const baseAmount = baseComponents[0]?.amount || 0;
 
+  const renderComponentValue = (
+    component: MonetaryComponent,
+    prefix: string,
+  ) => {
+    const hasAmount =
+      component.amount !== undefined && component.amount !== null;
+    const hasFactor =
+      component.factor !== undefined && component.factor !== null;
+
+    if (hasAmount && hasFactor) {
+      return (
+        <span>
+          {prefix}
+          <MonetaryDisplay amount={component.amount} /> (
+          <MonetaryDisplay factor={component.factor} />)
+        </span>
+      );
+    } else if (hasAmount) {
+      return (
+        <span>
+          {prefix}
+          <MonetaryDisplay amount={component.amount} />
+        </span>
+      );
+    } else if (hasFactor) {
+      return (
+        <span>
+          {prefix}
+          <MonetaryDisplay factor={component.factor} />
+        </span>
+      );
+    }
+    return null;
+  };
+
   return (
     <div className="p-3">
       <p className="font-medium text-sm mb-2">{t("item_wise_breakdown")}</p>
@@ -48,10 +83,7 @@ export default function ChargeItemPriceDisplay({
             className="flex justify-between text-gray-500"
           >
             <span>{component.code?.display || t("surcharge")}</span>
-            <span>
-              +
-              <MonetaryDisplay factor={component.factor} />
-            </span>
+            {renderComponentValue(component, "+")}
           </div>
         ))}
 
@@ -61,10 +93,7 @@ export default function ChargeItemPriceDisplay({
             className="flex justify-between text-gray-500"
           >
             <span>{component.code?.display || t("discount")}</span>
-            <span>
-              -
-              <MonetaryDisplay factor={component.factor} />
-            </span>
+            {renderComponentValue(component, "-")}
           </div>
         ))}
 
@@ -74,9 +103,7 @@ export default function ChargeItemPriceDisplay({
             className="flex justify-between text-gray-500"
           >
             <span>{component.code?.display || t("tax")}</span>
-            <span>
-              + <MonetaryDisplay factor={component.factor || 0} />
-            </span>
+            {renderComponentValue(component, "+")}
           </div>
         ))}
       </div>
