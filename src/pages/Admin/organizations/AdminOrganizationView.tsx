@@ -1,18 +1,38 @@
-import { useQuery } from "@tanstack/react-query";
+import { useMutation, useQuery, useQueryClient } from "@tanstack/react-query";
+import { MoreVertical } from "lucide-react";
 import { Link } from "raviger";
 import { useTranslation } from "react-i18next";
+import { toast } from "sonner";
 
 import CareIcon from "@/CAREUI/icons/CareIcon";
 
+import {
+  AlertDialog,
+  AlertDialogAction,
+  AlertDialogCancel,
+  AlertDialogContent,
+  AlertDialogDescription,
+  AlertDialogFooter,
+  AlertDialogHeader,
+  AlertDialogTitle,
+  AlertDialogTrigger,
+} from "@/components/ui/alert-dialog";
 import { Badge } from "@/components/ui/badge";
-import { Button } from "@/components/ui/button";
+import { Button, buttonVariants } from "@/components/ui/button";
 import { Card, CardContent } from "@/components/ui/card";
+import {
+  DropdownMenu,
+  DropdownMenuContent,
+  DropdownMenuItem,
+  DropdownMenuTrigger,
+} from "@/components/ui/dropdown-menu";
 import { Input } from "@/components/ui/input";
 
 import { CardListSkeleton } from "@/components/Common/SkeletonLoading";
 
 import useFilters from "@/hooks/useFilters";
 
+import mutate from "@/Utils/request/mutate";
 import query from "@/Utils/request/query";
 import { Organization } from "@/types/organization/organization";
 import organizationApi from "@/types/organization/organizationApi";
@@ -34,6 +54,24 @@ function OrganizationCard({
   parentId?: string;
 }) {
   const { t } = useTranslation();
+  const queryClient = useQueryClient();
+
+  const { mutate: deleteOrganization } = useMutation({
+    mutationFn: mutate(organizationApi.delete, {
+      pathParams: { id: org.id },
+    }),
+    onSuccess: () => {
+      queryClient.invalidateQueries({
+        queryKey: ["organization", "list", organizationType, parentId],
+      });
+      toast.success(t("organization_deleted_successfully"));
+    },
+    onError: () => {
+      toast.error(t("something_went_wrong"));
+    },
+  });
+
+  const canDelete = parentId ? true : !org.has_children;
 
   return (
     <Card key={org.id}>
@@ -70,6 +108,52 @@ function OrganizationCard({
                   {t("see_details")}
                 </Link>
               </Button>
+
+              <DropdownMenu>
+                <DropdownMenuTrigger asChild>
+                  <Button variant="ghost" size="icon" className="shrink-0">
+                    <MoreVertical className="size-4" />
+                  </Button>
+                </DropdownMenuTrigger>
+                <DropdownMenuContent align="end">
+                  <AlertDialog>
+                    <AlertDialogTrigger asChild>
+                      <DropdownMenuItem
+                        onSelect={(e) => e.preventDefault()}
+                        className="text-destructive"
+                      >
+                        {t("delete")}
+                      </DropdownMenuItem>
+                    </AlertDialogTrigger>
+                    <AlertDialogContent>
+                      <AlertDialogHeader>
+                        <AlertDialogTitle>
+                          {t("delete_organization")}
+                        </AlertDialogTitle>
+                        <AlertDialogDescription>
+                          {canDelete
+                            ? t("are_you_sure_want_to_delete", {
+                                name: org.name,
+                              })
+                            : t("cannot_delete_organization_with_children")}
+                        </AlertDialogDescription>
+                      </AlertDialogHeader>
+                      <AlertDialogFooter>
+                        <AlertDialogCancel>{t("cancel")}</AlertDialogCancel>
+                        <AlertDialogAction
+                          onClick={() => deleteOrganization({})}
+                          disabled={!canDelete}
+                          className={buttonVariants({
+                            variant: "destructive",
+                          })}
+                        >
+                          {t("delete")}
+                        </AlertDialogAction>
+                      </AlertDialogFooter>
+                    </AlertDialogContent>
+                  </AlertDialog>
+                </DropdownMenuContent>
+              </DropdownMenu>
             </div>
           </div>
         </div>

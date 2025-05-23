@@ -130,6 +130,7 @@ export default function AdminOrganizationNavbar({
         queryParams: {
           parent: "",
           org_type: organizationType,
+          limit: 100,
         },
       }),
       refetchOnWindowFocus: false,

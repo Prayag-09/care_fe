@@ -32,6 +32,11 @@ export default {
     TRes: Type<Organization>(),
     TBody: Type<OrganizationEdit>(),
   },
+  delete: {
+    path: "/api/v1/organization/{id}/",
+    method: HttpMethod.DELETE,
+    TRes: Type<void>(),
+  },
   get: {
     path: "/api/v1/organization/{id}/",
     method: HttpMethod.GET,
