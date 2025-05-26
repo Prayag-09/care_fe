@@ -1,4 +1,3 @@
-import careConfig from "@careConfig";
 import { useMutation, useQuery, useQueryClient } from "@tanstack/react-query";
 import { format } from "date-fns";
 import {
@@ -428,26 +427,8 @@ export function InvoiceShow({
             </div>
           </div>
           <Card className="rounded-sm shadow-sm">
-            <CardHeader className="px-4 py-0">
+            <CardHeader className="p-4">
               <CardTitle>
-                <div className="flex flex-row mb-6 justify-between items-center pt-2">
-                  <img
-                    src={careConfig.mainLogo?.dark}
-                    alt="Care Logo"
-                    className="h-10 w-auto object-contain"
-                  />
-                  <div className="flex flex-col text-right">
-                    <div className="font-semibold text-gray-950 text-base uppercase">
-                      {facilityData?.name}
-                    </div>
-                    <div className="text-gray-600 text-sm font-medium">
-                      {facilityData?.address}
-                    </div>
-                    <div className="text-gray-600 text-sm font-medium">
-                      {facilityData?.phone_number}
-                    </div>
-                  </div>
-                </div>
                 <div>
                   <div className="font-semibold text-gray-950 text-base uppercase">
                     {t("tax_invoice")}
@@ -470,13 +451,13 @@ export function InvoiceShow({
                     {t("bill_to")}:
                   </div>
                   <div>
-                    <p className="font-semibold text-gray-950 text-base">
+                    <p className="font-semibold text-gray-950 text-base ml-2">
                       {invoice.account.patient.name}
                     </p>
-                    <p className="font-medium text-gray-700 text-sm">
+                    <p className="font-medium text-gray-700 text-sm whitespace-pre-wrap ml-2">
                       {invoice.account.patient.address}
                     </p>
-                    <p className="font-medium text-gray-700 text-sm">
+                    <p className="font-medium text-gray-700 text-sm ml-2">
                       {t("phone")}:{" "}
                       {formatPhoneNumberIntl(
                         invoice.account.patient.phone_number,

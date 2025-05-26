@@ -2,7 +2,7 @@ import { zodResolver } from "@hookform/resolvers/zod";
 import { useMutation, useQuery, useQueryClient } from "@tanstack/react-query";
 import { PlusCircle, Trash2 } from "lucide-react";
 import { navigate } from "raviger";
-import { useState } from "react";
+import { useEffect, useState } from "react";
 import { useFieldArray, useForm } from "react-hook-form";
 import { useTranslation } from "react-i18next";
 import { toast } from "sonner";
@@ -52,6 +52,7 @@ import supplyDeliveryApi from "@/types/inventory/supplyDelivery/supplyDeliveryAp
 import locationApi from "@/types/location/locationApi";
 
 const supplyDeliverySchema = z.object({
+  id: z.string().optional(),
   status: z.nativeEnum(SupplyDeliveryStatus),
   supplied_item_type: z.nativeEnum(SupplyDeliveryType),
   supplied_item_condition: z.nativeEnum(SupplyDeliveryCondition).optional(),
@@ -120,6 +121,10 @@ function SupplyDeliveryFormContent({
     }),
   });
 
+  useEffect(() => {
+    console.log("existingData", existingData);
+  }, [existingData]);
+
   const deliveryToOptions =
     deliveryToLocations?.results.map((location) => ({
       label: location.name,
@@ -139,6 +144,7 @@ function SupplyDeliveryFormContent({
         ? {
             deliveries: [
               {
+                id: existingData.id,
                 status: existingData.status,
                 supplied_item_type: existingData.supplied_item_type,
                 supplied_item_condition: existingData.supplied_item_condition,
