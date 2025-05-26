@@ -156,6 +156,10 @@ function generateFacilityLinks(
           name: t("product"),
           url: `${baseUrl}/settings/product`,
         },
+        {
+          name: t("report_builder"),
+          url: `${baseUrl}/settings/report_builder/`,
+        },
       ],
     },
   ];

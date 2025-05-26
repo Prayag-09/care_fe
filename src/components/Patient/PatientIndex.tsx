@@ -33,7 +33,7 @@ import {
 } from "@/components/ui/table";
 
 import Loading from "@/components/Common/Loading";
-import SearchByMultipleFields from "@/components/Common/SearchByMultipleFields";
+import SearchInput from "@/components/Common/SearchInput";
 
 import { getPermissions } from "@/common/Permissions";
 import { GENDER_TYPES } from "@/common/constants";
@@ -97,15 +97,6 @@ export default function PatientIndex({ facilityId }: { facilityId: string }) {
     );
   }
 
-  const searchOptions = [
-    {
-      key: "phone_number",
-      type: "phone" as const,
-      placeholder: t("search_by_phone_number"),
-      value: phoneNumber,
-    },
-  ];
-
   const handleSearch = useCallback((key: string, value: string) => {
     if (key === "phone_number") {
       setPhoneNumberQuery({
@@ -167,10 +158,16 @@ export default function PatientIndex({ facilityId }: { facilityId: string }) {
 
           <div>
             <div className="space-y-6">
-              <SearchByMultipleFields
-                initialOptionIndex={0}
-                id="patient-search"
-                options={searchOptions}
+              <SearchInput
+                data-cy="patient-search"
+                options={[
+                  {
+                    key: "phone_number",
+                    type: "phone",
+                    placeholder: t("search_by_phone_number"),
+                    value: phoneNumber,
+                  },
+                ]}
                 onSearch={handleSearch}
                 className="w-full"
                 autoFocus
