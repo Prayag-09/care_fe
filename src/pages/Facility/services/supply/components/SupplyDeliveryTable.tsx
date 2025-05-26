@@ -5,6 +5,7 @@ import CareIcon from "@/CAREUI/icons/CareIcon";
 
 import { Badge } from "@/components/ui/badge";
 import { Button } from "@/components/ui/button";
+import { EmptyState } from "@/components/ui/empty-state";
 import {
   Table,
   TableBody,
@@ -15,7 +16,6 @@ import {
 } from "@/components/ui/table";
 
 import { TableSkeleton } from "@/components/Common/SkeletonLoading";
-import { EmptyState } from "@/components/definition-list/EmptyState";
 
 import { SupplyDeliveryTab } from "@/pages/Facility/services/supply/SupplyDeliveryList";
 import { SupplyDeliveryRead } from "@/types/inventory/supplyDelivery/supplyDelivery";

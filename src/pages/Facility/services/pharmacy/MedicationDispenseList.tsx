@@ -6,6 +6,9 @@ import { cn } from "@/lib/utils";
 
 import { Badge } from "@/components/ui/badge";
 import { Button } from "@/components/ui/button";
+import { EmptyState } from "@/components/ui/empty-state";
+import { FilterSelect } from "@/components/ui/filter-select";
+import { FilterTabs } from "@/components/ui/filter-tabs";
 import {
   Table,
   TableBody,
@@ -16,11 +19,6 @@ import {
 } from "@/components/ui/table";
 
 import { TableSkeleton } from "@/components/Common/SkeletonLoading";
-import {
-  EmptyState,
-  FilterSelect,
-  FilterTabs,
-} from "@/components/definition-list";
 
 import useFilters from "@/hooks/useFilters";
 
