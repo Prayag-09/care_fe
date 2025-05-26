@@ -448,7 +448,7 @@ export default function MedicationBillForm({ patientId }: Props) {
 
   return (
     <Page title={t("bill_medications")}>
-      <div className="container mx-auto max-w-5xl">
+      <div>
         <div className="mb-6 flex items-center justify-between">
           <div className="flex gap-2 justify-end w-full">
             <Button
