@@ -27,16 +27,13 @@ import useFilters from "@/hooks/useFilters";
 
 import query from "@/Utils/request/query";
 import {
+  PRODUCT_KNOWLEDGE_STATUS_COLORS,
+  PRODUCT_KNOWLEDGE_TYPE_COLORS,
   ProductKnowledgeBase,
+  ProductKnowledgeStatus,
   ProductKnowledgeType,
 } from "@/types/inventory/productKnowledge/productKnowledge";
 import productKnowledgeApi from "@/types/inventory/productKnowledge/productKnowledgeApi";
-
-const PRODUCT_KNOWLEDGE_TYPE_COLORS: Record<string, string> = {
-  medication: "bg-blue-100 text-blue-700",
-  nutritional_product: "bg-green-100 text-green-700",
-  consumable: "bg-amber-100 text-amber-700",
-};
 
 function ProductKnowledgeCard({
   product,
@@ -60,6 +57,15 @@ function ProductKnowledgeCard({
                 }
               >
                 {t(product.product_type)}
+              </Badge>
+              <Badge
+                variant="outline"
+                className={
+                  PRODUCT_KNOWLEDGE_STATUS_COLORS[product.status] ||
+                  "bg-gray-100 text-gray-700"
+                }
+              >
+                {t(product.status)}
               </Badge>
             </div>
             <h3 className="font-medium text-gray-900">{product.name}</h3>
@@ -107,7 +113,7 @@ export default function ProductKnowledgeList({
         offset: ((qParams.page ?? 1) - 1) * resultsPerPage,
         name: qParams.search,
         product_type: qParams.product_type,
-        status: "active",
+        status: qParams.status,
       },
     }),
   });
@@ -158,12 +164,21 @@ export default function ProductKnowledgeList({
             <div className="flex flex-col sm:flex-row items-stretch gap-2 w-full sm:w-auto">
               <div className="flex-1 sm:flex-initial sm:w-auto">
                 <FilterSelect
+                  value={qParams.status || ""}
+                  onValueChange={(value) => updateQuery({ status: value })}
+                  options={Object.values(ProductKnowledgeStatus)}
+                  label={t("status")}
+                  onClear={() => updateQuery({ status: undefined })}
+                />
+              </div>
+              <div className="flex-1 sm:flex-initial sm:w-auto">
+                <FilterSelect
                   value={qParams.product_type || ""}
                   onValueChange={(value) =>
                     updateQuery({ product_type: value })
                   }
                   options={Object.values(ProductKnowledgeType)}
-                  label="product_type"
+                  label={t("product_type")}
                   onClear={() => updateQuery({ product_type: undefined })}
                 />
               </div>
@@ -206,6 +221,7 @@ export default function ProductKnowledgeList({
                     <TableRow>
                       <TableHead>{t("name")}</TableHead>
                       <TableHead>{t("product_type")}</TableHead>
+                      <TableHead>{t("status")}</TableHead>
                       <TableHead>{t("code")}</TableHead>
                       <TableHead>{t("actions")}</TableHead>
                     </TableRow>
@@ -226,6 +242,17 @@ export default function ProductKnowledgeList({
                             }
                           >
                             {t(product.product_type)}
+                          </Badge>
+                        </TableCell>
+                        <TableCell>
+                          <Badge
+                            variant="outline"
+                            className={
+                              PRODUCT_KNOWLEDGE_STATUS_COLORS[product.status] ||
+                              "bg-gray-100 text-gray-700"
+                            }
+                          >
+                            {t(product.status)}
                           </Badge>
                         </TableCell>
                         <TableCell>
