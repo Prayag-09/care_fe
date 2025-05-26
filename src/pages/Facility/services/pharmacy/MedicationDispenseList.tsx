@@ -27,28 +27,13 @@ import useCurrentLocation from "@/pages/Facility/locations/utils/useCurrentLocat
 import {
   ACTIVE_MEDICATION_STATUSES,
   INACTIVE_MEDICATION_STATUSES,
+  MEDICATION_REQUEST_PRIORITY_COLORS,
+  MEDICATION_REQUEST_STATUS_COLORS,
   MedicationPriority,
   MedicationRequestRead,
   displayMedicationName,
 } from "@/types/emr/medicationRequest/medicationRequest";
 import medicationRequestApi from "@/types/emr/medicationRequest/medicationRequestApi";
-
-const STATUS_COLORS: Record<string, string> = {
-  active: "bg-green-100 text-green-700",
-  completed: "bg-blue-100 text-blue-700",
-  cancelled: "bg-red-100 text-red-700",
-  draft: "bg-gray-100 text-gray-700",
-  "on-hold": "bg-amber-100 text-amber-700",
-  unknown: "bg-gray-100 text-gray-700",
-  ended: "bg-purple-100 text-purple-700",
-};
-
-const PRIORITY_COLORS: Record<string, string> = {
-  routine: "bg-blue-100 text-blue-700",
-  urgent: "bg-red-100 text-red-700",
-  asap: "bg-amber-100 text-amber-700",
-  stat: "bg-purple-100 text-purple-700",
-};
 
 interface MedicationTableProps {
   medications: MedicationRequestRead[];
@@ -107,7 +92,9 @@ function MedicationTable({ medications }: MedicationTableProps) {
                 <TableCell className={tableCellClass}>
                   <Badge
                     variant="outline"
-                    className={PRIORITY_COLORS[medication.priority]}
+                    className={
+                      MEDICATION_REQUEST_PRIORITY_COLORS[medication.priority]
+                    }
                   >
                     {t(medication.priority)}
                   </Badge>
@@ -115,7 +102,9 @@ function MedicationTable({ medications }: MedicationTableProps) {
                 <TableCell className={tableCellClass}>
                   <Badge
                     variant="outline"
-                    className={STATUS_COLORS[medication.status]}
+                    className={
+                      MEDICATION_REQUEST_STATUS_COLORS[medication.status]
+                    }
                   >
                     {t(medication.status)}
                   </Badge>
