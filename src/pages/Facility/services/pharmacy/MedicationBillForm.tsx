@@ -271,7 +271,7 @@ export default function MedicationBillForm({ patientId }: Props) {
     });
   }, [medications.length]);
 
-  function computeInitialQuantity(medication: any) {
+  function computeInitialQuantity(medication: MedicationRequestRead) {
     const instruction = medication.dosage_instruction[0];
     if (!instruction) return 0;
 
@@ -520,7 +520,7 @@ export default function MedicationBillForm({ patientId }: Props) {
                                 (inventory) =>
                                   inventory.product.charge_item_definition.price_components
                                     .filter(
-                                      (c: any) =>
+                                      (c) =>
                                         c.monetary_component_type ===
                                         MonetaryComponentType.tax,
                                     )
@@ -544,10 +544,7 @@ export default function MedicationBillForm({ patientId }: Props) {
                       field.productKnowledge as ProductKnowledgeBase;
                     const selectedInventory = productKnowledgeInventoriesMap[
                       productKnowledge.id
-                    ]?.find(
-                      (inv: InventoryRead) =>
-                        inv.id === field.selectedInventoryId,
-                    );
+                    ]?.find((inv) => inv.id === field.selectedInventoryId);
                     const prices = calculatePrices(selectedInventory);
 
                     // Get all possible tax codes for the current medication
@@ -560,7 +557,7 @@ export default function MedicationBillForm({ patientId }: Props) {
                                 (inventory) =>
                                   inventory.product.charge_item_definition.price_components
                                     .filter(
-                                      (c: any) =>
+                                      (c) =>
                                         c.monetary_component_type ===
                                         MonetaryComponentType.tax,
                                     )
@@ -734,7 +731,7 @@ export default function MedicationBillForm({ patientId }: Props) {
                         {allTaxCodes.map((taxCode) => {
                           const taxComponent =
                             selectedInventory?.product.charge_item_definition.price_components.find(
-                              (c: any) =>
+                              (c) =>
                                 c.monetary_component_type ===
                                   MonetaryComponentType.tax &&
                                 (c.code?.code || "tax_per_unit") === taxCode,
