@@ -44,7 +44,11 @@ export default function PharmacyMedicationList({
   });
 
   return (
-    <Page title={t("")} hideTitleOnPage>
+    <Page
+      title={t("pharmacy_medications")}
+      hideTitleOnPage
+      className="p-0 md:px-0"
+    >
       <div>
         <Button
           variant="outline"
