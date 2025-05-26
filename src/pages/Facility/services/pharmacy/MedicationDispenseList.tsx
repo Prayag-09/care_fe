@@ -16,8 +16,11 @@ import {
 } from "@/components/ui/table";
 
 import { TableSkeleton } from "@/components/Common/SkeletonLoading";
-import { EmptyState } from "@/components/definition-list/EmptyState";
-import { FilterSelect } from "@/components/definition-list/FilterSelect";
+import {
+  EmptyState,
+  FilterSelect,
+  FilterTabs,
+} from "@/components/definition-list";
 
 import useFilters from "@/hooks/useFilters";
 
@@ -61,7 +64,7 @@ function MedicationTable({ medications }: MedicationTableProps) {
   const tableCellClass = "border-x p-3 text-gray-950";
 
   return (
-    <div className="rounded-lg border shadow-sm w-full bg-white overflow-hidden">
+    <div className="rounded-md border shadow-sm w-full bg-white overflow-hidden">
       <Table>
         <TableHeader className="bg-gray-100">
           <TableRow className="border-b">
@@ -166,26 +169,16 @@ export default function MedicationDispenseList({
 
   return (
     <div>
-      <div className="mb-6">
-        <div className="flex flex-col sm:flex-row items-start sm:items-center justify-between gap-4">
-          <h1 className="text-xl font-semibold text-gray-900">
-            {t("pharmacy_medications")}
-          </h1>
-          <Button
-            onClick={() =>
-              navigate(
-                `/facility/${facilityId}/locations/${locationId}/medication_requests/patient/${patientId}/bill`,
-              )
-            }
-            className="w-full sm:w-auto"
-          >
-            {t("bill_medications")}
-          </Button>
-        </div>
-      </div>
-
       <div className="mb-4 flex flex-col gap-4">
         <div className="flex flex-col sm:flex-row items-start sm:items-center gap-4">
+          <FilterTabs
+            value={qParams.priority || ""}
+            onValueChange={(value) =>
+              updateQuery({ priority: value || undefined })
+            }
+            options={Object.values(MedicationPriority)}
+            allOptionLabel={t("all_priorities")}
+          />
           <div className="flex flex-col sm:flex-row items-stretch gap-2 w-full sm:w-auto">
             <div className="flex-1 sm:flex-initial sm:w-auto">
               <FilterSelect
@@ -199,15 +192,18 @@ export default function MedicationDispenseList({
                 onClear={() => updateQuery({ status: undefined })}
               />
             </div>
-            <div className="flex-1 sm:flex-initial sm:w-auto">
-              <FilterSelect
-                value={qParams.priority || ""}
-                onValueChange={(value) => updateQuery({ priority: value })}
-                options={Object.values(MedicationPriority)}
-                label="priority"
-                onClear={() => updateQuery({ priority: undefined })}
-              />
-            </div>
+          </div>
+          <div className="ml-auto">
+            <Button
+              onClick={() =>
+                navigate(
+                  `/facility/${facilityId}/locations/${locationId}/medication_requests/patient/${patientId}/bill`,
+                )
+              }
+              className="w-full sm:w-auto"
+            >
+              {t("bill_medications")}
+            </Button>
           </div>
         </div>
       </div>
@@ -223,18 +219,19 @@ export default function MedicationDispenseList({
       ) : (
         <div className="space-y-8">
           {medicationsWithProduct.length > 0 && (
-            <div>
+            <div className="space-y-2">
+              <h2 className="text-lg font-semibold text-gray-900">
+                {t("pharmacy_medications")}
+              </h2>
               <MedicationTable medications={medicationsWithProduct} />
             </div>
           )}
 
           {otherMedications.length > 0 && (
-            <div>
-              <div className="flex justify-between items-center mb-4">
-                <h2 className="text-lg font-semibold">
-                  {t("other_medications")}
-                </h2>
-              </div>
+            <div className="space-y-2">
+              <h2 className="text-lg font-semibold text-gray-900">
+                {t("other_medications")}
+              </h2>
               <MedicationTable medications={otherMedications} />
             </div>
           )}
