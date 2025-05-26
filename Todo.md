@@ -15,9 +15,9 @@ x : Done
 - [-] Add facility-based filter & pagination in the inventory items list - Jeevan. Vignesh will add filter queryset by facility later
 - [x] Add pagination where it's missing - Jeevan
 - [ ] Add a warning colour for low stock items in the inventory item list
-- [ ] Edit page of the supply delivery details is crashing
+- [-] Edit page of the supply delivery details is crashing - Khavin
 - [ ] Medications added from our product cannot be administered due to missing code
-- [ ] Each modification to the pre-filled quantity in bill medication triggers a component re-render, which disrupts the editing experience.
+- [-] Each modification to the pre-filled quantity in bill medication triggers a component re-render, which disrupts the editing experience. - Khavin
 
 ## Billing
 
