@@ -47,10 +47,10 @@ export default function PharmacyMedicationList({
 
   return (
     <Page title={t("pharmacy_medications")} hideTitleOnPage>
-      <div className="container mx-auto">
+      <div>
         <Button
-          variant="link"
-          className="underline underline-offset-2 text-gray-950 font-semibold pl-0 cursor-pointer"
+          variant="outline"
+          className="text-gray-950 font-semibold border-gray-300 mb-4"
           onClick={() =>
             navigate(
               `/facility/${facilityId}/locations/${locationId}/medication_requests/`,
@@ -62,7 +62,7 @@ export default function PharmacyMedicationList({
         </Button>
       </div>
       {patientData && (
-        <Card className="mb-4 p-4 rounded-md shadow-none">
+        <Card className="mb-4 p-4 rounded-none shadow-none bg-gray-100">
           <PatientHeader patient={patientData} facilityId={facilityId} />
         </Card>
       )}
