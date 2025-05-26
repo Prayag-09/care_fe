@@ -11,10 +11,10 @@ x : Done
 - [x] Add option to archive suppliers - Yash
 - [-] Add status based filters for product knowledge - Yash
 - [ ] Undo absolute net quantity after video recorded
-- [ ] Healthcare Service Details View page : Hide the unwanted metadata details page & add translation for extra_details
+- [-] Healthcare Service Details View page : Hide the unwanted metadata details page & add translation for extra_details - Jeevan
 - [-] Add facility-based filter & pagination in the inventory items list - Jeevan. Vignesh will add filter queryset by facility later
 - [x] Add pagination where it's missing - Jeevan
-- [ ] Add a warning colour for low stock items in the inventory item list
+- [-] Add a warning colour for low stock items in the inventory item list - Jeevan
 - [-] Edit page of the supply delivery details is crashing - Khavin
 - [ ] Medications added from our product cannot be administered due to missing code
 - [-] Each modification to the pre-filled quantity in bill medication triggers a component re-render, which disrupts the editing experience. - Khavin
