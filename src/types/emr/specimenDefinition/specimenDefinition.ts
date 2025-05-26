@@ -5,7 +5,6 @@ export enum SpecimenDefinitionStatus {
   draft = "draft",
   active = "active",
   retired = "retired",
-  unknown = "unknown",
 }
 
 export enum Preference {

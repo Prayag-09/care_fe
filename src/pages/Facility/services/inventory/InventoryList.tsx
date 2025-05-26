@@ -124,7 +124,13 @@ export function InventoryList({ facilityId, locationId }: InventoryListProps) {
                       />
                     </Link>
                   </TableCell>
-                  <TableCell>{inventory.net_content}</TableCell>
+                  <TableCell
+                    className={cn(
+                      inventory.net_content < 10 && "text-yellow-600",
+                    )}
+                  >
+                    {inventory.net_content}
+                  </TableCell>
                   <TableCell>
                     <Badge
                       variant="secondary"

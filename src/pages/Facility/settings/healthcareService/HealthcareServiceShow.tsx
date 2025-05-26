@@ -185,28 +185,6 @@ export default function HealthcareServiceShow({
               )}
             </CardContent>
           </Card>
-
-          {/* Metadata */}
-          <Card>
-            <CardHeader>
-              <CardTitle>{t("metadata")}</CardTitle>
-              <CardDescription>{t("system_information")}</CardDescription>
-            </CardHeader>
-            <CardContent>
-              <div className="grid gap-4 text-sm">
-                <div>
-                  <p className="font-medium text-gray-500">{t("id")}</p>
-                  <p className="font-mono">{healthcareService.id}</p>
-                </div>
-                {healthcareService.version !== undefined && (
-                  <div>
-                    <p className="font-medium text-gray-500">{t("version")}</p>
-                    <p>{healthcareService.version}</p>
-                  </div>
-                )}
-              </div>
-            </CardContent>
-          </Card>
         </div>
       </div>
     </Page>
