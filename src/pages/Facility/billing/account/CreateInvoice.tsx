@@ -12,7 +12,6 @@ import { useTranslation } from "react-i18next";
 import { toast } from "sonner";
 import * as z from "zod";
 
-import { Badge } from "@/components/ui/badge";
 import { Button } from "@/components/ui/button";
 import {
   Form,
@@ -41,7 +40,6 @@ import query from "@/Utils/request/query";
 import { PaginatedResponse } from "@/Utils/request/types";
 import { MonetaryComponentType } from "@/types/base/monetaryComponent/monetaryComponent";
 import {
-  CHARGE_ITEM_STATUS_STYLES,
   ChargeItemRead,
   ChargeItemStatus,
 } from "@/types/billing/chargeItem/chargeItem";
@@ -97,10 +95,10 @@ function PriceComponentRow({
           <TableCell>
             {component.code && `${component.code.display} `}({label})
           </TableCell>
+          <TableCell></TableCell>
           <TableCell>
             <MonetaryDisplay {...component} />
           </TableCell>
-          <TableCell></TableCell>
           <TableCell>
             {component.monetary_component_type ===
             MonetaryComponentType.discount
@@ -353,10 +351,9 @@ export function CreateInvoicePage({
                     <TableRow>
                       <TableHead className="w-[50px]"></TableHead>
                       <TableHead>{t("title")}</TableHead>
-                      <TableHead>{t("unit_price")}</TableHead>
                       <TableHead>{t("quantity")}</TableHead>
+                      <TableHead>{t("unit_price")}</TableHead>
                       <TableHead>{t("total")}</TableHead>
-                      <TableHead>{t("status")}</TableHead>
                     </TableRow>
                   </TableHeader>
                   <TableBody>
@@ -393,20 +390,12 @@ export function CreateInvoicePage({
                               {item.id}
                             </div>
                           </TableCell>
+                          <TableCell>{item.quantity}</TableCell>
                           <TableCell>
                             <MonetaryDisplay amount={baseAmount} />
                           </TableCell>
-                          <TableCell>{item.quantity}</TableCell>
                           <TableCell>
                             <MonetaryDisplay amount={item.total_price} />
-                          </TableCell>
-                          <TableCell>
-                            <Badge
-                              variant="outline"
-                              className={CHARGE_ITEM_STATUS_STYLES[item.status]}
-                            >
-                              {t(item.status)}
-                            </Badge>
                           </TableCell>
                         </TableRow>
                       );
@@ -452,7 +441,6 @@ export function CreateInvoicePage({
                           <TableCell>
                             <MonetaryDisplay amount={item.total_price} />
                           </TableCell>
-                          <TableCell></TableCell>
                         </TableRow>
                       );
 
