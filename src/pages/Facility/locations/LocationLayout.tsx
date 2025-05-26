@@ -225,5 +225,5 @@ export function LocationLayout({
     },
   });
 
-  return <div className="container mx-auto p-4">{routeResult}</div>;
+  return <div>{routeResult}</div>;
 }

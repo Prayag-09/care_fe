@@ -4,6 +4,7 @@ import { useTranslation } from "react-i18next";
 
 import { cn } from "@/lib/utils";
 
+import { Badge } from "@/components/ui/badge";
 import { Button } from "@/components/ui/button";
 import {
   Table,
@@ -55,20 +56,24 @@ interface MedicationTableProps {
 function MedicationTable({ medications }: MedicationTableProps) {
   const { t } = useTranslation();
 
+  const tableHeadClass =
+    "border-x p-3 text-gray-700 text-sm font-medium leading-5";
+  const tableCellClass = "border-x p-3 text-gray-950";
+
   return (
-    <div className="rounded-md border">
+    <div className="rounded-lg border shadow-sm w-full bg-white overflow-hidden">
       <Table>
-        <TableHeader>
-          <TableRow>
-            <TableHead>{t("medicine")}</TableHead>
-            <TableHead>{t("dosage")}</TableHead>
-            <TableHead>{t("frequency")}</TableHead>
-            <TableHead>{t("duration")}</TableHead>
-            <TableHead>{t("status")}</TableHead>
-            <TableHead>{t("priority")}</TableHead>
+        <TableHeader className="bg-gray-100">
+          <TableRow className="border-b">
+            <TableHead className={tableHeadClass}>{t("medicine")}</TableHead>
+            <TableHead className={tableHeadClass}>{t("dosage")}</TableHead>
+            <TableHead className={tableHeadClass}>{t("frequency")}</TableHead>
+            <TableHead className={tableHeadClass}>{t("duration")}</TableHead>
+            <TableHead className={tableHeadClass}>{t("priority")}</TableHead>
+            <TableHead className={tableHeadClass}>{t("status")}</TableHead>
           </TableRow>
         </TableHeader>
-        <TableBody>
+        <TableBody className="bg-white">
           {medications.map((medication: MedicationRequestRead) => {
             const instruction = medication.dosage_instruction[0];
             const frequency = instruction?.timing?.code;
@@ -76,12 +81,17 @@ function MedicationTable({ medications }: MedicationTableProps) {
             const dosage = instruction?.dose_and_rate?.dose_quantity;
 
             return (
-              <TableRow key={medication.id}>
-                <TableCell>{displayMedicationName(medication)}</TableCell>
-                <TableCell>
+              <TableRow
+                key={medication.id}
+                className="border-b hover:bg-gray-50"
+              >
+                <TableCell className={cn(tableCellClass, "font-medium")}>
+                  {displayMedicationName(medication)}
+                </TableCell>
+                <TableCell className={tableCellClass}>
                   {dosage ? `${dosage.value} ${dosage.unit.display}` : "-"}
                 </TableCell>
-                <TableCell>
+                <TableCell className={tableCellClass}>
                   {instruction?.as_needed_boolean
                     ? `${t("as_needed_prn")} ${
                         instruction?.as_needed_for?.display
@@ -90,28 +100,24 @@ function MedicationTable({ medications }: MedicationTableProps) {
                       }`
                     : frequency?.display || "-"}
                 </TableCell>
-                <TableCell>
+                <TableCell className={tableCellClass}>
                   {duration ? `${duration.value} ${duration.unit}` : "-"}
                 </TableCell>
-                <TableCell>
-                  <span
-                    className={cn(
-                      "px-2 py-1 rounded-full text-xs font-medium",
-                      STATUS_COLORS[medication.status],
-                    )}
-                  >
-                    {t(medication.status)}
-                  </span>
-                </TableCell>
-                <TableCell>
-                  <span
-                    className={cn(
-                      "px-2 py-1 rounded-full text-xs font-medium",
-                      PRIORITY_COLORS[medication.priority],
-                    )}
+                <TableCell className={tableCellClass}>
+                  <Badge
+                    variant="outline"
+                    className={PRIORITY_COLORS[medication.priority]}
                   >
                     {t(medication.priority)}
-                  </span>
+                  </Badge>
+                </TableCell>
+                <TableCell className={tableCellClass}>
+                  <Badge
+                    variant="outline"
+                    className={STATUS_COLORS[medication.status]}
+                  >
+                    {t(medication.status)}
+                  </Badge>
                 </TableCell>
               </TableRow>
             );
@@ -159,7 +165,7 @@ export default function MedicationDispenseList({
   const otherMedications = medications.filter((med) => !med.requested_product);
 
   return (
-    <div className="container mx-auto">
+    <div>
       <div className="mb-6">
         <div className="flex flex-col sm:flex-row items-start sm:items-center justify-between gap-4">
           <h1 className="text-xl font-semibold text-gray-900">
