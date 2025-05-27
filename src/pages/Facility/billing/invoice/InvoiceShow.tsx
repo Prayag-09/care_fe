@@ -59,6 +59,7 @@ import { TableSkeleton } from "@/components/Common/SkeletonLoading";
 
 import mutate from "@/Utils/request/mutate";
 import query from "@/Utils/request/query";
+import { dateQueryString } from "@/Utils/utils";
 import PaymentReconciliationSheet from "@/pages/Facility/billing/PaymentReconciliationSheet";
 import EditInvoiceSheet from "@/pages/Facility/billing/invoice/EditInvoiceSheet";
 import { MonetaryComponentType } from "@/types/base/monetaryComponent/monetaryComponent";
@@ -247,6 +248,10 @@ export function InvoiceShow({
         note: invoice?.note,
         account: invoice?.account.id || "",
         charge_items: invoice?.charge_items.map((item) => item.id) || [],
+        issue_date:
+          status === InvoiceStatus.issued
+            ? dateQueryString(new Date())
+            : invoice?.issue_date,
       };
 
       updateInvoice(data);
@@ -264,6 +269,7 @@ export function InvoiceShow({
         note: invoice?.note,
         account: invoice?.account.id || "",
         charge_items: invoice?.charge_items.map((item) => item.id) || [],
+        issue_date: invoice?.issue_date,
       });
     } else {
       cancelInvoice({ reason: selectedStatus });
@@ -473,7 +479,9 @@ export function InvoiceShow({
                     {t("issue_date")}:
                   </div>
                   <p className="font-medium text-gray-950 text-sm">
-                    {/* {formatDate(invoice.created_at, "MM/dd/yyyy")} */}
+                    {invoice.issue_date
+                      ? format(new Date(invoice.issue_date), "dd MMM, yyyy")
+                      : "-"}
                   </p>
                 </div>
               </div>
