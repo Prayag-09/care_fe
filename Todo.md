@@ -26,6 +26,7 @@ x : Done
 - [ ] Display the negative balance in the 'Amount Due' section as well to indicate that the user has overpaid beyond their actual bill.
 - [ ] When an invoice is marked as 'entered in error' the transaction details should be removed from the balance summary (total amount due, net payable, etc.)
 - [ ] Add support to edit discount code & search in the billing section
+- [-] Wire the issue date
 
 ## Labs
 
@@ -43,7 +44,7 @@ x : Done
 - [ ] SR Details page - Disable the process step once the report generation is done | Confirm with Bodhi before working on this
 - [ ] SR overview page - Show the current status of the service request. Upon completion, update the status from active to complete
 
-- [-] Fix the explicit type casting and add proper types to SDF - Yash
+- [x] Fix the explicit type casting and add proper types to SDF - Yash
 
 ## Back End
 
