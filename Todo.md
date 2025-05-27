@@ -26,6 +26,7 @@ x : Done
 - [ ] Display the negative balance in the 'Amount Due' section as well to indicate that the user has overpaid beyond their actual bill.
 - [ ] When an invoice is marked as 'entered in error' the transaction details should be removed from the balance summary (total amount due, net payable, etc.)
 - [ ] Add support to edit discount code & search in the billing section
+- [-] Wire the issue date
 
 ## Labs
 
@@ -36,14 +37,14 @@ x : Done
 - [ ] Specimen Definition - Add \* for required fields and frontend validation for Retention Time, Capacity, Minimum Volume, Type Collected, Title, and Slug
 - [ ] Specimen Definition - Add frontend permission check for the Specimen Definition page at the facility level.
 - [ ] In the Specimen Definition edit form, removing data from optional fields is not working.
-- [X] SR details page- Remove the back button from the sample identification QR print preview pop-up. / adjust the behavior to only close the pop-up - Manyu
+- [x] SR details page- Remove the back button from the sample identification QR print preview pop-up. / adjust the behavior to only close the pop-up - Manyu
 - [ ] SR details page - fix decimal points to two and round off amounts in charge items.
-- [X] SR details page - Specimen ID cannot be hidden in the Service Request QR - Manyu
+- [x] SR details page - Specimen ID cannot be hidden in the Service Request QR - Manyu
 - [ ] SR details page - Add a hyperlink to the payment page, for better UX
 - [ ] SR Details page - Disable the process step once the report generation is done | Confirm with Bodhi before working on this
 - [ ] SR overview page - Show the current status of the service request. Upon completion, update the status from active to complete
 
-- [-] Fix the explicit type casting and add proper types to SDF - Yash
+- [x] Fix the explicit type casting and add proper types to SDF - Yash
 
 ## Back End
 
