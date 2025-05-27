@@ -46,6 +46,8 @@ import {
   statusColorMap,
 } from "@/types/billing/account/Account";
 import accountApi from "@/types/billing/account/accountApi";
+import { ChargeItemStatus } from "@/types/billing/chargeItem/chargeItem";
+import chargeItemApi from "@/types/billing/chargeItem/chargeItemApi";
 
 import AccountSheet from "./AccountSheet";
 import ChargeItemsTable from "./components/ChargeItemsTable";
@@ -93,6 +95,21 @@ export function AccountShow({
       pathParams: { facilityId, accountId },
     }),
   });
+
+  const { data: billableChargeItems } = useQuery({
+    queryKey: ["billableChargeItems", accountId],
+    queryFn: query(chargeItemApi.listChargeItem, {
+      pathParams: { facilityId },
+      queryParams: {
+        account: accountId,
+        status: ChargeItemStatus.billable,
+        limit: 1,
+      },
+    }),
+    enabled: !!accountId && closeAccountStatus.sheetOpen,
+  });
+
+  const hasBillableItems = (billableChargeItems?.count ?? 0) > 0;
 
   const isAccountBillingClosed =
     account?.billing_status === AccountBillingStatus.closed_baddebt ||
@@ -531,7 +548,16 @@ export function AccountShow({
             </SelectContent>
           </Select>
           <ClosedCallout balance={account.total_balance} />
-          <Button variant="destructive" onClick={handleCloseAccount}>
+          {hasBillableItems && (
+            <span className="text-red-500 bg-red-50 text-xs p-2 rounded block -mt-3">
+              {t("cannot_close_account_with_pending_items")}
+            </span>
+          )}
+          <Button
+            variant="destructive"
+            onClick={handleCloseAccount}
+            disabled={hasBillableItems}
+          >
             {t("close_account")}
           </Button>
         </DialogContent>
