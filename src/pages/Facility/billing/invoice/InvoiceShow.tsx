@@ -938,10 +938,7 @@ export function InvoiceShow({
                   title: t("invoice_created"),
                 });
 
-                if (
-                  invoice.status === InvoiceStatus.issued ||
-                  invoice.status === InvoiceStatus.balanced
-                ) {
+                if (invoice.issue_date) {
                   events.push({
                     icon: <FileCheck className="size-5" />,
                     title: t("invoice_issued"),
