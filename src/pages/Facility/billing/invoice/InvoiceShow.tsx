@@ -57,9 +57,9 @@ import {
 import AddChargeItemSheet from "@/components/Billing/Invoice/AddChargeItemSheet";
 import { TableSkeleton } from "@/components/Common/SkeletonLoading";
 
+import dayjs from "@/Utils/dayjs";
 import mutate from "@/Utils/request/mutate";
 import query from "@/Utils/request/query";
-import { dateQueryString } from "@/Utils/utils";
 import PaymentReconciliationSheet from "@/pages/Facility/billing/PaymentReconciliationSheet";
 import EditInvoiceSheet from "@/pages/Facility/billing/invoice/EditInvoiceSheet";
 import { MonetaryComponentType } from "@/types/base/monetaryComponent/monetaryComponent";
@@ -250,7 +250,7 @@ export function InvoiceShow({
         charge_items: invoice?.charge_items.map((item) => item.id) || [],
         issue_date:
           status === InvoiceStatus.issued
-            ? dateQueryString(new Date())
+            ? dayjs().toISOString()
             : invoice?.issue_date,
       };
 
@@ -480,7 +480,10 @@ export function InvoiceShow({
                   </div>
                   <p className="font-medium text-gray-950 text-sm">
                     {invoice.issue_date
-                      ? format(new Date(invoice.issue_date), "dd MMM, yyyy")
+                      ? format(
+                          new Date(invoice.issue_date),
+                          "dd MMM, yyyy h:mm a",
+                        )
                       : "-"}
                   </p>
                 </div>

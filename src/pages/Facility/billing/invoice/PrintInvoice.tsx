@@ -128,7 +128,7 @@ export function PrintInvoice({ facilityId, invoiceId }: PrintInvoiceProps) {
               <span className="text-gray-500">{t("invoice_date")}</span>
               <span>
                 {invoice.issue_date
-                  ? format(new Date(invoice.issue_date), "dd MMM, yyyy")
+                  ? format(new Date(invoice.issue_date), "dd MMM, yyyy h:mm a")
                   : "-"}
               </span>
             </div>
