@@ -6,6 +6,8 @@ import { useEffect, useState } from "react";
 import { useTranslation } from "react-i18next";
 import { toast } from "sonner";
 
+import { cn } from "@/lib/utils";
+
 import CareIcon from "@/CAREUI/icons/CareIcon";
 
 import { Badge } from "@/components/ui/badge";
@@ -371,16 +373,19 @@ export function AccountShow({
                 {t("amount_due")}
               </p>
               <div className="flex items-end">
-                <p className="text-3xl font-bold text-red-500">
-                  <MonetaryDisplay
-                    amount={
-                      account.total_balance > 0 ? account.total_balance : 0
-                    }
-                  />
+                <p
+                  className={cn("text-3xl font-bold", {
+                    "text-red-500": account.total_balance > 0,
+                    "text-green-700": account.total_balance <= 0,
+                  })}
+                >
+                  <MonetaryDisplay amount={account.total_balance} />
                 </p>
               </div>
               <p className="text-xs text-gray-500">
-                {t("pending_from_patient")}
+                {account.total_balance >= 0
+                  ? t("pending_from_patient")
+                  : t("overpaid_amount")}
               </p>
             </div>
           </div>
