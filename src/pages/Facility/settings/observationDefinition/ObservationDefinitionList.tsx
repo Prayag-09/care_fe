@@ -189,7 +189,7 @@ export default function ObservationDefinitionList({
             <div className="grid gap-4 md:grid-cols-2 lg:grid-cols-3 md:hidden">
               <CardGridSkeleton count={4} />
             </div>
-            <div className="phidden md:block">
+            <div className="hidden md:block">
               <TableSkeleton count={5} />
             </div>
           </>
