@@ -22,7 +22,7 @@ x : Done
 - [-] Change default account name to {patient-name} + date to keep it a little bit unique and searchable in billing account dashboard - Amjith, Vignesh
 - [ ] When a billing account of a patient is on hold, we should restrict users from creating any charge item to the patient, as per doc, but our platform will be creating a new wallet by ignoring the on-hold account
 - [ ] Allow only one active billing account for a patient at a time , Take a product suggestion before working on this
-- [ ] When attempting to close a billing account with pending charge items that haven't been invoiced, disable the 'Close Account' button in the pop-up and display a message stating: 'You cannot close an account with pending charge items.
+- [-] When attempting to close a billing account with pending charge items that haven't been invoiced, disable the 'Close Account' button in the pop-up and display a message stating: 'You cannot close an account with pending charge items. - Manyu
 - [ ] Display the negative balance in the 'Amount Due' section as well to indicate that the user has overpaid beyond their actual bill.
 - [ ] When an invoice is marked as 'entered in error' the transaction details should be removed from the balance summary (total amount due, net payable, etc.)
 - [ ] Add support to edit discount code & search in the billing section
@@ -36,9 +36,9 @@ x : Done
 - [ ] Specimen Definition - Add \* for required fields and frontend validation for Retention Time, Capacity, Minimum Volume, Type Collected, Title, and Slug
 - [ ] Specimen Definition - Add frontend permission check for the Specimen Definition page at the facility level.
 - [ ] In the Specimen Definition edit form, removing data from optional fields is not working.
-- [-] SR details page- Remove the back button from the sample identification QR print preview pop-up. / adjust the behavior to only close the pop-up - Manyu
+- [X] SR details page- Remove the back button from the sample identification QR print preview pop-up. / adjust the behavior to only close the pop-up - Manyu
 - [ ] SR details page - fix decimal points to two and round off amounts in charge items.
-- [ ] SR details page - Specimen ID cannot be hidden in the Service Request QR
+- [X] SR details page - Specimen ID cannot be hidden in the Service Request QR - Manyu
 - [ ] SR details page - Add a hyperlink to the payment page, for better UX
 - [ ] SR Details page - Disable the process step once the report generation is done | Confirm with Bodhi before working on this
 - [ ] SR overview page - Show the current status of the service request. Upon completion, update the status from active to complete
