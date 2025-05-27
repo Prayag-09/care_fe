@@ -33,12 +33,12 @@ x : Done
 - [-] Service Request - Show specimen.collection.collector details instead of UUID (After BE change) - Vignesh
 - [-] Service Request - Show specimen.processing.performer details instead of UUID (After BE change) - Vignesh
 - [ ] Healthcare Service edit - Location expand missing in sheet
-- [ ] Specimen Definition - Add \* for required fields and frontend validation for Retention Time, Capacity, Minimum Volume, Type Collected, Title, and Slug
+- [x] Specimen Definition - Add \* for required fields and frontend validation for Retention Time, Capacity, Minimum Volume, Type Collected, Title, and Slug
 - [ ] Specimen Definition - Add frontend permission check for the Specimen Definition page at the facility level.
 - [ ] In the Specimen Definition edit form, removing data from optional fields is not working.
-- [X] SR details page- Remove the back button from the sample identification QR print preview pop-up. / adjust the behavior to only close the pop-up - Manyu
+- [x] SR details page- Remove the back button from the sample identification QR print preview pop-up. / adjust the behavior to only close the pop-up - Manyu
 - [ ] SR details page - fix decimal points to two and round off amounts in charge items.
-- [X] SR details page - Specimen ID cannot be hidden in the Service Request QR - Manyu
+- [x] SR details page - Specimen ID cannot be hidden in the Service Request QR - Manyu
 - [ ] SR details page - Add a hyperlink to the payment page, for better UX
 - [ ] SR Details page - Disable the process step once the report generation is done | Confirm with Bodhi before working on this
 - [ ] SR overview page - Show the current status of the service request. Upon completion, update the status from active to complete
