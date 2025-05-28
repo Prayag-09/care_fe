@@ -22,11 +22,12 @@ x : Done
 - [-] Change default account name to {patient-name} + date to keep it a little bit unique and searchable in billing account dashboard - Amjith, Vignesh
 - [-] When a billing account of a patient is on hold, we should restrict users from creating any charge item to the patient, as per doc, but our platform will be creating a new wallet by ignoring the on-hold account (BE) - Vignesh
 - [ ] Allow only one active billing account for a patient at a time , Take a product suggestion before working on this
-- [x] When attempting to close a billing account with pending charge items that haven't been invoiced, disable the 'Close Account' button in the pop-up and display a message stating: 'You cannot close an account with pending charge items. - Manyu
+- [x] When attempting to close a billing account with pending charge items that haven't been invoiced, disable the 'Close Account' button in the pop-up and display a message stating: 'You cannot close an account with pending charge items. - Manyu. Note: Confirm if this is needed, FHIR specs allow to close account with pending charges.
 - [x] Display the negative balance in the 'Amount Due' section as well to indicate that the user has overpaid beyond their actual bill. - Manyu
 - [ ] When an invoice is marked as 'entered in error' the transaction details should be removed from the balance summary (total amount due, net payable, etc.)
 - [ ] Add support to edit discount code & search in the billing section
 - [x] Wire the issue date and update the invoice activity timeline to use it - Yaswanth
+- [-] Modify back button links in Payment details page (back to accountId/payments if navigating from there) - Jeevan
 
 ## Labs
 
