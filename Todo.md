@@ -39,7 +39,7 @@ x : Done
 - [x] SR details page - Specimen ID cannot be hidden in the Service Request QR - Manyu
 - [ ] SR details page - Add a hyperlink to the payment page, for better UX
 - [ ] SR Details page - Disable the process step once the report generation is done | Confirm with Bodhi before working on this
-- [ ] SR overview page - Show the current status of the service request. Upon completion, update the status from active to complete
+- [-] SR overview page - Show the current status of the service request. Upon completion, update the status from active to complete - Manyu
 
 - [x] Fix the explicit type casting and add proper types to SDF - Yash
 
