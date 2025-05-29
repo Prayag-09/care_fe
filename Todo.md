@@ -33,7 +33,7 @@ x : Done
 - [x] Healthcare Service edit - Location expand missing in sheet - Manyu
 - [x] Specimen Definition - Add \* for required fields and frontend validation for Retention Time, Capacity, Minimum Volume, Type Collected, Title, and Slug
 - [ ] Specimen Definition - Add frontend permission check for the Specimen Definition page at the facility level.
-- [-] In the Specimen Definition edit form, removing data from optional fields is not working. - Manyu
+- [-] In the Specimen Definition edit form, removing data from optional fields is not working and Fix some types and cleanup in Specimen Definition Form. - Manyu & Yash
 - [x] SR details page- Remove the back button from the sample identification QR print preview pop-up. / adjust the behavior to only close the pop-up - Manyu
 - [ ] SR details page - fix decimal points to two and round off amounts in charge items.
 - [x] SR details page - Specimen ID cannot be hidden in the Service Request QR - Manyu
