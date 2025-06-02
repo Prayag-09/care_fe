@@ -66,6 +66,7 @@ import mutate from "@/Utils/request/mutate";
 import query from "@/Utils/request/query";
 import { CreateInvoiceSheet } from "@/pages/Facility/billing/account/components/CreateInvoiceSheet";
 import useCurrentLocation from "@/pages/Facility/locations/utils/useCurrentLocation";
+import { PatientHeader } from "@/pages/Facility/services/serviceRequests/components/PatientHeader";
 import useCurrentFacility from "@/pages/Facility/utils/useCurrentFacility";
 import { Code } from "@/types/base/code/code";
 import { MonetaryComponentType } from "@/types/base/monetaryComponent/monetaryComponent";
@@ -211,6 +212,16 @@ export default function MedicationBillForm({ patientId }: Props) {
 
       return medicationResponse;
     },
+  });
+
+  const { data: patient } = useQuery({
+    queryKey: ["patient", patientId],
+    queryFn: query(routes.patient.getPatient, {
+      pathParams: {
+        id: patientId,
+      },
+    }),
+    enabled: !!patientId,
   });
 
   useEffect(() => {
@@ -460,9 +471,12 @@ export default function MedicationBillForm({ patientId }: Props) {
   };
 
   return (
-    <Page title={t("bill_medications")}>
+    <Page title={t("bill_medications")} hideTitleOnPage={true} isInsidePage>
       <div>
         <div className="mb-6 flex items-center justify-between">
+          <h1 className="text-2xl font-bold whitespace-nowrap">
+            {t("bill_medications")}
+          </h1>
           <div className="flex gap-2 justify-end w-full">
             <Button
               variant="outline"
@@ -480,6 +494,12 @@ export default function MedicationBillForm({ patientId }: Props) {
             </Button>
           </div>
         </div>
+
+        {patient && (
+          <div className="mb-4 p-4 rounded-none shadow-none bg-gray-100">
+            <PatientHeader patient={patient} facilityId={facilityId} />
+          </div>
+        )}
 
         {isLoading ? (
           <TableSkeleton count={5} />
