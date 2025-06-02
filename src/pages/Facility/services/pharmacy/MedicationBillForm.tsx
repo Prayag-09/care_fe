@@ -525,6 +525,7 @@ export default function MedicationBillForm({ patientId }: Props) {
                     <TableHead>{t("discount")}</TableHead>
                     <TableHead>{t("amount")}</TableHead>
                     <TableHead>{t("actions")}</TableHead>
+                    <TableHead>{t("all_dispensed")}?</TableHead>
                   </TableRow>
                 </TableHeader>
                 <TableBody>
@@ -932,6 +933,26 @@ export default function MedicationBillForm({ patientId }: Props) {
                               <MoreVertical />
                             </Button>
                           </div>
+                        </TableCell>
+                        <TableCell>
+                          {field.medication ? (
+                            <FormField
+                              control={form.control}
+                              name={`items.${index}.isFullyDispensed`}
+                              render={({ field: formField }) => (
+                                <FormItem>
+                                  <FormControl>
+                                    <Checkbox
+                                      checked={formField.value}
+                                      onCheckedChange={formField.onChange}
+                                    />
+                                  </FormControl>
+                                </FormItem>
+                              )}
+                            />
+                          ) : (
+                            "-"
+                          )}
                         </TableCell>
                       </TableRow>
                     );
