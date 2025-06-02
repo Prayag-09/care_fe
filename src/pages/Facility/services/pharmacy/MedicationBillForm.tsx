@@ -728,7 +728,7 @@ export default function MedicationBillForm({ patientId }: Props) {
                                     <ChevronDownIcon className="ml-2 h-4 w-4 shrink-0" />
                                   </Button>
                                 </PopoverTrigger>
-                                <PopoverContent className="w-80 p-0">
+                                <PopoverContent className="w-auto p-0">
                                   <div className="max-h-60 overflow-auto">
                                     {productKnowledgeInventoriesMap[
                                       productKnowledge.id
@@ -805,6 +805,7 @@ export default function MedicationBillForm({ patientId }: Props) {
                                                     ? "primary"
                                                     : "destructive"
                                                 }
+                                                className="ml-1"
                                               >
                                                 {inv.net_content} {t("units")}
                                               </Badge>
