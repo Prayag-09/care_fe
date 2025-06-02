@@ -44,6 +44,7 @@ import {
   SelectTrigger,
   SelectValue,
 } from "@/components/ui/select";
+import { Switch } from "@/components/ui/switch";
 import {
   Table,
   TableBody,
@@ -1042,7 +1043,8 @@ export default function MedicationBillForm({ patientId }: Props) {
                               render={({ field: formField }) => (
                                 <FormItem>
                                   <FormControl>
-                                    <Checkbox
+                                    <Switch
+                                      className="data-[state=checked]:bg-primary-600"
                                       checked={formField.value}
                                       onCheckedChange={formField.onChange}
                                     />
