@@ -47,12 +47,12 @@ export default function DispensesView({
           className="text-gray-950 font-semibold border-gray-300 mb-4"
           onClick={() =>
             navigate(
-              `/facility/${facilityId}/locations/${locationId}/medication_requests/`,
+              `/facility/${facilityId}/locations/${locationId}/medication_dispense/`,
             )
           }
         >
           <ArrowLeftIcon className="size-4" />
-          Back to Prescription Queue
+          Back to Dispense Queue
         </Button>
       </div>
       {patientData && (
