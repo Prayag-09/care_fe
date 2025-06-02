@@ -577,7 +577,7 @@ export default function MedicationBillForm({ patientId }: Props) {
                               {productKnowledge.name}
                             </div>
                             {field.medication ? (
-                              <div className="text-sm text-muted-foreground">
+                              <div className="text-sm">
                                 {/* Existing medication - show read-only dosage instructions */}
                                 {
                                   field.dosageInstructions?.[0]?.dose_and_rate
@@ -624,7 +624,7 @@ export default function MedicationBillForm({ patientId }: Props) {
                                 {t("units")}
                               </div>
                             ) : (
-                              <div className="text-sm text-muted-foreground">
+                              <div className="text-sm">
                                 {/* Newly added medication - allow editing dosage instructions */}
                                 <AddDosageInstructionPopover
                                   dosageInstructions={form.watch(
@@ -681,9 +681,7 @@ export default function MedicationBillForm({ patientId }: Props) {
 
                                         if (selectedLots.length === 0) {
                                           return (
-                                            <span className="text-muted-foreground">
-                                              {t("select_stock")}
-                                            </span>
+                                            <span>{t("select_stock")}</span>
                                           );
                                         }
 
@@ -814,7 +812,7 @@ export default function MedicationBillForm({ patientId }: Props) {
                                         );
                                       })
                                     ) : (
-                                      <div className="p-4 text-center text-muted-foreground">
+                                      <div className="p-4 text-center">
                                         {t("no_lots_found")}
                                       </div>
                                     )}
@@ -875,7 +873,7 @@ export default function MedicationBillForm({ patientId }: Props) {
                               .watch(`items.${index}.lots`)
                               .filter((lot) => lot.selectedInventoryId)
                               .length === 0 && (
-                              <div className="text-sm text-muted-foreground py-2">
+                              <div className="text-sm py-2">
                                 {t("select_lots_first")}
                               </div>
                             )}
@@ -935,11 +933,7 @@ export default function MedicationBillForm({ patientId }: Props) {
                           {form
                             .watch(`items.${index}.lots`)
                             .filter((lot) => lot.selectedInventoryId).length ===
-                            0 && (
-                            <div className="text-sm text-muted-foreground py-2">
-                              -
-                            </div>
-                          )}
+                            0 && <div className="text-sm  py-2">-</div>}
                         </TableCell>
                         <TableCell>
                           {form
@@ -1009,11 +1003,7 @@ export default function MedicationBillForm({ patientId }: Props) {
                           {form
                             .watch(`items.${index}.lots`)
                             .filter((lot) => lot.selectedInventoryId).length ===
-                            0 && (
-                            <div className="text-sm text-muted-foreground py-2">
-                              -
-                            </div>
-                          )}
+                            0 && <div className="text-sm py-2">-</div>}
                         </TableCell>
                         <TableCell>
                           {form
@@ -1042,11 +1032,7 @@ export default function MedicationBillForm({ patientId }: Props) {
                           {form
                             .watch(`items.${index}.lots`)
                             .filter((lot) => lot.selectedInventoryId).length ===
-                            0 && (
-                            <div className="text-sm text-muted-foreground py-2">
-                              -
-                            </div>
-                          )}
+                            0 && <div className="text-sm py-2">-</div>}
                         </TableCell>
                         <TableCell>
                           {field.medication ? (
@@ -1298,7 +1284,7 @@ const AddDosageInstructionPopover = ({
               {t("units")}
             </div>
           ) : (
-            <div className="line-clamp-2 text-muted-foreground cursor-pointer hover:text-gray-900">
+            <div className="line-clamp-2 cursor-pointer hover:text-gray-900">
               {t("click_to_add_dosage_instructions")}
             </div>
           )}
