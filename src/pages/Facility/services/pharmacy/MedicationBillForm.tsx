@@ -1043,7 +1043,7 @@ export default function MedicationBillForm({ patientId }: Props) {
             onSuccess={() => {
               setIsInvoiceSheetOpen(false);
               navigate(
-                `/facility/${facilityId}/locations/${locationId}/medication_requests/patient/${patientId}/dispense`,
+                `/facility/${facilityId}/locations/${locationId}/medication_dispense/patient/${patientId}/preparation`,
               );
             }}
           />
