@@ -63,6 +63,7 @@ import {
 import ComboboxQuantityInput from "@/components/Common/ComboboxQuantityInput";
 import Page from "@/components/Common/Page";
 import { TableSkeleton } from "@/components/Common/SkeletonLoading";
+import { SubstitutionSheet } from "@/components/Medication/SubstitutionSheet";
 import { MultiValueSetSelect } from "@/components/Medicine/MultiValueSetSelect";
 import { formatDoseRange } from "@/components/Medicine/utils";
 import { reverseFrequencyOption } from "@/components/Questionnaire/QuestionTypes/MedicationRequestQuestion";
@@ -91,6 +92,8 @@ import {
   MedicationDispenseCategory,
   MedicationDispenseCreate,
   MedicationDispenseStatus,
+  SubstitutionReason,
+  SubstitutionType,
 } from "@/types/emr/medicationDispense/medicationDispense";
 import {
   DoseRange,
@@ -144,6 +147,13 @@ const formSchema = z.object({
           }),
         )
         .min(1),
+      substitution: z
+        .object({
+          substitutedProductKnowledge: z.any(), // ProductKnowledgeBase of the substitute
+          type: z.nativeEnum(SubstitutionType),
+          reason: z.nativeEnum(SubstitutionReason),
+        })
+        .optional(),
     }),
   ),
 });
@@ -643,6 +653,12 @@ export default function MedicationBillForm({ patientId }: Props) {
   const [isAddMedicationSheetOpen, setIsAddMedicationSheetOpen] =
     useState(false);
   const [editingItemIndex, setEditingItemIndex] = useState<number | null>(null);
+  const [isSubstitutionSheetOpen, setIsSubstitutionSheetOpen] = useState(false);
+  const [substitutingItemIndex, setSubstitutingItemIndex] = useState<
+    number | null
+  >(null);
+  const [originalProductForSubstitution, setOriginalProductForSubstitution] =
+    useState<ProductKnowledgeBase | undefined>();
 
   const tableHeaderClass =
     "px-4 py-3 border-r font-medium border-y-1 border-r-none border-gray-200 rounded-b-none border-b-0";
@@ -902,13 +918,25 @@ export default function MedicationBillForm({ patientId }: Props) {
     selectedItems.forEach((item) => {
       const medication = item.medication as MedicationRequestRead | undefined;
       const productKnowledge = item.productKnowledge as ProductKnowledgeBase;
+      const effectiveProductKnowledge =
+        item.substitution?.substitutedProductKnowledge || productKnowledge;
 
       item.lots.forEach((lot) => {
-        const selectedInventory = productKnowledgeInventoriesMap[
-          productKnowledge.id
-        ]?.find((inv: InventoryRead) => inv.id === lot.selectedInventoryId);
+        if (!lot.selectedInventoryId) {
+          return;
+        }
+
+        const inventoryListForEffectiveProduct =
+          productKnowledgeInventoriesMap[effectiveProductKnowledge.id];
+
+        const selectedInventory = inventoryListForEffectiveProduct?.find(
+          (inv: InventoryRead) => inv.id === lot.selectedInventoryId,
+        );
 
         if (!selectedInventory) {
+          toast.error(
+            `Inventory for ${effectiveProductKnowledge.name} (Lot ID: ${lot.selectedInventoryId || "None"}) not found in local map. Cannot dispense this lot.`,
+          );
           return;
         }
 
@@ -924,6 +952,17 @@ export default function MedicationBillForm({ patientId }: Props) {
           quantity: lot.quantity,
           days_supply: item.daysSupply,
         };
+
+        if (
+          item.substitution &&
+          item.substitution.substitutedProductKnowledge
+        ) {
+          dispenseData.substitution = {
+            was_substituted: true,
+            substitution_type: item.substitution.type,
+            reason: item.substitution.reason,
+          };
+        }
 
         requests.push({
           url: `/api/v1/medication/dispense/`,
@@ -955,10 +994,6 @@ export default function MedicationBillForm({ patientId }: Props) {
     }
 
     dispense({ requests });
-  };
-
-  const handleShowAlternatives = (_medicationId?: string) => {
-    toast.info(t("alternatives_coming_soon"));
   };
 
   return (
@@ -1059,11 +1094,8 @@ export default function MedicationBillForm({ patientId }: Props) {
                     <TableHead className={tableHeaderClass}>
                       {t("discount")}
                     </TableHead>
-                    <TableHead className={tableHeaderClass}>
-                      {t("all_dispensed")}?
-                    </TableHead>
                     <TableHead className={cn(tableHeaderClass, "rounded-r-lg")}>
-                      {t("actions")}
+                      {t("all_dispensed")}?
                     </TableHead>
                   </TableRow>
                 </TableHeader>
@@ -1071,6 +1103,12 @@ export default function MedicationBillForm({ patientId }: Props) {
                   {fields.map((field, index) => {
                     const productKnowledge =
                       field.productKnowledge as ProductKnowledgeBase;
+                    const substitution = form.watch(
+                      `items.${index}.substitution`,
+                    );
+                    const effectiveProductKnowledge =
+                      substitution?.substitutedProductKnowledge ||
+                      productKnowledge;
 
                     return (
                       <TableRow
@@ -1096,141 +1134,173 @@ export default function MedicationBillForm({ patientId }: Props) {
                           />
                         </TableCell>
                         <TableCell className={tableCellClass}>
-                          <div>
-                            <div className="font-medium text-gray-950 text-base">
-                              {productKnowledge.name}
-                            </div>
-                            {field.medication ? (
-                              <div className="text-sm text-gray-700 font-medium flex items-center gap-1">
-                                {/* Existing medication - show read-only dosage instructions */}
-                                {
-                                  field.dosageInstructions?.[0]?.dose_and_rate
-                                    ?.dose_quantity?.value
-                                }{" "}
-                                {
-                                  field.dosageInstructions?.[0]?.dose_and_rate
-                                    ?.dose_quantity?.unit?.display
-                                }{" "}
-                                ×{" "}
-                                {
-                                  field.dosageInstructions?.[0]?.timing?.code
-                                    ?.code
-                                }{" "}
-                                ×{" "}
-                                {field.dosageInstructions?.[0]?.timing?.repeat
-                                  ?.bounds_duration?.value || 0}
-                                {
-                                  field.dosageInstructions?.[0]?.timing?.repeat
-                                    ?.bounds_duration?.unit
-                                }{" "}
-                                ={" "}
-                                <div className="text-gray-700 font-semibold text-sm">
-                                  {(() => {
-                                    const dosage =
-                                      field.dosageInstructions?.[0]
-                                        ?.dose_and_rate?.dose_quantity?.value ||
-                                      0;
-                                    const duration =
-                                      field.dosageInstructions?.[0]?.timing
-                                        ?.repeat?.bounds_duration?.value || 0;
-                                    const frequency =
-                                      field.dosageInstructions?.[0]?.timing
-                                        ?.code?.code || "";
-
-                                    let dosesPerDay = 1;
-                                    if (frequency.includes("BID"))
-                                      dosesPerDay = 2;
-                                    if (frequency.includes("TID"))
-                                      dosesPerDay = 3;
-                                    if (frequency.includes("QID"))
-                                      dosesPerDay = 4;
-
-                                    return dosage * dosesPerDay * duration;
-                                  })()}{" "}
-                                  {t("units")}
-                                </div>
+                          <div className="flex items-center justify-between gap-2">
+                            <div>
+                              <div className="font-medium text-gray-950 text-base">
+                                {effectiveProductKnowledge.name}
+                                {substitution && (
+                                  <Badge
+                                    variant="outline"
+                                    className="ml-2 border-orange-300 text-orange-800 bg-orange-100 text-xs"
+                                  >
+                                    {t("substituted")}
+                                  </Badge>
+                                )}
                               </div>
-                            ) : (
-                              <div
-                                className="text-sm text-gray-500 cursor-pointer hover:text-gray-900"
+                              {field.medication ? (
+                                <div className="text-sm text-gray-700 font-medium flex items-center gap-1">
+                                  {/* Existing medication - show read-only dosage instructions */}
+                                  {
+                                    field.dosageInstructions?.[0]?.dose_and_rate
+                                      ?.dose_quantity?.value
+                                  }{" "}
+                                  {
+                                    field.dosageInstructions?.[0]?.dose_and_rate
+                                      ?.dose_quantity?.unit?.display
+                                  }{" "}
+                                  ×{" "}
+                                  {
+                                    field.dosageInstructions?.[0]?.timing?.code
+                                      ?.code
+                                  }{" "}
+                                  ×{" "}
+                                  {field.dosageInstructions?.[0]?.timing?.repeat
+                                    ?.bounds_duration?.value || 0}
+                                  {
+                                    field.dosageInstructions?.[0]?.timing
+                                      ?.repeat?.bounds_duration?.unit
+                                  }{" "}
+                                  ={" "}
+                                  <div className="text-gray-700 font-semibold text-sm">
+                                    {(() => {
+                                      const dosage =
+                                        field.dosageInstructions?.[0]
+                                          ?.dose_and_rate?.dose_quantity
+                                          ?.value || 0;
+                                      const duration =
+                                        field.dosageInstructions?.[0]?.timing
+                                          ?.repeat?.bounds_duration?.value || 0;
+                                      const frequency =
+                                        field.dosageInstructions?.[0]?.timing
+                                          ?.code?.code || "";
+
+                                      let dosesPerDay = 1;
+                                      if (frequency.includes("BID"))
+                                        dosesPerDay = 2;
+                                      if (frequency.includes("TID"))
+                                        dosesPerDay = 3;
+                                      if (frequency.includes("QID"))
+                                        dosesPerDay = 4;
+
+                                      return dosage * dosesPerDay * duration;
+                                    })()}{" "}
+                                    {t("units")}
+                                  </div>
+                                </div>
+                              ) : (
+                                <div
+                                  className="text-sm text-gray-500 cursor-pointer hover:text-gray-900"
+                                  onClick={() => {
+                                    setSelectedProduct(productKnowledge);
+                                    setEditingItemIndex(index);
+                                    setIsAddMedicationSheetOpen(true);
+                                  }}
+                                >
+                                  {(() => {
+                                    const currentDosageInstructions =
+                                      form.watch(
+                                        `items.${index}.dosageInstructions`,
+                                      )?.[0];
+
+                                    if (
+                                      currentDosageInstructions?.dose_and_rate
+                                        ?.dose_quantity
+                                    ) {
+                                      return (
+                                        <div>
+                                          {
+                                            currentDosageInstructions
+                                              .dose_and_rate.dose_quantity.value
+                                          }{" "}
+                                          {
+                                            currentDosageInstructions
+                                              .dose_and_rate.dose_quantity.unit
+                                              ?.display
+                                          }{" "}
+                                          ×{" "}
+                                          {
+                                            currentDosageInstructions.timing
+                                              ?.code?.code
+                                          }{" "}
+                                          ×{" "}
+                                          {currentDosageInstructions.timing
+                                            ?.repeat?.bounds_duration?.value ||
+                                            0}
+                                          {
+                                            currentDosageInstructions.timing
+                                              ?.repeat?.bounds_duration?.unit
+                                          }{" "}
+                                          ={" "}
+                                          {(() => {
+                                            const dosage =
+                                              currentDosageInstructions
+                                                .dose_and_rate.dose_quantity
+                                                .value || 0;
+                                            const duration =
+                                              currentDosageInstructions.timing
+                                                ?.repeat?.bounds_duration
+                                                ?.value || 0;
+                                            const frequency =
+                                              currentDosageInstructions.timing
+                                                ?.code?.code || "";
+
+                                            let dosesPerDay = 1;
+                                            if (frequency.includes("BID"))
+                                              dosesPerDay = 2;
+                                            if (frequency.includes("TID"))
+                                              dosesPerDay = 3;
+                                            if (frequency.includes("QID"))
+                                              dosesPerDay = 4;
+
+                                            return (
+                                              dosage * dosesPerDay * duration
+                                            );
+                                          })()}{" "}
+                                          {t("units")}
+                                        </div>
+                                      );
+                                    }
+
+                                    return t(
+                                      "click_to_add_dosage_instructions",
+                                    );
+                                  })()}
+                                </div>
+                              )}
+                            </div>
+                            {field.medication && (
+                              <Button
+                                variant="outline"
+                                size="sm"
+                                className="border-gray-400 border text-gray-950"
+                                type="button"
                                 onClick={() => {
-                                  setSelectedProduct(productKnowledge);
-                                  setEditingItemIndex(index);
-                                  setIsAddMedicationSheetOpen(true);
+                                  setSubstitutingItemIndex(index);
+                                  setOriginalProductForSubstitution(
+                                    productKnowledge,
+                                  );
+                                  setIsSubstitutionSheetOpen(true);
                                 }}
                               >
-                                {(() => {
-                                  const currentDosageInstructions = form.watch(
-                                    `items.${index}.dosageInstructions`,
-                                  )?.[0];
-
-                                  if (
-                                    currentDosageInstructions?.dose_and_rate
-                                      ?.dose_quantity
-                                  ) {
-                                    return (
-                                      <div>
-                                        {
-                                          currentDosageInstructions
-                                            .dose_and_rate.dose_quantity.value
-                                        }{" "}
-                                        {
-                                          currentDosageInstructions
-                                            .dose_and_rate.dose_quantity.unit
-                                            ?.display
-                                        }{" "}
-                                        ×{" "}
-                                        {
-                                          currentDosageInstructions.timing?.code
-                                            ?.code
-                                        }{" "}
-                                        ×{" "}
-                                        {currentDosageInstructions.timing
-                                          ?.repeat?.bounds_duration?.value || 0}
-                                        {
-                                          currentDosageInstructions.timing
-                                            ?.repeat?.bounds_duration?.unit
-                                        }{" "}
-                                        ={" "}
-                                        {(() => {
-                                          const dosage =
-                                            currentDosageInstructions
-                                              .dose_and_rate.dose_quantity
-                                              .value || 0;
-                                          const duration =
-                                            currentDosageInstructions.timing
-                                              ?.repeat?.bounds_duration
-                                              ?.value || 0;
-                                          const frequency =
-                                            currentDosageInstructions.timing
-                                              ?.code?.code || "";
-
-                                          let dosesPerDay = 1;
-                                          if (frequency.includes("BID"))
-                                            dosesPerDay = 2;
-                                          if (frequency.includes("TID"))
-                                            dosesPerDay = 3;
-                                          if (frequency.includes("QID"))
-                                            dosesPerDay = 4;
-
-                                          return (
-                                            dosage * dosesPerDay * duration
-                                          );
-                                        })()}{" "}
-                                        {t("units")}
-                                      </div>
-                                    );
-                                  }
-
-                                  return t("click_to_add_dosage_instructions");
-                                })()}
-                              </div>
+                                {t("substitute")}
+                              </Button>
                             )}
                           </div>
                         </TableCell>
                         <TableCell className={tableCellClass}>
-                          {productKnowledgeInventoriesMap[productKnowledge.id]
-                            ?.length ? (
+                          {productKnowledgeInventoriesMap[
+                            effectiveProductKnowledge.id
+                          ]?.length ? (
                             <div className="space-y-2">
                               <Popover>
                                 <PopoverTrigger asChild>
@@ -1258,7 +1328,7 @@ export default function MedicationBillForm({ patientId }: Props) {
                                         return selectedLots.map((lot) => {
                                           const selectedInventory =
                                             productKnowledgeInventoriesMap[
-                                              productKnowledge.id
+                                              effectiveProductKnowledge.id
                                             ]?.find(
                                               (inv) =>
                                                 inv.id ===
@@ -1301,10 +1371,10 @@ export default function MedicationBillForm({ patientId }: Props) {
                                 <PopoverContent className="w-auto p-0">
                                   <div className="max-h-60 overflow-auto">
                                     {productKnowledgeInventoriesMap[
-                                      productKnowledge.id
+                                      effectiveProductKnowledge.id
                                     ]?.length ? (
                                       productKnowledgeInventoriesMap[
-                                        productKnowledge.id
+                                        effectiveProductKnowledge.id
                                       ]?.map((inv) => {
                                         const currentLots = form.watch(
                                           `items.${index}.lots`,
@@ -1487,7 +1557,7 @@ export default function MedicationBillForm({ patientId }: Props) {
                             .map((lot) => {
                               const selectedInventory =
                                 productKnowledgeInventoriesMap[
-                                  productKnowledge.id
+                                  effectiveProductKnowledge.id
                                 ]?.find(
                                   (inv) => inv.id === lot.selectedInventoryId,
                                 );
@@ -1521,7 +1591,7 @@ export default function MedicationBillForm({ patientId }: Props) {
                             .map((lot) => {
                               const selectedInventory =
                                 productKnowledgeInventoriesMap[
-                                  productKnowledge.id
+                                  effectiveProductKnowledge.id
                                 ]?.find(
                                   (inv) => inv.id === lot.selectedInventoryId,
                                 );
@@ -1548,7 +1618,7 @@ export default function MedicationBillForm({ patientId }: Props) {
                             .map((lot) => {
                               const selectedInventory =
                                 productKnowledgeInventoriesMap[
-                                  productKnowledge.id
+                                  effectiveProductKnowledge.id
                                 ]?.find(
                                   (inv) => inv.id === lot.selectedInventoryId,
                                 );
@@ -1606,19 +1676,6 @@ export default function MedicationBillForm({ patientId }: Props) {
                           ) : (
                             "-"
                           )}
-                        </TableCell>
-                        <TableCell className={tableCellClass}>
-                          <div>
-                            <Button
-                              variant="outline"
-                              size="sm"
-                              onClick={() =>
-                                handleShowAlternatives(productKnowledge.id)
-                              }
-                            >
-                              {t("alt")}
-                            </Button>
-                          </div>
                         </TableCell>
                       </TableRow>
                     );
@@ -1755,9 +1812,22 @@ export default function MedicationBillForm({ patientId }: Props) {
                       },
                     );
 
-                    const newQuantity = computeInitialQuantity({
-                      dosage_instruction: dosageInstructions,
-                    } as MedicationRequestRead);
+                    const medicationDataForQuantity =
+                      form.getValues(`items.${editingItemIndex}.medication`) ||
+                      ({
+                        dosage_instruction: dosageInstructions,
+                      } as MedicationRequestRead);
+                    // Ensure dosage_instruction is updated if medicationDataForQuantity was from form
+                    if (
+                      form.getValues(`items.${editingItemIndex}.medication`)
+                    ) {
+                      medicationDataForQuantity.dosage_instruction =
+                        dosageInstructions;
+                    }
+
+                    const newQuantity = computeInitialQuantity(
+                      medicationDataForQuantity,
+                    );
 
                     const currentLots = form.getValues(
                       `items.${editingItemIndex}.lots`,
@@ -1766,7 +1836,7 @@ export default function MedicationBillForm({ patientId }: Props) {
                       `items.${editingItemIndex}.lots`,
                       currentLots.map((lot) => ({
                         ...lot,
-                        quantity: newQuantity,
+                        quantity: newQuantity, // Update quantity for existing selected lots
                       })),
                       {
                         shouldDirty: true,
@@ -1779,6 +1849,10 @@ export default function MedicationBillForm({ patientId }: Props) {
               : undefined
           }
           onAdd={(product, dosageInstructions) => {
+            const newQuantity = computeInitialQuantity({
+              dosage_instruction: dosageInstructions,
+            } as MedicationRequestRead);
+
             append({
               reference_id: crypto.randomUUID(),
               productKnowledge: product,
@@ -1794,11 +1868,10 @@ export default function MedicationBillForm({ patientId }: Props) {
               lots: [
                 {
                   selectedInventoryId: "",
-                  quantity: computeInitialQuantity({
-                    dosage_instruction: dosageInstructions,
-                  } as MedicationRequestRead),
+                  quantity: newQuantity,
                 },
               ],
+              // No substitution when initially adding
             });
 
             setProductKnowledgeInventoriesMap((prev) => ({
@@ -1809,6 +1882,70 @@ export default function MedicationBillForm({ patientId }: Props) {
             setSelectedProduct(undefined);
           }}
         />
+
+        {originalProductForSubstitution && (
+          <SubstitutionSheet
+            open={isSubstitutionSheetOpen}
+            onOpenChange={setIsSubstitutionSheetOpen}
+            originalProductKnowledge={originalProductForSubstitution}
+            currentSubstitution={
+              substitutingItemIndex !== null
+                ? form.watch(`items.${substitutingItemIndex}.substitution`)
+                : undefined
+            }
+            facilityId={facilityId}
+            onSave={(substitutionDetails) => {
+              if (substitutingItemIndex === null) return;
+
+              if (substitutionDetails) {
+                form.setValue(
+                  `items.${substitutingItemIndex}.substitution`,
+                  substitutionDetails,
+                  { shouldDirty: true, shouldTouch: true },
+                );
+                // Reset lots and quantity for the substituted item
+                form.setValue(
+                  `items.${substitutingItemIndex}.lots`,
+                  [{ selectedInventoryId: "", quantity: 0 }],
+                  { shouldDirty: true, shouldTouch: true },
+                );
+
+                // Ensure inventory for the new substituted product is fetched
+                setProductKnowledgeInventoriesMap((prev) => ({
+                  ...prev,
+                  [substitutionDetails.substitutedProductKnowledge.id]:
+                    prev[substitutionDetails.substitutedProductKnowledge.id] ||
+                    undefined,
+                }));
+              } else {
+                // Clearing substitution
+                form.setValue(
+                  `items.${substitutingItemIndex}.substitution`,
+                  undefined,
+                  { shouldDirty: true, shouldTouch: true },
+                );
+                // Reset lots based on original product's medication request or default to 0
+                const originalItem = form.getValues(
+                  `items.${substitutingItemIndex}`,
+                );
+                const originalMedication = originalItem.medication as
+                  | MedicationRequestRead
+                  | undefined;
+                const initialQuantity = originalMedication
+                  ? computeInitialQuantity(originalMedication)
+                  : 0;
+                form.setValue(
+                  `items.${substitutingItemIndex}.lots`,
+                  [{ selectedInventoryId: "", quantity: initialQuantity }],
+                  { shouldDirty: true, shouldTouch: true },
+                );
+              }
+              setSubstitutingItemIndex(null);
+              setOriginalProductForSubstitution(undefined);
+              setIsSubstitutionSheetOpen(false);
+            }}
+          />
+        )}
       </div>
     </Page>
   );
