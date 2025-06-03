@@ -510,7 +510,7 @@ export default function MedicationBillForm({ patientId }: Props) {
           <TableSkeleton count={5} />
         ) : (
           <Form {...form}>
-            <form className="px-1">
+            <form>
               <Table className="w-full border-separate border-spacing-y-2 px-1">
                 <TableHeader>
                   <TableRow className="bg-white rounded-lg shadow-sm rounded-b-none">
