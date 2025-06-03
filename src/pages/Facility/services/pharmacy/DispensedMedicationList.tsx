@@ -276,22 +276,20 @@ export default function DispensedMedicationList({
         </div>
       </div>
 
-      {status === MedicationDispenseStatus.preparation && (
-        <div className="mb-4">
-          <Tabs
-            value={paymentFilter}
-            onValueChange={(value) =>
-              setPaymentFilter(value as typeof paymentFilter)
-            }
-            className="w-full"
-          >
-            <TabsList>
-              <TabsTrigger value="paid">{t("paid")}</TabsTrigger>
-              <TabsTrigger value="unpaid">{t("unpaid")}</TabsTrigger>
-            </TabsList>
-          </Tabs>
-        </div>
-      )}
+      <div className="mb-4">
+        <Tabs
+          value={paymentFilter}
+          onValueChange={(value) =>
+            setPaymentFilter(value as typeof paymentFilter)
+          }
+          className="w-full"
+        >
+          <TabsList>
+            <TabsTrigger value="paid">{t("paid")}</TabsTrigger>
+            <TabsTrigger value="unpaid">{t("unpaid")}</TabsTrigger>
+          </TabsList>
+        </Tabs>
+      </div>
 
       {isLoading ? (
         <TableSkeleton count={5} />
