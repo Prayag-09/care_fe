@@ -44,6 +44,12 @@ import {
   SelectTrigger,
   SelectValue,
 } from "@/components/ui/select";
+import {
+  Sheet,
+  SheetContent,
+  SheetHeader,
+  SheetTitle,
+} from "@/components/ui/sheet";
 import { Switch } from "@/components/ui/switch";
 import {
   Table,
@@ -144,6 +150,480 @@ const formSchema = z.object({
 
 type FormValues = z.infer<typeof formSchema>;
 
+interface AddMedicationSheetProps {
+  open: boolean;
+  onOpenChange: (open: boolean) => void;
+  selectedProduct?: ProductKnowledgeBase;
+  onAdd: (
+    product: ProductKnowledgeBase,
+    dosageInstructions: MedicationRequestDosageInstruction[],
+  ) => void;
+  existingDosageInstructions?: MedicationRequestDosageInstruction;
+  isEditing: boolean;
+  onChange?: (dosageInstructions: MedicationRequestDosageInstruction[]) => void;
+}
+
+const AddMedicationSheet = ({
+  open,
+  onOpenChange,
+  selectedProduct,
+  onAdd,
+  existingDosageInstructions,
+  isEditing,
+  onChange,
+}: AddMedicationSheetProps) => {
+  const { t } = useTranslation();
+  const [localDosageInstruction, setLocalDosageInstruction] =
+    useState<MedicationRequestDosageInstruction>({
+      dose_and_rate: undefined,
+      timing: undefined,
+      as_needed_boolean: false,
+      route: undefined,
+      site: undefined,
+      method: undefined,
+      additional_instruction: undefined,
+      as_needed_for: undefined,
+    });
+  const [showDosageDialog, setShowDosageDialog] = useState(false);
+
+  // Update local state when the sheet opens or when editing a different item
+  useEffect(() => {
+    if (open && existingDosageInstructions) {
+      setLocalDosageInstruction(existingDosageInstructions);
+    } else if (!open) {
+      resetForm();
+    }
+  }, [open, existingDosageInstructions]);
+
+  const handleUpdateDosageInstruction = (
+    updates: Partial<MedicationRequestDosageInstruction>,
+  ) => {
+    setLocalDosageInstruction((prev) => ({
+      ...prev,
+      ...updates,
+    }));
+  };
+
+  const resetForm = () => {
+    setLocalDosageInstruction({
+      dose_and_rate: undefined,
+      timing: undefined,
+      as_needed_boolean: false,
+      route: undefined,
+      site: undefined,
+      method: undefined,
+      additional_instruction: undefined,
+      as_needed_for: undefined,
+    });
+    setShowDosageDialog(false);
+  };
+
+  const handleSheetOpenChange = (open: boolean) => {
+    if (!open) {
+      resetForm();
+    }
+    onOpenChange(open);
+  };
+
+  const handleSave = () => {
+    if (isEditing) {
+      onChange?.([localDosageInstruction]);
+    } else {
+      if (selectedProduct) {
+        onAdd(selectedProduct, [localDosageInstruction]);
+      }
+    }
+    onOpenChange(false);
+    resetForm();
+  };
+
+  return (
+    <Sheet open={open} onOpenChange={handleSheetOpenChange}>
+      <SheetContent
+        side="bottom"
+        className="max-h-[90vh] min-h-[50vh] px-4 pt-2 pb-0 rounded-t-lg overflow-y-auto pb-safe"
+      >
+        <div className="absolute inset-x-0 top-0 h-1.5 w-12 mx-auto bg-gray-300 mt-2" />
+        <div className="mt-6 h-full flex flex-col">
+          <div className="flex items-center justify-between mb-6 px-20">
+            <SheetHeader>
+              <SheetTitle>
+                {isEditing
+                  ? t("edit_dosage_instructions")
+                  : t("add_medication")}
+              </SheetTitle>
+            </SheetHeader>
+          </div>
+          <div className="flex-1 px-20">
+            <div className="space-y-6">
+              {selectedProduct && (
+                <>
+                  <div>
+                    <Label className="text-sm text-gray-500 mb-1.5 block">
+                      {t("selected")} {t("product")}
+                    </Label>
+                    <div className="font-medium text-lg">
+                      {selectedProduct.name}
+                    </div>
+                  </div>
+                  <div className="space-y-4 pb-4">
+                    {/* Dosage and Frequency Row */}
+                    <div className="grid grid-cols-2 gap-4">
+                      {/* Dosage */}
+                      <div>
+                        <Label className="mb-1.5 block text-sm">
+                          {t("dosage")}
+                          <span className="text-red-500 ml-0.5">*</span>
+                        </Label>
+                        <div data-cy="dosage">
+                          {localDosageInstruction?.dose_and_rate?.dose_range ? (
+                            <Input
+                              readOnly
+                              value={formatDoseRange(
+                                localDosageInstruction.dose_and_rate.dose_range,
+                              )}
+                              onClick={() => setShowDosageDialog(true)}
+                              className={cn("h-9 text-sm cursor-pointer mb-3")}
+                            />
+                          ) : (
+                            <>
+                              <div className="flex gap-2">
+                                <div className="flex-1">
+                                  <ComboboxQuantityInput
+                                    data-cy="dosage-input"
+                                    quantity={
+                                      localDosageInstruction?.dose_and_rate
+                                        ?.dose_quantity
+                                    }
+                                    onChange={(value) => {
+                                      if (!value.value || !value.unit) return;
+                                      handleUpdateDosageInstruction({
+                                        dose_and_rate: {
+                                          type: "ordered",
+                                          dose_quantity: {
+                                            value: value.value,
+                                            unit: value.unit,
+                                          },
+                                          dose_range: undefined,
+                                        },
+                                      });
+                                    }}
+                                  />
+                                </div>
+                                <Button
+                                  variant="ghost"
+                                  size="icon"
+                                  className="size-9 rounded-full hover:bg-transparent"
+                                  onClick={() => setShowDosageDialog(true)}
+                                >
+                                  +
+                                </Button>
+                              </div>
+                            </>
+                          )}
+                        </div>
+
+                        {localDosageInstruction?.dose_and_rate?.dose_range && (
+                          <Popover
+                            open={showDosageDialog}
+                            onOpenChange={setShowDosageDialog}
+                          >
+                            <PopoverTrigger asChild>
+                              <div className="w-full" />
+                            </PopoverTrigger>
+                            <PopoverContent className="w-55 p-4" align="start">
+                              <DosageDialog
+                                dosageRange={
+                                  localDosageInstruction.dose_and_rate
+                                    .dose_range
+                                }
+                                onChange={(value) => {
+                                  handleUpdateDosageInstruction({
+                                    dose_and_rate: value,
+                                  });
+                                  setShowDosageDialog(false);
+                                }}
+                              />
+                            </PopoverContent>
+                          </Popover>
+                        )}
+                      </div>
+
+                      {/* Frequency */}
+                      <div>
+                        <Label className="mb-1.5 block text-sm">
+                          {t("frequency")}
+                          <span className="text-red-500 ml-0.5">*</span>
+                        </Label>
+                        <Select
+                          value={
+                            localDosageInstruction?.as_needed_boolean
+                              ? "PRN"
+                              : reverseFrequencyOption(
+                                  localDosageInstruction?.timing,
+                                )
+                          }
+                          onValueChange={(value) => {
+                            if (value === "PRN") {
+                              handleUpdateDosageInstruction({
+                                as_needed_boolean: true,
+                                timing: undefined,
+                              });
+                            } else {
+                              const timingOption =
+                                MEDICATION_REQUEST_TIMING_OPTIONS[
+                                  value as keyof typeof MEDICATION_REQUEST_TIMING_OPTIONS
+                                ];
+                              handleUpdateDosageInstruction({
+                                as_needed_boolean: false,
+                                timing: timingOption.timing,
+                              });
+                            }
+                          }}
+                        >
+                          <SelectTrigger
+                            data-cy="frequency"
+                            className={cn("h-9 text-sm")}
+                          >
+                            <SelectValue placeholder={t("select_frequency")} />
+                          </SelectTrigger>
+                          <SelectContent>
+                            <SelectItem value="PRN">
+                              {t("as_needed_prn")}
+                            </SelectItem>
+                            {Object.entries(
+                              MEDICATION_REQUEST_TIMING_OPTIONS,
+                            ).map(([key, option]) => (
+                              <SelectItem key={key} value={key}>
+                                {option.display}
+                              </SelectItem>
+                            ))}
+                          </SelectContent>
+                        </Select>
+                      </div>
+                    </div>
+
+                    {/* Duration and Method Row */}
+                    <div className="grid grid-cols-2 gap-4">
+                      {/* Duration */}
+                      <div>
+                        <Label className="mb-1.5 block text-sm">
+                          {t("duration")}
+                        </Label>
+                        <div
+                          className={cn(
+                            "flex gap-2",
+                            localDosageInstruction?.as_needed_boolean &&
+                              "opacity-50 bg-gray-100 rounded-md",
+                          )}
+                        >
+                          {localDosageInstruction?.timing && (
+                            <Input
+                              type="number"
+                              min={0}
+                              value={
+                                localDosageInstruction.timing.repeat
+                                  .bounds_duration?.value == 0
+                                  ? ""
+                                  : localDosageInstruction.timing.repeat
+                                      .bounds_duration?.value
+                              }
+                              onChange={(e) => {
+                                const value = e.target.value;
+                                if (!localDosageInstruction.timing) return;
+                                handleUpdateDosageInstruction({
+                                  timing: {
+                                    ...localDosageInstruction.timing,
+                                    repeat: {
+                                      ...localDosageInstruction.timing.repeat,
+                                      bounds_duration: {
+                                        value: Number(value),
+                                        unit: localDosageInstruction.timing
+                                          .repeat.bounds_duration.unit,
+                                      },
+                                    },
+                                  },
+                                });
+                              }}
+                              className="h-9 text-sm"
+                            />
+                          )}
+                          <Select
+                            value={
+                              localDosageInstruction?.timing?.repeat
+                                ?.bounds_duration?.unit ?? UCUM_TIME_UNITS[0]
+                            }
+                            onValueChange={(
+                              unit: (typeof UCUM_TIME_UNITS)[number],
+                            ) => {
+                              if (localDosageInstruction?.timing?.repeat) {
+                                const value =
+                                  localDosageInstruction?.timing?.repeat
+                                    ?.bounds_duration?.value ?? 0;
+                                handleUpdateDosageInstruction({
+                                  timing: {
+                                    ...localDosageInstruction.timing,
+                                    repeat: {
+                                      ...localDosageInstruction.timing.repeat,
+                                      bounds_duration: { value, unit },
+                                    },
+                                  },
+                                });
+                              }
+                            }}
+                          >
+                            <SelectTrigger
+                              className={cn(
+                                "h-9 text-sm w-full",
+                                localDosageInstruction?.as_needed_boolean &&
+                                  "cursor-not-allowed bg-gray-50",
+                              )}
+                            >
+                              <SelectValue />
+                            </SelectTrigger>
+                            <SelectContent>
+                              {UCUM_TIME_UNITS.map((unit) => (
+                                <SelectItem key={unit} value={unit}>
+                                  {unit}
+                                </SelectItem>
+                              ))}
+                            </SelectContent>
+                          </Select>
+                        </div>
+                      </div>
+
+                      {/* Method */}
+                      <div data-cy="method">
+                        <Label className="mb-1.5 block text-sm">
+                          {t("method")}
+                        </Label>
+                        <ValueSetSelect
+                          system="system-administration-method"
+                          value={localDosageInstruction?.method}
+                          onSelect={(method) => {
+                            handleUpdateDosageInstruction({ method });
+                          }}
+                          placeholder={t("select_method")}
+                          count={20}
+                        />
+                      </div>
+                    </div>
+
+                    {/* Instructions */}
+                    <div data-cy="instructions">
+                      <Label className="mb-1.5 block text-sm">
+                        {t("instructions")}
+                      </Label>
+                      {localDosageInstruction?.as_needed_boolean ? (
+                        <MultiValueSetSelect
+                          options={[
+                            {
+                              system: "system-as-needed-reason",
+                              value:
+                                localDosageInstruction?.as_needed_for || null,
+                              label: t("prn_reason"),
+                              placeholder: t("select_prn_reason"),
+                              onSelect: (value: Code | null) => {
+                                handleUpdateDosageInstruction({
+                                  as_needed_for: value || undefined,
+                                });
+                              },
+                            },
+                            {
+                              system: "system-additional-instruction",
+                              value:
+                                localDosageInstruction
+                                  ?.additional_instruction?.[0] || null,
+                              label: t("additional_instructions"),
+                              placeholder: t("select_additional_instructions"),
+                              onSelect: (value: Code | null) => {
+                                handleUpdateDosageInstruction({
+                                  additional_instruction: value
+                                    ? [value]
+                                    : undefined,
+                                });
+                              },
+                            },
+                          ]}
+                        />
+                      ) : (
+                        <ValueSetSelect
+                          system="system-additional-instruction"
+                          value={
+                            localDosageInstruction?.additional_instruction?.[0]
+                          }
+                          onSelect={(instruction) => {
+                            handleUpdateDosageInstruction({
+                              additional_instruction: instruction
+                                ? [instruction]
+                                : undefined,
+                            });
+                          }}
+                          placeholder={t("select_additional_instructions")}
+                          data-cy="medication-instructions"
+                          wrapTextForSmallScreen
+                        />
+                      )}
+                    </div>
+
+                    {/* Route and Site Row */}
+                    <div className="grid grid-cols-2 gap-4">
+                      {/* Route */}
+                      <div data-cy="route">
+                        <Label className="mb-1.5 block text-sm">
+                          {t("route")}
+                        </Label>
+                        <ValueSetSelect
+                          system="system-route"
+                          value={localDosageInstruction?.route}
+                          onSelect={(route) => {
+                            handleUpdateDosageInstruction({ route });
+                          }}
+                          placeholder={t("select_route")}
+                        />
+                      </div>
+
+                      {/* Site */}
+                      <div data-cy="site">
+                        <Label className="mb-1.5 block text-sm">
+                          {t("site")}
+                        </Label>
+                        <ValueSetSelect
+                          system="system-body-site"
+                          value={localDosageInstruction?.site}
+                          onSelect={(site) => {
+                            handleUpdateDosageInstruction({ site });
+                          }}
+                          placeholder={t("select_site")}
+                          wrapTextForSmallScreen={true}
+                        />
+                      </div>
+                    </div>
+                  </div>
+                </>
+              )}
+            </div>
+          </div>
+          <div className="sticky bottom-0 py-4 bg-white border-t flex justify-end px-20">
+            <Button
+              className="mr-1"
+              disabled={
+                !selectedProduct ||
+                !localDosageInstruction?.dose_and_rate ||
+                (!localDosageInstruction.as_needed_boolean &&
+                  !localDosageInstruction.timing)
+              }
+              onClick={handleSave}
+            >
+              {isEditing ? t("save") : t("add_medication")}
+            </Button>
+          </div>
+        </div>
+      </SheetContent>
+    </Sheet>
+  );
+};
+
 export default function MedicationBillForm({ patientId }: Props) {
   const { t } = useTranslation();
   const queryClient = useQueryClient();
@@ -157,6 +637,12 @@ export default function MedicationBillForm({ patientId }: Props) {
   >([]);
   const [search, setSearch] = useState("");
   const [isSearchOpen, setIsSearchOpen] = useState(false);
+  const [selectedProduct, setSelectedProduct] = useState<
+    ProductKnowledgeBase | undefined
+  >();
+  const [isAddMedicationSheetOpen, setIsAddMedicationSheetOpen] =
+    useState(false);
+  const [editingItemIndex, setEditingItemIndex] = useState<number | null>(null);
 
   const tableHeaderClass =
     "px-4 py-3 border-r font-medium border-y-1 border-r-none border-gray-200 rounded-b-none border-b-0";
@@ -665,38 +1151,79 @@ export default function MedicationBillForm({ patientId }: Props) {
                                 </div>
                               </div>
                             ) : (
-                              <div className="text-sm text-gray-500">
-                                {/* Newly added medication - allow editing dosage instructions */}
-                                <AddDosageInstructionPopover
-                                  dosageInstructions={form.watch(
+                              <div
+                                className="text-sm text-gray-500 cursor-pointer hover:text-gray-900"
+                                onClick={() => {
+                                  setSelectedProduct(productKnowledge);
+                                  setEditingItemIndex(index);
+                                  setIsAddMedicationSheetOpen(true);
+                                }}
+                              >
+                                {(() => {
+                                  const currentDosageInstructions = form.watch(
                                     `items.${index}.dosageInstructions`,
-                                  )}
-                                  onChange={(value) => {
-                                    form.setValue(
-                                      `items.${index}.dosageInstructions`,
-                                      value,
-                                      { shouldDirty: true, shouldTouch: true },
-                                    );
-                                    // Recalculate days supply based on new dosage instructions
-                                    if (value?.[0]) {
-                                      const newDaysSupply =
-                                        convertDurationToDays(
-                                          value[0]?.timing?.repeat
-                                            ?.bounds_duration?.value || 0,
-                                          value[0]?.timing?.repeat
-                                            ?.bounds_duration?.unit || "",
-                                        );
-                                      form.setValue(
-                                        `items.${index}.daysSupply`,
-                                        newDaysSupply,
+                                  )?.[0];
+
+                                  if (
+                                    currentDosageInstructions?.dose_and_rate
+                                      ?.dose_quantity
+                                  ) {
+                                    return (
+                                      <div>
                                         {
-                                          shouldDirty: true,
-                                          shouldTouch: true,
-                                        },
-                                      );
-                                    }
-                                  }}
-                                />
+                                          currentDosageInstructions
+                                            .dose_and_rate.dose_quantity.value
+                                        }{" "}
+                                        {
+                                          currentDosageInstructions
+                                            .dose_and_rate.dose_quantity.unit
+                                            ?.display
+                                        }{" "}
+                                        ×{" "}
+                                        {
+                                          currentDosageInstructions.timing?.code
+                                            ?.code
+                                        }{" "}
+                                        ×{" "}
+                                        {currentDosageInstructions.timing
+                                          ?.repeat?.bounds_duration?.value || 0}
+                                        {
+                                          currentDosageInstructions.timing
+                                            ?.repeat?.bounds_duration?.unit
+                                        }{" "}
+                                        ={" "}
+                                        {(() => {
+                                          const dosage =
+                                            currentDosageInstructions
+                                              .dose_and_rate.dose_quantity
+                                              .value || 0;
+                                          const duration =
+                                            currentDosageInstructions.timing
+                                              ?.repeat?.bounds_duration
+                                              ?.value || 0;
+                                          const frequency =
+                                            currentDosageInstructions.timing
+                                              ?.code?.code || "";
+
+                                          let dosesPerDay = 1;
+                                          if (frequency.includes("BID"))
+                                            dosesPerDay = 2;
+                                          if (frequency.includes("TID"))
+                                            dosesPerDay = 3;
+                                          if (frequency.includes("QID"))
+                                            dosesPerDay = 4;
+
+                                          return (
+                                            dosage * dosesPerDay * duration
+                                          );
+                                        })()}{" "}
+                                        {t("units")}
+                                      </div>
+                                    );
+                                  }
+
+                                  return t("click_to_add_dosage_instructions");
+                                })()}
                               </div>
                             )}
                           </div>
@@ -1137,27 +1664,8 @@ export default function MedicationBillForm({ patientId }: Props) {
                                     key={productKnowledge.id}
                                     value={productKnowledge.name}
                                     onSelect={() => {
-                                      append({
-                                        reference_id: crypto.randomUUID(),
-                                        productKnowledge,
-                                        isSelected: true,
-                                        daysSupply: 0,
-                                        isFullyDispensed: false,
-                                        dosageInstructions: [],
-                                        lots: [
-                                          {
-                                            selectedInventoryId: "",
-                                            quantity: 0,
-                                          },
-                                        ],
-                                      });
-
-                                      setProductKnowledgeInventoriesMap(
-                                        (prev) => ({
-                                          [productKnowledge.id]: undefined,
-                                          ...prev,
-                                        }),
-                                      );
+                                      setSelectedProduct(productKnowledge);
+                                      setIsAddMedicationSheetOpen(true);
                                       setIsSearchOpen(false);
                                       setSearch("");
                                     }}
@@ -1208,437 +1716,103 @@ export default function MedicationBillForm({ patientId }: Props) {
             }}
           />
         )}
+
+        <AddMedicationSheet
+          open={isAddMedicationSheetOpen}
+          onOpenChange={setIsAddMedicationSheetOpen}
+          selectedProduct={selectedProduct}
+          existingDosageInstructions={
+            editingItemIndex !== null
+              ? form.watch(`items.${editingItemIndex}.dosageInstructions`)?.[0]
+              : undefined
+          }
+          isEditing={editingItemIndex !== null}
+          onChange={
+            editingItemIndex !== null
+              ? (dosageInstructions) => {
+                  form.setValue(
+                    `items.${editingItemIndex}.dosageInstructions`,
+                    dosageInstructions,
+                    {
+                      shouldDirty: true,
+                      shouldTouch: true,
+                    },
+                  );
+
+                  if (dosageInstructions?.[0]) {
+                    const newDaysSupply = convertDurationToDays(
+                      dosageInstructions[0]?.timing?.repeat?.bounds_duration
+                        ?.value || 0,
+                      dosageInstructions[0]?.timing?.repeat?.bounds_duration
+                        ?.unit || "",
+                    );
+                    form.setValue(
+                      `items.${editingItemIndex}.daysSupply`,
+                      newDaysSupply,
+                      {
+                        shouldDirty: true,
+                        shouldTouch: true,
+                      },
+                    );
+
+                    const newQuantity = computeInitialQuantity({
+                      dosage_instruction: dosageInstructions,
+                    } as MedicationRequestRead);
+
+                    const currentLots = form.getValues(
+                      `items.${editingItemIndex}.lots`,
+                    );
+                    form.setValue(
+                      `items.${editingItemIndex}.lots`,
+                      currentLots.map((lot) => ({
+                        ...lot,
+                        quantity: newQuantity,
+                      })),
+                      {
+                        shouldDirty: true,
+                        shouldTouch: true,
+                      },
+                    );
+                  }
+                  setEditingItemIndex(null);
+                }
+              : undefined
+          }
+          onAdd={(product, dosageInstructions) => {
+            append({
+              reference_id: crypto.randomUUID(),
+              productKnowledge: product,
+              isSelected: true,
+              daysSupply: convertDurationToDays(
+                dosageInstructions[0]?.timing?.repeat?.bounds_duration?.value ||
+                  0,
+                dosageInstructions[0]?.timing?.repeat?.bounds_duration?.unit ||
+                  "",
+              ),
+              isFullyDispensed: false,
+              dosageInstructions,
+              lots: [
+                {
+                  selectedInventoryId: "",
+                  quantity: computeInitialQuantity({
+                    dosage_instruction: dosageInstructions,
+                  } as MedicationRequestRead),
+                },
+              ],
+            });
+
+            setProductKnowledgeInventoriesMap((prev) => ({
+              [product.id]: undefined,
+              ...prev,
+            }));
+
+            setSelectedProduct(undefined);
+          }}
+        />
       </div>
     </Page>
   );
 }
-
-type AddDosageInstructionPopoverProps = {
-  dosageInstructions?: MedicationRequestDosageInstruction[];
-  onChange?: (value?: MedicationRequestDosageInstruction[]) => void;
-};
-
-const AddDosageInstructionPopover = ({
-  dosageInstructions,
-  onChange,
-}: AddDosageInstructionPopoverProps) => {
-  const { t } = useTranslation();
-  const [showDosageDialog, setShowDosageDialog] = useState(false);
-  const [open, setOpen] = useState(false);
-  const [localDosageInstruction, setLocalDosageInstruction] = useState<
-    MedicationRequestDosageInstruction | undefined
-  >(dosageInstructions?.[0]);
-
-  useEffect(() => {
-    if (open) {
-      setLocalDosageInstruction(
-        dosageInstructions?.[0] || {
-          // Provide default values for newly added medications
-          dose_and_rate: undefined,
-          timing: undefined,
-          as_needed_boolean: false,
-          route: undefined,
-          site: undefined,
-          method: undefined,
-          additional_instruction: undefined,
-          as_needed_for: undefined,
-        },
-      );
-    }
-  }, [open, dosageInstructions]);
-
-  const handleUpdateDosageInstruction = (
-    updates: Partial<MedicationRequestDosageInstruction>,
-  ) => {
-    setLocalDosageInstruction((prev) => ({
-      // Provide default object if prev is undefined
-      dose_and_rate: undefined,
-      timing: undefined,
-      as_needed_boolean: false,
-      route: undefined,
-      site: undefined,
-      method: undefined,
-      additional_instruction: undefined,
-      as_needed_for: undefined,
-      ...prev,
-      ...updates,
-    }));
-  };
-
-  return (
-    <Popover open={open} onOpenChange={setOpen}>
-      <PopoverTrigger asChild>
-        <div className="cursor-pointer hover:bg-gray-50 p-1 rounded transition-colors">
-          {/* Use current dosageInstructions prop or show placeholder for new medications */}
-          {dosageInstructions?.[0]?.dose_and_rate ? (
-            <div className="line-clamp-2">
-              {dosageInstructions[0]?.dose_and_rate?.dose_quantity?.value}{" "}
-              {
-                dosageInstructions[0]?.dose_and_rate?.dose_quantity?.unit
-                  ?.display
-              }{" "}
-              × {dosageInstructions[0]?.timing?.code?.code} ×{" "}
-              {dosageInstructions[0]?.timing?.repeat?.bounds_duration?.value ||
-                0}
-              {dosageInstructions[0]?.timing?.repeat?.bounds_duration?.unit} ={" "}
-              {/* Calculate total quantity based on dosage instructions */}
-              {(() => {
-                const dosage =
-                  dosageInstructions[0]?.dose_and_rate?.dose_quantity?.value ||
-                  0;
-                const duration =
-                  dosageInstructions[0]?.timing?.repeat?.bounds_duration
-                    ?.value || 0;
-                const frequency =
-                  dosageInstructions[0]?.timing?.code?.code || "";
-
-                let dosesPerDay = 1;
-                if (frequency.includes("BID")) dosesPerDay = 2;
-                if (frequency.includes("TID")) dosesPerDay = 3;
-                if (frequency.includes("QID")) dosesPerDay = 4;
-
-                return dosage * dosesPerDay * duration;
-              })()}{" "}
-              {t("units")}
-            </div>
-          ) : (
-            <div className="line-clamp-2 cursor-pointer hover:text-gray-900">
-              {t("click_to_add_dosage_instructions")}
-            </div>
-          )}
-        </div>
-      </PopoverTrigger>
-
-      <PopoverContent className="sm:w-[400px] p-0 overflow-hidden">
-        <div className="p-4 flex flex-col gap-2 max-h-96 overflow-auto">
-          {/* Dosage */}
-          <div>
-            <Label className="mb-1.5 block text-sm">
-              {t("dosage")}
-              <span className="text-red-500 ml-0.5">*</span>
-            </Label>
-            <div data-cy="dosage">
-              {localDosageInstruction?.dose_and_rate?.dose_range ? (
-                <Input
-                  readOnly
-                  value={formatDoseRange(
-                    localDosageInstruction.dose_and_rate.dose_range,
-                  )}
-                  onClick={() => setShowDosageDialog(true)}
-                  className={cn("h-9 text-sm cursor-pointer mb-3")}
-                />
-              ) : (
-                <>
-                  <div>
-                    <ComboboxQuantityInput
-                      data-cy="dosage-input"
-                      quantity={
-                        localDosageInstruction?.dose_and_rate?.dose_quantity
-                      }
-                      onChange={(value) => {
-                        if (!value.value || !value.unit) return;
-                        handleUpdateDosageInstruction({
-                          dose_and_rate: {
-                            type: "ordered",
-                            dose_quantity: {
-                              value: value.value,
-                              unit: value.unit,
-                            },
-                            dose_range: undefined,
-                          },
-                        });
-                      }}
-                    />
-                  </div>
-                  <div className="flex justify-end">
-                    <Button
-                      variant="ghost"
-                      size="icon"
-                      className="size-3 rounded-full hover:bg-transparent"
-                      onClick={() => setShowDosageDialog(true)}
-                    >
-                      +
-                    </Button>
-                  </div>
-                </>
-              )}
-            </div>
-
-            {localDosageInstruction?.dose_and_rate?.dose_range && (
-              <Popover
-                open={showDosageDialog}
-                onOpenChange={setShowDosageDialog}
-              >
-                <PopoverTrigger asChild>
-                  <div className="w-full" />
-                </PopoverTrigger>
-                <PopoverContent className="w-55 p-4" align="start">
-                  <DosageDialog
-                    dosageRange={
-                      localDosageInstruction.dose_and_rate.dose_range
-                    }
-                    onChange={(value) => {
-                      handleUpdateDosageInstruction({
-                        dose_and_rate: value,
-                      });
-                      setShowDosageDialog(false);
-                    }}
-                  />
-                </PopoverContent>
-              </Popover>
-            )}
-          </div>
-          {/* Frequency */}
-          <div>
-            <Label className="mb-1.5 block text-sm">
-              {t("frequency")}
-              <span className="text-red-500 ml-0.5">*</span>
-            </Label>
-            <Select
-              value={
-                localDosageInstruction?.as_needed_boolean
-                  ? "PRN"
-                  : reverseFrequencyOption(localDosageInstruction?.timing)
-              }
-              onValueChange={(value) => {
-                if (value === "PRN") {
-                  handleUpdateDosageInstruction({
-                    as_needed_boolean: true,
-                    timing: undefined,
-                  });
-                } else {
-                  const timingOption =
-                    MEDICATION_REQUEST_TIMING_OPTIONS[
-                      value as keyof typeof MEDICATION_REQUEST_TIMING_OPTIONS
-                    ];
-                  handleUpdateDosageInstruction({
-                    as_needed_boolean: false,
-                    timing: timingOption.timing,
-                  });
-                }
-              }}
-            >
-              <SelectTrigger data-cy="frequency" className={cn("h-9 text-sm")}>
-                <SelectValue placeholder={t("select_frequency")} />
-              </SelectTrigger>
-              <SelectContent>
-                <SelectItem value="PRN">{t("as_needed_prn")}</SelectItem>
-                {Object.entries(MEDICATION_REQUEST_TIMING_OPTIONS).map(
-                  ([key, option]) => (
-                    <SelectItem key={key} value={key}>
-                      {option.display}
-                    </SelectItem>
-                  ),
-                )}
-              </SelectContent>
-            </Select>
-          </div>
-          {/* Duration */}
-          <div>
-            <Label className="mb-1.5 block text-sm">{t("duration")}</Label>
-            <div
-              className={cn(
-                "flex gap-2",
-                localDosageInstruction?.as_needed_boolean &&
-                  "opacity-50 bg-gray-100 rounded-md",
-              )}
-            >
-              {localDosageInstruction?.timing && (
-                <Input
-                  type="number"
-                  min={0}
-                  value={
-                    localDosageInstruction.timing.repeat.bounds_duration
-                      ?.value == 0
-                      ? ""
-                      : localDosageInstruction.timing.repeat.bounds_duration
-                          ?.value
-                  }
-                  onChange={(e) => {
-                    const value = e.target.value;
-                    if (!localDosageInstruction.timing) return;
-                    handleUpdateDosageInstruction({
-                      timing: {
-                        ...localDosageInstruction.timing,
-                        repeat: {
-                          ...localDosageInstruction.timing.repeat,
-                          bounds_duration: {
-                            value: Number(value),
-                            unit: localDosageInstruction.timing.repeat
-                              .bounds_duration.unit,
-                          },
-                        },
-                      },
-                    });
-                  }}
-                  className="h-9 text-sm"
-                />
-              )}
-              <Select
-                value={
-                  localDosageInstruction?.timing?.repeat?.bounds_duration
-                    ?.unit ?? UCUM_TIME_UNITS[0]
-                }
-                onValueChange={(unit: (typeof UCUM_TIME_UNITS)[number]) => {
-                  if (localDosageInstruction?.timing?.repeat) {
-                    const value =
-                      localDosageInstruction?.timing?.repeat?.bounds_duration
-                        ?.value ?? 0;
-                    handleUpdateDosageInstruction({
-                      timing: {
-                        ...localDosageInstruction.timing,
-                        repeat: {
-                          ...localDosageInstruction.timing.repeat,
-                          bounds_duration: { value, unit },
-                        },
-                      },
-                    });
-                  }
-                }}
-              >
-                <SelectTrigger
-                  className={cn(
-                    "h-9 text-sm w-full",
-                    localDosageInstruction?.as_needed_boolean &&
-                      "cursor-not-allowed bg-gray-50",
-                  )}
-                >
-                  <SelectValue />
-                </SelectTrigger>
-                <SelectContent>
-                  {UCUM_TIME_UNITS.map((unit) => (
-                    <SelectItem key={unit} value={unit}>
-                      {unit}
-                    </SelectItem>
-                  ))}
-                </SelectContent>
-              </Select>
-            </div>
-          </div>
-          {/* Instructions */}
-          <div data-cy="instructions">
-            <Label className="mb-1.5 block text-sm">{t("instructions")}</Label>
-            {localDosageInstruction?.as_needed_boolean ? (
-              <MultiValueSetSelect
-                options={[
-                  {
-                    system: "system-as-needed-reason",
-                    value: localDosageInstruction?.as_needed_for || null,
-                    label: t("prn_reason"),
-                    placeholder: t("select_prn_reason"),
-                    onSelect: (value: Code | null) => {
-                      handleUpdateDosageInstruction({
-                        as_needed_for: value || undefined,
-                      });
-                    },
-                  },
-                  {
-                    system: "system-additional-instruction",
-                    value:
-                      localDosageInstruction?.additional_instruction?.[0] ||
-                      null,
-                    label: t("additional_instructions"),
-                    placeholder: t("select_additional_instructions"),
-                    onSelect: (value: Code | null) => {
-                      handleUpdateDosageInstruction({
-                        additional_instruction: value ? [value] : undefined,
-                      });
-                    },
-                  },
-                ]}
-              />
-            ) : (
-              <ValueSetSelect
-                system="system-additional-instruction"
-                value={localDosageInstruction?.additional_instruction?.[0]}
-                onSelect={(instruction) => {
-                  handleUpdateDosageInstruction({
-                    additional_instruction: instruction
-                      ? [instruction]
-                      : undefined,
-                  });
-                }}
-                placeholder={t("select_additional_instructions")}
-                data-cy="medication-instructions"
-                wrapTextForSmallScreen
-              />
-            )}
-          </div>
-          {/* Route */}
-          <div data-cy="route">
-            <Label className="mb-1.5 block text-sm">{t("route")}</Label>
-            <ValueSetSelect
-              system="system-route"
-              value={localDosageInstruction?.route}
-              onSelect={(route) => {
-                handleUpdateDosageInstruction({ route });
-              }}
-              placeholder={t("select_route")}
-            />
-          </div>
-          {/* Site */}
-          <div data-cy="site">
-            <Label className="mb-1.5 block text-sm">{t("site")}</Label>
-            <ValueSetSelect
-              system="system-body-site"
-              value={localDosageInstruction?.site}
-              onSelect={(site) => {
-                handleUpdateDosageInstruction({ site });
-              }}
-              placeholder={t("select_site")}
-              wrapTextForSmallScreen={true}
-            />
-          </div>
-          {/* Method */}
-          <div data-cy="method">
-            <Label className="mb-1.5 block text-sm">{t("method")}</Label>
-            <ValueSetSelect
-              system="system-administration-method"
-              value={localDosageInstruction?.method}
-              onSelect={(method) => {
-                handleUpdateDosageInstruction({ method });
-              }}
-              placeholder={t("select_method")}
-              count={20}
-            />
-          </div>
-        </div>
-
-        {/* Add Save/Cancel buttons at the bottom */}
-        <div className="flex justify-end gap-2 py-4 sticky px-4 bg-gray-50">
-          <Button
-            variant="outline"
-            onClick={() => {
-              setOpen(false);
-            }}
-          >
-            {t("cancel")}
-          </Button>
-          <Button
-            onClick={() => {
-              // Validate that we have minimum required fields
-              if (
-                localDosageInstruction?.dose_and_rate &&
-                (localDosageInstruction.as_needed_boolean ||
-                  localDosageInstruction.timing)
-              ) {
-                onChange?.([localDosageInstruction]);
-                setOpen(false);
-              }
-            }}
-            disabled={
-              !localDosageInstruction?.dose_and_rate ||
-              (!localDosageInstruction.as_needed_boolean &&
-                !localDosageInstruction.timing)
-            }
-          >
-            {t("save")}
-          </Button>
-        </div>
-      </PopoverContent>
-    </Popover>
-  );
-};
 
 interface DosageDialogProps {
   dosageRange: DoseRange;
