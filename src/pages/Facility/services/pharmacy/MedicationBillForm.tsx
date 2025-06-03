@@ -1,7 +1,7 @@
 import { zodResolver } from "@hookform/resolvers/zod";
 import { useMutation, useQuery, useQueryClient } from "@tanstack/react-query";
 import { formatDate } from "date-fns";
-import { ChevronDownIcon, MoreVertical, PlusIcon } from "lucide-react";
+import { ChevronDownIcon, PlusIcon } from "lucide-react";
 import { navigate } from "raviger";
 import { useEffect, useState } from "react";
 import { useFieldArray, useForm } from "react-hook-form";
@@ -157,6 +157,10 @@ export default function MedicationBillForm({ patientId }: Props) {
   >([]);
   const [search, setSearch] = useState("");
   const [isSearchOpen, setIsSearchOpen] = useState(false);
+
+  const tableHeaderClass =
+    "px-4 py-3 border-r font-medium border-y-1 border-r-none border-gray-200 rounded-b-none border-b-0";
+  const tableCellClass = "px-4 py-4 border-r";
 
   const form = useForm<FormValues>({
     resolver: zodResolver(formSchema),
@@ -506,16 +510,22 @@ export default function MedicationBillForm({ patientId }: Props) {
           <TableSkeleton count={5} />
         ) : (
           <Form {...form}>
-            <form className="rounded-md border">
-              <Table>
+            <form className="px-1">
+              <Table className="w-full border-separate border-spacing-y-2 px-1">
                 <TableHeader>
-                  <TableRow>
-                    <TableHead className="w-12">
+                  <TableRow className="bg-white rounded-lg shadow-sm rounded-b-none">
+                    <TableHead
+                      className={cn(
+                        "w-12",
+                        tableHeaderClass,
+                        "rounded-l-lg border-y-1 border-l-1 border-gray-200 rounded-b-none border-b-0",
+                      )}
+                    >
                       <FormField
                         control={form.control}
                         name="items"
                         render={() => (
-                          <FormItem>
+                          <FormItem className="mr-1.5">
                             <FormControl>
                               <Checkbox
                                 checked={
@@ -537,16 +547,38 @@ export default function MedicationBillForm({ patientId }: Props) {
                         )}
                       />
                     </TableHead>
-                    <TableHead>{t("medicine")}</TableHead>
-                    <TableHead>{t("select_lot")}</TableHead>
-                    <TableHead>{t("quantity")}</TableHead>
-                    <TableHead>{t("days_supply")}</TableHead>
-                    <TableHead>{t("expiry")}</TableHead>
-                    <TableHead>{t("unit_price")}</TableHead>
-                    <TableHead>{t("discount")}</TableHead>
-                    <TableHead>{t("amount")}</TableHead>
-                    <TableHead>{t("all_dispensed")}?</TableHead>
-                    <TableHead>{t("actions")}</TableHead>
+                    <TableHead
+                      className={cn(
+                        tableHeaderClass,
+                        "border-y-1 border-r-none border-gray-200 rounded-b-none border-b-0",
+                      )}
+                    >
+                      {t("medicine")}
+                    </TableHead>
+                    <TableHead className={tableHeaderClass}>
+                      {t("select_lot")}
+                    </TableHead>
+                    <TableHead className={tableHeaderClass}>
+                      {t("quantity")}
+                    </TableHead>
+                    <TableHead className={cn(tableHeaderClass)}>
+                      {t("days_supply")}
+                    </TableHead>
+                    <TableHead className={tableHeaderClass}>
+                      {t("expiry")}
+                    </TableHead>
+                    <TableHead className={tableHeaderClass}>
+                      {t("unit_price")}
+                    </TableHead>
+                    <TableHead className={tableHeaderClass}>
+                      {t("discount")}
+                    </TableHead>
+                    <TableHead className={tableHeaderClass}>
+                      {t("all_dispensed")}?
+                    </TableHead>
+                    <TableHead className={cn(tableHeaderClass, "rounded-r-lg")}>
+                      {t("actions")}
+                    </TableHead>
                   </TableRow>
                 </TableHeader>
                 <TableBody>
@@ -555,8 +587,13 @@ export default function MedicationBillForm({ patientId }: Props) {
                       field.productKnowledge as ProductKnowledgeBase;
 
                     return (
-                      <TableRow key={field.id}>
-                        <TableCell>
+                      <TableRow
+                        key={field.id}
+                        className="bg-white hover:bg-gray-50/50 shadow-sm rounded-lg"
+                      >
+                        <TableCell
+                          className={cn(tableCellClass, "rounded-l-lg")}
+                        >
                           <FormField
                             control={form.control}
                             name={`items.${index}.isSelected`}
@@ -572,13 +609,13 @@ export default function MedicationBillForm({ patientId }: Props) {
                             )}
                           />
                         </TableCell>
-                        <TableCell>
+                        <TableCell className={tableCellClass}>
                           <div>
-                            <div className="font-medium">
+                            <div className="font-medium text-gray-950 text-base">
                               {productKnowledge.name}
                             </div>
                             {field.medication ? (
-                              <div className="text-sm">
+                              <div className="text-sm text-gray-700 font-medium flex items-center gap-1">
                                 {/* Existing medication - show read-only dosage instructions */}
                                 {
                                   field.dosageInstructions?.[0]?.dose_and_rate
@@ -601,31 +638,34 @@ export default function MedicationBillForm({ patientId }: Props) {
                                     ?.bounds_duration?.unit
                                 }{" "}
                                 ={" "}
-                                {(() => {
-                                  const dosage =
-                                    field.dosageInstructions?.[0]?.dose_and_rate
-                                      ?.dose_quantity?.value || 0;
-                                  const duration =
-                                    field.dosageInstructions?.[0]?.timing
-                                      ?.repeat?.bounds_duration?.value || 0;
-                                  const frequency =
-                                    field.dosageInstructions?.[0]?.timing?.code
-                                      ?.code || "";
+                                <div className="text-gray-700 font-semibold text-sm">
+                                  {(() => {
+                                    const dosage =
+                                      field.dosageInstructions?.[0]
+                                        ?.dose_and_rate?.dose_quantity?.value ||
+                                      0;
+                                    const duration =
+                                      field.dosageInstructions?.[0]?.timing
+                                        ?.repeat?.bounds_duration?.value || 0;
+                                    const frequency =
+                                      field.dosageInstructions?.[0]?.timing
+                                        ?.code?.code || "";
 
-                                  let dosesPerDay = 1;
-                                  if (frequency.includes("BID"))
-                                    dosesPerDay = 2;
-                                  if (frequency.includes("TID"))
-                                    dosesPerDay = 3;
-                                  if (frequency.includes("QID"))
-                                    dosesPerDay = 4;
+                                    let dosesPerDay = 1;
+                                    if (frequency.includes("BID"))
+                                      dosesPerDay = 2;
+                                    if (frequency.includes("TID"))
+                                      dosesPerDay = 3;
+                                    if (frequency.includes("QID"))
+                                      dosesPerDay = 4;
 
-                                  return dosage * dosesPerDay * duration;
-                                })()}{" "}
-                                {t("units")}
+                                    return dosage * dosesPerDay * duration;
+                                  })()}{" "}
+                                  {t("units")}
+                                </div>
                               </div>
                             ) : (
-                              <div className="text-sm">
+                              <div className="text-sm text-gray-500">
                                 {/* Newly added medication - allow editing dosage instructions */}
                                 <AddDosageInstructionPopover
                                   dosageInstructions={form.watch(
@@ -661,7 +701,7 @@ export default function MedicationBillForm({ patientId }: Props) {
                             )}
                           </div>
                         </TableCell>
-                        <TableCell>
+                        <TableCell className={tableCellClass}>
                           {productKnowledgeInventoriesMap[productKnowledge.id]
                             ?.length ? (
                             <div className="space-y-2">
@@ -669,7 +709,7 @@ export default function MedicationBillForm({ patientId }: Props) {
                                 <PopoverTrigger asChild>
                                   <Button
                                     variant="outline"
-                                    className="w-[200px] justify-between h-auto min-h-[40px] p-2"
+                                    className="w-auto min-w-40 justify-between h-auto min-h-[40px] p-2 border-gray-300 border"
                                     type="button"
                                   >
                                     <div className="flex flex-col items-start gap-1 w-full">
@@ -682,7 +722,9 @@ export default function MedicationBillForm({ patientId }: Props) {
 
                                         if (selectedLots.length === 0) {
                                           return (
-                                            <span>{t("select_stock")}</span>
+                                            <span className="text-gray-500">
+                                              {t("select_stock")}
+                                            </span>
                                           );
                                         }
 
@@ -699,22 +741,24 @@ export default function MedicationBillForm({ patientId }: Props) {
                                           return (
                                             <div
                                               key={lot.selectedInventoryId}
-                                              className="flex items-center gap-2 w-full"
+                                              className="flex items-center gap-2 w-full bg-gray-50 px-2 border-gray-200 border-1 text-gray-950"
                                             >
-                                              <span className="font-medium">
+                                              <span className="font-medium text-sm">
                                                 {"Lot #" +
                                                   selectedInventory?.product
                                                     .batch?.lot_number}
                                               </span>
                                               <Badge
-                                                variant={
+                                                className={cn(
+                                                  "text-sm font-medium my-0.5",
                                                   selectedInventory?.status ===
                                                     "active" &&
-                                                  selectedInventory?.net_content >
-                                                    0
-                                                    ? "primary"
-                                                    : "destructive"
-                                                }
+                                                    selectedInventory?.net_content >
+                                                      0
+                                                    ? "bg-green-100 text-green-800"
+                                                    : "bg-red-100 text-red-800",
+                                                )}
+                                                variant="outline"
                                               >
                                                 {selectedInventory?.net_content}{" "}
                                                 {t("units")}
@@ -738,7 +782,6 @@ export default function MedicationBillForm({ patientId }: Props) {
                                         const currentLots = form.watch(
                                           `items.${index}.lots`,
                                         );
-
                                         const isSelected = currentLots.some(
                                           (lot) =>
                                             lot.selectedInventoryId === inv.id,
@@ -798,13 +841,14 @@ export default function MedicationBillForm({ patientId }: Props) {
                                                   inv.product.batch?.lot_number}
                                               </span>
                                               <Badge
-                                                variant={
+                                                className={cn(
+                                                  "ml-2",
                                                   inv.status === "active" &&
-                                                  inv.net_content > 0
-                                                    ? "primary"
-                                                    : "destructive"
-                                                }
-                                                className="ml-1"
+                                                    inv.net_content > 0
+                                                    ? "bg-green-100 text-green-800"
+                                                    : "bg-red-100 text-red-800",
+                                                )}
+                                                variant="outline"
                                               >
                                                 {inv.net_content} {t("units")}
                                               </Badge>
@@ -813,7 +857,7 @@ export default function MedicationBillForm({ patientId }: Props) {
                                         );
                                       })
                                     ) : (
-                                      <div className="p-4 text-center">
+                                      <div className="p-4 text-center text-gray-500">
                                         {t("no_lots_found")}
                                       </div>
                                     )}
@@ -822,10 +866,15 @@ export default function MedicationBillForm({ patientId }: Props) {
                               </Popover>
                             </div>
                           ) : (
-                            <Badge variant="destructive">{t("no_stock")}</Badge>
+                            <Badge
+                              variant="outline"
+                              className="bg-red-100 text-red-800"
+                            >
+                              {t("no_stock")}
+                            </Badge>
                           )}
                         </TableCell>
-                        <TableCell>
+                        <TableCell className={tableCellClass}>
                           <div className="space-y-2">
                             {form
                               .watch(`items.${index}.lots`)
@@ -859,7 +908,7 @@ export default function MedicationBillForm({ patientId }: Props) {
                                                   parseInt(e.target.value) || 0,
                                                 );
                                               }}
-                                              className="w-24"
+                                              className="border-gray-300 border rounded-none w-24"
                                               placeholder="0"
                                             />
                                           </FormControl>
@@ -874,13 +923,13 @@ export default function MedicationBillForm({ patientId }: Props) {
                               .watch(`items.${index}.lots`)
                               .filter((lot) => lot.selectedInventoryId)
                               .length === 0 && (
-                              <div className="text-sm py-2">
+                              <div className="text-sm text-gray-500 py-2">
                                 {t("select_lots_first")}
                               </div>
                             )}
                           </div>
                         </TableCell>
-                        <TableCell className="flex flex-col">
+                        <TableCell className={tableCellClass}>
                           <FormField
                             control={form.control}
                             name={`items.${index}.daysSupply`}
@@ -896,7 +945,7 @@ export default function MedicationBillForm({ patientId }: Props) {
                                         parseInt(e.target.value) || 0,
                                       );
                                     }}
-                                    className="w-24"
+                                    className="border-gray-300 border rounded-none w-24"
                                   />
                                 </FormControl>
                                 <FormMessage />
@@ -904,7 +953,7 @@ export default function MedicationBillForm({ patientId }: Props) {
                             )}
                           />
                         </TableCell>
-                        <TableCell>
+                        <TableCell className={tableCellClass}>
                           {form
                             .watch(`items.${index}.lots`)
                             .filter((lot) => lot.selectedInventoryId)
@@ -919,7 +968,7 @@ export default function MedicationBillForm({ patientId }: Props) {
                               return (
                                 <div
                                   key={lot.selectedInventoryId}
-                                  className="py-2.5"
+                                  className="py-2.5 text-gray-950 font-normal text-base"
                                 >
                                   {selectedInventory?.product.expiration_date
                                     ? formatDate(
@@ -934,9 +983,11 @@ export default function MedicationBillForm({ patientId }: Props) {
                           {form
                             .watch(`items.${index}.lots`)
                             .filter((lot) => lot.selectedInventoryId).length ===
-                            0 && <div className="text-sm  py-2">-</div>}
+                            0 && (
+                            <div className="text-sm text-gray-500 py-2">-</div>
+                          )}
                         </TableCell>
-                        <TableCell>
+                        <TableCell className={tableCellClass}>
                           {form
                             .watch(`items.${index}.lots`)
                             .filter((lot) => lot.selectedInventoryId)
@@ -952,7 +1003,7 @@ export default function MedicationBillForm({ patientId }: Props) {
                               return (
                                 <div
                                   key={lot.selectedInventoryId}
-                                  className="py-2.5"
+                                  className="py-2.5 text-gray-950 font-normal text-base"
                                 >
                                   <MonetaryDisplay amount={prices.basePrice} />
                                 </div>
@@ -963,7 +1014,7 @@ export default function MedicationBillForm({ patientId }: Props) {
                             .filter((lot) => lot.selectedInventoryId).length ===
                             0 && <div className="text-sm py-2">-</div>}
                         </TableCell>
-                        <TableCell>
+                        <TableCell className={tableCellClass}>
                           {form
                             .watch(`items.${index}.lots`)
                             .filter((lot) => lot.selectedInventoryId)
@@ -978,7 +1029,7 @@ export default function MedicationBillForm({ patientId }: Props) {
                               return selectedInventory ? (
                                 <div
                                   key={lot.selectedInventoryId}
-                                  className="py-2.5"
+                                  className="py-2.5 text-gray-950 font-normal text-base"
                                 >
                                   {selectedInventory.product.charge_item_definition.price_components
                                     .filter(
@@ -1004,38 +1055,11 @@ export default function MedicationBillForm({ patientId }: Props) {
                           {form
                             .watch(`items.${index}.lots`)
                             .filter((lot) => lot.selectedInventoryId).length ===
-                            0 && <div className="text-sm py-2">-</div>}
+                            0 && (
+                            <div className="text-sm text-gray-500 py-2">-</div>
+                          )}
                         </TableCell>
-                        <TableCell>
-                          {form
-                            .watch(`items.${index}.lots`)
-                            .filter((lot) => lot.selectedInventoryId)
-                            .map((lot) => {
-                              const selectedInventory =
-                                productKnowledgeInventoriesMap[
-                                  productKnowledge.id
-                                ]?.find(
-                                  (inv) => inv.id === lot.selectedInventoryId,
-                                );
-                              const prices = calculatePrices(selectedInventory);
-
-                              return (
-                                <div
-                                  key={lot.selectedInventoryId}
-                                  className="py-2.5"
-                                >
-                                  <MonetaryDisplay
-                                    amount={prices.basePrice * lot.quantity}
-                                  />
-                                </div>
-                              );
-                            })}
-                          {form
-                            .watch(`items.${index}.lots`)
-                            .filter((lot) => lot.selectedInventoryId).length ===
-                            0 && <div className="text-sm py-2">-</div>}
-                        </TableCell>
-                        <TableCell>
+                        <TableCell className={tableCellClass}>
                           {field.medication ? (
                             <FormField
                               control={form.control}
@@ -1056,8 +1080,8 @@ export default function MedicationBillForm({ patientId }: Props) {
                             "-"
                           )}
                         </TableCell>
-                        <TableCell>
-                          <div className="flex gap-2">
+                        <TableCell className={tableCellClass}>
+                          <div>
                             <Button
                               variant="outline"
                               size="sm"
@@ -1067,21 +1091,13 @@ export default function MedicationBillForm({ patientId }: Props) {
                             >
                               {t("alt")}
                             </Button>
-                            <Button
-                              variant="ghost"
-                              size="icon"
-                              className="[&_svg]:size-4"
-                              type="button"
-                            >
-                              <MoreVertical />
-                            </Button>
                           </div>
                         </TableCell>
                       </TableRow>
                     );
                   })}
-                  <TableRow>
-                    <TableCell colSpan={12} className="p-0">
+                  <TableRow className="bg-white rounded-lg shadow-sm">
+                    <TableCell colSpan={11} className="p-0 rounded-lg">
                       {isSearchOpen ? (
                         <Command className="w-full rounded-none border-none">
                           <CommandInput
@@ -1162,7 +1178,7 @@ export default function MedicationBillForm({ patientId }: Props) {
                         <Button
                           variant="ghost"
                           size="sm"
-                          className="w-full h-12 flex items-center justify-center gap-2 hover:bg-gray-100"
+                          className="w-full h-12 flex items-center justify-center gap-2 hover:bg-gray-100 rounded-lg"
                           onClick={() => setIsSearchOpen(true)}
                         >
                           <PlusIcon className="h-6 w-6" />
