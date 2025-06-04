@@ -64,7 +64,7 @@ import ComboboxQuantityInput from "@/components/Common/ComboboxQuantityInput";
 import Page from "@/components/Common/Page";
 import { TableSkeleton } from "@/components/Common/SkeletonLoading";
 import { SubstitutionSheet } from "@/components/Medication/SubstitutionSheet";
-import { MultiValueSetSelect } from "@/components/Medicine/MultiValueSetSelect";
+import InstructionsPopover from "@/components/Medicine/InstructionsPopover";
 import { formatDoseRange } from "@/components/Medicine/utils";
 import { reverseFrequencyOption } from "@/components/Questionnaire/QuestionTypes/MedicationRequestQuestion";
 import ValueSetSelect from "@/components/Questionnaire/ValueSetSelect";
@@ -246,6 +246,30 @@ const AddMedicationSheet = ({
     }
     onOpenChange(false);
     resetForm();
+  };
+
+  // Helper functions for additional instructions
+  const currentInstructions =
+    localDosageInstruction?.additional_instruction || [];
+
+  const addInstruction = (instruction: Code) => {
+    const currentInstructions =
+      localDosageInstruction?.additional_instruction || [];
+    if (!currentInstructions.some((inst) => inst.code === instruction.code)) {
+      handleUpdateDosageInstruction({
+        additional_instruction: [...currentInstructions, instruction],
+      });
+    }
+  };
+
+  const removeInstruction = (code: string) => {
+    const currentInstructions =
+      localDosageInstruction?.additional_instruction || [];
+    handleUpdateDosageInstruction({
+      additional_instruction: currentInstructions.filter(
+        (inst) => inst.code !== code,
+      ),
+    });
   };
 
   return (
@@ -526,53 +550,36 @@ const AddMedicationSheet = ({
                         {t("instructions")}
                       </Label>
                       {localDosageInstruction?.as_needed_boolean ? (
-                        <MultiValueSetSelect
-                          options={[
-                            {
-                              system: "system-as-needed-reason",
-                              value:
-                                localDosageInstruction?.as_needed_for || null,
-                              label: t("prn_reason"),
-                              placeholder: t("select_prn_reason"),
-                              onSelect: (value: Code | null) => {
-                                handleUpdateDosageInstruction({
-                                  as_needed_for: value || undefined,
-                                });
-                              },
-                            },
-                            {
-                              system: "system-additional-instruction",
-                              value:
-                                localDosageInstruction
-                                  ?.additional_instruction?.[0] || null,
-                              label: t("additional_instructions"),
-                              placeholder: t("select_additional_instructions"),
-                              onSelect: (value: Code | null) => {
-                                handleUpdateDosageInstruction({
-                                  additional_instruction: value
-                                    ? [value]
-                                    : undefined,
-                                });
-                              },
-                            },
-                          ]}
-                        />
+                        <div className="space-y-2">
+                          <ValueSetSelect
+                            system="system-as-needed-reason"
+                            value={
+                              localDosageInstruction?.as_needed_for || null
+                            }
+                            placeholder={t("select_prn_reason")}
+                            onSelect={(value) => {
+                              handleUpdateDosageInstruction({
+                                as_needed_for: value || undefined,
+                              });
+                            }}
+                            asSheet
+                          />
+
+                          <InstructionsPopover
+                            currentInstructions={currentInstructions}
+                            removeInstruction={removeInstruction}
+                            addInstruction={addInstruction}
+                            isReadOnly={false}
+                            disabled={false}
+                          />
+                        </div>
                       ) : (
-                        <ValueSetSelect
-                          system="system-additional-instruction"
-                          value={
-                            localDosageInstruction?.additional_instruction?.[0]
-                          }
-                          onSelect={(instruction) => {
-                            handleUpdateDosageInstruction({
-                              additional_instruction: instruction
-                                ? [instruction]
-                                : undefined,
-                            });
-                          }}
-                          placeholder={t("select_additional_instructions")}
-                          data-cy="medication-instructions"
-                          wrapTextForSmallScreen
+                        <InstructionsPopover
+                          currentInstructions={currentInstructions}
+                          removeInstruction={removeInstruction}
+                          addInstruction={addInstruction}
+                          isReadOnly={false}
+                          disabled={false}
                         />
                       )}
                     </div>
