@@ -699,6 +699,7 @@ export default function MedicationBillForm({ patientId }: Props) {
           facility: facilityId,
           limit: 100,
           status: "active,on-hold,draft,unknown,ended,completed,cancelled",
+          exclude_dispense_status: "complete",
         },
       })({ signal });
 
