@@ -3,8 +3,6 @@ import { useState } from "react";
 import { useTranslation } from "react-i18next";
 import { toast } from "sonner";
 
-import { cn } from "@/lib/utils";
-
 import { Badge } from "@/components/ui/badge";
 import { Button } from "@/components/ui/button";
 import { Checkbox } from "@/components/ui/checkbox";
@@ -64,6 +62,7 @@ interface MedicationTableProps {
   selectedMedications: string[];
   onSelectionChange: (id: string) => void;
   showCheckbox?: boolean;
+  paymentFilter: "paid" | "unpaid";
 }
 
 function MedicationTable({
@@ -71,6 +70,7 @@ function MedicationTable({
   selectedMedications,
   onSelectionChange,
   showCheckbox = true,
+  paymentFilter,
 }: MedicationTableProps) {
   const { t } = useTranslation();
   const queryClient = useQueryClient();
@@ -98,25 +98,21 @@ function MedicationTable({
     MedicationDispenseStatus.on_hold,
   ];
 
-  const tableHeadClass =
-    "border-x p-3 text-gray-700 text-sm font-medium leading-5";
-  const tableCellClass = "border-x p-3 text-gray-950";
-
   return (
-    <div className="rounded-md border shadow-sm w-full bg-white overflow-hidden">
-      <Table>
-        <TableHeader className="bg-gray-100">
-          <TableRow className="border-b">
-            <TableHead className={cn(tableHeadClass, "w-[50px]")} />
-            <TableHead className={tableHeadClass}>{t("medicine")}</TableHead>
-            <TableHead className={tableHeadClass}>{t("dosage")}</TableHead>
-            <TableHead className={tableHeadClass}>{t("frequency")}</TableHead>
-            <TableHead className={tableHeadClass}>{t("quantity")}</TableHead>
-            <TableHead className={tableHeadClass}>{t("status")}</TableHead>
-            <TableHead className={tableHeadClass}>
+    <div className="overflow-hidden rounded-md border-2 border-white shadow-md">
+      <Table className="rounded-md">
+        <TableHeader className="bg-gray-100 text-gray-700">
+          <TableRow className="divide-x">
+            {paymentFilter === "paid" && <TableHead className="w-[50px]" />}
+            <TableHead className="text-gray-700">{t("medicine")}</TableHead>
+            <TableHead className="text-gray-700">{t("dosage")}</TableHead>
+            <TableHead className="text-gray-700">{t("frequency")}</TableHead>
+            <TableHead className="text-gray-700">{t("quantity")}</TableHead>
+            <TableHead className="text-gray-700">{t("status")}</TableHead>
+            <TableHead className="text-gray-700">
               {t("prepared_date")}
             </TableHead>
-            <TableHead className={tableHeadClass}>
+            <TableHead className="text-gray-700">
               {t("payment_status")}
             </TableHead>
           </TableRow>
@@ -135,40 +131,42 @@ function MedicationTable({
             return (
               <TableRow
                 key={medication.id}
-                className="border-b hover:bg-gray-50"
+                className="hover:bg-gray-50 divide-x"
               >
-                <TableCell className={tableCellClass}>
-                  <TooltipProvider>
-                    <Tooltip>
-                      <TooltipTrigger asChild>
-                        <span>
-                          {shouldShowCheckbox && isPaid && (
-                            <Checkbox
-                              checked={selectedMedications.includes(
-                                medication.id,
-                              )}
-                              onCheckedChange={() =>
-                                onSelectionChange(medication.id)
-                              }
-                            />
-                          )}
-                        </span>
-                      </TooltipTrigger>
-                      {shouldShowCheckbox && !isPaid && (
-                        <TooltipContent>
-                          <p>{t("cannot_complete_unpaid_medication")}</p>
-                        </TooltipContent>
-                      )}
-                    </Tooltip>
-                  </TooltipProvider>
-                </TableCell>
-                <TableCell className={cn(tableCellClass, "font-medium")}>
+                {paymentFilter === "paid" && (
+                  <TableCell className="text-gray-950 p-0">
+                    <TooltipProvider>
+                      <Tooltip>
+                        <TooltipTrigger asChild>
+                          <span className="flex items-center justify-center p-2">
+                            {shouldShowCheckbox && isPaid && (
+                              <Checkbox
+                                checked={selectedMedications.includes(
+                                  medication.id,
+                                )}
+                                onCheckedChange={() =>
+                                  onSelectionChange(medication.id)
+                                }
+                              />
+                            )}
+                          </span>
+                        </TooltipTrigger>
+                        {shouldShowCheckbox && !isPaid && (
+                          <TooltipContent>
+                            <p>{t("cannot_complete_unpaid_medication")}</p>
+                          </TooltipContent>
+                        )}
+                      </Tooltip>
+                    </TooltipProvider>
+                  </TableCell>
+                )}
+                <TableCell className="text-gray-950 font-semibold">
                   {medication.item.product.product_knowledge.name}
                 </TableCell>
-                <TableCell className={tableCellClass}>
+                <TableCell className={"text-gray-950"}>
                   {dosage ? `${dosage.value} ${dosage.unit.display}` : "-"}
                 </TableCell>
-                <TableCell className={tableCellClass}>
+                <TableCell className={"text-gray-950"}>
                   {instruction?.as_needed_boolean
                     ? `${t("as_needed_prn")} ${
                         instruction?.as_needed_for?.display
@@ -177,10 +175,10 @@ function MedicationTable({
                       }`
                     : frequency?.display || "-"}
                 </TableCell>
-                <TableCell className={tableCellClass}>
+                <TableCell className="text-gray-950 font-medium">
                   {medication.charge_item.quantity || "-"}
                 </TableCell>
-                <TableCell className={tableCellClass}>
+                <TableCell className={"text-gray-950"}>
                   {editableStatuses.includes(medication.status) ? (
                     <Select
                       value={medication.status.toString()}
@@ -229,10 +227,10 @@ function MedicationTable({
                     </Badge>
                   )}
                 </TableCell>
-                <TableCell className={tableCellClass}>
+                <TableCell className={"text-gray-950"}>
                   {new Date(medication.when_prepared).toLocaleDateString()}
                 </TableCell>
-                <TableCell className={tableCellClass}>
+                <TableCell className={"text-gray-950"}>
                   <Badge
                     variant={isPaid ? "outline" : "destructive"}
                     className={isPaid ? "bg-green-100 text-green-700" : ""}
@@ -385,6 +383,7 @@ export default function DispensedMedicationList({
               selectedMedications={selectedMedications}
               onSelectionChange={handleSelectionChange}
               showCheckbox={paymentFilter !== "unpaid"}
+              paymentFilter={paymentFilter}
             />
           </div>
 
