@@ -299,7 +299,7 @@ export function SubstitutionSheet({
                                 variant="outline"
                                 role="combobox"
                                 aria-expanded={productPopoverOpen}
-                                className="w-full justify-between h-12 border-dashed"
+                                className="w-full justify-between h-12 border border-gray-300"
                                 type="button"
                               >
                                 <span className="truncate text-left">
@@ -325,7 +325,7 @@ export function SubstitutionSheet({
                               variant="outline"
                               role="combobox"
                               aria-expanded={productPopoverOpen}
-                              className="w-full justify-between h-12 border-dashed"
+                              className="w-full justify-between h-12 border border-gray-300"
                               type="button"
                             >
                               <span className="truncate text-left">
@@ -366,7 +366,7 @@ export function SubstitutionSheet({
                       defaultValue={field.value}
                     >
                       <FormControl>
-                        <SelectTrigger className="h-12">
+                        <SelectTrigger className="h-12 border-gray-300">
                           <SelectValue placeholder={t("select")}>
                             {field.value
                               ? getSubstitutionTypeDisplay(t, field.value)
@@ -409,7 +409,7 @@ export function SubstitutionSheet({
                       defaultValue={field.value}
                     >
                       <FormControl>
-                        <SelectTrigger className="h-12">
+                        <SelectTrigger className="h-12 border-gray-300">
                           <SelectValue placeholder={t("select")}>
                             {field.value
                               ? getSubstitutionReasonDisplay(t, field.value)
