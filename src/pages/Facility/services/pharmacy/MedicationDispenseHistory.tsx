@@ -45,7 +45,7 @@ export default function MedicationDispenseHistory({
   const { data: prescriptionQueue, isLoading } = useQuery<
     PaginatedResponse<MedicationDispenseSummary>
   >({
-    queryKey: ["medicationDispenseSummary", qParams],
+    queryKey: ["medicationDispenseSummary", facilityId, qParams],
     queryFn: query.debounced(medicationDispenseApi.summary, {
       pathParams: { facilityId },
       queryParams: {

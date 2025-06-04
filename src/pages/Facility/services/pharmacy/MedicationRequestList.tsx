@@ -128,7 +128,7 @@ export default function MedicationRequestList({
   const { data: prescriptionQueue, isLoading } = useQuery<
     PaginatedResponse<MedicationRequestSummary>
   >({
-    queryKey: ["prescriptionQueue", qParams],
+    queryKey: ["prescriptionQueue", facilityId, qParams],
     queryFn: query.debounced(medicationRequestApi.summary, {
       pathParams: { facilityId },
       queryParams: {
