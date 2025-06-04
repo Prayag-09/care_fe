@@ -775,6 +775,7 @@ export default function MedicationBillForm({ patientId }: Props) {
   });
 
   useEffect(() => {
+    form.reset({ items: [] }); // Reset form with empty items array
     medications.forEach((medication) => {
       append({
         reference_id: crypto.randomUUID(),
