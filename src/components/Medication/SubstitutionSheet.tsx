@@ -54,6 +54,10 @@ import query from "@/Utils/request/query";
 import {
   SubstitutionReason,
   SubstitutionType,
+  getSubstitutionReasonDescription,
+  getSubstitutionReasonDisplay,
+  getSubstitutionTypeDescription,
+  getSubstitutionTypeDisplay,
 } from "@/types/emr/medicationDispense/medicationDispense";
 import { ProductKnowledgeBase } from "@/types/inventory/productKnowledge/productKnowledge";
 import productKnowledgeApi from "@/types/inventory/productKnowledge/productKnowledgeApi";
@@ -86,52 +90,6 @@ const substitutionSchema = z.object({
 });
 
 type SubstitutionFormValues = z.infer<typeof substitutionSchema>;
-
-const getSubstitutionTypeDisplay = (
-  t: (key: string) => string,
-  type: SubstitutionType,
-) => {
-  switch (type) {
-    case SubstitutionType.E:
-      return t("substitution_type_e_equivalence");
-    case SubstitutionType.EC:
-      return t("substitution_type_ec_equivalence_clinical");
-    case SubstitutionType.BC:
-      return t("substitution_type_bc_brand_change");
-    case SubstitutionType.G:
-      return t("substitution_type_g_generic");
-    case SubstitutionType.TE:
-      return t("substitution_type_te_therapeutic_equivalence");
-    case SubstitutionType.TB:
-      return t("substitution_type_tb_therapeutic_brand");
-    case SubstitutionType.TG:
-      return t("substitution_type_tg_therapeutic_generic");
-    case SubstitutionType.F:
-      return t("substitution_type_f_formulary");
-    case SubstitutionType.N:
-      return t("substitution_type_n_none");
-    default:
-      return type;
-  }
-};
-
-const getSubstitutionReasonDisplay = (
-  t: (key: string) => string,
-  reason: SubstitutionReason,
-) => {
-  switch (reason) {
-    case SubstitutionReason.CT:
-      return t("substitution_reason_ct");
-    case SubstitutionReason.FP:
-      return t("substitution_reason_fp");
-    case SubstitutionReason.OS:
-      return t("substitution_reason_os");
-    case SubstitutionReason.RR:
-      return t("substitution_reason_rr");
-    default:
-      return reason;
-  }
-};
 
 export function SubstitutionSheet({
   open,
@@ -322,7 +280,7 @@ export function SubstitutionSheet({
                 control={form.control}
                 name="substitutedProductKnowledge"
                 render={() => (
-                  <FormItem className="space-y-3">
+                  <FormItem>
                     <FormLabel className="text-base font-medium">
                       {t("select_substitute_product")}
                       <span className="text-destructive ml-1">*</span>
@@ -398,7 +356,7 @@ export function SubstitutionSheet({
                 control={form.control}
                 name="type"
                 render={({ field }) => (
-                  <FormItem className="space-y-3">
+                  <FormItem>
                     <FormLabel className="text-base font-medium">
                       {t("substitution_type")}
                       <span className="text-destructive ml-1">*</span>
@@ -409,10 +367,14 @@ export function SubstitutionSheet({
                     >
                       <FormControl>
                         <SelectTrigger className="h-12">
-                          <SelectValue placeholder={t("select")} />
+                          <SelectValue placeholder={t("select")}>
+                            {field.value
+                              ? getSubstitutionTypeDisplay(t, field.value)
+                              : t("select")}
+                          </SelectValue>
                         </SelectTrigger>
                       </FormControl>
-                      <SelectContent>
+                      <SelectContent className="max-w-[var(--radix-select-trigger-width)] w-full">
                         {Object.values(SubstitutionType).map((type) => (
                           <SelectItem key={type} value={type} className="py-3">
                             <div className="space-y-1">
@@ -420,7 +382,7 @@ export function SubstitutionSheet({
                                 {getSubstitutionTypeDisplay(t, type)}
                               </p>
                               <p className="text-xs text-muted-foreground">
-                                {type}
+                                {getSubstitutionTypeDescription(t, type)}
                               </p>
                             </div>
                           </SelectItem>
@@ -437,7 +399,7 @@ export function SubstitutionSheet({
                 control={form.control}
                 name="reason"
                 render={({ field }) => (
-                  <FormItem className="space-y-3">
+                  <FormItem>
                     <FormLabel className="text-base font-medium">
                       {t("substitution_reason")}
                       <span className="text-destructive ml-1">*</span>
@@ -448,10 +410,14 @@ export function SubstitutionSheet({
                     >
                       <FormControl>
                         <SelectTrigger className="h-12">
-                          <SelectValue placeholder={t("select")} />
+                          <SelectValue placeholder={t("select")}>
+                            {field.value
+                              ? getSubstitutionReasonDisplay(t, field.value)
+                              : t("select")}
+                          </SelectValue>
                         </SelectTrigger>
                       </FormControl>
-                      <SelectContent>
+                      <SelectContent className="max-w-[var(--radix-select-trigger-width)] w-full">
                         {Object.values(SubstitutionReason).map((reason) => (
                           <SelectItem
                             key={reason}
@@ -463,7 +429,7 @@ export function SubstitutionSheet({
                                 {getSubstitutionReasonDisplay(t, reason)}
                               </p>
                               <p className="text-xs text-muted-foreground">
-                                {reason}
+                                {getSubstitutionReasonDescription(t, reason)}
                               </p>
                             </div>
                           </SelectItem>

@@ -1,7 +1,7 @@
 import { zodResolver } from "@hookform/resolvers/zod";
 import { useMutation, useQuery, useQueryClient } from "@tanstack/react-query";
 import { formatDate } from "date-fns";
-import { ChevronDownIcon, PlusIcon } from "lucide-react";
+import { ChevronDownIcon, Info, PlusIcon } from "lucide-react";
 import { navigate } from "raviger";
 import { useEffect, useState } from "react";
 import { useFieldArray, useForm } from "react-hook-form";
@@ -94,6 +94,10 @@ import {
   MedicationDispenseStatus,
   SubstitutionReason,
   SubstitutionType,
+  getSubstitutionReasonDescription,
+  getSubstitutionReasonDisplay,
+  getSubstitutionTypeDescription,
+  getSubstitutionTypeDisplay,
 } from "@/types/emr/medicationDispense/medicationDispense";
 import {
   DoseRange,
@@ -1151,25 +1155,125 @@ export default function MedicationBillForm({ patientId }: Props) {
                         <TableCell className={tableCellClass}>
                           <div className="flex items-center justify-between gap-2">
                             <div>
-                              <div className="font-medium text-gray-950 text-base">
-                                {effectiveProductKnowledge.name}
-                                {field.medication?.dispense_status ===
-                                  MedicationRequestDispenseStatus.partial && (
-                                  <Badge
-                                    variant="outline"
-                                    className="ml-2 border-yellow-300 text-yellow-800 bg-yellow-100 text-xs"
-                                  >
-                                    {t("partially_dispensed")}
-                                  </Badge>
-                                )}
-                                {substitution && (
-                                  <Badge
-                                    variant="outline"
-                                    className="ml-2 border-orange-300 text-orange-800 bg-orange-100 text-xs"
-                                  >
-                                    {t("substituted")}
-                                  </Badge>
-                                )}
+                              <div className="font-medium text-gray-950 text-base flex items-center">
+                                <div>
+                                  <div className="flex items-center gap-2">
+                                    {effectiveProductKnowledge.name}
+                                    {substitution && (
+                                      <Popover>
+                                        <PopoverTrigger asChild>
+                                          <Button
+                                            variant="ghost"
+                                            size="sm"
+                                            className="p-1 h-6 w-6 rounded-full hover:bg-blue-100"
+                                          >
+                                            <Info className="h-4 w-4" />
+                                            <span className="sr-only">
+                                              {t("substitution_details")}
+                                            </span>
+                                          </Button>
+                                        </PopoverTrigger>
+                                        <PopoverContent
+                                          className="p-4 w-auto"
+                                          align="start"
+                                          side="bottom"
+                                        >
+                                          <div className="space-y-3">
+                                            <div className="font-semibold text-sm text-gray-950 underline">
+                                              {t("substitution_details")} :
+                                            </div>
+                                            <div className="space-y-3 text-sm max-w-md">
+                                              <div>
+                                                <div className="flex items-center gap-1 mb-1">
+                                                  <span className="font-medium text-gray-600">
+                                                    {t("original_medication")}:
+                                                  </span>
+                                                  <div className="text-gray-950 font-medium">
+                                                    {productKnowledge.name}
+                                                  </div>
+                                                </div>
+                                              </div>
+                                              <div>
+                                                <div className="flex items-center gap-1 mb-1">
+                                                  <span className="font-medium text-gray-600">
+                                                    {t("substituted_with")}:
+                                                  </span>
+                                                  <div className="text-gray-950 font-medium">
+                                                    {
+                                                      effectiveProductKnowledge.name
+                                                    }
+                                                  </div>
+                                                </div>
+                                              </div>
+                                              <div>
+                                                <div className="flex items-center gap-1">
+                                                  <span className="font-medium text-gray-600">
+                                                    {t("substitution_type")}:
+                                                  </span>
+                                                  <div className="text-gray-950 font-medium">
+                                                    {getSubstitutionTypeDisplay(
+                                                      t,
+                                                      substitution.type,
+                                                    )}{" "}
+                                                    ({substitution.type})
+                                                  </div>
+                                                </div>
+                                                <div className="text-gray-700 text-xs italic leading-relaxed">
+                                                  {getSubstitutionTypeDescription(
+                                                    t,
+                                                    substitution.type,
+                                                  )}
+                                                </div>
+                                              </div>
+                                              <div>
+                                                <div className="flex items-center gap-1">
+                                                  <span className="font-medium text-gray-600">
+                                                    {t("substitution_reason")}:
+                                                  </span>
+                                                  <div className="text-gray-950 font-medium">
+                                                    {getSubstitutionReasonDisplay(
+                                                      t,
+                                                      substitution.reason,
+                                                    )}{" "}
+                                                    ({substitution.reason})
+                                                  </div>
+                                                </div>
+                                                <div className="text-gray-700 text-xs italic leading-relaxed">
+                                                  {getSubstitutionReasonDescription(
+                                                    t,
+                                                    substitution.reason,
+                                                  )}
+                                                </div>
+                                              </div>
+                                            </div>
+                                          </div>
+                                        </PopoverContent>
+                                      </Popover>
+                                    )}
+                                    {substitution && (
+                                      <Badge
+                                        variant="outline"
+                                        className="border-orange-300 text-orange-800 bg-orange-100 text-xs -ml-1"
+                                      >
+                                        {t("substituted")}
+                                      </Badge>
+                                    )}
+                                    {field.medication?.dispense_status ===
+                                      MedicationRequestDispenseStatus.partial && (
+                                      <Badge
+                                        variant="outline"
+                                        className="border-yellow-300 text-yellow-800 bg-yellow-100 text-xs"
+                                      >
+                                        {t("partially_dispensed")}
+                                      </Badge>
+                                    )}
+                                  </div>
+                                  {substitution && (
+                                    <div className="text-gray-500 font-normal italic line-through text-sm">
+                                      {productKnowledge.name}
+                                    </div>
+                                  )}
+                                </div>
                               </div>
                               {field.medication ? (
                                 <div className="text-sm text-gray-700 font-medium flex items-center gap-1">
