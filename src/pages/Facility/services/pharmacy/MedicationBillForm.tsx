@@ -98,6 +98,7 @@ import {
 import {
   DoseRange,
   MEDICATION_REQUEST_TIMING_OPTIONS,
+  MedicationRequestDispenseStatus,
   MedicationRequestDosageInstruction,
   MedicationRequestRead,
   UCUM_TIME_UNITS,
@@ -1145,6 +1146,15 @@ export default function MedicationBillForm({ patientId }: Props) {
                             <div>
                               <div className="font-medium text-gray-950 text-base">
                                 {effectiveProductKnowledge.name}
+                                {field.medication?.dispense_status ===
+                                  MedicationRequestDispenseStatus.partial && (
+                                  <Badge
+                                    variant="outline"
+                                    className="ml-2 border-yellow-300 text-yellow-800 bg-yellow-100 text-xs"
+                                  >
+                                    {t("partially_dispensed")}
+                                  </Badge>
+                                )}
                                 {substitution && (
                                   <Badge
                                     variant="outline"
