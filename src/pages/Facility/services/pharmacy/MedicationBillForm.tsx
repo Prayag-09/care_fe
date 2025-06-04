@@ -884,7 +884,12 @@ export default function MedicationBillForm({ patientId }: Props) {
       .filter((item) => item.isSelected);
 
     const medsWithZeroQuantity = selectedItems.filter((item) => {
-      return item.lots.every((lot) => lot.quantity === 0);
+      return item.lots.every(
+        (lot) =>
+          lot.quantity === 0 ||
+          !lot.selectedInventoryId ||
+          !lot.selectedInventoryId.length,
+      );
     });
 
     if (medsWithZeroQuantity.length > 0) {
