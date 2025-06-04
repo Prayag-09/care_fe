@@ -92,3 +92,8 @@ export interface MedicationDispenseSummary {
   encounter: Encounter;
   count: number;
 }
+
+export interface MedicationDispenseUpdate {
+  id?: string;
+  status: MedicationDispenseStatus;
+}

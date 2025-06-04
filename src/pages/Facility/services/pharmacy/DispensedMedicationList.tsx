@@ -10,6 +10,13 @@ import { Button } from "@/components/ui/button";
 import { Checkbox } from "@/components/ui/checkbox";
 import { EmptyState } from "@/components/ui/empty-state";
 import {
+  Select,
+  SelectContent,
+  SelectItem,
+  SelectTrigger,
+  SelectValue,
+} from "@/components/ui/select";
+import {
   Table,
   TableBody,
   TableCell,
@@ -29,12 +36,14 @@ import { TableSkeleton } from "@/components/Common/SkeletonLoading";
 
 import useFilters from "@/hooks/useFilters";
 
+import mutate from "@/Utils/request/mutate";
 import query from "@/Utils/request/query";
 import ViewDefaultAccountButton from "@/pages/Facility/billing/account/ViewDefaultAccountButton";
 import {
   MedicationDispenseCategory,
   MedicationDispenseRead,
   MedicationDispenseStatus,
+  MedicationDispenseUpdate,
   MedicationDispenseUpsert,
 } from "@/types/emr/medicationDispense/medicationDispense";
 import medicationDispenseApi from "@/types/emr/medicationDispense/medicationDispenseApi";
@@ -64,6 +73,30 @@ function MedicationTable({
   showCheckbox = true,
 }: MedicationTableProps) {
   const { t } = useTranslation();
+  const queryClient = useQueryClient();
+
+  const { mutate: updateMedication } = useMutation({
+    mutationFn: (body: MedicationDispenseUpdate) => {
+      return mutate(medicationDispenseApi.update, {
+        body: {
+          status: body.status,
+        },
+        pathParams: {
+          id: body.id,
+        },
+      })(body);
+    },
+    onSuccess: () => {
+      queryClient.invalidateQueries({ queryKey: ["medication_dispense"] });
+      toast.success(t("dispense_status_updated"));
+    },
+  });
+
+  const editableStatuses = [
+    MedicationDispenseStatus.preparation,
+    MedicationDispenseStatus.in_progress,
+    MedicationDispenseStatus.on_hold,
+  ];
 
   const tableHeadClass =
     "border-x p-3 text-gray-700 text-sm font-medium leading-5";
@@ -144,12 +177,53 @@ function MedicationTable({
                     : frequency?.display || "-"}
                 </TableCell>
                 <TableCell className={tableCellClass}>
-                  <Badge
-                    variant="outline"
-                    className={STATUS_COLORS[medication.status]}
-                  >
-                    {t(medication.status)}
-                  </Badge>
+                  {editableStatuses.includes(medication.status) ? (
+                    <Select
+                      value={medication.status.toString()}
+                      onValueChange={(value) => {
+                        updateMedication({
+                          id: medication.id,
+                          status: value as MedicationDispenseStatus,
+                        });
+                      }}
+                    >
+                      <SelectTrigger className="w-full">
+                        <SelectValue placeholder={t("select_status")} />
+                      </SelectTrigger>
+                      <SelectContent>
+                        {Object.values(MedicationDispenseStatus)
+                          .filter(
+                            (status) =>
+                              status !== MedicationDispenseStatus.completed,
+                          )
+                          .filter(
+                            (status) =>
+                              !(
+                                medication.status ===
+                                  MedicationDispenseStatus.in_progress &&
+                                status === MedicationDispenseStatus.preparation
+                              ),
+                          )
+                          .map((status) => {
+                            return (
+                              <SelectItem
+                                key={status}
+                                value={status.toString()}
+                              >
+                                {t(status)}
+                              </SelectItem>
+                            );
+                          })}
+                      </SelectContent>
+                    </Select>
+                  ) : (
+                    <Badge
+                      variant="outline"
+                      className={STATUS_COLORS[medication.status]}
+                    >
+                      {t(medication.status)}
+                    </Badge>
+                  )}
                 </TableCell>
                 <TableCell className={tableCellClass}>
                   {new Date(medication.when_prepared).toLocaleDateString()}
