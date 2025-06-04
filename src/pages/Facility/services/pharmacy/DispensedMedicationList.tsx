@@ -111,6 +111,7 @@ function MedicationTable({
             <TableHead className={tableHeadClass}>{t("medicine")}</TableHead>
             <TableHead className={tableHeadClass}>{t("dosage")}</TableHead>
             <TableHead className={tableHeadClass}>{t("frequency")}</TableHead>
+            <TableHead className={tableHeadClass}>{t("quantity")}</TableHead>
             <TableHead className={tableHeadClass}>{t("status")}</TableHead>
             <TableHead className={tableHeadClass}>
               {t("prepared_date")}
@@ -175,6 +176,9 @@ function MedicationTable({
                           : ""
                       }`
                     : frequency?.display || "-"}
+                </TableCell>
+                <TableCell className={tableCellClass}>
+                  {medication.charge_item.quantity || "-"}
                 </TableCell>
                 <TableCell className={tableCellClass}>
                   {editableStatuses.includes(medication.status) ? (

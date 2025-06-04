@@ -2485,6 +2485,8 @@
   "no_medication_recorded": "No Medication Recorded",
   "no_medication_statements": "No Medication Statements",
   "no_medications": "No Medications",
+  "no_medications_found": "No Medications Found",
+  "no_medications_found_description": "No medications have been dispensed yet",
   "no_medications_found_for_this_encounter": "No medications found for this encounter.",
   "no_medications_match_query": "No medications match {{ searchQuery }}",
   "no_medications_prescribed": "No medications have been prescribed yet",
