@@ -103,7 +103,12 @@ function MedicationTable({
       <Table className="rounded-md">
         <TableHeader className="bg-gray-100 text-gray-700">
           <TableRow className="divide-x">
-            {paymentFilter === "paid" && <TableHead className="w-[50px]" />}
+            {paymentFilter === "paid" &&
+              medications.some(
+                (medication) =>
+                  medication.status === MedicationDispenseStatus.preparation ||
+                  medication.status === MedicationDispenseStatus.in_progress,
+              ) && <TableHead className="w-[50px]" />}
             <TableHead className="text-gray-700">{t("medicine")}</TableHead>
             <TableHead className="text-gray-700">{t("dosage")}</TableHead>
             <TableHead className="text-gray-700">{t("frequency")}</TableHead>
@@ -133,7 +138,7 @@ function MedicationTable({
                 key={medication.id}
                 className="hover:bg-gray-50 divide-x"
               >
-                {paymentFilter === "paid" && (
+                {paymentFilter === "paid" && shouldShowCheckbox && (
                   <TableCell className="text-gray-950 p-0">
                     <TooltipProvider>
                       <Tooltip>
