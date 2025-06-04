@@ -14,6 +14,7 @@ import {
   TableHeader,
   TableRow,
 } from "@/components/ui/table";
+import { Tabs, TabsList, TabsTrigger } from "@/components/ui/tabs";
 
 import Page from "@/components/Common/Page";
 
@@ -53,13 +54,44 @@ export default function MedicationDispenseHistory({
         encounter_class: qParams.category,
         limit: qParams.limit,
         offset: ((qParams.page ?? 1) - 1) * (qParams.limit ?? 14),
-        exclude_dispense_status: "complete",
+        status:
+          qParams.exclude_status === "history"
+            ? "completed,cancelled,entered_in_error,stopped,declined"
+            : "preparation,in_progress,on_hold",
       },
     }),
   });
 
+  const DISPENSE_STATUS_OPTIONS = {
+    pending: {
+      label: "pending",
+    },
+    history: {
+      label: "history",
+    },
+  } as const;
+
   return (
-    <Page title={t("medication_dispense")} className="space-y-6">
+    <Page title={t("medication_dispense")}>
+      <div className="mb-4 pt-6">
+        <Tabs
+          value={qParams.exclude_status || "pending"}
+          onValueChange={(value) => updateQuery({ exclude_status: value })}
+          className="w-full"
+        >
+          <TabsList className="w-full justify-evenly sm:justify-start border-b rounded-none bg-transparent p-0 h-auto overflow-x-auto">
+            {Object.entries(DISPENSE_STATUS_OPTIONS).map(([key, { label }]) => (
+              <TabsTrigger
+                key={key}
+                value={key}
+                className="border-b-2 px-2 sm:px-4 py-2 text-gray-600 hover:text-gray-900 data-[state=active]:border-b-primary-700  data-[state=active]:text-primary-800 data-[state=active]:bg-transparent data-[state=active]:shadow-none rounded-none"
+              >
+                {t(label)}
+              </TabsTrigger>
+            ))}
+          </TabsList>
+        </Tabs>
+      </div>
       <div className="flex items-center gap-4 mb-6">
         <div className="flex-1">
           <Input
