@@ -335,7 +335,7 @@ const AddMedicationSheet = ({
                                         ?.dose_quantity
                                     }
                                     onChange={(value) => {
-                                      if (!value.value || !value.unit) return;
+                                      if (!value?.value || !value.unit) return;
                                       handleUpdateDosageInstruction({
                                         dose_and_rate: {
                                           type: "ordered",
@@ -2103,14 +2103,16 @@ const DosageDialog: React.FC<DosageDialogProps> = ({
         <ComboboxQuantityInput
           quantity={localDoseRange.low}
           onChange={(value) => {
-            setLocalDoseRange((prev) => ({
-              ...prev,
-              low: value,
-              high: {
-                ...prev.high,
-                unit: value.unit,
-              },
-            }));
+            if (value) {
+              setLocalDoseRange((prev) => ({
+                ...prev,
+                low: value,
+                high: {
+                  ...prev.high,
+                  unit: value.unit,
+                },
+              }));
+            }
           }}
         />
       </div>
@@ -2119,14 +2121,16 @@ const DosageDialog: React.FC<DosageDialogProps> = ({
         <ComboboxQuantityInput
           quantity={localDoseRange.high}
           onChange={(value) => {
-            setLocalDoseRange((prev) => ({
-              ...prev,
-              high: value,
-              low: {
-                ...prev.low,
-                unit: value.unit,
-              },
-            }));
+            if (value) {
+              setLocalDoseRange((prev) => ({
+                ...prev,
+                high: value,
+                low: {
+                  ...prev.low,
+                  unit: value.unit,
+                },
+              }));
+            }
           }}
         />
       </div>
