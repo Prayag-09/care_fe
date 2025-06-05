@@ -322,7 +322,7 @@ export default function MedicationRequestList({
                         className="w-auto font-semibold text-gray-950 border-gray-400"
                         onClick={() => {
                           navigate(
-                            `/facility/${facilityId}/locations/${locationId}/medication_requests/patient/${item.encounter.patient.id}`,
+                            `/facility/${facilityId}/locations/${locationId}/medication_requests/patient/${item.encounter.patient.id}${qParams.billing_status === "partial" ? "/partial" : ""}`,
                           );
                         }}
                       >

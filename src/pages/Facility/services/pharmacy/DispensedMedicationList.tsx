@@ -62,7 +62,6 @@ interface MedicationTableProps {
   selectedMedications: string[];
   onSelectionChange: (id: string) => void;
   showCheckbox?: boolean;
-  paymentFilter: "paid" | "unpaid";
 }
 
 function MedicationTable({
@@ -70,7 +69,6 @@ function MedicationTable({
   selectedMedications,
   onSelectionChange,
   showCheckbox = true,
-  paymentFilter,
 }: MedicationTableProps) {
   const { t } = useTranslation();
   const queryClient = useQueryClient();
@@ -103,12 +101,7 @@ function MedicationTable({
       <Table className="rounded-md">
         <TableHeader className="bg-gray-100 text-gray-700">
           <TableRow className="divide-x">
-            {paymentFilter === "paid" &&
-              medications.some(
-                (medication) =>
-                  medication.status === MedicationDispenseStatus.preparation ||
-                  medication.status === MedicationDispenseStatus.in_progress,
-              ) && <TableHead className="w-[50px]" />}
+            {showCheckbox && <TableHead className="w-[50px]" />}
             <TableHead className="text-gray-700">{t("medicine")}</TableHead>
             <TableHead className="text-gray-700">{t("dosage")}</TableHead>
             <TableHead className="text-gray-700">{t("frequency")}</TableHead>
@@ -128,17 +121,14 @@ function MedicationTable({
             const frequency = instruction?.timing?.code;
             const dosage = instruction?.dose_and_rate?.dose_quantity;
             const isPaid = medication.charge_item.paid_invoice;
-            const shouldShowCheckbox =
-              showCheckbox &&
-              (medication.status === MedicationDispenseStatus.preparation ||
-                medication.status === MedicationDispenseStatus.in_progress);
+            const shouldShowCheckbox = showCheckbox;
 
             return (
               <TableRow
                 key={medication.id}
                 className="hover:bg-gray-50 divide-x"
               >
-                {paymentFilter === "paid" && shouldShowCheckbox && (
+                {shouldShowCheckbox && (
                   <TableCell className="text-gray-950 p-0">
                     <TooltipProvider>
                       <Tooltip>
@@ -387,8 +377,11 @@ export default function DispensedMedicationList({
               medications={filteredMedications}
               selectedMedications={selectedMedications}
               onSelectionChange={handleSelectionChange}
-              showCheckbox={paymentFilter !== "unpaid"}
-              paymentFilter={paymentFilter}
+              showCheckbox={
+                paymentFilter !== "unpaid" &&
+                (status === MedicationDispenseStatus.preparation ||
+                  status === MedicationDispenseStatus.in_progress)
+              }
             />
           </div>
 
