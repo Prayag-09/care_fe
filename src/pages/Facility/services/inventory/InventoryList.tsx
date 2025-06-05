@@ -4,7 +4,7 @@ import { useTranslation } from "react-i18next";
 
 import { cn } from "@/lib/utils";
 
-import CareIcon from "@/CAREUI/icons/CareIcon";
+import CareIcon, { IconName } from "@/CAREUI/icons/CareIcon";
 
 import { Badge } from "@/components/ui/badge";
 import { EmptyState } from "@/components/ui/empty-state";
@@ -39,6 +39,7 @@ import inventoryApi from "@/types/inventory/product/inventoryApi";
 
 interface StockLevelOption {
   label: string;
+  icon: string;
   max?: number;
   min?: number;
 }
@@ -46,18 +47,22 @@ interface StockLevelOption {
 const STOCK_LEVEL_OPTIONS: Record<string, StockLevelOption> = {
   all: {
     label: "all_stock",
+    icon: "l-box",
   },
   in_stock: {
     label: "in_stock",
+    icon: "l-check-circle",
     min: 999,
   },
   low_stock: {
     label: "low_stock",
+    icon: "l-exclamation-triangle",
     min: 1,
     max: 999,
   },
   no_stock: {
     label: "no_stock",
+    icon: "l-times-circle",
     max: 0,
   },
 } as const;
@@ -138,6 +143,7 @@ export function InventoryList({ facilityId, locationId }: InventoryListProps) {
                 value={key}
                 className="border-b-2 px-2 sm:px-4 py-2 text-gray-600 hover:text-gray-900 data-[state=active]:border-b-primary-700 data-[state=active]:text-primary-800 data-[state=active]:bg-transparent data-[state=active]:shadow-none rounded-none"
               >
+                <CareIcon icon={STOCK_LEVEL_OPTIONS[key].icon as IconName} />
                 {t(label)}
               </TabsTrigger>
             ))}
