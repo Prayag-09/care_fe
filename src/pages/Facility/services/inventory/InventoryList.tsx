@@ -15,7 +15,6 @@ import {
   SelectTrigger,
   SelectValue,
 } from "@/components/ui/select";
-import { Separator } from "@/components/ui/separator";
 import {
   Table,
   TableBody,
@@ -24,6 +23,7 @@ import {
   TableHeader,
   TableRow,
 } from "@/components/ui/table";
+import { Tabs, TabsList, TabsTrigger } from "@/components/ui/tabs";
 
 import Page from "@/components/Common/Page";
 import { TableSkeleton } from "@/components/Common/SkeletonLoading";
@@ -36,6 +36,31 @@ import {
   InventoryStatusOptions,
 } from "@/types/inventory/product/inventory";
 import inventoryApi from "@/types/inventory/product/inventoryApi";
+
+interface StockLevelOption {
+  label: string;
+  max?: number;
+  min?: number;
+}
+
+const STOCK_LEVEL_OPTIONS: Record<string, StockLevelOption> = {
+  all: {
+    label: "all_stock",
+  },
+  in_stock: {
+    label: "in_stock",
+    min: 999,
+  },
+  low_stock: {
+    label: "low_stock",
+    min: 1,
+    max: 999,
+  },
+  no_stock: {
+    label: "no_stock",
+    max: 0,
+  },
+} as const;
 
 interface InventoryListProps {
   facilityId: string;
@@ -58,6 +83,16 @@ export function InventoryList({ facilityId, locationId }: InventoryListProps) {
         facility: facilityId,
         limit: resultsPerPage,
         offset: ((qParams.page ?? 1) - 1) * resultsPerPage,
+        net_content_max: qParams.stock_level
+          ? STOCK_LEVEL_OPTIONS[
+              qParams.stock_level as keyof typeof STOCK_LEVEL_OPTIONS
+            ].max
+          : undefined,
+        net_content_min: qParams.stock_level
+          ? STOCK_LEVEL_OPTIONS[
+              qParams.stock_level as keyof typeof STOCK_LEVEL_OPTIONS
+            ].min
+          : undefined,
       },
     }),
   });
@@ -89,7 +124,26 @@ export function InventoryList({ facilityId, locationId }: InventoryListProps) {
         </Select>
       }
     >
-      <Separator className="my-4" />
+      {/* Stock Level Tabs */}
+      <div className="mb-4 pt-6">
+        <Tabs
+          value={qParams.stock_level || "all"}
+          onValueChange={(value) => updateQuery({ stock_level: value })}
+          className="w-full"
+        >
+          <TabsList className="w-full justify-evenly sm:justify-start border-b rounded-none bg-transparent p-0 h-auto overflow-x-auto">
+            {Object.entries(STOCK_LEVEL_OPTIONS).map(([key, { label }]) => (
+              <TabsTrigger
+                key={key}
+                value={key}
+                className="border-b-2 px-2 sm:px-4 py-2 text-gray-600 hover:text-gray-900 data-[state=active]:border-b-primary-700 data-[state=active]:text-primary-800 data-[state=active]:bg-transparent data-[state=active]:shadow-none rounded-none"
+              >
+                {t(label)}
+              </TabsTrigger>
+            ))}
+          </TabsList>
+        </Tabs>
+      </div>
 
       {isLoading ? (
         <div className="rounded-md border">
