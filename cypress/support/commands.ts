@@ -235,3 +235,68 @@ Cypress.Commands.add(
     });
   },
 );
+
+Cypress.Commands.add(
+  "selectComboboxDropdown",
+  (labelText: string, value: string, unit?: string) => {
+    cy.contains("label", labelText)
+      .parent('[data-slot="form-item"]')
+      .find("input")
+      .click({ force: true })
+      .type(value);
+    if (unit) {
+      cy.get('[role="option"]').contains(unit).click();
+    } else {
+      cy.get('[role="option"]').contains(value).click();
+    }
+  },
+);
+
+Cypress.Commands.add(
+  "clickAndSelectOptionV2",
+  (labelText: string, reference: string) => {
+    cy.contains("label", labelText)
+      .parent('[data-slot="form-item"]')
+      .find('[type="button"]')
+      .click();
+    cy.get('[role="option"]').contains(reference).click();
+  },
+);
+
+Cypress.Commands.add(
+  "typeAndSelectOptionV2",
+  (labelText: string, value: string) => {
+    // Click to open the dropdown
+    cy.contains("label", labelText)
+      .parent('[data-slot="form-item"]')
+      .find("[data-slot='popover-trigger']")
+      .click()
+      .scrollIntoView()
+      .then(() => {
+        // Type in the command input
+        cy.get("[cmdk-input]")
+          .should("be.visible")
+          .type(value)
+          .then(() => {
+            // Select the filtered option from command menu
+            cy.get("[cmdk-group]")
+              .find("[cmdk-item]")
+              .contains(value)
+              .should("be.visible")
+              .click();
+          });
+      });
+  },
+);
+
+Cypress.Commands.add(
+  "clearAndTypeIntoField",
+  (selector: string, value: string) => {
+    cy.get(selector)
+      .should("be.visible")
+      .scrollIntoView()
+      .clear()
+      .click()
+      .type(value);
+  },
+);
