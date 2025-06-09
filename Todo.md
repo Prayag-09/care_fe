@@ -13,7 +13,7 @@ x : Done
 - [x] Medications added from our product cannot be administered due to missing code - Jeevan/Vignesh; Medication Administration API needs support for product knowledge
 - [x] Each modification to the pre-filled quantity in bill medication triggers a component re-render, which disrupts the editing experience. - Khavin
 - [ ] Supply Request - Add supplier[] after backend done - Rithvik
-- [-] Suplpy Request - Disallow selecting current location - Jeevan
+- [x] Supply Request - Disallow selecting current location - Jeevan
 
 ## Billing
 

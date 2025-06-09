@@ -50,6 +50,7 @@ import {
   SupplyRequestStatus,
 } from "@/types/inventory/supplyRequest/supplyRequest";
 import supplyRequestApi from "@/types/inventory/supplyRequest/supplyRequestApi";
+import { LocationList } from "@/types/location/location";
 import locationApi from "@/types/location/locationApi";
 
 const supplyRequestSchema = z.object({
@@ -170,6 +171,9 @@ export function SupplyRequestFormContent({
       queryParams: { search: searchDeliveryFrom, limit: 100 },
     }),
     enabled: type === "internal",
+    select: (data: { results: LocationList[] }) => {
+      return data.results.filter((location) => location.id !== locationId);
+    },
   });
 
   const { data: products, isLoading: isLoadingProducts } = useQuery({
@@ -184,7 +188,7 @@ export function SupplyRequestFormContent({
   });
 
   const deliveryFromOptions =
-    deliveryFromLocations?.results.map((location) => ({
+    deliveryFromLocations?.map((location) => ({
       label: location.name,
       value: location.id,
     })) || [];
