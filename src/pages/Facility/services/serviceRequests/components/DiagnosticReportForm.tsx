@@ -119,9 +119,9 @@ export function DiagnosticReportForm({
   const hasReport = !!latestReport;
 
   // Check if all required specimens are collected
-  const hasCollectedSpecimens = specimens.some(
-    (specimen) => specimen.status === SpecimenStatus.available,
-  );
+  const hasCollectedSpecimens =
+    activityDefinition?.category !== "laboratory" ||
+    specimens.some((specimen) => specimen.status === SpecimenStatus.available);
 
   // Fetch the full diagnostic report to get observations
   const { data: fullReport, isLoading: isLoadingReport } = useQuery({
