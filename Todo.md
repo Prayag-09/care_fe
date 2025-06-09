@@ -42,7 +42,7 @@ x : Done
 - [x] When create report is pressed, report gets generated but need to reload the page to get report and only after refresh the timeline gets updated - Manyu
 - [-] Not able to mark a SR as closed - Showing error location not found - [Backend issue ?]
 - [x] From the SR screen, clicking on back button take to the care dashboard and not the SR listing page. - Manyu [this happens when you relogin after timeout]
-- [-] SR listing page should have tabs to identify SRs in different status. Eg Prescription queue - Manyu
+- [x] SR listing page should have tabs to identify SRs in different status. Eg Prescription queue - Manyu
 - [x] In the Test Results, additional details can be added within an information button Eg. http://loinc.org,1558-6. - Manyu
 - [ ] Roles access for Labs. Only users with lab role should have access to lab services
 - [x] After collecting specimen, the page needs to be refreshed to get status of collected specimen - Manyu
