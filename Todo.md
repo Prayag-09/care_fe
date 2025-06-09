@@ -42,11 +42,11 @@ x : Done
 - [x] Back to encounter button in service request should be browser back and not to the encounter back. Coz if encounter is closed, it will show error - Manyu
 - [ ] New service request should be shown first within the list
 - [ ] Encounter can be closed even if the SR is ACTIVE. But if encounter is closer SR cannot be marked as completed ( Showing error as encounter is already closed) - Fix can be not allow top close encounter if SR is open
-- [ ] Able to generate report even without collecting sample
+- [ ] Able to generate report even without collecting sample - Manyu
 - [ ] When create report is pressed, report gets generated but need to reload the page to get report and only after refresh the timeline gets updated
-- [ ] Not able to mark a SR as closed - Showing error location not found
-- [ ] From the SR screen, clicking on back button take to the care dashboard and not the SR listing page.
-- [ ] SR listing page should have tabs to identify SRs in different status. Eg Prescription queue
+- [ ] Not able to mark a SR as closed - Showing error location not found - [Backend issue ?]
+- [x] From the SR screen, clicking on back button take to the care dashboard and not the SR listing page. - Manyu
+- [ ] SR listing page should have tabs to identify SRs in different status. Eg Prescription queue - Manyu
 - [ ] Roles access for Labs. Only users with lab role should have access to lab services
 - [ ] After collecting specimen, the page needs to be refreshed to get status of collected specimen
 - [ ] If no entries are given to a report and click on Save Result, it shows Conclusion updated successfully but report is not generated. Since report cant be blank, there should be validation and show error is no entries are there for result and conclusion.
