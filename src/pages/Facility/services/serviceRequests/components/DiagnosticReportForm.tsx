@@ -61,6 +61,7 @@ import {
   ObservationDefinitionComponentSpec,
   ObservationDefinitionReadSpec,
 } from "@/types/emr/observationDefinition/observationDefinition";
+import { SpecimenRead, SpecimenStatus } from "@/types/emr/specimen/specimen";
 
 interface DiagnosticReportFormProps {
   facilityId: string;
@@ -71,6 +72,7 @@ interface DiagnosticReportFormProps {
     diagnostic_report_codes?: Code[];
     category?: string;
   };
+  specimens: SpecimenRead[];
 }
 
 // Interface for component values
@@ -95,6 +97,7 @@ export function DiagnosticReportForm({
   observationDefinitions,
   diagnosticReports,
   activityDefinition,
+  specimens,
 }: DiagnosticReportFormProps) {
   const { t } = useTranslation();
   const [observations, setObservations] = useState<
@@ -114,6 +117,11 @@ export function DiagnosticReportForm({
   const latestReport =
     diagnosticReports.length > 0 ? diagnosticReports[0] : null;
   const hasReport = !!latestReport;
+
+  // Check if all required specimens are collected
+  const hasCollectedSpecimens = specimens.some(
+    (specimen) => specimen.status === SpecimenStatus.available,
+  );
 
   // Fetch the full diagnostic report to get observations
   const { data: fullReport, isLoading: isLoadingReport } = useQuery({
@@ -410,6 +418,11 @@ export function DiagnosticReportForm({
   function handleCreateReport() {
     // Only create a new report if no reports exist
     if (!hasReport) {
+      if (!hasCollectedSpecimens) {
+        toast.error(t("specimen_collection_required"));
+        return;
+      }
+
       const category: Code = {
         code: "LAB",
         display: "Laboratory",
@@ -985,8 +998,9 @@ export function DiagnosticReportForm({
                 <div className="text-gray-500 flex justify-center items-center">
                   <p></p>
                   <p className="mt-2 text-sm text-gray-500">
-                    No test results have been recorded yet. Click "Create
-                    Report" to add test results.
+                    {!hasCollectedSpecimens
+                      ? t("collect_specimen_before_report")
+                      : t("no_test_results_recorded")}
                   </p>
                 </div>
                 <div className="flex items-center justify-center gap-4 p-1">
@@ -1002,6 +1016,7 @@ export function DiagnosticReportForm({
                               );
                             setSelectedReportCode(code || null);
                           }}
+                          disabled={!hasCollectedSpecimens}
                         >
                           <SelectTrigger>
                             <SelectValue
@@ -1028,13 +1043,14 @@ export function DiagnosticReportForm({
                     onClick={handleCreateReport}
                     disabled={
                       isCreatingReport ||
+                      !hasCollectedSpecimens ||
                       (!!activityDefinition?.diagnostic_report_codes?.length &&
                         !selectedReportCode)
                     }
                     className="shrink-0"
                   >
                     <PlusCircle className="h-4 w-4 mr-2" />
-                    Create Report
+                    {t("create_report")}
                   </Button>
                 </div>
               </div>

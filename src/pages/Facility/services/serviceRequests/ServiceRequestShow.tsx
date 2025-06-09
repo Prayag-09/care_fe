@@ -528,6 +528,7 @@ export default function ServiceRequestShow({
                   observationDefinitions={observationRequirements}
                   diagnosticReports={diagnosticReports}
                   activityDefinition={activityDefinition}
+                  specimens={request.specimens || []}
                 />
               )}
             </div>
