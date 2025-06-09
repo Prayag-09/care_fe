@@ -43,7 +43,7 @@ x : Done
 - [-] Not able to mark a SR as closed - Showing error location not found - [Backend issue ?]
 - [x] From the SR screen, clicking on back button take to the care dashboard and not the SR listing page. - Manyu [this happens when you relogin after timeout]
 - [-] SR listing page should have tabs to identify SRs in different status. Eg Prescription queue - Manyu
-- [-] In the Test Results, additional details can be added within an information button Eg. http://loinc.org,1558-6. - Manyu
+- [x] In the Test Results, additional details can be added within an information button Eg. http://loinc.org,1558-6. - Manyu
 - [ ] Roles access for Labs. Only users with lab role should have access to lab services
 - [x] After collecting specimen, the page needs to be refreshed to get status of collected specimen - Manyu
 - [ ] If no entries are given to a report and click on Save Result, it shows Conclusion updated successfully but report is not generated. Since report cant be blank, there should be validation and show error is no entries are there for result and conclusion.
