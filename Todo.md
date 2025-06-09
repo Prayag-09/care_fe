@@ -31,18 +31,26 @@ x : Done
 - [-] Add support for multiple diagnostic report for a service request - [hold till @bodhi confirms]
 - [-] Service Request - Show specimen.collection.collector details instead of UUID (After BE change) - Vignesh
 - [-] Service Request - Show specimen.processing.performer details instead of UUID (After BE change) - Vignesh
-- [x] Healthcare Service edit - Location expand missing in sheet - Manyu
-- [x] Specimen Definition - Add \* for required fields and frontend validation for Retention Time, Capacity, Minimum Volume, Type Collected, Title, and Slug
 - [ ] Specimen Definition - Add frontend permission check for the Specimen Definition page at the facility level.
 - [-] In the Specimen Definition edit form, removing data from optional fields is not working and Fix some types and cleanup in Specimen Definition Form. - Manyu & Yash
-- [x] SR details page- Remove the back button from the sample identification QR print preview pop-up. / adjust the behavior to only close the pop-up - Manyu
 - [ ] SR details page - fix decimal points to two and round off amounts in charge items.
-- [x] SR details page - Specimen ID cannot be hidden in the Service Request QR - Manyu
 - [ ] SR details page - Add a hyperlink to the payment page, for better UX
 - [ ] SR Details page - Disable the process step once the report generation is done | Confirm with Bodhi before working on this - Backend
 - [-] SR overview page - Show the current status of the service request. Upon completion, update the status from active to complete - Manyu [ Backend change pending]
 
-- [x] Fix the explicit type casting and add proper types to SDF - Yash
+- [ ] In the service request questionnaire, additional details can be added within an information button Eg. "Snomed code", Fasting blood glucose measurement | http://snomed.info/sct.
+- [ ] Back to encounter button in service request should be browser back and not to the encounter back. Coz if encounter is closed, it will show error
+- [ ] New service request should be shown first within the list
+- [ ] Encounter can be closed even if the SR is ACTIVE. But if encounter is closer SR cannot be marked as completed ( Showing error as encounter is already closed) - Fix can be not allow top close encounter if SR is open
+- [ ] Able to generate report even without collecting sample
+- [ ] When create report is pressed, report gets generated but need to reload the page to get report and only after refresh the timeline gets updated
+- [ ] Not able to mark a SR as closed - Showing error location not found
+- [ ] From the SR screen, clicking on back button take to the care dashboard and not the SR listing page.
+- [ ] SR listing page should have tabs to identify SRs in different status. Eg Prescription queue
+- [ ] Roles access for Labs. Only users with lab role should have access to lab services
+- [ ] After collecting specimen, the page needs to be refreshed to get status of collected specimen
+- [ ] If no entries are given to a report and click on Save Result, it shows Conclusion updated successfully but report is not generated. Since report cant be blank, there should be validation and show error is no entries are there for result and conclusion.
+- [ ] If a long conclusion is given to a report, UI is breaking and text overflow outside the conclution column both in SR screen and Report page
 
 ## Back End
 
@@ -135,7 +143,8 @@ x : Done
 - [x] Print all Barcodes button for a service request with page setup - Yaswanth
 - [x] Make Activity Definiton search inside the service request question working
 - [x] Specimen Definition - Remove 0 prefilled value in Retention time, capacity, and minimum value - Yash
-
+- [x] Healthcare Service edit - Location expand missing in sheet - Manyu
+- [x] Specimen Definition - Add \* for required fields and frontend validation for Retention Time, Capacity, Minimum Volume, Type Collected, Title, and Slug
 - [x] Specimen Definition - The cancel button in the form is not working - Amjith
 - [x] Specimen Definition - Increase the width of retention time and capacity to full width in the edit page - Jeevan
 - [x] Specimen Definition - Add URL validation to the field Derived from URL - Jeevan
@@ -158,6 +167,9 @@ x : Done
 - [x] Pass only the active and draft specimens to multi QR print - Yash
 - [x] Get all matching specimens for a requierment so that draftspecimen creation works as expected, -> when there are multiple specimens for a requirement -> when a previous specimen is discarded - Yash
 - [x] Fix the draft badge in SR show - Amjith & Yash
+- [x] SR details page- Remove the back button from the sample identification QR print preview pop-up. / adjust the behavior to only close the pop-up - Manyu
+- [x] SR details page - Specimen ID cannot be hidden in the Service Request QR - Manyu
+- [x] Fix the explicit type casting and add proper types to SDF - Yash
 
 ## Pharmacy
 
