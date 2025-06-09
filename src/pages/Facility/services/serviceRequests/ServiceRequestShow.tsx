@@ -1,10 +1,5 @@
 import { useMutation, useQuery, useQueryClient } from "@tanstack/react-query";
-import {
-  ArrowLeftIcon,
-  MoreVertical,
-  PlusIcon,
-  PrinterIcon,
-} from "lucide-react";
+import { ArrowLeft, MoreVertical, PlusIcon, PrinterIcon } from "lucide-react";
 import { navigate } from "raviger";
 import { useState } from "react";
 import { useTranslation } from "react-i18next";
@@ -33,6 +28,7 @@ import {
 } from "@/components/ui/dropdown-menu";
 import { Skeleton } from "@/components/ui/skeleton";
 
+import useAppHistory from "@/hooks/useAppHistory";
 import useBreakpoints from "@/hooks/useBreakpoints";
 
 import routes from "@/Utils/request/api";
@@ -78,6 +74,7 @@ export default function ServiceRequestShow({
 }: ServiceRequestShowProps) {
   const { t } = useTranslation();
   const queryClient = useQueryClient();
+  const { goBack } = useAppHistory();
   const isMobile = useBreakpoints({
     default: true,
     lg: false,
@@ -325,16 +322,13 @@ export default function ServiceRequestShow({
               </Button>
             ) : (
               <Button
-                variant="link"
-                className="underline underline-offset-2 text-gray-950 font-semibold pl-0 cursor-pointer"
-                onClick={() =>
-                  navigate(
-                    `/facility/${facilityId}/patient/${request.encounter.patient.id}/encounter/${request.encounter.id}/service_requests`,
-                  )
-                }
+                variant="outline"
+                size="sm"
+                onClick={() => goBack()}
+                className="font-semibold border border-gray-400 text-gray-950 underline underline-offset-2"
               >
-                <ArrowLeftIcon className="size-4" />
-                {t("back_to_encounter")}
+                <ArrowLeft />
+                {t("back")}
               </Button>
             )}
 
