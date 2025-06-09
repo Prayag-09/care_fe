@@ -38,7 +38,7 @@ x : Done
 - [ ] SR Details page - Disable the process step once the report generation is done | Confirm with Bodhi before working on this - Backend
 - [-] SR overview page - Show the current status of the service request. Upon completion, update the status from active to complete - Manyu [ Backend change pending]
 
-- [ ] In the service request questionnaire, additional details can be added within an information button Eg. "Snomed code", Fasting blood glucose measurement | http://snomed.info/sct. - Manyu
+- [x] In the service request questionnaire, additional details can be added within an information button Eg. "Snomed code", Fasting blood glucose measurement | http://snomed.info/sct. - Manyu
 - [x] Back to encounter button in service request should be browser back and not to the encounter back. Coz if encounter is closed, it will show error - Manyu
 - [ ] New service request should be shown first within the list
 - [ ] Encounter can be closed even if the SR is ACTIVE. But if encounter is closer SR cannot be marked as completed ( Showing error as encounter is already closed) - Fix can be not allow top close encounter if SR is open
