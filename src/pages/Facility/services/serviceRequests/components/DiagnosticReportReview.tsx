@@ -58,7 +58,6 @@ interface DiagnosticReportReviewProps {
 
 export function DiagnosticReportReview({
   facilityId,
-  serviceRequestId,
   diagnosticReports,
 }: DiagnosticReportReviewProps) {
   const { t } = useTranslation();
@@ -109,12 +108,15 @@ export function DiagnosticReportReview({
       }),
       onSuccess: () => {
         toast.success("Diagnostic report approved successfully");
+        // Invalidate all related queries to update workflow status
         queryClient.invalidateQueries({
-          queryKey: ["serviceRequest", serviceRequestId],
+          queryKey: ["serviceRequest"],
         });
-        // Fetch the updated report
         queryClient.invalidateQueries({
-          queryKey: ["diagnosticReport", latestReport?.id],
+          queryKey: ["diagnosticReport"],
+        });
+        queryClient.invalidateQueries({
+          queryKey: ["files"],
         });
       },
       onError: (err: any) => {

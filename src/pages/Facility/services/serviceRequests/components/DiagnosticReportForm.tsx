@@ -158,14 +158,14 @@ export function DiagnosticReportForm({
           facility_external_id: facilityId,
         },
       }),
-      onSuccess: (data: DiagnosticReportRead) => {
+      onSuccess: () => {
         toast.success("Diagnostic report created successfully");
         queryClient.invalidateQueries({
-          queryKey: ["serviceRequest", serviceRequestId],
+          queryKey: ["serviceRequest"],
         });
         // Fetch the newly created report
         queryClient.invalidateQueries({
-          queryKey: ["diagnosticReport", data.id],
+          queryKey: ["diagnosticReport"],
         });
       },
       onError: (err: any) => {
@@ -174,6 +174,25 @@ export function DiagnosticReportForm({
         );
       },
     });
+
+  // Effect to handle diagnostic reports changes
+  useEffect(() => {
+    const latestReport = diagnosticReports[0];
+    if (latestReport) {
+      // If we have a new report, update the UI accordingly
+      setSelectedReportCode(latestReport.code || null);
+      setIsExpanded(true);
+    }
+  }, [diagnosticReports]);
+
+  // Effect to handle fullReport changes
+  useEffect(() => {
+    if (fullReport) {
+      // When we get the full report details, ensure UI is in correct state
+      setSelectedReportCode(fullReport.code || null);
+      setIsExpanded(true);
+    }
+  }, [fullReport]);
 
   // Upserting observations for a diagnostic report
   const { mutate: upsertObservations, isPending: isUpsertingObservations } =
