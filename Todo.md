@@ -9,16 +9,16 @@ x : Done
 ## Pharmacy
 
 - [-] Add facility-based filter & pagination in the inventory items list - Jeevan. Vignesh will add filter queryset by facility later
-- [-] Edit page of the supply delivery details is crashing - Khavin
-- [-] Medications added from our product cannot be administered due to missing code - Jeevan/Vignesh; Medication Administration API needs support for product knowledge
-- [-] Each modification to the pre-filled quantity in bill medication triggers a component re-render, which disrupts the editing experience. - Khavin
+- [x] Edit page of the supply delivery details is crashing - Khavin
+- [x] Medications added from our product cannot be administered due to missing code - Jeevan/Vignesh; Medication Administration API needs support for product knowledge
+- [x] Each modification to the pre-filled quantity in bill medication triggers a component re-render, which disrupts the editing experience. - Khavin
 - [ ] Supply Request - Add supplier[] after backend done - Rithvik
 - [ ] Suplpy Request - Disallow selecting current location
 
 ## Billing
 
 - [-] Replace Charge Item Create with ChargeItemDef to ChargeItem API - Vignesh
-- [-] All instance level tax codes should be shown as an option in the charge item def creator - Check with Vignesh
+- [x] All instance level tax codes should be shown as an option in the charge item def creator - Check with Vignesh
 - [-] Add support for information components in chargeDef and Charge Item. - Rithvik
 - [-] Consider disabling onWheelChange for input[type=number] fields. - [hold till @bodhi confirms]
 - [-] Change default account name to {patient-name} + date to keep it a little bit unique and searchable in billing account dashboard - Amjith, Vignesh

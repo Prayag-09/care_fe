@@ -63,14 +63,11 @@ interface ServiceRequestShowProps {
   facilityId: string;
   serviceRequestId: string;
   locationId?: string;
-  serviceId?: string;
 }
 
 export default function ServiceRequestShow({
   facilityId,
   serviceRequestId,
-  locationId,
-  serviceId,
 }: ServiceRequestShowProps) {
   const { t } = useTranslation();
   const queryClient = useQueryClient();
@@ -307,30 +304,15 @@ export default function ServiceRequestShow({
       <div className="flex-1 p-4 max-w-6xl mx-auto">
         <div className="space-y-6">
           <div className="flex items-center justify-between gap-2">
-            {locationId && serviceId ? (
-              <Button
-                variant="link"
-                className="underline underline-offset-2 text-gray-950 font-semibold pl-0"
-                onClick={() =>
-                  navigate(
-                    `/facility/${facilityId}/services/${serviceId}/requests/locations/${locationId}`,
-                  )
-                }
-              >
-                <CareIcon icon="l-arrow-left" className="mr-2 size-4" />
-                Back
-              </Button>
-            ) : (
-              <Button
-                variant="outline"
-                size="sm"
-                onClick={() => goBack()}
-                className="font-semibold border border-gray-400 text-gray-950 underline underline-offset-2"
-              >
-                <ArrowLeft />
-                {t("back")}
-              </Button>
-            )}
+            <Button
+              variant="outline"
+              size="sm"
+              onClick={() => goBack()}
+              className="font-semibold border border-gray-400 text-gray-950 underline underline-offset-2"
+            >
+              <ArrowLeft />
+              {t("back")}
+            </Button>
 
             <div className="flex items-end gap-2">
               {request?.diagnostic_reports?.[0]?.status ===
