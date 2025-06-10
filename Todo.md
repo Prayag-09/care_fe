@@ -34,7 +34,7 @@ x : Done
 - [ ] SR Details page - Disable the process step once the report generation is done | Confirm with Bodhi before working on this - Backend
 
 - [-] New service request should be shown first within the list - Vignesh
-- [ ] Encounter can be closed even if the SR is ACTIVE. But if encounter is closer SR cannot be marked as completed ( Showing error as encounter is already closed) - Fix can be not allow top close encounter if SR is open
+- [-] Encounter can be closed even if the SR is ACTIVE. But if encounter is closer SR cannot be marked as completed ( Showing error as encounter is already closed) - Fix can be not allow top close encounter if SR is open - Vignesh
 - [-] Not able to mark a SR as closed - Showing error location not found - Vignesh
 - [-] Roles access for Labs. Only users with lab role should have access to lab services - Vignesh
 
@@ -56,6 +56,7 @@ x : Done
 - [ ] Not able to mark a SR as closed - Showing error location not found 
 - [ ] New service request should be shown first within the list 
 - [ ] Roles access for Labs. Only users with lab role should have access to lab services
+- [ ] Encounter can be closed even if the SR is ACTIVE. But if encounter is closer SR cannot be marked as completed ( Showing error as encounter is already closed) - Fix can be not allow top close encounter if SR is open
 
 # Archived
 
