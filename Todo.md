@@ -34,20 +34,12 @@ x : Done
 - [ ] SR Details page - Disable the process step once the report generation is done | Confirm with Bodhi before working on this - Backend
 - [-] SR overview page - Show the current status of the service request. Upon completion, update the status from active to complete - Manyu [ Backend change pending]
 
-- [x] In the service request questionnaire, additional details can be added within an information button Eg. "Snomed code", Fasting blood glucose measurement | http://snomed.info/sct. - Manyu
-- [x] Back to encounter button in service request should be browser back and not to the encounter back. Coz if encounter is closed, it will show error - Manyu
-- [ ] New service request should be shown first within the list
+- [-] New service request should be shown first within the list - Vignesh
 - [ ] Encounter can be closed even if the SR is ACTIVE. But if encounter is closer SR cannot be marked as completed ( Showing error as encounter is already closed) - Fix can be not allow top close encounter if SR is open
-- [x] Able to generate report even without collecting sample - Manyu
-- [x] When create report is pressed, report gets generated but need to reload the page to get report and only after refresh the timeline gets updated - Manyu
-- [-] Not able to mark a SR as closed - Showing error location not found - [Backend issue ?]
-- [x] From the SR screen, clicking on back button take to the care dashboard and not the SR listing page. - Manyu [this happens when you relogin after timeout]
-- [x] SR listing page should have tabs to identify SRs in different status. Eg Prescription queue - Manyu
-- [x] In the Test Results, additional details can be added within an information button Eg. http://loinc.org,1558-6. - Manyu
-- [ ] Roles access for Labs. Only users with lab role should have access to lab services
-- [x] After collecting specimen, the page needs to be refreshed to get status of collected specimen - Manyu
-- [ ] If no entries are given to a report and click on Save Result, it shows Conclusion updated successfully but report is not generated. Since report cant be blank, there should be validation and show error is no entries are there for result and conclusion.
-- [ ] If a long conclusion is given to a report, UI is breaking and text overflow outside the conclution column both in SR screen and Report page
+- [-] Not able to mark a SR as closed - Showing error location not found - Vignesh
+- [-] Roles access for Labs. Only users with lab role should have access to lab services - Vignesh
+- [-] If no entries are given to a report and click on Save Result, it shows Conclusion updated successfully but report is not generated. Since report cant be blank, there should be validation and show error is no entries are there for result and conclusion. - Manyu
+- [-] If a long conclusion is given to a report, UI is breaking and text overflow outside the conclution column both in SR screen and Report page - Manyu
 
 ## Back End
 
@@ -64,6 +56,9 @@ x : Done
 - [ ] Find which location a product is in within a facility
 - [ ] Medication Administration API needs support for product knowledge
 - [ ] Supply Request - Add supplier[]
+- [ ] Not able to mark a SR as closed - Showing error location not found 
+- [ ] New service request should be shown first within the list 
+- [ ] Roles access for Labs. Only users with lab role should have access to lab services
 
 # Archived
 
@@ -167,6 +162,14 @@ x : Done
 - [x] SR details page- Remove the back button from the sample identification QR print preview pop-up. / adjust the behavior to only close the pop-up - Manyu
 - [x] SR details page - Specimen ID cannot be hidden in the Service Request QR - Manyu
 - [x] Fix the explicit type casting and add proper types to SDF - Yash
+- [x] In the service request questionnaire, additional details can be added within an information button Eg. "Snomed code", Fasting blood glucose measurement | http://snomed.info/sct. - Manyu
+- [x] Back to encounter button in service request should be browser back and not to the encounter back. Coz if encounter is closed, it will show error - Manyu
+- [x] From the SR screen, clicking on back button take to the care dashboard and not the SR listing page. - Manyu [this happens when you relogin after timeout]
+- [x] SR listing page should have tabs to identify SRs in different status. Eg Prescription queue - Manyu
+- [x] In the Test Results, additional details can be added within an information button Eg. http://loinc.org,1558-6. - Manyu
+- [x] Able to generate report even without collecting sample - Manyu
+- [x] When create report is pressed, report gets generated but need to reload the page to get report and only after refresh the timeline gets updated - Manyu
+- [x] After collecting specimen, the page needs to be refreshed to get status of collected specimen - Manyu
 
 ## Pharmacy
 
