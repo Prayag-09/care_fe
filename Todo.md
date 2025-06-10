@@ -32,7 +32,6 @@ x : Done
 - [ ] SR details page - fix decimal points to two and round off amounts in charge items.
 - [ ] SR details page - Add a hyperlink to the payment page, for better UX
 - [ ] SR Details page - Disable the process step once the report generation is done | Confirm with Bodhi before working on this - Backend
-- [-] SR overview page - Show the current status of the service request. Upon completion, update the status from active to complete - Manyu [ Backend change pending]
 
 - [-] New service request should be shown first within the list - Vignesh
 - [ ] Encounter can be closed even if the SR is ACTIVE. But if encounter is closer SR cannot be marked as completed ( Showing error as encounter is already closed) - Fix can be not allow top close encounter if SR is open
@@ -170,6 +169,7 @@ x : Done
 - [x] Able to generate report even without collecting sample - Manyu
 - [x] When create report is pressed, report gets generated but need to reload the page to get report and only after refresh the timeline gets updated - Manyu
 - [x] After collecting specimen, the page needs to be refreshed to get status of collected specimen - Manyu
+- [x] SR overview page - Show the current status of the service request. Upon completion, update the status from active to complete - Manyu [Backend change pending]
 
 ## Pharmacy
 
