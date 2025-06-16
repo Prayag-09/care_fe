@@ -134,7 +134,7 @@ export function SpecimenWorkflowCard({
     onSuccess: () => {
       toast.success(`Processing updated for ${collectedSpecimen?.id}`);
       queryClient.invalidateQueries({
-        queryKey: ["serviceRequest", serviceRequestId],
+        queryKey: ["serviceRequest", facilityId, serviceRequestId],
       });
     },
     onError: (err: any) => {
@@ -160,7 +160,7 @@ export function SpecimenWorkflowCard({
     onSuccess: () => {
       toast.success(`Specimen ${collectedSpecimen?.id} marked as discarded.`);
       queryClient.invalidateQueries({
-        queryKey: ["serviceRequest", serviceRequestId],
+        queryKey: ["serviceRequest", facilityId, serviceRequestId],
       });
     },
     onError: (err: any) => {
