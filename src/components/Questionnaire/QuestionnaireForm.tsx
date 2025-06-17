@@ -18,6 +18,7 @@ import { PLUGIN_Component } from "@/PluginEngine";
 import routes from "@/Utils/request/api";
 import mutate from "@/Utils/request/mutate";
 import query from "@/Utils/request/query";
+import { dateQueryString } from "@/Utils/utils";
 import { MedicationRequest } from "@/types/emr/medicationRequest";
 import { MedicationStatementRequest } from "@/types/emr/medicationStatement";
 import { FileUploadQuestion } from "@/types/files/files";
@@ -672,7 +673,17 @@ export function QuestionnaireForm({
             results: validResponses.map((response) => ({
               question_id: response.question_id,
               values: response.values.map((value) => {
-                if (value.type === "dateTime" && value.value) {
+                if (value.type === "date" && value.value) {
+                  const date = new Date(value.value);
+                  if (isNaN(date.getTime())) {
+                    return { ...value, value: "" };
+                  }
+                  const formattedDate = dateQueryString(date);
+                  return {
+                    ...value,
+                    value: formattedDate,
+                  };
+                } else if (value.type === "dateTime" && value.value) {
                   return {
                     ...value,
                     value: value.value.toISOString(),
