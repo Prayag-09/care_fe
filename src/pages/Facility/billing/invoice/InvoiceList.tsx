@@ -29,11 +29,7 @@ export function InvoiceList({
               </p>
             </div>
           </div>
-          <InvoicesData
-            facilityId={facilityId}
-            accountId={accountId}
-            className="rounded-lg border mt-2"
-          />
+          <InvoicesData facilityId={facilityId} accountId={accountId} />
         </div>
       </div>
     </Page>

@@ -1,5 +1,5 @@
 import { useQuery } from "@tanstack/react-query";
-import { ArrowUpRightSquare } from "lucide-react";
+import { ArrowUpRightSquare, PrinterIcon } from "lucide-react";
 import { Link } from "raviger";
 import { useTranslation } from "react-i18next";
 
@@ -19,6 +19,9 @@ import {
   SelectTrigger,
   SelectValue,
 } from "@/components/ui/select";
+import { Tabs, TabsList, TabsTrigger } from "@/components/ui/tabs";
+
+import { TableSkeleton } from "@/components/Common/SkeletonLoading";
 import {
   Table,
   TableBody,
@@ -26,10 +29,7 @@ import {
   TableHead,
   TableHeader,
   TableRow,
-} from "@/components/ui/table";
-import { Tabs, TabsList, TabsTrigger } from "@/components/ui/tabs";
-
-import { TableSkeleton } from "@/components/Common/SkeletonLoading";
+} from "@/components/Common/Table";
 
 import useFilters from "@/hooks/useFilters";
 
@@ -65,21 +65,15 @@ const statusMap: Record<InvoiceStatus, { label: string; color: string }> = {
 export default function InvoicesData({
   facilityId,
   accountId,
-  className,
 }: {
   facilityId: string;
   accountId?: string;
-  className?: string;
 }) {
   const { t } = useTranslation();
   const { qParams, updateQuery, Pagination, resultsPerPage } = useFilters({
     limit: RESULTS_PER_PAGE_LIMIT,
     disableCache: true,
   });
-
-  const tableHeadClass =
-    "border-x p-3 text-gray-700 text-sm font-medium leading-5";
-  const tableCellClass = "border-x p-3 text-gray-950";
 
   const { data: response, isLoading } = useQuery({
     queryKey: ["invoices", qParams, accountId],
@@ -160,19 +154,17 @@ export default function InvoicesData({
       {isLoading ? (
         <TableSkeleton count={3} />
       ) : (
-        <div className={className}>
-          <Table className="rounded-lg border shadow-sm w-full bg-white">
-            <TableHeader className="bg-gray-100">
-              <TableRow className="border-b">
-                <TableHead className={tableHeadClass}>
-                  {t("invoice_number")}
-                </TableHead>
-                <TableHead className={tableHeadClass}>{t("status")}</TableHead>
-                <TableHead className={tableHeadClass}>{t("total")}</TableHead>
-                <TableHead className={tableHeadClass}>{t("actions")}</TableHead>
+        <div>
+          <Table>
+            <TableHeader>
+              <TableRow>
+                <TableHead>{t("invoice_number")}</TableHead>
+                <TableHead>{t("status")}</TableHead>
+                <TableHead>{t("total")}</TableHead>
+                <TableHead>{t("actions")}</TableHead>
               </TableRow>
             </TableHeader>
-            <TableBody className="bg-white">
+            <TableBody>
               {!invoices?.length ? (
                 <TableRow>
                   <TableCell colSpan={5} className="text-center text-gray-500">
@@ -181,15 +173,12 @@ export default function InvoicesData({
                 </TableRow>
               ) : (
                 invoices.map((invoice) => (
-                  <TableRow
-                    key={invoice.id}
-                    className="border-b hover:bg-gray-50"
-                  >
-                    <TableCell className={`${tableCellClass} font-medium`}>
+                  <TableRow key={invoice.id}>
+                    <TableCell>
                       <div>{invoice.title}</div>
                     </TableCell>
 
-                    <TableCell className={tableCellClass}>
+                    <TableCell>
                       <Badge
                         variant="outline"
                         className={cn(
@@ -200,43 +189,36 @@ export default function InvoicesData({
                         {t(statusMap[invoice.status].label)}
                       </Badge>
                     </TableCell>
-                    <TableCell className={tableCellClass}>
+                    <TableCell>
                       <MonetaryDisplay
                         className="font-medium"
                         amount={invoice.total_gross}
                       />
                     </TableCell>
-                    <TableCell className={tableCellClass}>
+                    <TableCell>
                       <div className="flex gap-4">
                         <Button
-                          variant="secondary"
-                          className="border-gray-400 border-1 shadow-sm bg-white"
+                          variant="outline"
+                          className="font-semibold"
                           asChild
                         >
                           <Link
                             href={`/facility/${facilityId}/billing/invoice/${invoice.id}/print`}
                           >
-                            <CareIcon
-                              icon="l-print"
-                              className="size-5 text-gray-700 stroke-1"
-                            />
-                            <span className="text-gray-950 font-medium underline">
-                              {t("print")}
-                            </span>
+                            <PrinterIcon strokeWidth={1.5} />
+                            {t("print")}
                           </Link>
                         </Button>
                         <Button
-                          variant="secondary"
-                          className="border-gray-400 border-1 shadow-sm bg-white"
+                          variant="outline"
+                          className="font-semibold"
                           asChild
                         >
                           <Link
                             href={`/facility/${facilityId}/billing/invoices/${invoice.id}`}
                           >
-                            <ArrowUpRightSquare className="size-5 text-gray-700 stroke-1" />
-                            <span className="text-gray-950 font-medium">
-                              {t("see_invoice")}
-                            </span>
+                            <ArrowUpRightSquare strokeWidth={1.5} />
+                            {t("see_invoice")}
                           </Link>
                         </Button>
                       </div>

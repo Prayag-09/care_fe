@@ -1,5 +1,5 @@
 import { useQuery } from "@tanstack/react-query";
-import { ArrowUpRightSquare } from "lucide-react";
+import { ArrowUpRightSquare, EditIcon } from "lucide-react";
 import { navigate } from "raviger";
 import React from "react";
 import { useTranslation } from "react-i18next";
@@ -10,6 +10,7 @@ import CareIcon from "@/CAREUI/icons/CareIcon";
 
 import { Badge } from "@/components/ui/badge";
 import { Button } from "@/components/ui/button";
+import { EmptyState } from "@/components/ui/empty-state";
 import { Input } from "@/components/ui/input";
 import { MonetaryDisplay } from "@/components/ui/monetary-display";
 import {
@@ -19,6 +20,11 @@ import {
   SelectTrigger,
   SelectValue,
 } from "@/components/ui/select";
+import { Tabs, TabsList, TabsTrigger } from "@/components/ui/tabs";
+
+import { Avatar } from "@/components/Common/Avatar";
+import Page from "@/components/Common/Page";
+import { TableSkeleton } from "@/components/Common/SkeletonLoading";
 import {
   Table,
   TableBody,
@@ -26,12 +32,7 @@ import {
   TableHead,
   TableHeader,
   TableRow,
-} from "@/components/ui/table";
-import { Tabs, TabsList, TabsTrigger } from "@/components/ui/tabs";
-
-import { Avatar } from "@/components/Common/Avatar";
-import Page from "@/components/Common/Page";
-import { TableSkeleton } from "@/components/Common/SkeletonLoading";
+} from "@/components/Common/Table";
 
 import useFilters from "@/hooks/useFilters";
 
@@ -44,18 +45,6 @@ import {
 import accountApi from "@/types/billing/account/accountApi";
 
 import AccountSheet from "./AccountSheet";
-
-function EmptyState() {
-  const { t } = useTranslation();
-  return (
-    <div className="flex h-[200px] items-center justify-center text-gray-500">
-      <div className="text-center">
-        <p>{t("no_accounts_found")}</p>
-        <p className="text-sm">{t("adjust_account_filters")}</p>
-      </div>
-    </div>
-  );
-}
 
 function formatDate(date?: string) {
   if (!date) return "-";
@@ -85,10 +74,6 @@ export function AccountList({
     limit: 15,
     disableCache: true,
   });
-
-  const tableHeadClass =
-    "border-x p-3 text-gray-700 text-sm font-medium leading-5";
-  const tableCellClass = "border-x p-3 text-gray-950";
 
   const { data: response, isLoading } = useQuery({
     queryKey: ["accounts", qParams],
@@ -226,36 +211,31 @@ export function AccountList({
         {isLoading ? (
           <TableSkeleton count={5} />
         ) : accounts.length === 0 ? (
-          <EmptyState />
+          <EmptyState
+            icon="l-user"
+            title={t("no_accounts_found")}
+            description={t("adjust_account_filters")}
+          />
         ) : (
-          <Table className="rounded-lg border shadow-sm">
-            <TableHeader className="bg-gray-100">
-              <TableRow className="border-b">
-                <TableHead className={tableHeadClass}>{t("patient")}</TableHead>
-                <TableHead className={tableHeadClass}>{t("balance")}</TableHead>
-                <TableHead className={tableHeadClass}>
-                  {t("account_status")}
-                </TableHead>
-                <TableHead className={tableHeadClass}>
-                  {t("billing_status")}
-                </TableHead>
-                <TableHead className={tableHeadClass}>{t("period")}</TableHead>
-                <TableHead className={cn(tableHeadClass)}>
-                  {t("action")}
-                </TableHead>
+          <Table>
+            <TableHeader>
+              <TableRow>
+                <TableHead>{t("patient")}</TableHead>
+                <TableHead>{t("balance")}</TableHead>
+                <TableHead>{t("account_status")}</TableHead>
+                <TableHead>{t("billing_status")}</TableHead>
+                <TableHead>{t("period")}</TableHead>
+                <TableHead>{t("action")}</TableHead>
               </TableRow>
             </TableHeader>
-            <TableBody className="bg-wgite">
+            <TableBody>
               {accounts.map((account: AccountRead) => (
-                <TableRow
-                  key={account.id}
-                  className="border-b hover:bg-gray-50"
-                >
-                  <TableCell className={tableCellClass}>
+                <TableRow key={account.id}>
+                  <TableCell>
                     <div className="flex items-center gap-3">
                       <Avatar name={account.name} className="size-8" />
                       <div>
-                        <div className="text-base font-medium leading-6">
+                        <div className="text-base font-semibold leading-6">
                           {account.name}
                         </div>
                       </div>
@@ -271,7 +251,7 @@ export function AccountList({
                   >
                     <MonetaryDisplay amount={account.total_balance} />
                   </TableCell>
-                  <TableCell className={tableCellClass}>
+                  <TableCell>
                     <Badge
                       variant="outline"
                       className={statusColorMap[account.status]}
@@ -279,7 +259,7 @@ export function AccountList({
                       {t(account.status)}
                     </Badge>
                   </TableCell>
-                  <TableCell className={tableCellClass}>
+                  <TableCell>
                     <Badge
                       variant="outline"
                       className={billingStatusColorMap[account.billing_status]}
@@ -287,7 +267,7 @@ export function AccountList({
                       {t(account.billing_status)}
                     </Badge>
                   </TableCell>
-                  <TableCell className={tableCellClass}>
+                  <TableCell>
                     <span className="text-gray-950 font-medium">
                       {account.service_period?.start
                         ? formatDate(account.service_period?.start)
@@ -296,34 +276,29 @@ export function AccountList({
                         ` - ${formatDate(account.service_period?.end)}`}
                     </span>
                   </TableCell>
-                  <TableCell className={cn(tableCellClass)}>
+                  <TableCell>
                     <div className="flex gap-2">
                       <Button
                         variant="ghost"
-                        className="gap-1"
+                        className="font-semibold"
                         onClick={() => {
                           setEditingAccount(account);
                           setSheetOpen(true);
                         }}
                       >
-                        <CareIcon
-                          icon="l-edit"
-                          className="size-5 text-gray-700 stroke-1"
-                        />
-                        <span className="text-gray-950 font-medium underline">
-                          {t("edit")}
-                        </span>
+                        <EditIcon strokeWidth={1.5} />
+                        <span className="underline">{t("edit")}</span>
                       </Button>
                       <Button
                         variant="outline"
-                        className="border-gray-400 border-1 shadow-sm"
+                        className="font-semibold"
                         onClick={() =>
                           navigate(
                             `/facility/${facilityId}/billing/account/${account.id}`,
                           )
                         }
                       >
-                        <ArrowUpRightSquare className="size-5 text-gray-700 stroke-2" />
+                        <ArrowUpRightSquare strokeWidth={1.5} />
                         {t("go_to_account")}
                       </Button>
                     </div>

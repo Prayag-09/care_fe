@@ -1,5 +1,6 @@
 import { useQuery } from "@tanstack/react-query";
 import { format } from "date-fns";
+import { EyeIcon } from "lucide-react";
 import { Link } from "raviger";
 import { useTranslation } from "react-i18next";
 
@@ -17,6 +18,9 @@ import {
   SelectTrigger,
   SelectValue,
 } from "@/components/ui/select";
+import { Tabs, TabsList, TabsTrigger } from "@/components/ui/tabs";
+
+import { TableSkeleton } from "@/components/Common/SkeletonLoading";
 import {
   Table,
   TableBody,
@@ -24,10 +28,7 @@ import {
   TableHead,
   TableHeader,
   TableRow,
-} from "@/components/ui/table";
-import { Tabs, TabsList, TabsTrigger } from "@/components/ui/tabs";
-
-import { TableSkeleton } from "@/components/Common/SkeletonLoading";
+} from "@/components/Common/Table";
 
 import useFilters from "@/hooks/useFilters";
 
@@ -88,11 +89,9 @@ const methodMap: Record<PaymentReconciliationPaymentMethod, string> = {
 export default function PaymentsData({
   facilityId,
   accountId,
-  className,
 }: {
   facilityId: string;
   accountId?: string;
-  className?: string;
 }) {
   const { t } = useTranslation();
   const { qParams, updateQuery, Pagination, resultsPerPage } = useFilters({
@@ -215,40 +214,22 @@ export default function PaymentsData({
       {isLoading ? (
         <TableSkeleton count={3} />
       ) : (
-        <div className={className}>
-          <Table className="rounded-lg border shadow-sm w-full bg-white">
-            <TableHeader className="bg-gray-100">
-              <TableRow className="border-b">
-                <TableHead className="border-x p-3 text-gray-700 text-sm font-medium leading-5">
-                  {t("payment_id")}
-                </TableHead>
-                <TableHead className="border-x p-3 text-gray-700 text-sm font-medium leading-5">
-                  {t("invoice")}
-                </TableHead>
-                <TableHead className="border-x p-3 text-gray-700 text-sm font-medium leading-5">
-                  {t("type")}
-                </TableHead>
-                <TableHead className="border-x p-3 text-gray-700 text-sm font-medium leading-5">
-                  {t("method")}
-                </TableHead>
-                <TableHead className="border-x p-3 text-gray-700 text-sm font-medium leading-5">
-                  {t("date")}
-                </TableHead>
-                <TableHead className="border-x p-3 text-gray-700 text-sm font-medium leading-5">
-                  {t("amount")}
-                </TableHead>
-                <TableHead className="border-x p-3 text-gray-700 text-sm font-medium leading-5">
-                  {t("status")}
-                </TableHead>
-                <TableHead className="border-x p-3 text-gray-700 text-sm font-medium leading-5">
-                  {t("outcome")}
-                </TableHead>
-                <TableHead className="border-x p-3 text-gray-700 text-sm font-medium leading-5">
-                  {t("actions")}
-                </TableHead>
+        <div>
+          <Table>
+            <TableHeader>
+              <TableRow>
+                <TableHead>{t("payment_id")}</TableHead>
+                <TableHead>{t("invoice")}</TableHead>
+                <TableHead>{t("type")}</TableHead>
+                <TableHead>{t("method")}</TableHead>
+                <TableHead>{t("date")}</TableHead>
+                <TableHead>{t("amount")}</TableHead>
+                <TableHead>{t("status")}</TableHead>
+                <TableHead>{t("outcome")}</TableHead>
+                <TableHead>{t("actions")}</TableHead>
               </TableRow>
             </TableHeader>
-            <TableBody className="bg-white">
+            <TableBody>
               {!payments?.length ? (
                 <TableRow>
                   <TableCell colSpan={9} className="text-center text-gray-500">
@@ -257,14 +238,11 @@ export default function PaymentsData({
                 </TableRow>
               ) : (
                 payments.map((payment) => (
-                  <TableRow
-                    key={payment.id}
-                    className="border-b hover:bg-gray-50"
-                  >
-                    <TableCell className="border-x p-3 text-gray-950 font-medium">
+                  <TableRow key={payment.id}>
+                    <TableCell>
                       <div>#{payment.id}</div>
                     </TableCell>
-                    <TableCell className="border-x p-3 text-gray-950">
+                    <TableCell>
                       <div className="font-medium">
                         #{payment.target_invoice?.id}
                       </div>
@@ -272,13 +250,11 @@ export default function PaymentsData({
                         {payment.target_invoice?.title}
                       </div>
                     </TableCell>
-                    <TableCell className="border-x p-3 text-gray-950">
+                    <TableCell>
                       {typeMap[payment.reconciliation_type]}
                     </TableCell>
-                    <TableCell className="border-x p-3 text-gray-950">
-                      {methodMap[payment.method]}
-                    </TableCell>
-                    <TableCell className="border-x p-3 text-gray-950">
+                    <TableCell>{methodMap[payment.method]}</TableCell>
+                    <TableCell>
                       {payment.payment_datetime
                         ? format(
                             new Date(payment.payment_datetime),
@@ -286,36 +262,30 @@ export default function PaymentsData({
                           )
                         : "-"}
                     </TableCell>
-                    <TableCell className="border-x p-3 text-gray-950">
+                    <TableCell>
                       <MonetaryDisplay amount={payment.amount} />
                     </TableCell>
-                    <TableCell className="border-x p-3 text-gray-950">
+                    <TableCell>
                       <Badge variant={statusMap[payment.status].variant}>
                         {t(statusMap[payment.status].label)}
                       </Badge>
                     </TableCell>
-                    <TableCell className="border-x p-3 text-gray-950">
+                    <TableCell>
                       <Badge variant={outcomeMap[payment.outcome].variant}>
                         {t(outcomeMap[payment.outcome].label)}
                       </Badge>
                     </TableCell>
-                    <TableCell className="border-x p-3 text-gray-950">
+                    <TableCell>
                       <Button
-                        variant="secondary"
-                        className="border-gray-400 border shadow-sm bg-white"
-                        size="sm"
+                        variant="outline"
+                        className="font-semibold"
                         asChild
                       >
                         <Link
                           href={`/facility/${facilityId}/billing/payments/${payment.id}`}
                         >
-                          <CareIcon
-                            icon="l-eye"
-                            className="size-4 text-gray-700"
-                          />
-                          <span className="text-gray-950 font-medium">
-                            {t("view")}
-                          </span>
+                          <EyeIcon />
+                          {t("view")}
                         </Link>
                       </Button>
                     </TableCell>

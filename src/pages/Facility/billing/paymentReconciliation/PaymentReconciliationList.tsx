@@ -53,7 +53,6 @@ export function PaymentReconciliationList({
           <PaymentsData
             facilityId={facilityId}
             accountId={effectiveAccountId}
-            className="rounded-lg border mt-2"
           />
         </div>
       </div>
