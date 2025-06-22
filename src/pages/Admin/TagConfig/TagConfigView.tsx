@@ -35,9 +35,13 @@ const TAG_STATUS_STYLES = {
 
 interface TagConfigViewProps {
   tagId: string;
+  facilityId?: string;
 }
 
-export default function TagConfigView({ tagId }: TagConfigViewProps) {
+export default function TagConfigView({
+  tagId,
+  facilityId,
+}: TagConfigViewProps) {
   const { t } = useTranslation();
   const queryClient = useQueryClient();
 
@@ -46,22 +50,24 @@ export default function TagConfigView({ tagId }: TagConfigViewProps) {
 
   // Fetch tag details
   const { data: tagConfig, isLoading } = useQuery({
-    queryKey: ["tagConfig", tagId],
+    queryKey: ["tagConfig", tagId, facilityId],
     queryFn: query(tagConfigApi.retrieve, {
       pathParams: { external_id: tagId },
+      queryParams: facilityId ? { facility: facilityId } : undefined,
     }),
   });
 
   // Fetch child tags
   const { data: childrenResponse, isLoading: isLoadingChildren } = useQuery({
-    queryKey: ["tagConfig", "children", tagId],
+    queryKey: ["tagConfig", "children", tagId, facilityId],
     queryFn: query(tagConfigApi.list, {
       queryParams: {
         parent: tagId,
-        limit: 100, // Assuming we don't need pagination for children
+        limit: 100,
+        facility: facilityId,
       },
     }),
-    enabled: !!tagConfig, // Only fetch when we have the parent tag data
+    enabled: !!tagConfig,
   });
 
   const children = childrenResponse?.results || [];
@@ -97,7 +103,7 @@ export default function TagConfigView({ tagId }: TagConfigViewProps) {
     onSuccess: () => {
       toast.success(t("child_tag_archived_successfully"));
       queryClient.invalidateQueries({
-        queryKey: ["tagConfig", "children", tagId],
+        queryKey: ["tagConfig", "children", tagId, facilityId],
       });
     },
     onError: (error: any) => {
@@ -107,18 +113,24 @@ export default function TagConfigView({ tagId }: TagConfigViewProps) {
 
   const handleEditSuccess = () => {
     setIsEditSheetOpen(false);
-    queryClient.invalidateQueries({ queryKey: ["tagConfig", tagId] });
+    queryClient.invalidateQueries({
+      queryKey: ["tagConfig", tagId, facilityId],
+    });
   };
 
   const handleAddChildSuccess = () => {
     setIsAddChildSheetOpen(false);
     queryClient.invalidateQueries({
-      queryKey: ["tagConfig", "children", tagId],
+      queryKey: ["tagConfig", "children", tagId, facilityId],
     });
   };
 
-  const handleViewChild = (child: TagConfig) => {
-    navigate(`/admin/tag_config/${child.id}`);
+  const handleViewChild = (config: TagConfig) => {
+    if (facilityId) {
+      navigate(`/facility/${facilityId}/settings/tag_config/${config.id}`);
+    } else {
+      navigate(`/admin/tag_config/${config.id}`);
+    }
   };
 
   const handleArchiveChild = (child: TagConfig) => {
@@ -154,7 +166,11 @@ export default function TagConfigView({ tagId }: TagConfigViewProps) {
             <Button
               variant="ghost"
               size="sm"
-              onClick={() => navigate("/admin/tag_config")}
+              onClick={() =>
+                facilityId
+                  ? navigate(`/facility/${facilityId}/settings/tag_config`)
+                  : navigate("/admin/tag_config")
+              }
             >
               <CareIcon icon="l-arrow-left" className="size-4 mr-2" />
               {t("back_to_tags")}
@@ -310,7 +326,11 @@ export default function TagConfigView({ tagId }: TagConfigViewProps) {
               <SheetTitle>{t("edit_tag_config")}</SheetTitle>
             </SheetHeader>
             <div className="mt-6 pb-6">
-              <TagConfigForm configId={tagId} onSuccess={handleEditSuccess} />
+              <TagConfigForm
+                configId={tagId}
+                onSuccess={handleEditSuccess}
+                facilityId={facilityId}
+              />
             </div>
           </SheetContent>
         </Sheet>
@@ -325,6 +345,7 @@ export default function TagConfigView({ tagId }: TagConfigViewProps) {
               <TagConfigForm
                 parentId={tagId}
                 onSuccess={handleAddChildSuccess}
+                facilityId={facilityId}
               />
             </div>
           </SheetContent>

@@ -6,6 +6,8 @@ import { useTranslation } from "react-i18next";
 import { toast } from "sonner";
 import { z } from "zod";
 
+import CareIcon from "@/CAREUI/icons/CareIcon";
+
 import { Button } from "@/components/ui/button";
 import {
   Form,
@@ -56,36 +58,50 @@ type TagConfigFormValues = z.infer<typeof tagConfigSchema>;
 interface TagConfigFormProps {
   configId?: string;
   parentId?: string;
+  facilityId?: string;
   onSuccess?: () => void;
 }
 
 export default function TagConfigForm({
   configId,
   parentId,
+  facilityId,
   onSuccess,
 }: TagConfigFormProps) {
   const { t } = useTranslation();
   const queryClient = useQueryClient();
   const isEditing = Boolean(configId);
+  const isCreatingChild = Boolean(parentId);
+
+  // Fetch parent tag data when creating a child
+  const { data: parentTag } = useQuery({
+    queryKey: ["tagConfig", parentId, facilityId],
+    queryFn: query(tagConfigApi.retrieve, {
+      pathParams: { external_id: parentId! },
+      queryParams: facilityId ? { facility: facilityId } : undefined,
+    }),
+    enabled: isCreatingChild,
+  });
 
   const form = useForm<TagConfigFormValues>({
     resolver: zodResolver(tagConfigSchema),
     defaultValues: {
       slug: "",
       display: "",
-      category: TagCategory.CLINICAL,
+      category: parentTag?.category || TagCategory.CLINICAL,
       description: "",
-      priority: 100,
+      priority: parentTag?.priority || 100,
       status: TagStatus.ACTIVE,
-      resource: TagResource.PATIENT,
+      resource: parentTag?.resource || TagResource.PATIENT,
     },
   });
 
   // Fetch existing config data when editing
   const { data: existingConfig, isLoading: isLoadingConfig } = useQuery({
-    queryKey: ["tagConfig", configId],
+    queryKey: ["tagConfig", configId, facilityId],
     queryFn: query(tagConfigApi.retrieve, {
       pathParams: { external_id: configId! },
+      queryParams: facilityId ? { facility: facilityId } : undefined,
     }),
     enabled: isEditing,
   });
@@ -105,8 +121,25 @@ export default function TagConfigForm({
     }
   }, [existingConfig, isEditing, form]);
 
+  // Update form when parent tag data is loaded
+  useEffect(() => {
+    if (parentTag && isCreatingChild) {
+      form.reset({
+        slug: "",
+        display: "",
+        category: parentTag.category,
+        description: "",
+        priority: parentTag.priority,
+        status: TagStatus.ACTIVE,
+        resource: parentTag.resource,
+      });
+    }
+  }, [parentTag, isCreatingChild, form]);
+
   const createMutation = useMutation({
-    mutationFn: mutate(tagConfigApi.create),
+    mutationFn: mutate(tagConfigApi.create, {
+      queryParams: facilityId ? { facility: facilityId } : undefined,
+    }),
     onSuccess: () => {
       toast.success(t("tag_config_created_successfully"));
       queryClient.invalidateQueries({ queryKey: ["tagConfig"] });
@@ -125,6 +158,7 @@ export default function TagConfigForm({
   const updateMutation = useMutation({
     mutationFn: mutate(tagConfigApi.update, {
       pathParams: { external_id: configId! },
+      queryParams: facilityId ? { facility: facilityId } : undefined,
     }),
     onSuccess: () => {
       toast.success(t("tag_config_updated_successfully"));
@@ -146,6 +180,7 @@ export default function TagConfigForm({
       status: data.status,
       resource: data.resource,
       ...(parentId && { parent: parentId }),
+      ...(facilityId && { facility: facilityId }),
     };
 
     if (isEditing) {
@@ -324,6 +359,33 @@ export default function TagConfigForm({
             </FormItem>
           )}
         />
+
+        {/* Add parent tag info when creating a child */}
+        {isCreatingChild && parentTag && (
+          <div className="rounded-lg border border-blue-100 bg-blue-50 p-4">
+            <div className="flex items-center gap-2 text-sm text-blue-800">
+              <CareIcon icon="l-info-circle" className="size-4" />
+              <span>
+                {t("creating_child_tag_for")}{" "}
+                <strong>{parentTag.display}</strong>
+              </span>
+            </div>
+            <div className="mt-2 grid grid-cols-2 gap-2 text-sm text-blue-700">
+              <div>
+                <span className="font-medium">{t("category")}:</span>{" "}
+                {t(parentTag.category)}
+              </div>
+              <div>
+                <span className="font-medium">{t("resource")}:</span>{" "}
+                {t(parentTag.resource)}
+              </div>
+              <div>
+                <span className="font-medium">{t("priority")}:</span>{" "}
+                {parentTag.priority}
+              </div>
+            </div>
+          </div>
+        )}
 
         <div className="flex justify-end space-x-2">
           <Button type="submit" disabled={isLoading}>

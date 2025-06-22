@@ -53,6 +53,7 @@ export interface TagConfigRequest {
   status: TagStatus;
   parent?: string | null;
   resource: TagResource;
+  facility?: string;
 }
 
 export interface TagConfigResponse extends TagConfig {

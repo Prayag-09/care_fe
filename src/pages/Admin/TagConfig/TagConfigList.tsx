@@ -31,7 +31,11 @@ import tagConfigApi from "@/types/emr/tagConfig/tagConfigApi";
 import TagConfigForm from "./TagConfigForm";
 import TagConfigTable from "./components/TagConfigTable";
 
-export default function TagConfigList() {
+interface TagConfigListProps {
+  facilityId?: string;
+}
+
+export default function TagConfigList({ facilityId }: TagConfigListProps) {
   const { t } = useTranslation();
   const { qParams, updateQuery, Pagination, resultsPerPage } = useFilters({
     limit: 15,
@@ -41,7 +45,7 @@ export default function TagConfigList() {
   const [isSheetOpen, setIsSheetOpen] = React.useState(false);
 
   const { data: response, isLoading } = useQuery({
-    queryKey: ["tagConfig", qParams],
+    queryKey: ["tagConfig", qParams, facilityId],
     queryFn: query.debounced(tagConfigApi.list, {
       queryParams: {
         limit: resultsPerPage,
@@ -50,6 +54,7 @@ export default function TagConfigList() {
         status: qParams.status,
         category: qParams.category,
         resource: qParams.resource,
+        facility: facilityId,
       },
     }),
   });
@@ -57,7 +62,11 @@ export default function TagConfigList() {
   const configs = response?.results || [];
 
   const handleView = (config: TagConfig) => {
-    navigate(`/admin/tag_config/${config.id}`);
+    if (facilityId) {
+      navigate(`/facility/${facilityId}/settings/tag_config/${config.id}`);
+    } else {
+      navigate(`/admin/tag_config/${config.id}`);
+    }
   };
 
   const handleAdd = () => {
@@ -95,7 +104,10 @@ export default function TagConfigList() {
                   <SheetTitle>{t("add_tag_config")}</SheetTitle>
                 </SheetHeader>
                 <div className="mt-6 pb-6">
-                  <TagConfigForm onSuccess={handleSheetClose} />
+                  <TagConfigForm
+                    onSuccess={handleSheetClose}
+                    facilityId={facilityId}
+                  />
                 </div>
               </SheetContent>
             </Sheet>

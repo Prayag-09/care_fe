@@ -2,6 +2,8 @@ import { useRoutes } from "raviger";
 
 import ErrorPage from "@/components/ErrorPages/DefaultErrorPage";
 
+import TagConfigList from "@/pages/Admin/TagConfig/TagConfigList";
+import TagConfigView from "@/pages/Admin/TagConfig/TagConfigView";
 import ReportBuilderList from "@/pages/Encounters/ReportBuilder";
 import ReportBuilder from "@/pages/Encounters/ReportBuilder/ReportBuilder";
 import { BillingSettingsLayout } from "@/pages/Facility/settings/billing/layout";
@@ -185,6 +187,10 @@ const getRoutes = (facilityId: string) => ({
   ),
   "/patient_identifier_config/:id/edit": ({ id }: { id: string }) => (
     <PatientIdentifierConfigForm facilityId={facilityId} configId={id} />
+  ),
+  "/tag_config": () => <TagConfigList facilityId={facilityId} />,
+  "/tag_config/:tagId": ({ tagId }: { tagId: string }) => (
+    <TagConfigView facilityId={facilityId} tagId={tagId} />
   ),
   "*": () => <ErrorPage />,
 });
