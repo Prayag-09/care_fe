@@ -66,6 +66,8 @@ export interface PaymentReconciliationCreate
   account: string;
 }
 
+export type PaymentReconciliationUpdate = Omit<PaymentReconciliationBase, "id">;
+
 export interface PaymentReconciliationRead extends PaymentReconciliationBase {
   target_invoice: InvoiceRead;
 }

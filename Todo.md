@@ -16,7 +16,7 @@ x : Done
 - [-] Replace Charge Item Create with ChargeItemDef to ChargeItem API - Vignesh
 - [x] All instance level tax codes should be shown as an option in the charge item def creator - Check with Vignesh
 - [-] Add support for information components in chargeDef and Charge Item. - Rithvik
-- [-] Consider disabling onWheelChange for input[type=number] fields. - [hold till @bodhi confirms]
+- [x] Consider disabling onWheelChange for input[type=number] fields. - [hold till @bodhi confirms]
 - [-] Change default account name to {patient-name} + date to keep it a little bit unique and searchable in billing account dashboard - Amjith, Vignesh
 - [-] When a billing account of a patient is on hold, we should restrict users from creating any charge item to the patient, as per doc, but our platform will be creating a new wallet by ignoring the on-hold account (BE) - Vignesh
 - [ ] Allow only one active billing account for a patient at a time , Take a product suggestion before working on this

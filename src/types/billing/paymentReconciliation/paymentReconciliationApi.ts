@@ -5,6 +5,7 @@ import {
   PaymentReconciliationBase,
   PaymentReconciliationCreate,
   PaymentReconciliationRead,
+  PaymentReconciliationUpdate,
 } from "./paymentReconciliation";
 
 export default {
@@ -28,6 +29,6 @@ export default {
     path: "/api/v1/facility/{facilityId}/payment_reconciliation/{paymentReconciliationId}/",
     method: HttpMethod.PUT,
     TRes: Type<PaymentReconciliationRead>(),
-    TBody: Type<PaymentReconciliationCreate>(),
+    TBody: Type<PaymentReconciliationUpdate>(),
   },
 } as const;

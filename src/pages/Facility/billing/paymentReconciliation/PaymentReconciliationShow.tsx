@@ -1,8 +1,9 @@
-import { useQuery } from "@tanstack/react-query";
+import { useMutation, useQuery, useQueryClient } from "@tanstack/react-query";
 import { format } from "date-fns";
 import { Link } from "raviger";
 import React from "react";
 import { useTranslation } from "react-i18next";
+import { toast } from "sonner";
 
 import CareIcon from "@/CAREUI/icons/CareIcon";
 
@@ -16,6 +17,7 @@ import { TableSkeleton } from "@/components/Common/SkeletonLoading";
 
 import useAppHistory from "@/hooks/useAppHistory";
 
+import mutate from "@/Utils/request/mutate";
 import query from "@/Utils/request/query";
 import {
   PaymentReconciliationOutcome,
@@ -78,6 +80,7 @@ export function PaymentReconciliationShow({
 }) {
   const { t } = useTranslation();
   const { goBack } = useAppHistory();
+  const queryClient = useQueryClient();
 
   const { data: payment, isLoading } = useQuery({
     queryKey: ["paymentReconciliation", paymentReconciliationId],
@@ -85,6 +88,18 @@ export function PaymentReconciliationShow({
       pathParams: { facilityId, paymentReconciliationId },
     }),
     enabled: !!paymentReconciliationId,
+  });
+
+  const updatePaymentMutation = useMutation({
+    mutationFn: mutate(paymentReconciliationApi.updatePaymentReconciliation, {
+      pathParams: { facilityId, paymentReconciliationId },
+    }),
+    onSuccess: () => {
+      toast.success(t("payment_status_updated"));
+      queryClient.invalidateQueries({
+        queryKey: ["paymentReconciliation", paymentReconciliationId],
+      });
+    },
   });
 
   if (isLoading) {
@@ -398,6 +413,44 @@ export function PaymentReconciliationShow({
                     </Link>
                   </Button>
                 )}
+                {payment.status !== PaymentReconciliationStatus.cancelled &&
+                  payment.status !==
+                    PaymentReconciliationStatus.entered_in_error && (
+                    <>
+                      <Button
+                        className="w-full"
+                        variant="outline"
+                        onClick={() =>
+                          updatePaymentMutation.mutate({
+                            ...payment,
+                            status: PaymentReconciliationStatus.cancelled,
+                          })
+                        }
+                        disabled={updatePaymentMutation.isPending}
+                      >
+                        <CareIcon icon="l-ban" className="mr-2 size-4" />
+                        {t("mark_as_cancelled")}
+                      </Button>
+                      <Button
+                        className="w-full"
+                        variant="outline"
+                        onClick={() =>
+                          updatePaymentMutation.mutate({
+                            ...payment,
+                            status:
+                              PaymentReconciliationStatus.entered_in_error,
+                          })
+                        }
+                        disabled={updatePaymentMutation.isPending}
+                      >
+                        <CareIcon
+                          icon="l-exclamation-triangle"
+                          className="mr-2 size-4"
+                        />
+                        {t("mark_as_entered_in_error")}
+                      </Button>
+                    </>
+                  )}
                 <Button
                   className="w-full"
                   variant="outline"
