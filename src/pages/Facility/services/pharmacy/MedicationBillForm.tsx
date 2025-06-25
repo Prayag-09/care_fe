@@ -65,10 +65,7 @@ import Page from "@/components/Common/Page";
 import { TableSkeleton } from "@/components/Common/SkeletonLoading";
 import { SubstitutionSheet } from "@/components/Medication/SubstitutionSheet";
 import InstructionsPopover from "@/components/Medicine/InstructionsPopover";
-import {
-  calculateTotalUnits,
-  formatDoseRange,
-} from "@/components/Medicine/utils";
+import { formatDoseRange, formatTotalUnits } from "@/components/Medicine/utils";
 import { reverseFrequencyOption } from "@/components/Questionnaire/QuestionTypes/MedicationRequestQuestion";
 import ValueSetSelect from "@/components/Questionnaire/ValueSetSelect";
 
@@ -1304,10 +1301,10 @@ export default function MedicationBillForm({ patientId }: Props) {
                                   }{" "}
                                   ={" "}
                                   <div className="text-gray-700 font-semibold text-sm">
-                                    {calculateTotalUnits(
+                                    {formatTotalUnits(
                                       field.dosageInstructions,
-                                    )}{" "}
-                                    {t("units")}
+                                      t("units"),
+                                    )}
                                   </div>
                                 </div>
                               ) : (
@@ -1355,10 +1352,10 @@ export default function MedicationBillForm({ patientId }: Props) {
                                           }{" "}
                                           ={" "}
                                           <div className="text-gray-700 font-semibold text-sm">
-                                            {calculateTotalUnits([
-                                              currentDosageInstructions,
-                                            ])}{" "}
-                                            {t("units")}
+                                            {formatTotalUnits(
+                                              [currentDosageInstructions],
+                                              t("units"),
+                                            )}
                                           </div>
                                         </div>
                                       );

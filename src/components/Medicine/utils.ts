@@ -76,3 +76,19 @@ export function calculateTotalUnits(
 
   return dosage * dosesPerDay * duration;
 }
+
+export function formatTotalUnits(
+  instructions: MedicationRequestDosageInstruction[] | undefined,
+  fallbackUnit = "Units",
+): string {
+  const totalUnits = calculateTotalUnits(instructions);
+
+  if (totalUnits <= 0) {
+    return "-";
+  }
+
+  const unitDisplay =
+    instructions?.[0]?.dose_and_rate?.dose_quantity?.unit?.display;
+
+  return `${totalUnits} ${unitDisplay || fallbackUnit}`;
+}
