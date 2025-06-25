@@ -51,44 +51,85 @@ export function formatDoseRange(range?: DoseRange): string {
   return `${formatValue(range.low?.value)} → ${formatValue(range.high?.value)} ${range.high?.unit?.display}`;
 }
 
-export function calculateTotalUnits(
-  instructions?: MedicationRequestDosageInstruction[],
-): number {
-  const instruction = instructions?.[0];
-  if (!instruction) {
-    return 0;
+const convertToHours = (value: number, unit: string) => {
+  switch (unit) {
+    case "h":
+      return value;
+    case "d":
+      return value * 24;
+    case "wk":
+      return value * 24 * 7;
+    case "mo":
+      return value * 24 * 30;
+    case "a":
+      return value * 24 * 365;
+    default:
+      return 0;
   }
-
-  const dosage = instruction.dose_and_rate?.dose_quantity?.value || 0;
-  const duration = instruction.timing?.repeat?.bounds_duration?.value || 0;
-  const frequency = instruction.timing?.code?.code || "";
-
-  let dosesPerDay = 1;
-  if (frequency.includes("BID")) {
-    dosesPerDay = 2;
-  }
-  if (frequency.includes("TID")) {
-    dosesPerDay = 3;
-  }
-  if (frequency.includes("QID")) {
-    dosesPerDay = 4;
-  }
-
-  return dosage * dosesPerDay * duration;
-}
+};
 
 export function formatTotalUnits(
-  instructions: MedicationRequestDosageInstruction[] | undefined,
-  fallbackUnit = "Units",
-): string {
-  const totalUnits = calculateTotalUnits(instructions);
-
-  if (totalUnits <= 0) {
-    return "-";
+  dosageInstructions: MedicationRequestDosageInstruction[] | undefined,
+  unitText: string,
+) {
+  if (!dosageInstructions?.length) {
+    return "";
   }
 
-  const unitDisplay =
-    instructions?.[0]?.dose_and_rate?.dose_quantity?.unit?.display;
+  const instruction = dosageInstructions[0];
+  if (!instruction) {
+    return "";
+  }
 
-  return `${totalUnits} ${unitDisplay || fallbackUnit}`;
+  if (instruction.as_needed_boolean) {
+    const dose = instruction.dose_and_rate?.dose_quantity?.value;
+    const doseUnit =
+      instruction.dose_and_rate?.dose_quantity?.unit?.display || unitText;
+    return dose ? `${dose} ${doseUnit} (PRN)` : "PRN";
+  }
+
+  const doseValue = instruction.dose_and_rate?.dose_quantity?.value;
+  if (!doseValue) {
+    return "";
+  }
+
+  const repeat = instruction.timing?.repeat;
+  if (!repeat?.bounds_duration || !repeat.period_unit) {
+    return `${doseValue} ${unitText}`;
+  }
+
+  const { frequency = 1, period = 1, period_unit, bounds_duration } = repeat;
+
+  const totalDurationInHours = convertToHours(
+    bounds_duration.value,
+    bounds_duration.unit,
+  );
+  const periodInHours = convertToHours(period, period_unit);
+
+  if (periodInHours === 0) {
+    return `${doseValue} ${unitText}`;
+  }
+
+  const doseIntervalInHours = periodInHours / frequency;
+
+  if (doseIntervalInHours === 0) {
+    return `${doseValue} ${unitText}`;
+  }
+
+  const numberOfDoses = Math.ceil(totalDurationInHours / doseIntervalInHours);
+
+  if (instruction.dose_and_rate?.dose_range) {
+    const lowDose = instruction.dose_and_rate.dose_range.low.value || 0;
+    const highDose = instruction.dose_and_rate.dose_range.high.value || 0;
+    const avgDose = (lowDose + highDose) / 2;
+    const totalQuantity = avgDose * numberOfDoses;
+    return `${Number(totalQuantity.toFixed(2))} ${unitText} (tapered)`;
+  }
+
+  const totalQuantity = doseValue * numberOfDoses;
+
+  const doseUnit =
+    instruction.dose_and_rate?.dose_quantity?.unit?.display || unitText;
+
+  return `${Number(totalQuantity.toFixed(2))} ${doseUnit}`;
 }

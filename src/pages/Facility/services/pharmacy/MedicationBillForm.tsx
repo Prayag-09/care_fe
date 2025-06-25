@@ -816,18 +816,69 @@ export default function MedicationBillForm({ patientId }: Props) {
 
   function computeInitialQuantity(medication: MedicationRequestRead) {
     const instruction = medication.dosage_instruction[0];
-    if (!instruction) return 0;
+    if (!instruction) {
+      return 0;
+    }
 
-    const dosage = instruction.dose_and_rate?.dose_quantity?.value || 0;
-    const duration = instruction.timing?.repeat?.bounds_duration?.value || 0;
-    const frequency = instruction.timing?.code?.code || "";
+    if (instruction.as_needed_boolean) {
+      return 0;
+    }
 
-    let dosesPerDay = 1;
-    if (frequency.includes("BID")) dosesPerDay = 2;
-    if (frequency.includes("TID")) dosesPerDay = 3;
-    if (frequency.includes("QID")) dosesPerDay = 4;
+    const doseValue = instruction.dose_and_rate?.dose_quantity?.value;
+    if (!doseValue) {
+      return 0;
+    }
 
-    return dosage * dosesPerDay * duration;
+    const repeat = instruction.timing?.repeat;
+    if (!repeat?.bounds_duration || !repeat.period_unit) {
+      return doseValue;
+    }
+
+    const convertToHours = (value: number, unit: string) => {
+      switch (unit) {
+        case "h":
+          return value;
+        case "d":
+          return value * 24;
+        case "wk":
+          return value * 24 * 7;
+        case "mo":
+          return value * 24 * 30;
+        case "a":
+          return value * 24 * 365;
+        default:
+          return 0;
+      }
+    };
+
+    const { frequency = 1, period = 1, period_unit, bounds_duration } = repeat;
+
+    const totalDurationInHours = convertToHours(
+      bounds_duration.value,
+      bounds_duration.unit,
+    );
+    const periodInHours = convertToHours(period, period_unit);
+
+    if (periodInHours === 0) {
+      return doseValue;
+    }
+
+    const doseIntervalInHours = periodInHours / frequency;
+
+    if (doseIntervalInHours === 0) {
+      return doseValue;
+    }
+
+    const numberOfDoses = Math.ceil(totalDurationInHours / doseIntervalInHours);
+
+    if (instruction.dose_and_rate?.dose_range) {
+      const lowDose = instruction.dose_and_rate.dose_range.low.value || 0;
+      const highDose = instruction.dose_and_rate.dose_range.high.value || 0;
+      const avgDose = (lowDose + highDose) / 2;
+      return Number((avgDose * numberOfDoses).toFixed(2));
+    }
+
+    return Number((doseValue * numberOfDoses).toFixed(2));
   }
 
   const { mutate: dispense, isPending } = useMutation({
