@@ -50,3 +50,29 @@ export function formatDoseRange(range?: DoseRange): string {
 
   return `${formatValue(range.low?.value)} → ${formatValue(range.high?.value)} ${range.high?.unit?.display}`;
 }
+
+export function calculateTotalUnits(
+  instructions?: MedicationRequestDosageInstruction[],
+): number {
+  const instruction = instructions?.[0];
+  if (!instruction) {
+    return 0;
+  }
+
+  const dosage = instruction.dose_and_rate?.dose_quantity?.value || 0;
+  const duration = instruction.timing?.repeat?.bounds_duration?.value || 0;
+  const frequency = instruction.timing?.code?.code || "";
+
+  let dosesPerDay = 1;
+  if (frequency.includes("BID")) {
+    dosesPerDay = 2;
+  }
+  if (frequency.includes("TID")) {
+    dosesPerDay = 3;
+  }
+  if (frequency.includes("QID")) {
+    dosesPerDay = 4;
+  }
+
+  return dosage * dosesPerDay * duration;
+}

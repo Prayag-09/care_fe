@@ -65,7 +65,10 @@ import Page from "@/components/Common/Page";
 import { TableSkeleton } from "@/components/Common/SkeletonLoading";
 import { SubstitutionSheet } from "@/components/Medication/SubstitutionSheet";
 import InstructionsPopover from "@/components/Medicine/InstructionsPopover";
-import { formatDoseRange } from "@/components/Medicine/utils";
+import {
+  calculateTotalUnits,
+  formatDoseRange,
+} from "@/components/Medicine/utils";
 import { reverseFrequencyOption } from "@/components/Questionnaire/QuestionTypes/MedicationRequestQuestion";
 import ValueSetSelect from "@/components/Questionnaire/ValueSetSelect";
 
@@ -1301,28 +1304,9 @@ export default function MedicationBillForm({ patientId }: Props) {
                                   }{" "}
                                   ={" "}
                                   <div className="text-gray-700 font-semibold text-sm">
-                                    {(() => {
-                                      const dosage =
-                                        field.dosageInstructions?.[0]
-                                          ?.dose_and_rate?.dose_quantity
-                                          ?.value || 0;
-                                      const duration =
-                                        field.dosageInstructions?.[0]?.timing
-                                          ?.repeat?.bounds_duration?.value || 0;
-                                      const frequency =
-                                        field.dosageInstructions?.[0]?.timing
-                                          ?.code?.code || "";
-
-                                      let dosesPerDay = 1;
-                                      if (frequency.includes("BID"))
-                                        dosesPerDay = 2;
-                                      if (frequency.includes("TID"))
-                                        dosesPerDay = 3;
-                                      if (frequency.includes("QID"))
-                                        dosesPerDay = 4;
-
-                                      return dosage * dosesPerDay * duration;
-                                    })()}{" "}
+                                    {calculateTotalUnits(
+                                      field.dosageInstructions,
+                                    )}{" "}
                                     {t("units")}
                                   </div>
                                 </div>
@@ -1346,7 +1330,7 @@ export default function MedicationBillForm({ patientId }: Props) {
                                         ?.dose_quantity
                                     ) {
                                       return (
-                                        <div>
+                                        <div className="text-sm text-gray-700 font-medium flex items-center gap-1">
                                           {
                                             currentDosageInstructions
                                               .dose_and_rate.dose_quantity.value
@@ -1370,32 +1354,12 @@ export default function MedicationBillForm({ patientId }: Props) {
                                               ?.repeat?.bounds_duration?.unit
                                           }{" "}
                                           ={" "}
-                                          {(() => {
-                                            const dosage =
-                                              currentDosageInstructions
-                                                .dose_and_rate.dose_quantity
-                                                .value || 0;
-                                            const duration =
-                                              currentDosageInstructions.timing
-                                                ?.repeat?.bounds_duration
-                                                ?.value || 0;
-                                            const frequency =
-                                              currentDosageInstructions.timing
-                                                ?.code?.code || "";
-
-                                            let dosesPerDay = 1;
-                                            if (frequency.includes("BID"))
-                                              dosesPerDay = 2;
-                                            if (frequency.includes("TID"))
-                                              dosesPerDay = 3;
-                                            if (frequency.includes("QID"))
-                                              dosesPerDay = 4;
-
-                                            return (
-                                              dosage * dosesPerDay * duration
-                                            );
-                                          })()}{" "}
-                                          {t("units")}
+                                          <div className="text-gray-700 font-semibold text-sm">
+                                            {calculateTotalUnits([
+                                              currentDosageInstructions,
+                                            ])}{" "}
+                                            {t("units")}
+                                          </div>
                                         </div>
                                       );
                                     }
