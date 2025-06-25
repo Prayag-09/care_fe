@@ -261,7 +261,7 @@ export function SubstitutionSheet({
             <div className="space-y-2">
               <div className="flex items-center gap-2">
                 <span>{t("substituting_for")}:</span>
-                <Badge variant="secondary" className="font-medium">
+                <Badge variant="secondary">
                   {originalProductKnowledge.name}
                 </Badge>
               </div>

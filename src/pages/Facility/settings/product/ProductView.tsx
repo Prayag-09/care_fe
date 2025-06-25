@@ -19,7 +19,9 @@ import {
 import Page from "@/components/Common/Page";
 
 import query from "@/Utils/request/query";
+import { PRODUCT_STATUS_COLORS } from "@/types/inventory/product/product";
 import productApi from "@/types/inventory/product/productApi";
+import { PRODUCT_KNOWLEDGE_TYPE_COLORS } from "@/types/inventory/productKnowledge/productKnowledge";
 
 interface Props {
   facilityId: string;
@@ -97,17 +99,6 @@ export default function ProductView({ facilityId, productId }: Props) {
     );
   }
 
-  const statusColorMap: Record<
-    string,
-    "default" | "secondary" | "destructive" | "outline"
-  > = {
-    active: "default",
-    inactive: "secondary",
-    entered_in_error: "destructive",
-  };
-
-  const statusVariant = statusColorMap[product.status] || "outline";
-
   return (
     <Page title={`Product: ${product.id}`} hideTitleOnPage={true}>
       <div className="container mx-auto max-w-3xl space-y-6">
@@ -125,7 +116,9 @@ export default function ProductView({ facilityId, productId }: Props) {
           <div>
             <div className="flex items-center gap-3">
               <h1 className="text-2xl font-bold">Product ID: {product.id}</h1>
-              <Badge variant={statusVariant}>{t(product.status)}</Badge>
+              <Badge variant={PRODUCT_STATUS_COLORS[product.status]}>
+                {t(product.status)}
+              </Badge>
             </div>
             {product.batch?.lot_number && (
               <p className="mt-1 text-sm text-gray-600">
@@ -184,7 +177,13 @@ export default function ProductView({ facilityId, productId }: Props) {
               <div className="flex items-start justify-between">
                 <div className="space-y-2">
                   <div className="flex items-center gap-2">
-                    <Badge variant="outline">
+                    <Badge
+                      variant={
+                        PRODUCT_KNOWLEDGE_TYPE_COLORS[
+                          product.product_knowledge.product_type
+                        ]
+                      }
+                    >
                       {t(product.product_knowledge.product_type)}
                     </Badge>
                   </div>

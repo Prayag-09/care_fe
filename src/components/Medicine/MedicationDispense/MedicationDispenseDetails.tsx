@@ -3,18 +3,10 @@ import { useTranslation } from "react-i18next";
 
 import { Badge } from "@/components/ui/badge";
 
-import { MedicationDispenseRead } from "@/types/emr/medicationDispense/medicationDispense";
-
-const STATUS_COLORS = {
-  preparation: "bg-blue-100 text-blue-800",
-  in_progress: "bg-yellow-100 text-yellow-800",
-  cancelled: "bg-red-100 text-red-800",
-  on_hold: "bg-orange-100 text-orange-800",
-  completed: "bg-green-100 text-green-800",
-  entered_in_error: "bg-gray-100 text-gray-800",
-  stopped: "bg-red-100 text-red-800",
-  declined: "bg-purple-100 text-purple-800",
-};
+import {
+  MEDICATION_DISPENSE_STATUS_COLORS,
+  MedicationDispenseRead,
+} from "@/types/emr/medicationDispense/medicationDispense";
 
 interface Props {
   dispense: MedicationDispenseRead;
@@ -32,10 +24,7 @@ export function MedicationDispenseDetails({ dispense }: Props) {
         </div>
         <div>
           <h4 className="text-sm font-medium text-gray-500">{t("status")}</h4>
-          <Badge
-            className={`mt-1 ${STATUS_COLORS[dispense.status]}`}
-            variant="secondary"
-          >
+          <Badge variant={MEDICATION_DISPENSE_STATUS_COLORS[dispense.status]}>
             {t(dispense.status)}
           </Badge>
         </div>

@@ -11,6 +11,13 @@ export enum Status {
   unknown = "unknown",
 }
 
+export const ACTIVITY_DEFINITION_STATUS_COLORS = {
+  draft: "secondary",
+  active: "primary",
+  retired: "destructive",
+  unknown: "outline",
+} as const satisfies Record<Status, string>;
+
 export enum Category {
   laboratory = "laboratory",
   imaging = "imaging",

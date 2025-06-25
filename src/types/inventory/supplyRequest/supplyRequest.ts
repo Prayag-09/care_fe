@@ -10,6 +10,15 @@ export enum SupplyRequestStatus {
   entered_in_error = "entered_in_error",
 }
 
+export const SUPPLY_REQUEST_STATUS_COLORS = {
+  draft: "secondary",
+  active: "primary",
+  suspended: "yellow",
+  cancelled: "destructive",
+  completed: "green",
+  entered_in_error: "destructive",
+} as const satisfies Record<SupplyRequestStatus, string>;
+
 export enum SupplyRequestIntent {
   proposal = "proposal",
   plan = "plan",
@@ -32,6 +41,13 @@ export enum SupplyRequestPriority {
   asap = "asap",
   stat = "stat",
 }
+
+export const SUPPLY_REQUEST_PRIORITY_COLORS = {
+  stat: "secondary",
+  urgent: "yellow",
+  asap: "destructive",
+  routine: "indigo",
+} as const satisfies Record<SupplyRequestPriority, string>;
 
 export enum SupplyRequestReason {
   patient_care = "patient_care",

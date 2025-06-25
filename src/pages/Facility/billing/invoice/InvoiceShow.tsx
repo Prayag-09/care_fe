@@ -65,29 +65,19 @@ import EditInvoiceSheet from "@/pages/Facility/billing/invoice/EditInvoiceSheet"
 import { MonetaryComponentType } from "@/types/base/monetaryComponent/monetaryComponent";
 import chargeItemApi from "@/types/billing/chargeItem/chargeItemApi";
 import {
-  INVOICE_STATUS_STYLES,
+  INVOICE_STATUS_COLORS,
   InvoiceCreate,
   InvoiceRead,
   InvoiceStatus,
 } from "@/types/billing/invoice/invoice";
 import invoiceApi from "@/types/billing/invoice/invoiceApi";
 import {
+  PAYMENT_RECONCILIATION_STATUS_COLORS,
   PaymentReconciliationPaymentMethod,
-  PaymentReconciliationStatus,
   PaymentReconciliationType,
 } from "@/types/billing/paymentReconciliation/paymentReconciliation";
 import paymentReconciliationApi from "@/types/billing/paymentReconciliation/paymentReconciliationApi";
 import facilityApi from "@/types/facility/facilityApi";
-
-const paymentStatusMap: Record<
-  PaymentReconciliationStatus,
-  { label: string; color: string }
-> = {
-  active: { label: "active", color: "primary" },
-  cancelled: { label: "cancelled", color: "destructive" },
-  draft: { label: "draft", color: "secondary" },
-  entered_in_error: { label: "entered_in_error", color: "destructive" },
-};
 
 const paymentMethodMap: Record<
   PaymentReconciliationPaymentMethod,
@@ -355,10 +345,7 @@ export function InvoiceShow({
               <span className="font-semibold text-gray-950 text-base">
                 {t("invoice")}: {invoice.title || invoice.id}
               </span>
-              <Badge
-                variant="outline"
-                className={cn(INVOICE_STATUS_STYLES[invoice.status])}
-              >
+              <Badge variant={INVOICE_STATUS_COLORS[invoice.status]}>
                 {t(invoice.status)}
               </Badge>
             </div>
@@ -917,10 +904,10 @@ export function InvoiceShow({
                         </div>
                         <Badge
                           variant={
-                            paymentStatusMap[payment.status].color as any
+                            PAYMENT_RECONCILIATION_STATUS_COLORS[payment.status]
                           }
                         >
-                          {t(paymentStatusMap[payment.status].label)}
+                          {t(payment.status)}
                         </Badge>
                       </div>
                     </div>

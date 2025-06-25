@@ -32,41 +32,16 @@ import useFilters from "@/hooks/useFilters";
 import query from "@/Utils/request/query";
 import { PaginatedResponse } from "@/Utils/request/types";
 import {
-  CATEGORY_BADGE_COLORS,
+  ENCOUNTER_CLASSES_COLORS,
   ENCOUNTER_CLASSES_ICONS,
   EncounterClass,
 } from "@/types/emr/encounter";
 import {
+  MEDICATION_PRIORITY_COLORS,
   MedicationPriority,
   MedicationRequestSummary,
 } from "@/types/emr/medicationRequest/medicationRequest";
 import medicationRequestApi from "@/types/emr/medicationRequest/medicationRequestApi";
-
-const PRIORITY_BADGES: Record<
-  MedicationPriority | "all",
-  { label: string; className: string }
-> = {
-  all: {
-    label: "all_priorities",
-    className: "bg-gray-100 text-gray-900",
-  },
-  [MedicationPriority.STAT]: {
-    label: "stat",
-    className: "bg-red-100 text-red-900",
-  },
-  [MedicationPriority.URGENT]: {
-    label: "urgent",
-    className: "bg-orange-100 text-orange-900",
-  },
-  [MedicationPriority.ASAP]: {
-    label: "asap",
-    className: "bg-yellow-100 text-yellow-900",
-  },
-  [MedicationPriority.ROUTINE]: {
-    label: "routine",
-    className: "bg-blue-100 text-blue-900",
-  },
-} as const;
 
 const BILLING_STATUS_OPTIONS = {
   pending: {
@@ -292,19 +267,17 @@ export default function MedicationRequestList({
                     </TableCell>
                     <TableCell>
                       <Badge
-                        variant="outline"
-                        className={PRIORITY_BADGES[item.priority].className}
+                        variant={MEDICATION_PRIORITY_COLORS[item.priority]}
                       >
-                        {t(PRIORITY_BADGES[item.priority].label)}
+                        {t(item.priority)}
                       </Badge>
                     </TableCell>
                     <TableCell>
                       <Badge
-                        variant="outline"
-                        className={
-                          CATEGORY_BADGE_COLORS[
+                        variant={
+                          ENCOUNTER_CLASSES_COLORS[
                             item.encounter.encounter_class
-                          ] || "bg-gray-100 text-gray-800"
+                          ]
                         }
                       >
                         {t(

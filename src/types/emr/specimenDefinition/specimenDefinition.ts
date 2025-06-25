@@ -7,6 +7,12 @@ export enum SpecimenDefinitionStatus {
   retired = "retired",
 }
 
+export const SPECIMEN_DEFINITION_STATUS_COLORS = {
+  draft: "secondary",
+  active: "primary",
+  retired: "destructive",
+} as const satisfies Record<SpecimenDefinitionStatus, string>;
+
 export enum Preference {
   preferred = "preferred",
   alternate = "alternate",

@@ -214,6 +214,13 @@ export enum MedicationPriority {
   ROUTINE = "routine",
 }
 
+export const MEDICATION_PRIORITY_COLORS = {
+  stat: "secondary",
+  urgent: "yellow",
+  asap: "destructive",
+  routine: "indigo",
+} as const satisfies Record<MedicationPriority, string>;
+
 export interface MedicationRequestRead {
   id: string;
   status: MedicationRequestStatus;

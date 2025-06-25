@@ -13,6 +13,13 @@ export enum PaymentReconciliationStatus {
   entered_in_error = "entered_in_error",
 }
 
+export const PAYMENT_RECONCILIATION_STATUS_COLORS = {
+  active: "primary",
+  cancelled: "destructive",
+  draft: "secondary",
+  entered_in_error: "destructive",
+} as const satisfies Record<PaymentReconciliationStatus, string>;
+
 export enum PaymentReconciliationKind {
   deposit = "deposit",
   preriodic_payment = "preriodic_payment",
@@ -31,6 +38,13 @@ export enum PaymentReconciliationOutcome {
   error = "error",
   partial = "partial",
 }
+
+export const PAYMENT_RECONCILIATION_OUTCOME_COLORS = {
+  queued: "secondary",
+  complete: "primary",
+  error: "destructive",
+  partial: "outline",
+} as const satisfies Record<PaymentReconciliationOutcome, string>;
 
 export enum PaymentReconciliationPaymentMethod {
   cash = "cash",

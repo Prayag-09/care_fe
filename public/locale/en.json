@@ -2826,6 +2826,7 @@
   "patient_update_success": "Patient Updated Successfully",
   "patients": "Patients",
   "patients_per_slot": "Patients per Slot",
+  "payment": "Payment",
   "payment_amount": "Payment Amount",
   "payment_date": "Payment Date",
   "payment_details": "Payment Details",

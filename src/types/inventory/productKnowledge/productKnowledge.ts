@@ -7,23 +7,23 @@ export enum ProductKnowledgeType {
   consumable = "consumable",
 }
 
-export const PRODUCT_KNOWLEDGE_TYPE_COLORS: Record<string, string> = {
-  medication: "bg-blue-100 text-blue-700",
-  nutritional_product: "bg-green-100 text-green-700",
-  consumable: "bg-amber-100 text-amber-700",
-};
-
-export const PRODUCT_KNOWLEDGE_STATUS_COLORS: Record<string, string> = {
-  draft: "bg-gray-100 text-gray-700",
-  active: "bg-green-100 text-green-700",
-  retired: "bg-red-100 text-red-700",
-};
+export const PRODUCT_KNOWLEDGE_TYPE_COLORS = {
+  medication: "blue",
+  nutritional_product: "green",
+  consumable: "yellow",
+} as const satisfies Record<ProductKnowledgeType, string>;
 
 export enum ProductKnowledgeStatus {
   draft = "draft",
   active = "active",
   retired = "retired",
 }
+
+export const PRODUCT_KNOWLEDGE_STATUS_COLORS = {
+  draft: "secondary",
+  active: "primary",
+  retired: "destructive",
+} as const satisfies Record<ProductKnowledgeStatus, string>;
 
 export enum ProductNameTypes {
   trade_name = "trade_name",

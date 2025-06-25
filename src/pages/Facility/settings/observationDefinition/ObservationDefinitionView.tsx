@@ -20,6 +20,7 @@ import Page from "@/components/Common/Page";
 
 import query from "@/Utils/request/query";
 import { Code } from "@/types/base/code/code";
+import { OBSERVATION_DEFINITION_STATUS_COLORS } from "@/types/emr/observationDefinition/observationDefinition";
 import observationDefinitionApi from "@/types/emr/observationDefinition/observationDefinitionApi";
 
 interface Props {
@@ -115,13 +116,6 @@ export default function ObservationDefinitionView({
     );
   }
 
-  const statusVariant = {
-    active: "default",
-    draft: "secondary",
-    retired: "destructive",
-    unknown: "outline",
-  }[definition.status] as "default" | "secondary" | "destructive" | "outline";
-
   return (
     <Page title={definition.title} hideTitleOnPage={true}>
       <div className="container mx-auto max-w-3xl space-y-6">
@@ -141,7 +135,13 @@ export default function ObservationDefinitionView({
           <div>
             <div className="flex items-center gap-3">
               <h1 className="text-2xl font-bold">{definition.title}</h1>
-              <Badge variant={statusVariant}>{t(definition.status)}</Badge>
+              <Badge
+                variant={
+                  OBSERVATION_DEFINITION_STATUS_COLORS[definition.status]
+                }
+              >
+                {t(definition.status)}
+              </Badge>
             </div>
             <p className="mt-1 text-sm text-gray-600">
               {definition.code.system} | {definition.code.code}

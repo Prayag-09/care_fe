@@ -20,7 +20,10 @@ import Page from "@/components/Common/Page";
 
 import query from "@/Utils/request/query";
 import { Code } from "@/types/base/code/code";
-import { ProductName } from "@/types/inventory/productKnowledge/productKnowledge";
+import {
+  PRODUCT_KNOWLEDGE_STATUS_COLORS,
+  ProductName,
+} from "@/types/inventory/productKnowledge/productKnowledge";
 import productKnowledgeApi from "@/types/inventory/productKnowledge/productKnowledgeApi";
 
 interface Props {
@@ -114,14 +117,6 @@ export default function ProductKnowledgeView({
     );
   }
 
-  const typeColorMap: Record<string, "default" | "secondary" | "primary"> = {
-    medication: "default",
-    nutritional_product: "secondary",
-    consumable: "primary",
-  };
-
-  const typeVariant = typeColorMap[product.product_type] || "default";
-
   return (
     <Page title={product.name} hideTitleOnPage={true}>
       <div className="container mx-auto max-w-3xl space-y-6">
@@ -141,7 +136,9 @@ export default function ProductKnowledgeView({
           <div>
             <div className="flex items-center gap-3">
               <h1 className="text-2xl font-bold">{product.name}</h1>
-              <Badge variant={typeVariant}>{t(product.product_type)}</Badge>
+              <Badge variant={PRODUCT_KNOWLEDGE_STATUS_COLORS[product.status]}>
+                {t(product.status)}
+              </Badge>
             </div>
             {product.code && (
               <p className="mt-1 text-sm text-gray-600">

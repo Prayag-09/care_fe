@@ -6,6 +6,12 @@ export enum ChargeItemDefinitionStatus {
   retired = "retired",
 }
 
+export const CHARGE_ITEM_DEFINITION_STATUS_COLORS = {
+  draft: "secondary",
+  active: "primary",
+  retired: "destructive",
+} as const satisfies Record<ChargeItemDefinitionStatus, string>;
+
 export interface ChargeItemDefinitionBase {
   id: string;
   status: ChargeItemDefinitionStatus;

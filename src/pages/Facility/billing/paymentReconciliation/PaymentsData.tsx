@@ -36,7 +36,8 @@ import { RESULTS_PER_PAGE_LIMIT } from "@/common/constants";
 
 import query from "@/Utils/request/query";
 import {
-  PaymentReconciliationOutcome,
+  PAYMENT_RECONCILIATION_OUTCOME_COLORS,
+  PAYMENT_RECONCILIATION_STATUS_COLORS,
   PaymentReconciliationPaymentMethod,
   PaymentReconciliationRead,
   PaymentReconciliationStatus,
@@ -44,36 +45,10 @@ import {
 } from "@/types/billing/paymentReconciliation/paymentReconciliation";
 import paymentReconciliationApi from "@/types/billing/paymentReconciliation/paymentReconciliationApi";
 
-const statusMap: Record<
-  PaymentReconciliationStatus,
-  {
-    label: string;
-    variant: "default" | "secondary" | "primary" | "destructive" | "outline";
-  }
-> = {
-  active: { label: "active", variant: "primary" },
-  cancelled: { label: "cancelled", variant: "destructive" },
-  draft: { label: "draft", variant: "secondary" },
-  entered_in_error: { label: "entered_in_error", variant: "destructive" },
-};
-
 const typeMap: Record<PaymentReconciliationType, string> = {
   payment: "Payment",
   adjustment: "Adjustment",
   advance: "Advance",
-};
-
-const outcomeMap: Record<
-  PaymentReconciliationOutcome,
-  {
-    label: string;
-    variant: "default" | "secondary" | "primary" | "destructive" | "outline";
-  }
-> = {
-  complete: { label: "complete", variant: "primary" },
-  error: { label: "error", variant: "destructive" },
-  queued: { label: "queued", variant: "secondary" },
-  partial: { label: "partial", variant: "outline" },
 };
 
 const methodMap: Record<PaymentReconciliationPaymentMethod, string> = {
@@ -131,7 +106,7 @@ export default function PaymentsData({
               <TabsTrigger value="all">{t("all_status")}</TabsTrigger>
               {Object.values(PaymentReconciliationStatus).map((status) => (
                 <TabsTrigger key={status} value={status}>
-                  {t(statusMap[status].label)}
+                  {t(status)}
                 </TabsTrigger>
               ))}
             </TabsList>
@@ -150,7 +125,7 @@ export default function PaymentsData({
                 <SelectItem value="all">{t("all")}</SelectItem>
                 {Object.values(PaymentReconciliationStatus).map((status) => (
                   <SelectItem key={status} value={status}>
-                    {t(statusMap[status].label)}
+                    {t(status)}
                   </SelectItem>
                 ))}
               </SelectGroup>
@@ -266,13 +241,21 @@ export default function PaymentsData({
                       <MonetaryDisplay amount={payment.amount} />
                     </TableCell>
                     <TableCell>
-                      <Badge variant={statusMap[payment.status].variant}>
-                        {t(statusMap[payment.status].label)}
+                      <Badge
+                        variant={
+                          PAYMENT_RECONCILIATION_STATUS_COLORS[payment.status]
+                        }
+                      >
+                        {t(payment.status)}
                       </Badge>
                     </TableCell>
                     <TableCell>
-                      <Badge variant={outcomeMap[payment.outcome].variant}>
-                        {t(outcomeMap[payment.outcome].label)}
+                      <Badge
+                        variant={
+                          PAYMENT_RECONCILIATION_OUTCOME_COLORS[payment.outcome]
+                        }
+                      >
+                        {t(payment.outcome)}
                       </Badge>
                     </TableCell>
                     <TableCell>

@@ -44,29 +44,13 @@ import useFilters from "@/hooks/useFilters";
 import query from "@/Utils/request/query";
 import {
   Priority,
+  SERVICE_REQUEST_PRIORITY_COLORS,
+  SERVICE_REQUEST_STATUS_COLORS,
   type ServiceRequestReadSpec,
   Status,
 } from "@/types/emr/serviceRequest/serviceRequest";
 import serviceRequestApi from "@/types/emr/serviceRequest/serviceRequestApi";
 import locationApi from "@/types/location/locationApi";
-
-const STATUS_COLORS: Record<Status, string> = {
-  [Status.draft]: "bg-gray-100 text-gray-700",
-  [Status.active]: "bg-green-100 text-green-700",
-  [Status.on_hold]: "bg-yellow-100 text-yellow-700",
-  [Status.revoked]: "bg-red-100 text-red-700",
-  [Status.completed]: "bg-blue-100 text-blue-700",
-  [Status.entered_in_error]: "bg-red-100 text-red-700",
-  [Status.ended]: "bg-gray-100 text-gray-700",
-  [Status.unknown]: "bg-gray-100 text-gray-700",
-};
-
-const PRIORITY_COLORS: Record<Priority, string> = {
-  [Priority.routine]: "bg-gray-100 text-gray-700",
-  [Priority.urgent]: "bg-yellow-100 text-yellow-700",
-  [Priority.asap]: "bg-orange-100 text-orange-700",
-  [Priority.stat]: "bg-red-100 text-red-700",
-};
 
 function EmptyState() {
   const { t } = useTranslation();
@@ -110,15 +94,11 @@ function ServiceRequestCard({
               </div>
             </div>
             <div className="mb-2 flex items-center gap-2">
-              <Badge
-                variant="outline"
-                className={STATUS_COLORS[request.status]}
-              >
+              <Badge variant={SERVICE_REQUEST_STATUS_COLORS[request.status]}>
                 {t(request.status)}
               </Badge>
               <Badge
-                variant="outline"
-                className={PRIORITY_COLORS[request.priority]}
+                variant={SERVICE_REQUEST_PRIORITY_COLORS[request.priority]}
               >
                 {t(request.priority)}
               </Badge>
@@ -188,17 +168,13 @@ function ServiceRequestTable({
               </TableCell>
               <TableCell>{request.title}</TableCell>
               <TableCell>
-                <Badge
-                  variant="outline"
-                  className={STATUS_COLORS[request.status]}
-                >
+                <Badge variant={SERVICE_REQUEST_STATUS_COLORS[request.status]}>
                   {t(request.status)}
                 </Badge>
               </TableCell>
               <TableCell>
                 <Badge
-                  variant="outline"
-                  className={PRIORITY_COLORS[request.priority]}
+                  variant={SERVICE_REQUEST_PRIORITY_COLORS[request.priority]}
                 >
                   {t(request.priority)}
                 </Badge>

@@ -20,6 +20,7 @@ import Page from "@/components/Common/Page";
 
 import query from "@/Utils/request/query";
 import { Code } from "@/types/base/code/code";
+import { ACTIVITY_DEFINITION_STATUS_COLORS } from "@/types/emr/activityDefinition/activityDefinition";
 import activityDefinitionApi from "@/types/emr/activityDefinition/activityDefinitionApi";
 
 interface Props {
@@ -113,13 +114,6 @@ export default function ActivityDefinitionView({
     );
   }
 
-  const statusVariant = {
-    active: "default",
-    draft: "secondary",
-    retired: "destructive",
-    unknown: "outline",
-  }[definition.status] as "default" | "secondary" | "destructive" | "outline";
-
   return (
     <Page title={definition.title} hideTitleOnPage={true}>
       <div className="container mx-auto max-w-3xl space-y-6">
@@ -139,7 +133,11 @@ export default function ActivityDefinitionView({
           <div>
             <div className="flex items-center gap-3">
               <h1 className="text-2xl font-bold">{definition.title}</h1>
-              <Badge variant={statusVariant}>{t(definition.status)}</Badge>
+              <Badge
+                variant={ACTIVITY_DEFINITION_STATUS_COLORS[definition.status]}
+              >
+                {t(definition.status)}
+              </Badge>
             </div>
             <p className="mt-1 text-sm text-gray-600">
               {definition.code.system} | {definition.code.code}

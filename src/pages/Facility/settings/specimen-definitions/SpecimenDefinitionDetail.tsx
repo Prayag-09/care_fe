@@ -27,6 +27,7 @@ import query from "@/Utils/request/query";
 import { Code } from "@/types/base/code/code";
 import {
   DurationSpec,
+  SPECIMEN_DEFINITION_STATUS_COLORS,
   SpecimenDefinitionStatus,
 } from "@/types/emr/specimenDefinition/specimenDefinition";
 import specimenDefinitionApi from "@/types/emr/specimenDefinition/specimenDefinitionApi";
@@ -177,7 +178,7 @@ export function SpecimenDefinitionDetail({
           <div className="flex items-center justify-between">
             <Badge
               variant={
-                specimenDefinition.status === "active" ? "default" : "secondary"
+                SPECIMEN_DEFINITION_STATUS_COLORS[specimenDefinition.status]
               }
             >
               {t(specimenDefinition.status)}

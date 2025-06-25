@@ -21,22 +21,22 @@ export enum Status {
   unknown = "unknown",
 }
 
-export const SPECIMEN_STATUS_STYLES = {
-  draft: "bg-gray-100 text-gray-800 border-gray-200",
-  active: "bg-green-100 text-green-800 border-green-200",
-  on_hold: "bg-yellow-100 text-yellow-800 border-yellow-200",
-  entered_in_error: "bg-red-100 text-red-800 border-red-200",
-  ended: "bg-gray-100 text-gray-800 border-gray-200",
-  completed: "bg-blue-100 text-blue-800 border-blue-200",
-  revoked: "bg-purple-100 text-purple-800 border-purple-200",
-  unknown: "bg-gray-100 text-gray-800 border-gray-200",
+export const SERVICE_REQUEST_STATUS_COLORS = {
+  draft: "secondary",
+  active: "primary",
+  on_hold: "yellow",
+  entered_in_error: "destructive",
+  ended: "secondary",
+  completed: "green",
+  revoked: "purple",
+  unknown: "secondary",
 } as const;
 
-export const SPECIMEN_PRIORITY_STYLES = {
-  stat: "bg-gray-100 text-gray-800 border-gray-200",
-  urgent: "bg-yellow-100 text-yellow-800 border-yellow-200",
-  asap: "bg-red-100 text-red-800 border-red-200",
-  routine: "bg-blue-100 text-blue-800 border-blue-200",
+export const SERVICE_REQUEST_PRIORITY_COLORS = {
+  stat: "secondary",
+  urgent: "yellow",
+  asap: "destructive",
+  routine: "indigo",
 } as const;
 
 export enum Intent {

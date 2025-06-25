@@ -7,6 +7,12 @@ export enum ProductStatusOptions {
   entered_in_error = "entered_in_error",
 }
 
+export const PRODUCT_STATUS_COLORS = {
+  active: "primary",
+  inactive: "secondary",
+  entered_in_error: "destructive",
+} as const satisfies Record<ProductStatusOptions, string>;
+
 export type ProductBatch = {
   lot_number?: string;
 };

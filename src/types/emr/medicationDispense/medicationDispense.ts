@@ -14,6 +14,17 @@ export enum MedicationDispenseStatus {
   declined = "declined",
 }
 
+export const MEDICATION_DISPENSE_STATUS_COLORS = {
+  preparation: "blue",
+  in_progress: "yellow",
+  cancelled: "destructive",
+  on_hold: "orange",
+  completed: "green",
+  entered_in_error: "secondary",
+  stopped: "destructive",
+  declined: "purple",
+} as const satisfies Record<MedicationDispenseStatus, string>;
+
 export enum MedicationDispenseNotPerformedReason {
   outofstock = "outofstock",
   washout = "washout",

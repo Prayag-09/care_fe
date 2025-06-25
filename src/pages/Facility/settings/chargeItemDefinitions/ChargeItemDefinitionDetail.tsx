@@ -17,6 +17,7 @@ import {
   MonetaryComponent,
   MonetaryComponentOrder,
 } from "@/types/base/monetaryComponent/monetaryComponent";
+import { CHARGE_ITEM_DEFINITION_STATUS_COLORS } from "@/types/billing/chargeItemDefinition/chargeItemDefinition";
 import chargeItemDefinitionApi from "@/types/billing/chargeItemDefinition/chargeItemDefinitionApi";
 
 interface ChargeItemDefinitionDetailProps {
@@ -36,19 +37,6 @@ export function ChargeItemDefinitionDetail({
       pathParams: { facilityId, chargeItemDefinitionId },
     }),
   });
-
-  const getStatusVariant = (status: string) => {
-    switch (status) {
-      case "active":
-        return "default";
-      case "draft":
-        return "secondary";
-      case "retired":
-        return "outline";
-      default:
-        return "secondary";
-    }
-  };
 
   const renderPriceComponent = (component: MonetaryComponent) => {
     const typeLabels: Record<string, string> = {
@@ -124,7 +112,13 @@ export function ChargeItemDefinitionDetail({
           <div className="mb-6 flex items-center justify-between">
             <div>
               <div className="mt-2 flex items-center gap-2">
-                <Badge variant={getStatusVariant(chargeItemDefinition.status)}>
+                <Badge
+                  variant={
+                    CHARGE_ITEM_DEFINITION_STATUS_COLORS[
+                      chargeItemDefinition.status
+                    ]
+                  }
+                >
                   {t(chargeItemDefinition.status)}
                 </Badge>
                 {chargeItemDefinition.version && (

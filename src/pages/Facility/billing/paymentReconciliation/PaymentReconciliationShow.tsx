@@ -20,31 +20,12 @@ import useAppHistory from "@/hooks/useAppHistory";
 import mutate from "@/Utils/request/mutate";
 import query from "@/Utils/request/query";
 import {
-  PaymentReconciliationOutcome,
+  PAYMENT_RECONCILIATION_OUTCOME_COLORS,
+  PAYMENT_RECONCILIATION_STATUS_COLORS,
   PaymentReconciliationPaymentMethod,
   PaymentReconciliationStatus,
 } from "@/types/billing/paymentReconciliation/paymentReconciliation";
 import paymentReconciliationApi from "@/types/billing/paymentReconciliation/paymentReconciliationApi";
-
-const statusMap: Record<
-  PaymentReconciliationStatus,
-  { label: string; color: string }
-> = {
-  active: { label: "Active", color: "success" },
-  cancelled: { label: "Cancelled", color: "destructive" },
-  draft: { label: "Draft", color: "secondary" },
-  entered_in_error: { label: "Error", color: "destructive" },
-};
-
-const outcomeMap: Record<
-  PaymentReconciliationOutcome,
-  { label: string; color: string }
-> = {
-  complete: { label: "Complete", color: "success" },
-  error: { label: "Error", color: "destructive" },
-  queued: { label: "Queued", color: "secondary" },
-  partial: { label: "Partial", color: "warning" },
-};
 
 const methodMap: Record<PaymentReconciliationPaymentMethod, string> = {
   cash: "Cash",
@@ -136,19 +117,22 @@ export function PaymentReconciliationShow({
           </Button>
           <div>
             <h1 className="text-2xl font-bold flex items-center flex-wrap gap-2">
-              {t("payment")} #{payment.id}
+              {t("payment")}
             </h1>
+            <span className="text-sm text-gray-500">#{payment.id}</span>
             <div className="flex gap-2 mt-1 flex-wrap">
-              <Badge variant={statusMap[payment.status]?.color as any}>
-                {statusMap[payment.status]?.label}
+              <Badge
+                variant={PAYMENT_RECONCILIATION_STATUS_COLORS[payment.status]}
+              >
+                {t(payment.status)}
               </Badge>
-              <Badge variant={outcomeMap[payment.outcome]?.color as any}>
-                {outcomeMap[payment.outcome]?.label}
+              <Badge
+                variant={PAYMENT_RECONCILIATION_OUTCOME_COLORS[payment.outcome]}
+              >
+                {t(payment.outcome)}
               </Badge>
-              <Badge variant="outline">{methodMap[payment.method]}</Badge>
-              <Badge variant="outline">
-                {humanize(payment.reconciliation_type)}
-              </Badge>
+              <Badge variant="outline">{t(methodMap[payment.method])}</Badge>
+              <Badge variant="outline">{t(payment.reconciliation_type)}</Badge>
             </div>
           </div>
         </div>
@@ -223,8 +207,12 @@ export function PaymentReconciliationShow({
                   <InfoItem
                     label={t("status")}
                     value={
-                      <Badge variant={statusMap[payment.status]?.color as any}>
-                        {statusMap[payment.status]?.label}
+                      <Badge
+                        variant={
+                          PAYMENT_RECONCILIATION_STATUS_COLORS[payment.status]
+                        }
+                      >
+                        {t(payment.status)}
                       </Badge>
                     }
                   />
@@ -232,9 +220,11 @@ export function PaymentReconciliationShow({
                     label={t("outcome")}
                     value={
                       <Badge
-                        variant={outcomeMap[payment.outcome]?.color as any}
+                        variant={
+                          PAYMENT_RECONCILIATION_OUTCOME_COLORS[payment.outcome]
+                        }
                       >
-                        {outcomeMap[payment.outcome]?.label}
+                        {t(payment.outcome)}
                       </Badge>
                     }
                   />

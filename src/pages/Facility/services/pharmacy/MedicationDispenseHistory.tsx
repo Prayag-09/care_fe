@@ -23,8 +23,8 @@ import useFilters from "@/hooks/useFilters";
 import query from "@/Utils/request/query";
 import { PaginatedResponse } from "@/Utils/request/types";
 import {
-  CATEGORY_BADGE_COLORS,
-  getEncounterStatusColor,
+  ENCOUNTER_CLASSES_COLORS,
+  ENCOUNTER_STATUS_COLORS,
 } from "@/types/emr/encounter";
 import { MedicationDispenseSummary } from "@/types/emr/medicationDispense/medicationDispense";
 import medicationDispenseApi from "@/types/emr/medicationDispense/medicationDispenseApi";
@@ -145,11 +145,10 @@ export default function MedicationDispenseHistory({
                     </TableCell>
                     <TableCell>
                       <Badge
-                        variant="outline"
-                        className={
-                          CATEGORY_BADGE_COLORS[
+                        variant={
+                          ENCOUNTER_CLASSES_COLORS[
                             item.encounter.encounter_class
-                          ] || "bg-gray-100 text-gray-800"
+                          ]
                         }
                       >
                         {t(
@@ -159,10 +158,7 @@ export default function MedicationDispenseHistory({
                     </TableCell>
                     <TableCell>
                       <Badge
-                        variant="outline"
-                        className={getEncounterStatusColor(
-                          item.encounter.status,
-                        )}
+                        variant={ENCOUNTER_STATUS_COLORS[item.encounter.status]}
                       >
                         {t(`encounter_status__${item.encounter.status}`)}
                       </Badge>
