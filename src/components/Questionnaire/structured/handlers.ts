@@ -209,6 +209,7 @@ export const structuredHandlers: {
   },
   charge_item: {
     getRequests: async (chargeItems, { facilityId, encounterId }) => {
+      if (!encounterId) return [];
       return [
         {
           url: `/api/v1/facility/${facilityId}/charge_item/upsert/`,

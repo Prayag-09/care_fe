@@ -293,10 +293,10 @@ export default function VerifyPatient() {
                       <EncounterCard
                         encounter={encounter}
                         key={encounter.id}
-                        permissions={facilityData?.permissions ?? []}
+                        permissions={facility?.permissions ?? []}
                         facilityId={
-                          encounter.facility.id === props.facilityId
-                            ? props.facilityId
+                          encounter.facility.id === facilityId
+                            ? facilityId
                             : undefined
                         }
                       />
