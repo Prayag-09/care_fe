@@ -69,6 +69,10 @@ declare global {
         value: string,
       ): Chainable<JQuery<HTMLElement>>;
       getFacilityIdAndNavigate(path?: string): Chainable<string>;
+      clickRadioButton(
+        labelText: string,
+        buttonValue: string,
+      ): Chainable<Element>;
     }
   }
 }

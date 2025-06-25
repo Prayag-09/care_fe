@@ -437,6 +437,7 @@ export function MedicationRequestQuestion({
         </AlertDialogContent>
       </AlertDialog>
       <HistoricalRecordSelector<MedicationRequestRead | MedicationStatementRead>
+        title={t("medication_history")}
         structuredTypes={[
           {
             type: t("past_prescriptions"),

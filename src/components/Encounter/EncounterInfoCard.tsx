@@ -18,27 +18,17 @@ import {
   CardTitle,
 } from "@/components/ui/card";
 
-import { getEncounterStatusColor } from "@/types/emr/encounter";
-import { Encounter } from "@/types/emr/encounter";
+import {
+  ENCOUNTER_PRIORITY_COLORS,
+  ENCOUNTER_STATUS_COLORS,
+  Encounter,
+} from "@/types/emr/encounter";
 
 export interface EncounterInfoCardProps {
   encounter: Encounter;
   facilityId: string;
   hideBorder?: boolean;
 }
-
-const getPriorityColor = (priority: string) => {
-  switch (priority) {
-    case "stat":
-      return "bg-red-100 text-red-800";
-    case "urgent":
-      return "bg-orange-100 text-orange-800";
-    case "asap":
-      return "bg-yellow-100 text-yellow-800";
-    default:
-      return "bg-gray-100 text-gray-800";
-  }
-};
 
 export default function EncounterInfoCard(props: EncounterInfoCardProps) {
   const { t } = useTranslation();
@@ -79,18 +69,14 @@ export default function EncounterInfoCard(props: EncounterInfoCardProps) {
           <div className="flex flex-wrap items-center gap-2">
             <Badge
               data-cy="encounter-status-badge"
-              className={getEncounterStatusColor(encounter.status)}
-              variant="outline"
+              variant={ENCOUNTER_STATUS_COLORS[encounter.status]}
             >
               {t(`encounter_status__${encounter.status}`)}
             </Badge>
             <Badge className="bg-gray-100 text-gray-800" variant="outline">
               {t(`encounter_class__${encounter.encounter_class}`)}
             </Badge>
-            <Badge
-              className={getPriorityColor(encounter.priority)}
-              variant="outline"
-            >
+            <Badge variant={ENCOUNTER_PRIORITY_COLORS[encounter.priority]}>
               {t(`encounter_priority__${encounter.priority}`)}
             </Badge>
           </div>
@@ -101,7 +87,15 @@ export default function EncounterInfoCard(props: EncounterInfoCardProps) {
       </CardContent>
       <CardFooter className="flex flex-col sm:flex-row justify-between gap-1 items-center py-2 px-2 bg-gray-50">
         <Link
-          href={`/facility/${facilityId}/patient/${encounter.patient.id}`}
+          href={
+            encounter.status === "completed"
+              ? `/facility/${facilityId}/patients/verify?${new URLSearchParams({
+                  phone_number: encounter.patient.phone_number,
+                  year_of_birth: encounter.patient.year_of_birth.toString(),
+                  partial_id: encounter.patient.id.slice(0, 5),
+                }).toString()}`
+              : `/facility/${facilityId}/patient/${encounter.patient.id}`
+          }
           className="w-full"
         >
           <Button

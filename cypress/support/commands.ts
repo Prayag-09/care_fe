@@ -293,8 +293,8 @@ Cypress.Commands.add(
   "clearAndTypeIntoField",
   (selector: string, value: string) => {
     cy.get(selector)
-      .should("be.visible")
       .scrollIntoView()
+      .should("be.visible")
       .clear()
       .click()
       .type(value);
@@ -310,3 +310,17 @@ Cypress.Commands.add("getFacilityIdAndNavigate", (path?: string) => {
     cy.wrap(facilityId);
   });
 });
+
+// Custom command for clicking radio buttons
+Cypress.Commands.add(
+  "clickRadioButton",
+  (labelText: string, buttonValue: string) => {
+    cy.get("label").contains(labelText).scrollIntoView();
+    cy.get("label")
+      .contains(labelText)
+      .parent()
+      .within(() => {
+        cy.get(`button[value='${buttonValue}']`).click();
+      });
+  },
+);

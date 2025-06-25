@@ -34,7 +34,7 @@ import {
   AlertDialogTitle,
   AlertDialogTrigger,
 } from "@/components/ui/alert-dialog";
-import { Badge, BadgeProps } from "@/components/ui/badge";
+import { Badge } from "@/components/ui/badge";
 import { Button, buttonVariants } from "@/components/ui/button";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { Label } from "@/components/ui/label";
@@ -68,6 +68,7 @@ import { PractitionerSelector } from "@/pages/Appointments/components/Practition
 import useCurrentFacility from "@/pages/Facility/utils/useCurrentFacility";
 import { FacilityData } from "@/types/facility/facility";
 import {
+  APPOINTMENT_STATUS_COLORS,
   Appointment,
   AppointmentFinalStatuses,
   AppointmentUpdateRequest,
@@ -220,26 +221,7 @@ const AppointmentDetails = ({
             <span className="mr-3 inline-block mb-2">
               {t("schedule_information")}
             </span>
-            <Badge
-              variant={
-                (
-                  {
-                    booked: "secondary",
-                    checked_in: "primary",
-                    in_consultation: "primary",
-                    pending: "secondary",
-                    arrived: "primary",
-                    fulfilled: "primary",
-                    entered_in_error: "destructive",
-                    cancelled: "destructive",
-                    rescheduled: "secondary",
-                    noshow: "destructive",
-                  } as Partial<
-                    Record<Appointment["status"], BadgeProps["variant"]>
-                  >
-                )[appointment.status] ?? "outline"
-              }
-            >
+            <Badge variant={APPOINTMENT_STATUS_COLORS[appointment.status]}>
               {t(appointment.status)}
             </Badge>
           </CardTitle>
