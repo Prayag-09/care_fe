@@ -10,6 +10,8 @@ import {
   Map,
 } from "lucide-react";
 
+import { Badge } from "@/components/ui/badge";
+
 import { Code } from "@/types/base/code/code";
 import { Encounter } from "@/types/emr/encounter";
 import { FacilityOrganization } from "@/types/facilityOrganization/facilityOrganization";
@@ -103,9 +105,12 @@ export const LOCATION_TYPE_BADGE_COLORS = {
   ro: "blue", // room
   ve: "secondary", // vehicle
   ho: "primary", // house
-  ca: "purple", // carpark
-  rd: "secondary", // road
-  area: "blue", // area
-  jdn: "green", // garden
-  vi: "blue", // virtual
-} as const satisfies Record<LocationForm, string>;
+  ca: "indigo", // carpark
+  rd: "yellow", // road
+  area: "green", // area
+  jdn: "teal", // garden
+  vi: "indigo", // virtual
+} as const satisfies Record<
+  LocationForm,
+  React.ComponentProps<typeof Badge>["variant"]
+>;
