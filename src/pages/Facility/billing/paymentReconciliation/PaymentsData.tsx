@@ -2,6 +2,7 @@ import { useQuery } from "@tanstack/react-query";
 import { format } from "date-fns";
 import { EyeIcon } from "lucide-react";
 import { Link } from "raviger";
+import { useEffect } from "react";
 import { useTranslation } from "react-i18next";
 
 import CareIcon from "@/CAREUI/icons/CareIcon";
@@ -51,6 +52,13 @@ const typeMap: Record<PaymentReconciliationType, string> = {
   advance: "Advance",
 };
 
+const SORT_OPTIONS = {
+  "-payment_datetime": "sort_by_latest_payment",
+  payment_datetime: "sort_by_oldest_payment",
+  "-created_date": "sort_by_latest_created",
+  created_date: "sort_by_oldest_created",
+};
+
 const methodMap: Record<PaymentReconciliationPaymentMethod, string> = {
   cash: "Cash",
   ccca: "Credit Card",
@@ -74,6 +82,10 @@ export default function PaymentsData({
     disableCache: true,
   });
 
+  useEffect(() => {
+    updateQuery({ ordering: "-payment_datetime" });
+  }, []);
+
   const { data: response, isLoading } = useQuery({
     queryKey: ["payments", qParams, accountId],
     queryFn: query(paymentReconciliationApi.listPaymentReconciliation, {
@@ -85,6 +97,7 @@ export default function PaymentsData({
         search: qParams.search,
         status: qParams.status,
         reconciliation_type: qParams.reconciliation_type,
+        ordering: qParams.ordering,
       },
     }),
   });
@@ -117,7 +130,7 @@ export default function PaymentsData({
               updateQuery({ status: value === "all" ? undefined : value })
             }
           >
-            <SelectTrigger className="sm:hidden w-full">
+            <SelectTrigger className="sm:hidden border-gray-400 text-gray-950 rounded-sm">
               <SelectValue placeholder={t("filter_by_status")} />
             </SelectTrigger>
             <SelectContent>
@@ -156,7 +169,7 @@ export default function PaymentsData({
               updateQuery({ status: value === "all" ? undefined : value })
             }
           >
-            <SelectTrigger className="sm:hidden">
+            <SelectTrigger className="sm:hidden border-gray-400 text-gray-950 rounded-sm">
               <SelectValue placeholder={t("filter_by_type")} />
             </SelectTrigger>
             <SelectContent>
@@ -170,6 +183,25 @@ export default function PaymentsData({
               </SelectGroup>
             </SelectContent>
           </Select>
+          <div className="w-full sm:w-fit">
+            <Select
+              value={qParams.ordering}
+              onValueChange={(value) => {
+                updateQuery({ ordering: value });
+              }}
+            >
+              <SelectTrigger className="border-gray-400 text-gray-950 rounded-sm">
+                <SelectValue placeholder={t("sort_by")} />
+              </SelectTrigger>
+              <SelectContent>
+                {Object.entries(SORT_OPTIONS).map(([value, text]) => (
+                  <SelectItem key={text} value={value}>
+                    {t(text)}
+                  </SelectItem>
+                ))}
+              </SelectContent>
+            </Select>
+          </div>
         </div>
         <div className="relative w-full sm:max-w-xs">
           <CareIcon
