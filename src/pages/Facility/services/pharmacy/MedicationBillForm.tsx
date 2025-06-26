@@ -89,6 +89,7 @@ import {
 } from "@/types/billing/chargeItem/chargeItem";
 import { ChargeItemRead } from "@/types/billing/chargeItem/chargeItem";
 import {
+  MEDICATION_DISPENSE_STATUS_COLORS,
   MedicationDispenseCategory,
   MedicationDispenseCreate,
   MedicationDispenseRead,
@@ -2233,6 +2234,8 @@ const DispensedItemsSheet = ({
                   <TableHead>{t("quantity")}</TableHead>
                   <TableHead>{t("lot_number")}</TableHead>
                   <TableHead>{t("dispensed_on")}</TableHead>
+                  <TableHead>{t("status")}</TableHead>
+                  <TableHead>{t("total") + " " + t("price")}</TableHead>
                 </TableRow>
               </TableHeader>
               <TableBody>
@@ -2241,7 +2244,13 @@ const DispensedItemsSheet = ({
                     <TableCell>
                       {item.item.product.product_knowledge.name}
                     </TableCell>
-                    <TableCell>{item.charge_item.quantity} </TableCell>
+                    <TableCell>
+                      {item.charge_item.quantity}{" "}
+                      {
+                        item.dosage_instruction?.[0]?.dose_and_rate
+                          ?.dose_quantity?.unit?.display
+                      }
+                    </TableCell>
                     <TableCell>
                       {item.item.product.batch?.lot_number || "-"}
                     </TableCell>
@@ -2250,6 +2259,16 @@ const DispensedItemsSheet = ({
                         new Date(item.when_prepared),
                         "dd/MM/yyyy hh:mm a",
                       )}
+                    </TableCell>
+                    <TableCell>
+                      <Badge
+                        variant={MEDICATION_DISPENSE_STATUS_COLORS[item.status]}
+                      >
+                        {t(item.status)}
+                      </Badge>
+                    </TableCell>
+                    <TableCell>
+                      <MonetaryDisplay amount={item.charge_item.total_price} />
                     </TableCell>
                   </TableRow>
                 ))}
