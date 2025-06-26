@@ -1,7 +1,7 @@
 import { zodResolver } from "@hookform/resolvers/zod";
 import { useMutation, useQuery, useQueryClient } from "@tanstack/react-query";
 import { formatDate } from "date-fns";
-import { ChevronDownIcon, Info, PlusIcon } from "lucide-react";
+import { ChevronDownIcon, Info, PlusIcon, Shuffle, Trash2 } from "lucide-react";
 import { navigate } from "raviger";
 import { useEffect, useState } from "react";
 import { useFieldArray, useForm } from "react-hook-form";
@@ -688,7 +688,7 @@ export default function MedicationBillForm({ patientId }: Props) {
     },
   });
 
-  const { fields, append } = useFieldArray({
+  const { fields, append, remove } = useFieldArray({
     control: form.control,
     name: "items",
   });
@@ -1441,7 +1441,7 @@ export default function MedicationBillForm({ patientId }: Props) {
                               <Button
                                 variant="outline"
                                 size="sm"
-                                className="border-gray-400 border text-gray-950"
+                                className="border-gray-400 border text-gray-950 hover:bg-gray-50"
                                 type="button"
                                 onClick={() => {
                                   setSubstitutingItemIndex(index);
@@ -1451,7 +1451,20 @@ export default function MedicationBillForm({ patientId }: Props) {
                                   setIsSubstitutionSheetOpen(true);
                                 }}
                               >
+                                <Shuffle className="size-5" />
                                 {t("substitute")}
+                              </Button>
+                            )}
+                            {!field.medication && (
+                              <Button
+                                variant="outline"
+                                className="hover:bg-red-50 hover:text-red-700"
+                                size="sm"
+                                type="button"
+                                onClick={() => remove(index)}
+                              >
+                                <Trash2 className="size-5" />
+                                <span className="">{t("remove")}</span>
                               </Button>
                             )}
                           </div>
