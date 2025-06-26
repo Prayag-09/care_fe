@@ -47,10 +47,7 @@ export function SpecimenIDScanSuccessDialog({
         {/* Success Header */}
         <div className="bg-green-50 px-4 sm:px-6 py-3 border-b border-green-100">
           <div className="flex items-center gap-2">
-            <Badge
-              variant="outline"
-              className="bg-green-500/10 text-green-700 border-green-500/20 rounded-full shrink-0"
-            >
+            <Badge variant="green" className="rounded-full shrink-0">
               {t("success")}
             </Badge>
             <h2 className="text-primary-800 font-semibold text-base sm:text-lg">

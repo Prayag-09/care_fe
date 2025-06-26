@@ -1303,19 +1303,13 @@ export default function MedicationBillForm({ patientId }: Props) {
                                       </Popover>
                                     )}
                                     {substitution && (
-                                      <Badge
-                                        variant="outline"
-                                        className="border-orange-300 text-orange-800 bg-orange-100 text-xs -ml-1"
-                                      >
+                                      <Badge variant="orange">
                                         {t("substituted")}
                                       </Badge>
                                     )}
                                     {field.medication?.dispense_status ===
                                       MedicationRequestDispenseStatus.partial && (
-                                      <Badge
-                                        variant="outline"
-                                        className="border-yellow-300 text-yellow-800 bg-yellow-100 text-xs"
-                                      >
+                                      <Badge variant="yellow">
                                         {t("partially_dispensed")}
                                       </Badge>
                                     )}
@@ -1487,16 +1481,14 @@ export default function MedicationBillForm({ patientId }: Props) {
                                                     .batch?.lot_number}
                                               </span>
                                               <Badge
-                                                className={cn(
-                                                  "text-sm font-medium my-0.5",
+                                                variant={
                                                   selectedInventory?.status ===
                                                     "active" &&
-                                                    selectedInventory?.net_content >
-                                                      0
-                                                    ? "bg-green-100 text-green-800"
-                                                    : "bg-red-100 text-red-800",
-                                                )}
-                                                variant="outline"
+                                                  selectedInventory?.net_content >
+                                                    0
+                                                    ? "primary"
+                                                    : "destructive"
+                                                }
                                               >
                                                 {selectedInventory?.net_content}{" "}
                                                 {t("units")}
@@ -1579,14 +1571,13 @@ export default function MedicationBillForm({ patientId }: Props) {
                                                   inv.product.batch?.lot_number}
                                               </span>
                                               <Badge
-                                                className={cn(
-                                                  "ml-2",
+                                                variant={
                                                   inv.status === "active" &&
-                                                    inv.net_content > 0
-                                                    ? "bg-green-100 text-green-800"
-                                                    : "bg-red-100 text-red-800",
-                                                )}
-                                                variant="outline"
+                                                  inv.net_content > 0
+                                                    ? "primary"
+                                                    : "destructive"
+                                                }
+                                                className="ml-2"
                                               >
                                                 {inv.net_content} {t("units")}
                                               </Badge>
@@ -1604,12 +1595,7 @@ export default function MedicationBillForm({ patientId }: Props) {
                               </Popover>
                             </div>
                           ) : (
-                            <Badge
-                              variant="outline"
-                              className="bg-red-100 text-red-800"
-                            >
-                              {t("no_stock")}
-                            </Badge>
+                            <Badge variant="destructive">{t("no_stock")}</Badge>
                           )}
                         </TableCell>
                         <TableCell className={tableCellClass}>

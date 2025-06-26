@@ -21,7 +21,7 @@ import {
 } from "@/components/ui/sheet";
 
 import {
-  SPECIMEN_STATUS_COLOR_MAP,
+  SPECIMEN_STATUS_COLORS,
   SpecimenRead,
 } from "@/types/emr/specimen/specimen";
 
@@ -190,11 +190,8 @@ export function MultiQRCodePrintSheet({
                         </div>
                       </div>
                       <Badge
-                        variant="outline"
-                        className={cn(
-                          "capitalize",
-                          SPECIMEN_STATUS_COLOR_MAP[specimen.status],
-                        )}
+                        variant={SPECIMEN_STATUS_COLORS[specimen.status]}
+                        className="capitalize"
                       >
                         {specimen.status}
                       </Badge>

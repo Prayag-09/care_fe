@@ -75,7 +75,7 @@ import { ProcessSpecimen } from "@/pages/Facility/services/serviceRequests/compo
 import {
   ProcessingSpec,
   SPECIMEN_DISCARD_REASONS,
-  SPECIMEN_STATUS_COLOR_MAP,
+  SPECIMEN_STATUS_COLORS,
   SpecimenRead,
   SpecimenStatus,
 } from "@/types/emr/specimen/specimen";
@@ -210,9 +210,6 @@ export function SpecimenWorkflowCard({
     collectedSpecimen?.status === SpecimenStatus.unavailable ||
     collectedSpecimen?.status === SpecimenStatus.entered_in_error;
 
-  // Define badge styles
-  const collectionBadgeVariant = "outline"; // Always default variant for success
-  const collectionBadgeColor = "bg-green-100 text-green-800 border-green-200";
   const [isOpen, setIsOpen] = useState(!hasCollected);
 
   return (
@@ -295,11 +292,8 @@ export function SpecimenWorkflowCard({
                 <div className="flex items-center flex-col gap-4">
                   <div className="flex items-center gap-2">
                     <Badge
-                      variant="outline"
-                      className={cn(
-                        "capitalize font-medium h-fit",
-                        SPECIMEN_STATUS_COLOR_MAP[collectedSpecimen.status],
-                      )}
+                      variant={SPECIMEN_STATUS_COLORS[collectedSpecimen.status]}
+                      className="capitalize font-medium h-fit"
                     >
                       {collectedSpecimen.status ===
                         SpecimenStatus.available && (
@@ -420,19 +414,13 @@ export function SpecimenWorkflowCard({
                   <PackageSearch className="h-5 w-5 text-gray-600" />
                   Required: {requirement.title}
                 </CardTitle>
-                <Badge
-                  variant="outline"
-                  className="bg-orange-100 text-orange-900"
-                >
+                <Badge variant="orange">
                   <CircleDashed className="h-4 w-4 mr-1.5" />
                   Collection Pending
                 </Badge>
 
                 {isDraft && (
-                  <Badge
-                    variant="outline"
-                    className={SPECIMEN_STATUS_COLOR_MAP["draft"]}
-                  >
+                  <Badge variant="secondary">
                     <>
                       <FileText className="size-4 mr-1.5 stroke-1.5" />
                       <span className="text-xs">{t("draft")}</span>
@@ -649,12 +637,7 @@ export function SpecimenWorkflowCard({
                       </span>
                     </div>
                     <div className="flex items-center gap-2">
-                      <Badge
-                        variant={collectionBadgeVariant}
-                        className={cn(collectionBadgeColor)}
-                      >
-                        1/1 Collected
-                      </Badge>
+                      <Badge variant="green">1/1 Collected</Badge>
                     </div>
                   </AccordionTrigger>
                   <AccordionContent className="px-4 pt-1 pb-4 space-y-4 bg-gray-50 rounded-b-lg">

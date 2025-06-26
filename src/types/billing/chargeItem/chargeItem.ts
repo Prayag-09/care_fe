@@ -13,15 +13,15 @@ export enum ChargeItemStatus {
   entered_in_error = "entered_in_error",
 }
 
-export const CHARGE_ITEM_STATUS_STYLES = {
-  planned: "bg-gray-100 text-gray-800 border-gray-200",
-  billable: "bg-blue-100 text-blue-800 border-blue-200",
-  not_billable: "bg-yellow-100 text-yellow-800 border-yellow-200",
-  aborted: "bg-red-100 text-red-800 border-red-200",
-  billed: "bg-green-100 text-green-800 border-green-200",
-  paid: "bg-green-100 text-green-800 border-green-200",
-  entered_in_error: "bg-red-100 text-red-800 border-red-200",
-} as const;
+export const CHARGE_ITEM_STATUS_COLORS = {
+  planned: "blue",
+  billable: "indigo",
+  not_billable: "yellow",
+  aborted: "destructive",
+  billed: "green",
+  paid: "primary",
+  entered_in_error: "destructive",
+} as const satisfies Record<ChargeItemStatus, string>;
 
 export interface ChargeItemOverrideReason {
   code: string;

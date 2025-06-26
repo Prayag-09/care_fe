@@ -38,9 +38,9 @@ import useFilters from "@/hooks/useFilters";
 
 import query from "@/Utils/request/query";
 import {
+  ACCOUNT_BILLING_STATUS_COLORS,
+  ACCOUNT_STATUS_COLORS,
   type AccountRead,
-  billingStatusColorMap,
-  statusColorMap,
 } from "@/types/billing/account/Account";
 import accountApi from "@/types/billing/account/accountApi";
 
@@ -122,7 +122,7 @@ export function AccountList({
               >
                 <TabsList>
                   <TabsTrigger value="all">{t("all_accounts")}</TabsTrigger>
-                  {Object.keys(statusColorMap).map((key) => (
+                  {Object.keys(ACCOUNT_STATUS_COLORS).map((key) => (
                     <TabsTrigger key={key} value={key}>
                       <span className="text-gray-950 font-medium text-sm">
                         {t(key)}
@@ -147,7 +147,7 @@ export function AccountList({
                       {t("all")}
                     </span>
                   </SelectItem>
-                  {Object.keys(statusColorMap).map((key) => (
+                  {Object.keys(ACCOUNT_STATUS_COLORS).map((key) => (
                     <SelectItem key={key} value={key}>
                       {t(key)}
                     </SelectItem>
@@ -172,7 +172,7 @@ export function AccountList({
                         {t("all_billing_statuses")}
                       </span>
                     </SelectItem>
-                    {Object.keys(billingStatusColorMap).map((key) => (
+                    {Object.keys(ACCOUNT_BILLING_STATUS_COLORS).map((key) => (
                       <SelectItem key={key} value={key}>
                         <span className="text-gray-950 font-medium text-sm">
                           {t(key)}
@@ -252,17 +252,15 @@ export function AccountList({
                     <MonetaryDisplay amount={account.total_balance} />
                   </TableCell>
                   <TableCell>
-                    <Badge
-                      variant="outline"
-                      className={statusColorMap[account.status]}
-                    >
+                    <Badge variant={ACCOUNT_STATUS_COLORS[account.status]}>
                       {t(account.status)}
                     </Badge>
                   </TableCell>
                   <TableCell>
                     <Badge
-                      variant="outline"
-                      className={billingStatusColorMap[account.billing_status]}
+                      variant={
+                        ACCOUNT_BILLING_STATUS_COLORS[account.billing_status]
+                      }
                     >
                       {t(account.billing_status)}
                     </Badge>

@@ -18,14 +18,11 @@ import {
 import { TableSkeleton } from "@/components/Common/SkeletonLoading";
 
 import { SupplyDeliveryTab } from "@/pages/Facility/services/supply/SupplyDeliveryList";
-import { SupplyDeliveryRead } from "@/types/inventory/supplyDelivery/supplyDelivery";
-
-const STATUS_COLORS: Record<string, string> = {
-  in_progress: "bg-amber-100 text-amber-700",
-  completed: "bg-green-100 text-green-700",
-  abandoned: "bg-red-100 text-red-700",
-  entered_in_error: "bg-red-100 text-red-700",
-};
+import {
+  SUPPLY_DELIVERY_CONDITION_COLORS,
+  SUPPLY_DELIVERY_STATUS_COLORS,
+  SupplyDeliveryRead,
+} from "@/types/inventory/supplyDelivery/supplyDelivery";
 
 interface Props {
   deliveries: SupplyDeliveryRead[];
@@ -105,9 +102,9 @@ export default function SupplyDeliveryTable({
                 {delivery.supplied_item_condition && (
                   <Badge
                     variant={
-                      delivery.supplied_item_condition === "damaged"
-                        ? "destructive"
-                        : "secondary"
+                      SUPPLY_DELIVERY_CONDITION_COLORS[
+                        delivery.supplied_item_condition
+                      ]
                     }
                     className="capitalize"
                   >
@@ -124,8 +121,8 @@ export default function SupplyDeliveryTable({
               )}
               <TableCell>
                 <Badge
-                  className={STATUS_COLORS[delivery.status]}
-                  variant="secondary"
+                  variant={SUPPLY_DELIVERY_STATUS_COLORS[delivery.status]}
+                  className="capitalize"
                 >
                   {t(delivery.status)}
                 </Badge>

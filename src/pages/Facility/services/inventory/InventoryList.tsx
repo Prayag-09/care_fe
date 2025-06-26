@@ -31,6 +31,7 @@ import { TableSkeleton } from "@/components/Common/SkeletonLoading";
 import useFilters from "@/hooks/useFilters";
 
 import query from "@/Utils/request/query";
+import { ACCOUNT_STATUS_COLORS } from "@/types/billing/account/Account";
 import {
   InventoryStatus,
   InventoryStatusOptions,
@@ -206,17 +207,7 @@ export function InventoryList({ facilityId, locationId }: InventoryListProps) {
                     {inventory.net_content}
                   </TableCell>
                   <TableCell className="font-medium">
-                    <Badge
-                      variant="secondary"
-                      className={cn(
-                        "capitalize",
-                        {
-                          active: "bg-green-100 text-green-800",
-                          inactive: "bg-gray-100 text-gray-800",
-                          entered_in_error: "bg-red-100 text-red-800",
-                        }[inventory.status],
-                      )}
-                    >
+                    <Badge variant={ACCOUNT_STATUS_COLORS[inventory.status]}>
                       {t(inventory.status)}
                     </Badge>
                   </TableCell>

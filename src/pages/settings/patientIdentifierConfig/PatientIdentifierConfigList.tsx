@@ -34,7 +34,7 @@ import useFilters from "@/hooks/useFilters";
 
 import query from "@/Utils/request/query";
 import {
-  PATIENT_IDENTIFIER_CONFIG_STATUS_STYLES,
+  PATIENT_IDENTIFIER_CONFIG_STATUS_COLORS,
   PatientIdentifierConfig,
   PatientIdentifierConfigStatus,
 } from "@/types/patient/patientIdentifierConfig/patientIdentifierConfig";
@@ -57,10 +57,7 @@ function PatientIdentifierConfigCard({
           <div>
             <div className="mb-2 flex items-center gap-2">
               <Badge
-                variant="outline"
-                className={
-                  PATIENT_IDENTIFIER_CONFIG_STATUS_STYLES[config.status]
-                }
+                variant={PATIENT_IDENTIFIER_CONFIG_STATUS_COLORS[config.status]}
               >
                 {t(config.status)}
               </Badge>
@@ -253,9 +250,8 @@ export default function PatientIdentifierConfigList({
                         <TableCell>{config.config.use}</TableCell>
                         <TableCell>
                           <Badge
-                            variant="outline"
-                            className={
-                              PATIENT_IDENTIFIER_CONFIG_STATUS_STYLES[
+                            variant={
+                              PATIENT_IDENTIFIER_CONFIG_STATUS_COLORS[
                                 config.status
                               ]
                             }

@@ -144,7 +144,7 @@ export function DiscountComponentSettings() {
                   <TableRow key={`${component.title}-${component.isInstance}`}>
                     <TableCell className="text-center">
                       <Badge
-                        variant={component.isInstance ? "secondary" : "outline"}
+                        variant={component.isInstance ? "secondary" : "blue"}
                       >
                         {component.isInstance ? t("instance") : t("facility")}
                       </Badge>

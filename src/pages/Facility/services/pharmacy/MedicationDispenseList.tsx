@@ -96,8 +96,7 @@ function MedicationTable({ medications }: MedicationTableProps) {
                 </TableCell>
                 <TableCell>
                   <Badge
-                    variant="outline"
-                    className={
+                    variant={
                       MEDICATION_REQUEST_PRIORITY_COLORS[medication.priority]
                     }
                   >
@@ -106,8 +105,7 @@ function MedicationTable({ medications }: MedicationTableProps) {
                 </TableCell>
                 <TableCell>
                   <Badge
-                    variant="outline"
-                    className={
+                    variant={
                       MEDICATION_REQUEST_STATUS_COLORS[medication.status]
                     }
                   >

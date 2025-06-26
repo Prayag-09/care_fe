@@ -14,12 +14,12 @@ export enum PatientIdentifierConfigStatus {
   entered_in_error = "entered_in_error",
 }
 
-export const PATIENT_IDENTIFIER_CONFIG_STATUS_STYLES = {
-  draft: "bg-gray-100 text-gray-800 border-gray-200",
-  active: "bg-green-100 text-green-800 border-green-200",
-  inactive: "bg-red-100 text-red-800 border-red-200",
-  entered_in_error: "bg-red-100 text-red-800 border-red-200",
-} as const;
+export const PATIENT_IDENTIFIER_CONFIG_STATUS_COLORS = {
+  draft: "secondary",
+  active: "green",
+  inactive: "destructive",
+  entered_in_error: "destructive",
+} as const satisfies Record<PatientIdentifierConfigStatus, string>;
 
 export interface RetrieveConfig {
   retrieve_with_dob: boolean;

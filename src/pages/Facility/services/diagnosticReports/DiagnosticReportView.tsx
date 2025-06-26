@@ -3,8 +3,6 @@ import { Printer } from "lucide-react";
 import { navigate } from "raviger";
 import { useTranslation } from "react-i18next";
 
-import { cn } from "@/lib/utils";
-
 import CareIcon from "@/CAREUI/icons/CareIcon";
 
 import { Badge } from "@/components/ui/badge";
@@ -134,10 +132,7 @@ export default function DiagnosticReportView({
                 </div>
                 <div>
                   <Badge
-                    className={cn(
-                      "text-sm",
-                      DIAGNOSTIC_REPORT_STATUS_COLORS[report.status],
-                    )}
+                    variant={DIAGNOSTIC_REPORT_STATUS_COLORS[report.status]}
                   >
                     {t(report.status)}
                   </Badge>

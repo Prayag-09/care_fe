@@ -52,6 +52,7 @@ import routes from "@/Utils/request/api";
 import mutate from "@/Utils/request/mutate";
 import query from "@/Utils/request/query";
 import { Code } from "@/types/base/code/code";
+import { DIAGNOSTIC_REPORT_STATUS_COLORS } from "@/types/emr/diagnosticReport/diagnosticReport";
 import {
   DiagnosticReportRead,
   DiagnosticReportStatus,
@@ -799,8 +800,7 @@ export function DiagnosticReportForm({
                 )}
                 {hasReport && fullReport && (
                   <Badge
-                    className={"bg-pink-100 text-pink-800"}
-                    variant="outline"
+                    variant={DIAGNOSTIC_REPORT_STATUS_COLORS[fullReport.status]}
                   >
                     {t(fullReport.status)}
                   </Badge>

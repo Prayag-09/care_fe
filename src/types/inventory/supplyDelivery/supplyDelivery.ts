@@ -11,6 +11,13 @@ export enum SupplyDeliveryStatus {
   entered_in_error = "entered_in_error",
 }
 
+export const SUPPLY_DELIVERY_STATUS_COLORS = {
+  in_progress: "blue",
+  completed: "green",
+  abandoned: "destructive",
+  entered_in_error: "destructive",
+} as const satisfies Record<SupplyDeliveryStatus, string>;
+
 export enum SupplyDeliveryType {
   product = "product",
   device = "device",
@@ -20,6 +27,11 @@ export enum SupplyDeliveryCondition {
   normal = "normal",
   damaged = "damaged",
 }
+
+export const SUPPLY_DELIVERY_CONDITION_COLORS = {
+  normal: "secondary",
+  damaged: "destructive",
+} as const satisfies Record<SupplyDeliveryCondition, string>;
 
 export interface SupplyDeliveryBase {
   id: string;

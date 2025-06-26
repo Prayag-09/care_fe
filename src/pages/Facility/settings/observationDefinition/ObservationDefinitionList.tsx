@@ -29,16 +29,10 @@ import query from "@/Utils/request/query";
 import {
   OBSERVATION_DEFINITION_CATEGORY,
   OBSERVATION_DEFINITION_STATUS,
+  OBSERVATION_DEFINITION_STATUS_COLORS,
   type ObservationDefinitionReadSpec,
 } from "@/types/emr/observationDefinition/observationDefinition";
 import observationDefinitionApi from "@/types/emr/observationDefinition/observationDefinitionApi";
-
-const OBSERVATION_DEFINITION_STATUS_COLORS: Record<string, string> = {
-  active: "bg-green-100 text-green-700",
-  draft: "bg-gray-100 text-gray-700",
-  retired: "bg-red-100 text-red-700",
-  unknown: "bg-gray-100 text-gray-700",
-};
 
 function ObservationDefinitionCard({
   definition,
@@ -55,10 +49,8 @@ function ObservationDefinitionCard({
           <div>
             <div className="mb-2 flex items-center gap-2">
               <Badge
-                variant="outline"
-                className={
-                  OBSERVATION_DEFINITION_STATUS_COLORS[definition.status] ||
-                  "bg-gray-100 text-gray-700"
+                variant={
+                  OBSERVATION_DEFINITION_STATUS_COLORS[definition.status]
                 }
               >
                 {t(definition.status)}
@@ -236,11 +228,10 @@ export default function ObservationDefinitionList({
                           <TableCell>{t(definition.category)}</TableCell>
                           <TableCell>
                             <Badge
-                              variant="outline"
-                              className={
+                              variant={
                                 OBSERVATION_DEFINITION_STATUS_COLORS[
                                   definition.status
-                                ] || "bg-gray-100 text-gray-700"
+                                ]
                               }
                             >
                               {t(definition.status)}

@@ -42,10 +42,10 @@ import PaymentReconciliationSheet from "@/pages/Facility/billing/PaymentReconcil
 import InvoicesData from "@/pages/Facility/billing/invoice/InvoicesData";
 import PaymentsData from "@/pages/Facility/billing/paymentReconciliation/PaymentsData";
 import {
+  ACCOUNT_STATUS_COLORS,
   AccountBillingStatus,
   AccountStatus,
   closeBillingStatusColorMap,
-  statusColorMap,
 } from "@/types/billing/account/Account";
 import accountApi from "@/types/billing/account/accountApi";
 import { ChargeItemStatus } from "@/types/billing/chargeItem/chargeItem";
@@ -315,10 +315,7 @@ export function AccountShow({
             </div>
             <div>
               <p className="text-sm text-gray-700 font-medium">{t("status")}</p>
-              <Badge
-                className={statusColorMap[account.status]}
-                variant="outline"
-              >
+              <Badge variant={ACCOUNT_STATUS_COLORS[account.status]}>
                 {t(account.status)}
               </Badge>
             </div>

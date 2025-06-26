@@ -13,6 +13,8 @@ import Loading from "@/components/Common/Loading";
 
 import query from "@/Utils/request/query";
 import {
+  PAYMENT_RECONCILIATION_OUTCOME_COLORS,
+  PAYMENT_RECONCILIATION_STATUS_COLORS,
   PaymentReconciliationOutcome,
   PaymentReconciliationPaymentMethod,
   PaymentReconciliationStatus,
@@ -88,13 +90,16 @@ export function PrintPaymentReconciliation({
                 {t("payment")} #{payment.id}
                 <span className="ml-2">
                   <Badge
-                    variant={statusMap[payment.status]?.color as any}
-                    className="align-middle"
+                    variant={
+                      PAYMENT_RECONCILIATION_STATUS_COLORS[payment.status]
+                    }
                   >
                     {statusMap[payment.status]?.label}
                   </Badge>
                   <Badge
-                    variant={outcomeMap[payment.outcome]?.color as any}
+                    variant={
+                      PAYMENT_RECONCILIATION_OUTCOME_COLORS[payment.outcome]
+                    }
                     className="align-middle ml-1"
                   >
                     {outcomeMap[payment.outcome]?.label}
@@ -107,7 +112,7 @@ export function PrintPaymentReconciliation({
           {/* Payment Information */}
           <div className="grid grid-cols-1 sm:grid-cols-2 gap-4 mb-6 text-sm">
             <div>
-              <div className="font-medium font-semibold text-gray-500 mb-1">
+              <div className="font-semibold text-gray-500 mb-1">
                 {t("payment_date")}
               </div>
               <div>
@@ -119,7 +124,7 @@ export function PrintPaymentReconciliation({
               </div>
             </div>
             <div className="text-right">
-              <div className="font-medium font-semibold text-gray-500 mb-1">
+              <div className="font-semibold text-gray-500 mb-1">
                 {t("payment_method")}
               </div>
               <div>

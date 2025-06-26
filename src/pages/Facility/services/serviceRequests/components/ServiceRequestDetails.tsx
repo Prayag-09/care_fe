@@ -114,11 +114,7 @@ export function ServiceRequestDetails({
               <div className="font-sm font-normal flex flex-wrap gap-1">
                 {observationRequirements.map(
                   (test: ObservationDefinitionReadSpec) => (
-                    <Badge
-                      key={test.id}
-                      variant="outline"
-                      className="bg-gray-100 text-gray-800 border-none font-normal text-sm"
-                    >
+                    <Badge key={test.id} variant="secondary">
                       {test.title}
                     </Badge>
                   ),

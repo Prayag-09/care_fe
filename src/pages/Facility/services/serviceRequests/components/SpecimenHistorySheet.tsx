@@ -1,7 +1,5 @@
 import { useTranslation } from "react-i18next";
 
-import { cn } from "@/lib/utils";
-
 import { Badge } from "@/components/ui/badge";
 import { Card, CardContent } from "@/components/ui/card";
 import { ScrollArea } from "@/components/ui/scroll-area";
@@ -14,7 +12,7 @@ import {
 } from "@/components/ui/sheet";
 
 import {
-  SPECIMEN_STATUS_COLOR_MAP,
+  SPECIMEN_STATUS_COLORS,
   SpecimenRead,
 } from "@/types/emr/specimen/specimen";
 
@@ -46,11 +44,8 @@ export function SpecimenHistorySheet({
                       {specimen.specimen_definition?.title}
                     </h3>
                     <Badge
-                      variant="outline"
-                      className={cn(
-                        "capitalize",
-                        SPECIMEN_STATUS_COLOR_MAP[specimen.status],
-                      )}
+                      variant={SPECIMEN_STATUS_COLORS[specimen.status]}
+                      className="capitalize"
                     >
                       {t(specimen.status)}
                     </Badge>

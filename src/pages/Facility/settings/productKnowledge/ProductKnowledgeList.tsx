@@ -50,21 +50,11 @@ function ProductKnowledgeCard({
           <div>
             <div className="mb-2 flex items-center gap-2">
               <Badge
-                variant="outline"
-                className={
-                  PRODUCT_KNOWLEDGE_TYPE_COLORS[product.product_type] ||
-                  "bg-gray-100 text-gray-700"
-                }
+                variant={PRODUCT_KNOWLEDGE_TYPE_COLORS[product.product_type]}
               >
                 {t(product.product_type)}
               </Badge>
-              <Badge
-                variant="outline"
-                className={
-                  PRODUCT_KNOWLEDGE_STATUS_COLORS[product.status] ||
-                  "bg-gray-100 text-gray-700"
-                }
-              >
+              <Badge variant={PRODUCT_KNOWLEDGE_STATUS_COLORS[product.status]}>
                 {t(product.status)}
               </Badge>
             </div>
@@ -234,11 +224,10 @@ export default function ProductKnowledgeList({
                         </TableCell>
                         <TableCell>
                           <Badge
-                            variant="outline"
-                            className={
+                            variant={
                               PRODUCT_KNOWLEDGE_TYPE_COLORS[
                                 product.product_type
-                              ] || "bg-gray-100 text-gray-700"
+                              ]
                             }
                           >
                             {t(product.product_type)}
@@ -246,10 +235,8 @@ export default function ProductKnowledgeList({
                         </TableCell>
                         <TableCell>
                           <Badge
-                            variant="outline"
-                            className={
-                              PRODUCT_KNOWLEDGE_STATUS_COLORS[product.status] ||
-                              "bg-gray-100 text-gray-700"
+                            variant={
+                              PRODUCT_KNOWLEDGE_STATUS_COLORS[product.status]
                             }
                           >
                             {t(product.status)}

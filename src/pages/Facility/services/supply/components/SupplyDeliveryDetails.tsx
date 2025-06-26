@@ -45,6 +45,7 @@ import {
   SupplyDeliveryCondition,
   SupplyDeliveryStatus,
 } from "@/types/inventory/supplyDelivery/supplyDelivery";
+import { SUPPLY_DELIVERY_STATUS_COLORS } from "@/types/inventory/supplyDelivery/supplyDelivery";
 import supplyDeliveryApi from "@/types/inventory/supplyDelivery/supplyDeliveryApi";
 
 const completeDeliverySchema = z.object({
@@ -140,17 +141,7 @@ export function SupplyDeliveryDetails({ deliveryId }: { deliveryId: string }) {
           <DefinitionListItem
             term={t("status")}
             description={
-              <Badge
-                className={
-                  {
-                    in_progress: "bg-amber-100 text-amber-700",
-                    completed: "bg-green-100 text-green-700",
-                    abandoned: "bg-red-100 text-red-700",
-                    entered_in_error: "bg-red-100 text-red-700",
-                  }[delivery.status]
-                }
-                variant="secondary"
-              >
+              <Badge variant={SUPPLY_DELIVERY_STATUS_COLORS[delivery.status]}>
                 {t(delivery.status)}
               </Badge>
             }

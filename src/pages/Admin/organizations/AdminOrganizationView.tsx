@@ -82,8 +82,8 @@ function OrganizationCard({
               <h3 className="text-lg font-semibold">{org.name}</h3>
               <div className="flex items-center gap-2 capitalize">
                 <Badge
-                  variant="primary"
-                  className=" border border-transparent text-indigo-800 bg-indigo-100 px-2 py-1"
+                  variant="indigo"
+                  className=" border border-transparent py-1"
                 >
                   {org.org_type}
                 </Badge>

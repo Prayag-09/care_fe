@@ -51,6 +51,7 @@ import mutate from "@/Utils/request/mutate";
 import query from "@/Utils/request/query";
 import { PaginatedResponse } from "@/Utils/request/types";
 import { DiagnosticReportResultsTable } from "@/pages/Facility/services/diagnosticReports/components/DiagnosticReportResultsTable";
+import { DIAGNOSTIC_REPORT_STATUS_COLORS } from "@/types/emr/diagnosticReport/diagnosticReport";
 import {
   DiagnosticReportRead,
   DiagnosticReportStatus,
@@ -231,12 +232,7 @@ export function DiagnosticReportReview({
                 )}
                 {fullReport && (
                   <Badge
-                    className={
-                      fullReport.status === DiagnosticReportStatus.final
-                        ? "bg-green-100 text-green-800"
-                        : "bg-pink-100 text-pink-800"
-                    }
-                    variant="outline"
+                    variant={DIAGNOSTIC_REPORT_STATUS_COLORS[fullReport.status]}
                   >
                     {t(fullReport.status)}
                   </Badge>

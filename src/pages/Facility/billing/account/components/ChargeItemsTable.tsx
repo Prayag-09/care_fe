@@ -48,25 +48,13 @@ import {
   MonetaryComponentType,
 } from "@/types/base/monetaryComponent/monetaryComponent";
 import {
+  CHARGE_ITEM_STATUS_COLORS,
   ChargeItemRead,
   ChargeItemStatus,
 } from "@/types/billing/chargeItem/chargeItem";
 import chargeItemApi from "@/types/billing/chargeItem/chargeItemApi";
 
 import EditChargeItemSheet from "./EditChargeItemSheet";
-
-function getStatusColor(status: string) {
-  switch (status) {
-    case "billed":
-      return "bg-green-100 text-green-800 border-green-200";
-    case "planned":
-      return "bg-gray-100 text-gray-800 border-gray-200";
-    case "cancelled":
-      return "bg-red-100 text-red-800 border-red-200";
-    default:
-      return "bg-blue-100 text-blue-800 border-blue-200";
-  }
-}
 
 interface PriceComponentRowProps {
   label: string;
@@ -311,7 +299,7 @@ export function ChargeItemsTable({
                     </TableCell>
                     <TableCell className="border-x p-3 text-gray-950">
                       <div className="flex items-center space-x-2">
-                        <Badge className={getStatusColor(item.status)}>
+                        <Badge variant={CHARGE_ITEM_STATUS_COLORS[item.status]}>
                           {t(item.status)}
                         </Badge>
                       </div>

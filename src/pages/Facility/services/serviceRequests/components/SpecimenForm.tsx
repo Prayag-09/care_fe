@@ -227,10 +227,7 @@ export function SpecimenForm({
                 <>
                   <div className="rounded-lg bg-green-50 p-2 mb-4">
                     <div className="flex items-center gap-2">
-                      <Badge
-                        variant="outline"
-                        className="text-green-800 text-xs bg-white rounded-full"
-                      >
+                      <Badge variant="green" className="bg-white rounded-full">
                         {t("success")}
                       </Badge>
                       <span className="text-green-800 font-medium text-sm">

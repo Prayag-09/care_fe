@@ -20,6 +20,11 @@ export enum TagStatus {
   ARCHIVED = "archived",
 }
 
+export const TAG_STATUS_COLORS = {
+  active: "green",
+  archived: "secondary",
+} as const satisfies Record<TagStatus, string>;
+
 export enum TagResource {
   ENCOUNTER = "encounter",
   ACTIVITY_DEFINITION = "activity_definition",

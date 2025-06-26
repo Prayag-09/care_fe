@@ -11,16 +11,13 @@ export enum DiagnosticReportStatus {
   final = "final",
 }
 
-export const DIAGNOSTIC_REPORT_STATUS_COLORS: Record<
-  DiagnosticReportStatus,
-  string
-> = {
-  [DiagnosticReportStatus.registered]: "bg-gray-100 text-gray-700",
-  [DiagnosticReportStatus.partial]: "bg-yellow-100 text-yellow-700",
-  [DiagnosticReportStatus.preliminary]: "bg-blue-100 text-blue-700",
-  [DiagnosticReportStatus.modified]: "bg-orange-100 text-orange-700",
-  [DiagnosticReportStatus.final]: "bg-green-100 text-green-700",
-};
+export const DIAGNOSTIC_REPORT_STATUS_COLORS = {
+  registered: "secondary",
+  partial: "yellow",
+  preliminary: "blue",
+  modified: "orange",
+  final: "green",
+} as const satisfies Record<DiagnosticReportStatus, string>;
 
 export interface DiagnosticReportBase {
   id: string;

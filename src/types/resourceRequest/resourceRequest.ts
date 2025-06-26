@@ -26,6 +26,16 @@ export interface ResourceRequest {
   related_patient: Patient | null;
 }
 
+export const RESOURCE_REQUEST_STATUS_COLORS = {
+  pending: "yellow",
+  approved: "green",
+  rejected: "destructive",
+  cancelled: "secondary",
+  transportation_to_be_arranged: "secondary",
+  transfer_in_progress: "secondary",
+  completed: "secondary",
+} as const;
+
 export interface CreateResourceRequest {
   title: string;
   status: string;

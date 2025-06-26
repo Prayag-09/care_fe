@@ -5,23 +5,23 @@ import { Encounter } from "@/types/emr/encounter";
 import { InventoryRead } from "@/types/inventory/product/inventory";
 import { ProductKnowledgeBase } from "@/types/inventory/productKnowledge/productKnowledge";
 
-export const MEDICATION_REQUEST_STATUS_COLORS: Record<string, string> = {
-  active: "bg-green-100 text-green-700 border-green-200",
-  completed: "bg-blue-100 text-blue-700 border-blue-200",
-  cancelled: "bg-red-100 text-red-700 border-red-200",
-  draft: "bg-gray-100 text-gray-700 border-gray-200",
-  "on-hold": "bg-amber-100 text-amber-700 border-amber-200",
-  unknown: "bg-gray-100 text-gray-700 border-gray-200",
-  ended: "bg-purple-100 text-purple-700 border-purple-200",
-  entered_in_error: "bg-red-100 text-red-700 border-red-200",
-};
+export const MEDICATION_REQUEST_STATUS_COLORS = {
+  active: "primary",
+  completed: "blue",
+  cancelled: "destructive",
+  draft: "secondary",
+  "on-hold": "yellow",
+  unknown: "secondary",
+  ended: "purple",
+  entered_in_error: "destructive",
+} as const satisfies Record<MedicationRequestStatus, string>;
 
-export const MEDICATION_REQUEST_PRIORITY_COLORS: Record<string, string> = {
-  stat: "bg-purple-100 text-purple-700 border-purple-200",
-  urgent: "bg-red-100 text-red-700 border-red-200",
-  asap: "bg-amber-100 text-amber-700 border-amber-200",
-  routine: "bg-blue-100 text-blue-700 border-blue-200",
-};
+export const MEDICATION_REQUEST_PRIORITY_COLORS = {
+  stat: "secondary",
+  urgent: "yellow",
+  asap: "destructive",
+  routine: "indigo",
+} as const satisfies Record<MedicationPriority, string>;
 
 export const DOSAGE_UNITS_CODES = [
   {

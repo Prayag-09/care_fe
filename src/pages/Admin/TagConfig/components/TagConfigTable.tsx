@@ -32,12 +32,7 @@ import {
   TableSkeleton,
 } from "@/components/Common/SkeletonLoading";
 
-import { TagConfig, TagStatus } from "@/types/emr/tagConfig/tagConfig";
-
-const TAG_STATUS_STYLES = {
-  [TagStatus.ACTIVE]: "border-green-200 bg-green-50 text-green-800",
-  [TagStatus.ARCHIVED]: "border-gray-200 bg-gray-50 text-gray-800",
-};
+import { TAG_STATUS_COLORS, TagConfig } from "@/types/emr/tagConfig/tagConfig";
 
 interface TagConfigTableProps {
   configs: TagConfig[];
@@ -82,18 +77,12 @@ function TagConfigCard({
         <div className="mb-4 flex items-start justify-between gap-4">
           <div className="flex-1">
             <div className="mb-2 flex items-center gap-2">
-              <Badge
-                variant="outline"
-                className={TAG_STATUS_STYLES[config.status]}
-              >
+              <Badge variant={TAG_STATUS_COLORS[config.status]}>
                 {t(config.status)}
               </Badge>
               <Badge variant="secondary">{t(config.category)}</Badge>
               {config.has_children && (
-                <Badge
-                  variant="outline"
-                  className="text-blue-600 border-blue-200"
-                >
+                <Badge variant="blue">
                   <CareIcon icon="l-sitemap" className="size-3 mr-1" />
                   {t("has_children")}
                 </Badge>
@@ -217,20 +206,14 @@ export default function TagConfigTable({
                   <TableCell>{t(config.resource)}</TableCell>
                   <TableCell>{config.priority}</TableCell>
                   <TableCell>
-                    <Badge
-                      variant="outline"
-                      className={TAG_STATUS_STYLES[config.status]}
-                    >
+                    <Badge variant={TAG_STATUS_COLORS[config.status]}>
                       {t(config.status)}
                     </Badge>
                   </TableCell>
                   {showChildrenColumn && (
                     <TableCell>
                       {config.has_children && (
-                        <Badge
-                          variant="outline"
-                          className="text-blue-600 border-blue-200"
-                        >
+                        <Badge variant="blue">
                           <CareIcon icon="l-sitemap" className="size-3 mr-1" />
                           {t("yes")}
                         </Badge>

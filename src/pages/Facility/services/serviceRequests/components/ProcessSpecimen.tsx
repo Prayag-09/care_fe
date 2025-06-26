@@ -96,12 +96,7 @@ export function ProcessSpecimen({
           <div className="text-sm font-medium flex items-center gap-1">
             <Settings2 className="h-4 w-4" />
             Process Specimen
-            <Badge
-              variant="outline"
-              className="bg-primary-100 text-primary-600 border-primary-300"
-            >
-              {existingProcessing.length}
-            </Badge>
+            <Badge variant="primary">{existingProcessing.length}</Badge>
           </div>
         </div>
         <div className="space-y-4">

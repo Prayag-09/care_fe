@@ -28,17 +28,15 @@ import {
 import useFilters from "@/hooks/useFilters";
 
 import query from "@/Utils/request/query";
-import { type ActivityDefinitionReadSpec } from "@/types/emr/activityDefinition/activityDefinition";
+import {
+  ACTIVITY_DEFINITION_STATUS_COLORS,
+  type ActivityDefinitionReadSpec,
+} from "@/types/emr/activityDefinition/activityDefinition";
 import {
   Category,
   Status,
 } from "@/types/emr/activityDefinition/activityDefinition";
 import activityDefinitionApi from "@/types/emr/activityDefinition/activityDefinitionApi";
-
-const ACTIVITY_DEFINITION_STATUS_COLORS: Record<string, string> = {
-  active: "bg-green-100 text-green-700",
-  retired: "bg-gray-100 text-gray-700",
-};
 
 function ActivityDefinitionCard({
   definition,
@@ -55,11 +53,7 @@ function ActivityDefinitionCard({
           <div>
             <div className="mb-2 flex items-center gap-2">
               <Badge
-                variant="outline"
-                className={
-                  ACTIVITY_DEFINITION_STATUS_COLORS[definition.status] ||
-                  "bg-gray-100 text-gray-700"
-                }
+                variant={ACTIVITY_DEFINITION_STATUS_COLORS[definition.status]}
               >
                 {t(definition.status)}
               </Badge>
@@ -232,11 +226,10 @@ export default function ActivityDefinitionList({
                           <TableCell>{t(definition.category)}</TableCell>
                           <TableCell>
                             <Badge
-                              variant="outline"
-                              className={
+                              variant={
                                 ACTIVITY_DEFINITION_STATUS_COLORS[
                                   definition.status
-                                ] || "bg-gray-100 text-gray-700"
+                                ]
                               }
                             >
                               {t(definition.status)}

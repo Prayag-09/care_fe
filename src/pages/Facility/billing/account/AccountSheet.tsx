@@ -32,11 +32,11 @@ import { Textarea } from "@/components/ui/textarea";
 import mutate from "@/Utils/request/mutate";
 import query from "@/Utils/request/query";
 import {
+  ACCOUNT_BILLING_STATUS_COLORS,
+  ACCOUNT_STATUS_COLORS,
   AccountBillingStatus,
   type AccountRead,
   AccountStatus,
-  billingStatusColorMap,
-  statusColorMap,
 } from "@/types/billing/account/Account";
 import accountApi from "@/types/billing/account/accountApi";
 import { Period } from "@/types/emr/encounter";
@@ -223,7 +223,7 @@ export function AccountSheet({
                           <SelectValue />
                         </SelectTrigger>
                         <SelectContent>
-                          {Object.keys(statusColorMap).map((key) => (
+                          {Object.keys(ACCOUNT_STATUS_COLORS).map((key) => (
                             <SelectItem key={key} value={key}>
                               {t(key)}
                             </SelectItem>
@@ -250,11 +250,13 @@ export function AccountSheet({
                           <SelectValue />
                         </SelectTrigger>
                         <SelectContent>
-                          {Object.keys(billingStatusColorMap).map((key) => (
-                            <SelectItem key={key} value={key}>
-                              {t(key)}
-                            </SelectItem>
-                          ))}
+                          {Object.keys(ACCOUNT_BILLING_STATUS_COLORS).map(
+                            (key) => (
+                              <SelectItem key={key} value={key}>
+                                {t(key)}
+                              </SelectItem>
+                            ),
+                          )}
                         </SelectContent>
                       </Select>
                     </FormControl>

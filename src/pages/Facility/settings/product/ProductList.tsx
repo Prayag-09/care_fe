@@ -32,13 +32,8 @@ import {
   ProductRead,
   ProductStatusOptions,
 } from "@/types/inventory/product/product";
+import { PRODUCT_STATUS_COLORS } from "@/types/inventory/product/product";
 import productApi from "@/types/inventory/product/productApi";
-
-const PRODUCT_STATUS_COLORS: Record<string, string> = {
-  active: "bg-green-100 text-green-700",
-  inactive: "bg-gray-100 text-gray-700",
-  entered_in_error: "bg-red-100 text-red-700",
-};
 
 function ProductCard({
   product,
@@ -54,13 +49,7 @@ function ProductCard({
         <div className="mb-4 flex items-start justify-between gap-4">
           <div>
             <div className="mb-2 flex items-center gap-2">
-              <Badge
-                variant="outline"
-                className={
-                  PRODUCT_STATUS_COLORS[product.status] ||
-                  "bg-gray-100 text-gray-700"
-                }
-              >
+              <Badge variant={PRODUCT_STATUS_COLORS[product.status]}>
                 {t(product.status)}
               </Badge>
             </div>
@@ -215,11 +204,7 @@ export default function ProductList({ facilityId }: { facilityId: string }) {
                         </TableCell>
                         <TableCell>
                           <Badge
-                            variant="outline"
-                            className={
-                              PRODUCT_STATUS_COLORS[product.status] ||
-                              "bg-gray-100 text-gray-700"
-                            }
+                            variant={PRODUCT_STATUS_COLORS[product.status]}
                           >
                             {t(product.status)}
                           </Badge>

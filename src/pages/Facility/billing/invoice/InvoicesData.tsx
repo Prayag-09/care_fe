@@ -3,8 +3,6 @@ import { ArrowUpRightSquare, PrinterIcon } from "lucide-react";
 import { Link } from "raviger";
 import { useTranslation } from "react-i18next";
 
-import { cn } from "@/lib/utils";
-
 import CareIcon from "@/CAREUI/icons/CareIcon";
 
 import { Badge } from "@/components/ui/badge";
@@ -36,7 +34,11 @@ import useFilters from "@/hooks/useFilters";
 import { RESULTS_PER_PAGE_LIMIT } from "@/common/constants";
 
 import query from "@/Utils/request/query";
-import { InvoiceRead, InvoiceStatus } from "@/types/billing/invoice/invoice";
+import {
+  INVOICE_STATUS_COLORS,
+  InvoiceRead,
+  InvoiceStatus,
+} from "@/types/billing/invoice/invoice";
 import invoiceApi from "@/types/billing/invoice/invoiceApi";
 
 const statusMap: Record<InvoiceStatus, { label: string; color: string }> = {
@@ -179,13 +181,7 @@ export default function InvoicesData({
                     </TableCell>
 
                     <TableCell>
-                      <Badge
-                        variant="outline"
-                        className={cn(
-                          statusMap[invoice.status].color,
-                          "text-sm font-medium",
-                        )}
-                      >
+                      <Badge variant={INVOICE_STATUS_COLORS[invoice.status]}>
                         {t(statusMap[invoice.status].label)}
                       </Badge>
                     </TableCell>

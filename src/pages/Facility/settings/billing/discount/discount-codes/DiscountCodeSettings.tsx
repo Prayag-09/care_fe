@@ -137,9 +137,7 @@ export function DiscountCodeSettings() {
                 filteredCodes.map((code) => (
                   <TableRow key={`${code.code}-${code.isInstance}`}>
                     <TableCell className="text-center">
-                      <Badge
-                        variant={code.isInstance ? "secondary" : "outline"}
-                      >
+                      <Badge variant={code.isInstance ? "secondary" : "blue"}>
                         {code.isInstance ? t("instance") : t("facility")}
                       </Badge>
                     </TableCell>

@@ -25,20 +25,18 @@ import { TableSkeleton } from "@/components/Common/SkeletonLoading";
 import useFilters from "@/hooks/useFilters";
 
 import query from "@/Utils/request/query";
-import { ChargeItemDefinitionStatus } from "@/types/billing/chargeItemDefinition/chargeItemDefinition";
+import {
+  CHARGE_ITEM_DEFINITION_STATUS_COLORS,
+  ChargeItemDefinitionRead,
+  ChargeItemDefinitionStatus,
+} from "@/types/billing/chargeItemDefinition/chargeItemDefinition";
 import chargeItemDefinitionApi from "@/types/billing/chargeItemDefinition/chargeItemDefinitionApi";
-
-const CHARGE_ITEM_DEFINITION_STATUS_COLORS: Record<string, string> = {
-  active: "bg-green-100 text-green-700",
-  draft: "bg-gray-100 text-gray-700",
-  retired: "bg-red-100 text-red-700",
-};
 
 function ChargeItemDefinitionCard({
   definition,
   facilityId,
 }: {
-  definition: any;
+  definition: ChargeItemDefinitionRead;
   facilityId: string;
 }) {
   const { t } = useTranslation();
@@ -49,10 +47,8 @@ function ChargeItemDefinitionCard({
           <div>
             <div className="mb-2 flex items-center gap-2">
               <Badge
-                variant="outline"
-                className={
-                  CHARGE_ITEM_DEFINITION_STATUS_COLORS[definition.status] ||
-                  "bg-gray-100 text-gray-700"
+                variant={
+                  CHARGE_ITEM_DEFINITION_STATUS_COLORS[definition.status]
                 }
               >
                 {t(definition.status)}
@@ -202,11 +198,10 @@ export function ChargeItemDefinitionsList({
                         </TableCell>
                         <TableCell>
                           <Badge
-                            variant="outline"
-                            className={
+                            variant={
                               CHARGE_ITEM_DEFINITION_STATUS_COLORS[
                                 definition.status
-                              ] || "bg-gray-100 text-gray-700"
+                              ]
                             }
                           >
                             {t(definition.status)}

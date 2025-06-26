@@ -44,18 +44,8 @@ import {
   MedicationDispenseUpdate,
   MedicationDispenseUpsert,
 } from "@/types/emr/medicationDispense/medicationDispense";
+import { MEDICATION_DISPENSE_STATUS_COLORS } from "@/types/emr/medicationDispense/medicationDispense";
 import medicationDispenseApi from "@/types/emr/medicationDispense/medicationDispenseApi";
-
-const STATUS_COLORS: Record<string, string> = {
-  preparation: "bg-blue-100 text-blue-700",
-  in_progress: "bg-amber-100 text-amber-700",
-  cancelled: "bg-red-100 text-red-700",
-  on_hold: "bg-gray-100 text-gray-700",
-  completed: "bg-green-100 text-green-700",
-  entered_in_error: "bg-red-100 text-red-700",
-  stopped: "bg-purple-100 text-purple-700",
-  declined: "bg-gray-100 text-gray-700",
-};
 
 interface MedicationTableProps {
   medications: MedicationDispenseRead[];
@@ -215,8 +205,9 @@ function MedicationTable({
                     </Select>
                   ) : (
                     <Badge
-                      variant="outline"
-                      className={STATUS_COLORS[medication.status]}
+                      variant={
+                        MEDICATION_DISPENSE_STATUS_COLORS[medication.status]
+                      }
                     >
                       {t(medication.status)}
                     </Badge>
@@ -225,11 +216,8 @@ function MedicationTable({
                 <TableCell className={"text-gray-950"}>
                   {new Date(medication.when_prepared).toLocaleDateString()}
                 </TableCell>
-                <TableCell className={"text-gray-950"}>
-                  <Badge
-                    variant={isPaid ? "outline" : "destructive"}
-                    className={isPaid ? "bg-green-100 text-green-700" : ""}
-                  >
+                <TableCell>
+                  <Badge variant={isPaid ? "green" : "destructive"}>
                     {isPaid ? t("paid") : t("unpaid")}
                   </Badge>
                 </TableCell>

@@ -22,16 +22,15 @@ import { FormSkeleton } from "@/components/Common/SkeletonLoading";
 
 import mutate from "@/Utils/request/mutate";
 import query from "@/Utils/request/query";
-import { TagConfig, TagStatus } from "@/types/emr/tagConfig/tagConfig";
+import {
+  TAG_STATUS_COLORS,
+  TagConfig,
+  TagStatus,
+} from "@/types/emr/tagConfig/tagConfig";
 import tagConfigApi from "@/types/emr/tagConfig/tagConfigApi";
 
 import TagConfigForm from "./TagConfigForm";
 import TagConfigTable from "./components/TagConfigTable";
-
-const TAG_STATUS_STYLES = {
-  [TagStatus.ACTIVE]: "border-green-200 bg-green-50 text-green-800",
-  [TagStatus.ARCHIVED]: "border-gray-200 bg-gray-50 text-gray-800",
-};
 
 interface TagConfigViewProps {
   tagId: string;
@@ -219,10 +218,7 @@ export default function TagConfigView({
                   {t("status")}
                 </label>
                 <div className="mt-1">
-                  <Badge
-                    variant="outline"
-                    className={TAG_STATUS_STYLES[tagConfig.status]}
-                  >
+                  <Badge variant={TAG_STATUS_COLORS[tagConfig.status]}>
                     {t(tagConfig.status)}
                   </Badge>
                 </div>
