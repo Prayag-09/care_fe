@@ -208,7 +208,7 @@ const AddMedicationSheet = ({
   useEffect(() => {
     if (open && existingDosageInstructions) {
       setLocalDosageInstruction(existingDosageInstructions);
-    } else if (!open) {
+    } else {
       resetForm();
     }
   }, [open, existingDosageInstructions]);
@@ -1940,7 +1940,13 @@ export default function MedicationBillForm({ patientId }: Props) {
 
         <AddMedicationSheet
           open={isAddMedicationSheetOpen}
-          onOpenChange={setIsAddMedicationSheetOpen}
+          onOpenChange={(isOpen) => {
+            setIsAddMedicationSheetOpen(isOpen);
+            if (!isOpen) {
+              setEditingItemIndex(null);
+              setSelectedProduct(undefined);
+            }
+          }}
           selectedProduct={selectedProduct}
           existingDosageInstructions={
             editingItemIndex !== null
