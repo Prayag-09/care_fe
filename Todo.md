@@ -44,7 +44,7 @@ x : Done
 - [ ] Service Request - Show specimen.processing.performer details instead of UUID (After BE change)
 - [ ] Patient - There shouldn't be more than one active account at any point in time
 - [ ] BE need to sort by internal id by default, all apis has jumping issue
-- [ ] Need sort by payment_datetime for Payment Reconciliation list
+- [-] Need sort by payment_datetime for Payment Reconciliation list - Aakash
 - [ ] Replace Charge Item Create with ChargeItemDef to ChargeItem API
 - [ ] Add support for information codes (such as MRP)
 - [ ] Create Charge Item from Charge Definition
@@ -53,8 +53,8 @@ x : Done
 - [ ] Find which location a product is in within a facility
 - [ ] Medication Administration API needs support for product knowledge
 - [ ] Supply Request - Add supplier[]
-- [ ] Not able to mark a SR as closed - Showing error location not found 
-- [ ] New service request should be shown first within the list 
+- [ ] Not able to mark a SR as closed - Showing error location not found
+- [-] New service request should be shown first within the list - Aakash
 - [ ] Roles access for Labs. Only users with lab role should have access to lab services
 - [ ] Encounter can be closed even if the SR is ACTIVE. But if encounter is closer SR cannot be marked as completed ( Showing error as encounter is already closed) - Fix can be not allow top close encounter if SR is open
 
