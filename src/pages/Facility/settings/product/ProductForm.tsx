@@ -319,7 +319,7 @@ export function ProductFormContent({
                           (pk) => pk.id === field.value,
                         )}
                         onChange={(selected) => field.onChange(selected.id)}
-                        className=""
+                        className="border-gray-200 font-normal text-gray-700"
                       />
                     </FormControl>
                     <FormDescription>
