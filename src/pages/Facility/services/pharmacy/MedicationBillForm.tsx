@@ -91,6 +91,7 @@ import { ChargeItemRead } from "@/types/billing/chargeItem/chargeItem";
 import {
   MedicationDispenseCategory,
   MedicationDispenseCreate,
+  MedicationDispenseRead,
   MedicationDispenseStatus,
   SubstitutionReason,
   SubstitutionType,
@@ -99,6 +100,7 @@ import {
   getSubstitutionTypeDescription,
   getSubstitutionTypeDisplay,
 } from "@/types/emr/medicationDispense/medicationDispense";
+import medicationDispenseApi from "@/types/emr/medicationDispense/medicationDispenseApi";
 import {
   DoseRange,
   MEDICATION_REQUEST_TIMING_OPTIONS,
@@ -671,6 +673,8 @@ export default function MedicationBillForm({ patientId }: Props) {
   >(null);
   const [originalProductForSubstitution, setOriginalProductForSubstitution] =
     useState<ProductKnowledgeBase | undefined>();
+  const [viewingDispensedMedicationId, setViewingDispensedMedicationId] =
+    useState<string | null>(null);
 
   const tableHeaderClass =
     "px-4 py-3 border-r font-medium border-y-1 border-r-none border-gray-200 rounded-b-none border-b-0";
@@ -1322,35 +1326,54 @@ export default function MedicationBillForm({ patientId }: Props) {
                                 </div>
                               </div>
                               {field.medication ? (
-                                <div className="text-sm text-gray-700 font-medium flex items-center gap-1">
-                                  {/* Existing medication - show read-only dosage instructions */}
-                                  {
-                                    field.dosageInstructions?.[0]?.dose_and_rate
-                                      ?.dose_quantity?.value
-                                  }{" "}
-                                  {
-                                    field.dosageInstructions?.[0]?.dose_and_rate
-                                      ?.dose_quantity?.unit?.display
-                                  }{" "}
-                                  ×{" "}
-                                  {
-                                    field.dosageInstructions?.[0]?.timing?.code
-                                      ?.code
-                                  }{" "}
-                                  ×{" "}
-                                  {field.dosageInstructions?.[0]?.timing?.repeat
-                                    ?.bounds_duration?.value || 0}
-                                  {
-                                    field.dosageInstructions?.[0]?.timing
-                                      ?.repeat?.bounds_duration?.unit
-                                  }{" "}
-                                  ={" "}
-                                  <div className="text-gray-700 font-semibold text-sm">
-                                    {formatTotalUnits(
-                                      field.dosageInstructions,
-                                      t("units"),
-                                    )}
+                                <div>
+                                  <div className="text-sm text-gray-700 font-medium flex items-center gap-1">
+                                    {/* Existing medication - show read-only dosage instructions */}
+                                    {
+                                      field.dosageInstructions?.[0]
+                                        ?.dose_and_rate?.dose_quantity?.value
+                                    }{" "}
+                                    {
+                                      field.dosageInstructions?.[0]
+                                        ?.dose_and_rate?.dose_quantity?.unit
+                                        ?.display
+                                    }{" "}
+                                    ×{" "}
+                                    {
+                                      field.dosageInstructions?.[0]?.timing
+                                        ?.code?.code
+                                    }{" "}
+                                    ×{" "}
+                                    {field.dosageInstructions?.[0]?.timing
+                                      ?.repeat?.bounds_duration?.value || 0}
+                                    {
+                                      field.dosageInstructions?.[0]?.timing
+                                        ?.repeat?.bounds_duration?.unit
+                                    }{" "}
+                                    ={" "}
+                                    <div className="text-gray-700 font-semibold text-sm">
+                                      {formatTotalUnits(
+                                        field.dosageInstructions,
+                                        t("units"),
+                                      )}
+                                    </div>
                                   </div>
+                                  {field.medication?.dispense_status ===
+                                    MedicationRequestDispenseStatus.partial && (
+                                    <Button
+                                      variant="link"
+                                      size="sm"
+                                      className="p-0 h-auto text-secondary-700 underline font-normal"
+                                      type="button"
+                                      onClick={() => {
+                                        setViewingDispensedMedicationId(
+                                          field.medication.id,
+                                        );
+                                      }}
+                                    >
+                                      {t("view_dispensed")}
+                                    </Button>
+                                  )}
                                 </div>
                               ) : (
                                 <div
@@ -2073,6 +2096,19 @@ export default function MedicationBillForm({ patientId }: Props) {
             }}
           />
         )}
+
+        {viewingDispensedMedicationId && (
+          <DispensedItemsSheet
+            open={!!viewingDispensedMedicationId}
+            onOpenChange={(open) => {
+              if (!open) {
+                setViewingDispensedMedicationId(null);
+              }
+            }}
+            medicationRequestId={viewingDispensedMedicationId}
+            facilityId={facilityId}
+          />
+        )}
       </div>
     </Page>
   );
@@ -2153,5 +2189,79 @@ const DosageDialog: React.FC<DosageDialogProps> = ({
         </Button>
       </div>
     </div>
+  );
+};
+
+interface DispensedItemsSheetProps {
+  open: boolean;
+  onOpenChange: (open: boolean) => void;
+  medicationRequestId: string;
+  facilityId: string;
+}
+
+const DispensedItemsSheet = ({
+  open,
+  onOpenChange,
+  medicationRequestId,
+}: DispensedItemsSheetProps) => {
+  const { t } = useTranslation();
+
+  const { data: dispensedItems, isLoading } = useQuery({
+    queryKey: ["medication_dispense", medicationRequestId],
+    queryFn: query(medicationDispenseApi.list, {
+      queryParams: {
+        authorizing_prescription: medicationRequestId,
+      },
+    }),
+    enabled: open && !!medicationRequestId,
+  });
+
+  return (
+    <Sheet open={open} onOpenChange={onOpenChange}>
+      <SheetContent className="sm:max-w-3xl">
+        <SheetHeader>
+          <SheetTitle>{t("dispensed_items")}</SheetTitle>
+        </SheetHeader>
+        <div className="mt-4">
+          {isLoading ? (
+            <TableSkeleton count={3} />
+          ) : dispensedItems?.results.length ? (
+            <Table>
+              <TableHeader>
+                <TableRow>
+                  <TableHead>{t("item")}</TableHead>
+                  <TableHead>{t("quantity")}</TableHead>
+                  <TableHead>{t("lot_number")}</TableHead>
+                  <TableHead>{t("dispensed_on")}</TableHead>
+                </TableRow>
+              </TableHeader>
+              <TableBody>
+                {dispensedItems?.results.map((item: MedicationDispenseRead) => (
+                  <TableRow key={item.id}>
+                    <TableCell>
+                      {item.item.product.product_knowledge.name}
+                    </TableCell>
+                    <TableCell>{item.charge_item.quantity} </TableCell>
+                    <TableCell>
+                      {item.item.product.batch?.lot_number || "-"}
+                    </TableCell>
+                    <TableCell>
+                      {formatDate(
+                        new Date(item.when_prepared),
+                        "dd/MM/yyyy hh:mm a",
+                      )}
+                    </TableCell>
+                  </TableRow>
+                ))}
+              </TableBody>
+            </Table>
+          ) : (
+            <p className="text-center text-gray-500">
+              {t("no_items_dispensed_yet")}
+            </p>
+          )}
+        </div>
+      </SheetContent>
+    </Sheet>
   );
 };
