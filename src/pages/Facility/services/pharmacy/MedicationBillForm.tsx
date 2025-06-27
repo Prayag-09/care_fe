@@ -902,7 +902,9 @@ export default function MedicationBillForm({ patientId }: Props) {
     mutationFn: mutate(routes.batchRequest),
     onSuccess: (response) => {
       toast.success(t("medications_billed_successfully"));
-      queryClient.invalidateQueries({ queryKey: ["medications"] });
+      queryClient.invalidateQueries({
+        queryKey: ["medication_requests", patientId, "dispense"],
+      });
 
       // Extract charge items and open invoice sheet
       const chargeItems = extractChargeItemsFromBatchResponse(
