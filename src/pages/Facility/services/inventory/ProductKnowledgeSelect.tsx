@@ -1,4 +1,5 @@
 import { useQuery } from "@tanstack/react-query";
+import { useState } from "react";
 import { useTranslation } from "react-i18next";
 
 import Autocomplete from "@/components/ui/autocomplete";
@@ -26,14 +27,15 @@ export function ProductKnowledgeSelect({
 }: ProductKnowledgeSelectProps) {
   const { t } = useTranslation();
   const { facilityId } = useCurrentFacility();
+  const [search, setSearch] = useState("");
 
   const { data, isLoading } = useQuery({
-    queryKey: ["productKnowledge"],
-    queryFn: query(productKnowledgeApi.listProductKnowledge, {
+    queryKey: ["productKnowledge", "search", search],
+    queryFn: query.debounced(productKnowledgeApi.listProductKnowledge, {
       queryParams: {
         facility: facilityId,
-        limit: 100,
         status: ProductKnowledgeStatus.active,
+        name: search,
       },
     }),
   });
@@ -43,6 +45,7 @@ export function ProductKnowledgeSelect({
   return (
     <Autocomplete
       value={value?.id || ""}
+      onSearch={setSearch}
       onChange={(selectedId) => {
         const selectedProductKnowledge = productKnowledges.find(
           (p) => p.id === selectedId,
