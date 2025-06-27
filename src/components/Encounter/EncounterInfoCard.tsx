@@ -23,7 +23,7 @@ import {
   ENCOUNTER_PRIORITY_COLORS,
   ENCOUNTER_STATUS_COLORS,
   Encounter,
-} from "@/types/emr/encounter";
+} from "@/types/emr/encounter/encounter";
 
 export interface EncounterInfoCardProps {
   encounter: Encounter;

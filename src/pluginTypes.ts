@@ -5,7 +5,7 @@ import { NavigationLink } from "@/components/ui/sidebar/nav-main";
 
 import { EncounterTabProps } from "@/pages/Encounters/EncounterShow";
 import { DeviceDetail } from "@/types/device/device";
-import { Encounter } from "@/types/emr/encounter";
+import { Encounter } from "@/types/emr/encounter/encounter";
 import { Patient } from "@/types/emr/patient/patient";
 import { UserBase } from "@/types/user/user";
 

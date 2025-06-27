@@ -33,7 +33,7 @@ import useFilters from "@/hooks/useFilters";
 
 import routes from "@/Utils/request/api";
 import query from "@/Utils/request/query";
-import { Encounter, EncounterPriority } from "@/types/emr/encounter";
+import { Encounter, EncounterPriority } from "@/types/emr/encounter/encounter";
 
 interface EncounterListProps {
   encounters?: Encounter[];

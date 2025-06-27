@@ -40,7 +40,7 @@ import { formatName } from "@/Utils/utils";
 import FacilityOrganizationSelector from "@/pages/Facility/settings/organizations/components/FacilityOrganizationSelector";
 import { Code } from "@/types/base/code/code";
 import careTeamApi from "@/types/careTeam/careTeamApi";
-import { Encounter } from "@/types/emr/encounter";
+import { Encounter } from "@/types/emr/encounter/encounter";
 import { UserBase } from "@/types/user/user";
 
 type CareTeamSheetProps = {

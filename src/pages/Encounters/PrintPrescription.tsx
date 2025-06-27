@@ -4,10 +4,10 @@ import { useTranslation } from "react-i18next";
 import Loading from "@/components/Common/Loading";
 import { PrescriptionPreview } from "@/components/Prescription/PrescriptionPreview";
 
-import api from "@/Utils/request/api";
-import routes from "@/Utils/request/api";
 import query from "@/Utils/request/query";
+import encounterApi from "@/types/emr/encounter/encounterApi";
 import medicationRequestApi from "@/types/emr/medicationRequest/medicationRequestApi";
+import patientApi from "@/types/emr/patient/patientApi";
 
 export const PrintPrescription = (props: {
   facilityId: string;
@@ -19,7 +19,7 @@ export const PrintPrescription = (props: {
 
   const { data: encounter } = useQuery({
     queryKey: ["encounter", encounterId],
-    queryFn: query(api.encounter.get, {
+    queryFn: query(encounterApi.getEncounter, {
       pathParams: { id: encounterId },
       queryParams: { facility: facilityId },
     }),
@@ -27,7 +27,7 @@ export const PrintPrescription = (props: {
 
   const { data: patient, isLoading: patientLoading } = useQuery({
     queryKey: ["patient", patientId],
-    queryFn: query(routes.getPatient, {
+    queryFn: query(patientApi.getPatient, {
       pathParams: { id: patientId || "" },
     }),
     enabled: !!patientId,

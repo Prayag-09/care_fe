@@ -17,16 +17,16 @@ import { formatDosage, formatSig } from "@/components/Medicine/utils";
 
 import { getPermissions } from "@/common/Permissions";
 
-import api from "@/Utils/request/api";
-import routes from "@/Utils/request/api";
 import query from "@/Utils/request/query";
 import { formatDateTime, formatName, formatPatientAge } from "@/Utils/utils";
 import { usePermissions } from "@/context/PermissionContext";
 import allergyIntoleranceApi from "@/types/emr/allergyIntolerance/allergyIntoleranceApi";
 import diagnosisApi from "@/types/emr/diagnosis/diagnosisApi";
-import { completedEncounterStatus } from "@/types/emr/encounter";
+import { completedEncounterStatus } from "@/types/emr/encounter/encounter";
+import encounterApi from "@/types/emr/encounter/encounterApi";
 import medicationRequestApi from "@/types/emr/medicationRequest/medicationRequestApi";
 import medicationStatementApi from "@/types/emr/medicationStatement/medicationStatementApi";
+import patientApi from "@/types/emr/patient/patientApi";
 import symptomApi from "@/types/emr/symptom/symptomApi";
 
 interface TreatmentSummaryProps {
@@ -62,7 +62,7 @@ export default function TreatmentSummary({
 
   const { data: encounter, isLoading: encounterLoading } = useQuery({
     queryKey: ["encounter", encounterId],
-    queryFn: query(api.encounter.get, {
+    queryFn: query(encounterApi.getEncounter, {
       pathParams: { id: encounterId },
       queryParams: facilityId
         ? { facility: facilityId }
@@ -73,7 +73,7 @@ export default function TreatmentSummary({
 
   const { data: patient } = useQuery({
     queryKey: ["patient", patientId],
-    queryFn: query(routes.patient.getPatient, {
+    queryFn: query(patientApi.getPatient, {
       pathParams: {
         id: patientId,
       },

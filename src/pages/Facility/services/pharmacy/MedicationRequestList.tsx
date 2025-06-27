@@ -35,7 +35,7 @@ import {
   ENCOUNTER_CLASSES_COLORS,
   ENCOUNTER_CLASSES_ICONS,
   EncounterClass,
-} from "@/types/emr/encounter";
+} from "@/types/emr/encounter/encounter";
 import {
   MEDICATION_PRIORITY_COLORS,
   MedicationPriority,

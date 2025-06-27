@@ -4,7 +4,7 @@ import {
   Category,
 } from "@/types/emr/activityDefinition/activityDefinition";
 import { DiagnosticReportRead } from "@/types/emr/diagnosticReport/diagnosticReport";
-import { Encounter } from "@/types/emr/encounter";
+import { Encounter } from "@/types/emr/encounter/encounter";
 import { ObservationRead } from "@/types/emr/observation/observation";
 import { SpecimenRead } from "@/types/emr/specimen/specimen";
 import { LocationList } from "@/types/location/location";

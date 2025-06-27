@@ -9,7 +9,7 @@ import CareIcon from "@/CAREUI/icons/CareIcon";
 import { Badge } from "@/components/ui/badge";
 
 import { stringifyNestedObject } from "@/Utils/utils";
-import { LocationHistory } from "@/types/emr/encounter";
+import { LocationHistory } from "@/types/emr/encounter/encounter";
 import { LocationAssociationStatus } from "@/types/location/association";
 
 interface LocationCardProps {

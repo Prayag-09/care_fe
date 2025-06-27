@@ -35,7 +35,8 @@ import query from "@/Utils/request/query";
 import { formatPatientAge } from "@/Utils/utils";
 import { usePermissions } from "@/context/PermissionContext";
 import useCurrentFacility from "@/pages/Facility/utils/useCurrentFacility";
-import { Encounter } from "@/types/emr/encounter";
+import { Encounter } from "@/types/emr/encounter/encounter";
+import patientApi from "@/types/emr/patient/patientApi";
 
 export default function VerifyPatient() {
   const { t } = useTranslation();
@@ -54,7 +55,7 @@ export default function VerifyPatient() {
     isPending: isVerifyingPatient,
     isError,
   } = useMutation({
-    mutationFn: mutate(routes.patient.search_retrieve),
+    mutationFn: mutate(patientApi.searchRetrieve),
     onError: (error) => {
       const errorData = error.cause as { errors: { msg: string[] } };
       errorData.errors.msg.forEach((er) => {

@@ -21,12 +21,12 @@ import {
 import Loading from "@/components/Common/Loading";
 import PrintTable from "@/components/Common/PrintTable";
 
-import api from "@/Utils/request/api";
 import query from "@/Utils/request/query";
 import {
   formatPatientAge,
   getWeeklyIntervalsFromTodayTill,
 } from "@/Utils/utils";
+import encounterApi from "@/types/emr/encounter/encounterApi";
 import { MedicationAdministrationRead } from "@/types/emr/medicationAdministration/medicationAdministration";
 import medicationAdministrationApi from "@/types/emr/medicationAdministration/medicationAdministrationApi";
 
@@ -40,7 +40,7 @@ export const PrintMedicationAdministration = (props: {
 
   const { data: encounter } = useQuery({
     queryKey: ["encounter", encounterId],
-    queryFn: query(api.encounter.get, {
+    queryFn: query(encounterApi.getEncounter, {
       pathParams: { id: encounterId },
       queryParams: { facility: facilityId },
     }),

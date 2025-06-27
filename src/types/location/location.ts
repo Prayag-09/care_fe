@@ -13,7 +13,7 @@ import {
 import { Badge } from "@/components/ui/badge";
 
 import { Code } from "@/types/base/code/code";
-import { Encounter } from "@/types/emr/encounter";
+import { Encounter } from "@/types/emr/encounter/encounter";
 import { FacilityOrganization } from "@/types/facilityOrganization/facilityOrganization";
 
 export type AvailabilityStatus = "available" | "unavailable";

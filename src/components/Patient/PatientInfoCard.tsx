@@ -1,3 +1,4 @@
+import { useQueryClient } from "@tanstack/react-query";
 import {
   BedSingle,
   Building,
@@ -36,6 +37,7 @@ import { LocationTree } from "@/components/Location/LocationTree";
 import { AccountSheetButton } from "@/components/Patient/AccountSheet";
 import LinkDepartmentsSheet from "@/components/Patient/LinkDepartmentsSheet";
 import PatientIdentifierSheet from "@/components/Patient/PatientIdentifierSheet";
+import TagAssignmentSheet from "@/components/Tags/TagAssignmentSheet";
 
 import { PLUGIN_Component } from "@/PluginEngine";
 import dayjs from "@/Utils/dayjs";
@@ -44,7 +46,7 @@ import {
   Encounter,
   completedEncounterStatus,
   inactiveEncounterStatus,
-} from "@/types/emr/encounter";
+} from "@/types/emr/encounter/encounter";
 import { Patient } from "@/types/emr/patient/patient";
 import { FacilityOrganization } from "@/types/facilityOrganization/facilityOrganization";
 
@@ -61,6 +63,12 @@ export default function PatientInfoCard(props: PatientInfoCardProps) {
   const subpathMatch = usePathParams("/facility/:facilityId/*");
   const facilityIdExists = !!subpathMatch?.facilityId;
   const { t } = useTranslation();
+  const queryClient = useQueryClient();
+
+  const handleTagsUpdate = () => {
+    // Refresh the patient data to get updated tags
+    queryClient.invalidateQueries({ queryKey: ["patient", patient.id] });
+  };
 
   return (
     <>
@@ -458,6 +466,24 @@ export default function PatientInfoCard(props: PatientInfoCardProps) {
                           {canWrite
                             ? t("manage_care_team")
                             : t("view_care_team")}
+                        </div>
+                      }
+                      canWrite={canWrite}
+                    />
+                  </Badge>
+                  <Badge variant="outline">
+                    <TagAssignmentSheet
+                      entityType="encounter"
+                      entityId={encounter.id}
+                      currentTags={[]}
+                      onUpdate={handleTagsUpdate}
+                      trigger={
+                        <div className="flex items-center gap-1 text-gray-950 py-0.5 cursor-pointer hover:bg-secondary-100 capitalize">
+                          <CareIcon
+                            icon="l-tag-alt"
+                            className="size-4 text-green-600"
+                          />
+                          {t("tags")}
                         </div>
                       }
                       canWrite={canWrite}

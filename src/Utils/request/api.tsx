@@ -14,7 +14,10 @@ import { PaginatedResponse } from "@/Utils/request/types";
 import { AppointmentPatientRegister } from "@/pages/Patient/Utils";
 import { MFAAuthenticationToken } from "@/types/auth/otp";
 import { Code } from "@/types/base/code/code";
-import { Encounter, EncounterEditRequest } from "@/types/emr/encounter";
+import {
+  Encounter,
+  EncounterEditRequest,
+} from "@/types/emr/encounter/encounter";
 import {
   Observation,
   ObservationAnalyzeResponse,
@@ -467,18 +470,6 @@ const routes = {
   // New Patient Routes
 
   patient: {
-    getPatient: {
-      path: "/api/v1/patient/{id}/",
-      method: "GET",
-      TBody: Type<Patient>(),
-      TRes: Type<Patient>(),
-    },
-    allergyIntolerance: {
-      create: {
-        method: "POST",
-        path: "/api/v1/patient/:patientId/allergy_intolerance/",
-      },
-    },
     users: {
       addUser: {
         method: "POST",

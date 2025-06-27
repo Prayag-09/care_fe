@@ -25,7 +25,7 @@ import { PaginatedResponse } from "@/Utils/request/types";
 import {
   ENCOUNTER_CLASSES_COLORS,
   ENCOUNTER_STATUS_COLORS,
-} from "@/types/emr/encounter";
+} from "@/types/emr/encounter/encounter";
 import { MedicationDispenseSummary } from "@/types/emr/medicationDispense/medicationDispense";
 import medicationDispenseApi from "@/types/emr/medicationDispense/medicationDispenseApi";
 

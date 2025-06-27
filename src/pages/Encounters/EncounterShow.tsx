@@ -25,8 +25,12 @@ import { EncounterFilesTab } from "@/pages/Encounters/tabs/EncounterFilesTab";
 import { EncounterMedicinesTab } from "@/pages/Encounters/tabs/EncounterMedicinesTab";
 import { EncounterOverviewTab } from "@/pages/Encounters/tabs/EncounterOverviewTab";
 import { EncounterPlotsTab } from "@/pages/Encounters/tabs/EncounterPlotsTab";
-import { Encounter, inactiveEncounterStatus } from "@/types/emr/encounter";
+import {
+  Encounter,
+  inactiveEncounterStatus,
+} from "@/types/emr/encounter/encounter";
 import { Patient } from "@/types/emr/patient/patient";
+import patientApi from "@/types/emr/patient/patientApi";
 
 import { EncounterDiagnosticReportsTab } from "./tabs/EncounterDiagnosticReportsTab";
 import { EncounterNotesTab } from "./tabs/EncounterNotesTab";
@@ -88,7 +92,7 @@ export const EncounterShow = (props: Props) => {
 
   const { data: patient, isLoading: isPatientLoading } = useQuery({
     queryKey: ["patient", patientId],
-    queryFn: query(routes.patient.getPatient, {
+    queryFn: query(patientApi.getPatient, {
       pathParams: {
         id: patientId,
       },

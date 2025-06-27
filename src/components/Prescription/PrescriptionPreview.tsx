@@ -10,7 +10,7 @@ import { getFrequencyDisplay } from "@/components/Medicine/MedicationsTable";
 import { formatDosage, formatSig } from "@/components/Medicine/utils";
 
 import { formatName, formatPatientAge } from "@/Utils/utils";
-import { Encounter } from "@/types/emr/encounter";
+import { Encounter } from "@/types/emr/encounter/encounter";
 import {
   MedicationRequestRead,
   displayMedicationName,

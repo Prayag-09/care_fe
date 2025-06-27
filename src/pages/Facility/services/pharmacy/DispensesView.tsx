@@ -16,11 +16,11 @@ import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
 
 import Page from "@/components/Common/Page";
 
-import routes from "@/Utils/request/api";
 import query from "@/Utils/request/query";
 import useCurrentLocation from "@/pages/Facility/locations/utils/useCurrentLocation";
 import { PatientHeader } from "@/pages/Facility/services/serviceRequests/components/PatientHeader";
 import { MedicationDispenseStatus } from "@/types/emr/medicationDispense/medicationDispense";
+import patientApi from "@/types/emr/patient/patientApi";
 
 import DispensedMedicationList from "./DispensedMedicationList";
 
@@ -63,7 +63,7 @@ export default function DispensesView({
 
   const { data: patientData } = useQuery({
     queryKey: ["patient", patientId],
-    queryFn: query(routes.patient.getPatient, {
+    queryFn: query(patientApi.getPatient, {
       pathParams: { id: patientId ?? "" },
     }),
     enabled: !!patientId,

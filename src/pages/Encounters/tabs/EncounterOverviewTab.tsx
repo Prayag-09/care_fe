@@ -16,7 +16,7 @@ import { getPermissions } from "@/common/Permissions";
 import { usePermissions } from "@/context/PermissionContext";
 import { EncounterTabProps } from "@/pages/Encounters/EncounterShow";
 import EncounterOverviewDevices from "@/pages/Facility/settings/devices/components/EncounterOverviewDevices";
-import { inactiveEncounterStatus } from "@/types/emr/encounter";
+import { inactiveEncounterStatus } from "@/types/emr/encounter/encounter";
 
 const actionLinks = [
   {

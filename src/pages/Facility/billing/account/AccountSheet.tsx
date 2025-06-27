@@ -39,7 +39,7 @@ import {
   AccountStatus,
 } from "@/types/billing/account/Account";
 import accountApi from "@/types/billing/account/accountApi";
-import { Period } from "@/types/emr/encounter";
+import { Period } from "@/types/emr/encounter/encounter";
 import { Patient } from "@/types/emr/patient/patient";
 
 interface AccountFormValues {

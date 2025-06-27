@@ -1,5 +1,5 @@
 import { Code } from "@/types/base/code/code";
-import { Encounter } from "@/types/emr/encounter";
+import { Encounter } from "@/types/emr/encounter/encounter";
 import { ObservationRead } from "@/types/emr/observation/observation";
 import { UserBase } from "@/types/user/user";
 
