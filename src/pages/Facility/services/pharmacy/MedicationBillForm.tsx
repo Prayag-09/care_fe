@@ -5,6 +5,7 @@ import {
   ChevronDownIcon,
   Eye,
   Info,
+  MoreVertical,
   PlusIcon,
   Shuffle,
   Trash2,
@@ -29,6 +30,12 @@ import {
   CommandItem,
   CommandList,
 } from "@/components/ui/command";
+import {
+  DropdownMenu,
+  DropdownMenuContent,
+  DropdownMenuItem,
+  DropdownMenuTrigger,
+} from "@/components/ui/dropdown-menu";
 import {
   Form,
   FormControl,
@@ -689,6 +696,23 @@ export default function MedicationBillForm({ patientId }: Props) {
   const [viewingDispensedMedicationId, setViewingDispensedMedicationId] =
     useState<string | null>(null);
 
+  const { mutate: updateMedicationRequest } = useMutation({
+    mutationFn: (medication: MedicationRequestRead) => {
+      return mutate(medicationRequestApi.update, {
+        pathParams: { patientId, id: medication.id },
+      })(medication);
+    },
+    onSuccess: () => {
+      queryClient.invalidateQueries({
+        queryKey: ["medication_requests", patientId, "dispense"],
+      });
+      toast.success(t("medication_request_status_updated_successfully"));
+    },
+    onError: () => {
+      toast.error(t("something_went_wrong"));
+    },
+  });
+
   const tableHeaderClass =
     "px-4 py-3 border-r font-medium border-y-1 border-r-none border-gray-200 rounded-b-none border-b-0";
   const tableCellClass = "px-4 py-4 border-r";
@@ -1184,8 +1208,11 @@ export default function MedicationBillForm({ patientId }: Props) {
                     <TableHead className={tableHeaderClass}>
                       {t("discount")}
                     </TableHead>
-                    <TableHead className={cn(tableHeaderClass, "rounded-r-lg")}>
+                    <TableHead className={tableHeaderClass}>
                       {t("all_dispensed")}?
+                    </TableHead>
+                    <TableHead className={cn(tableHeaderClass, "rounded-r-lg")}>
+                      {t("actions")}
                     </TableHead>
                   </TableRow>
                 </TableHeader>
@@ -1859,11 +1886,53 @@ export default function MedicationBillForm({ patientId }: Props) {
                             "-"
                           )}
                         </TableCell>
+                        <TableCell
+                          className={cn(tableCellClass, "rounded-r-lg")}
+                        >
+                          <DropdownMenu>
+                            <DropdownMenuTrigger asChild>
+                              <Button variant="outline" size="icon">
+                                <MoreVertical className="size-5" />
+                              </Button>
+                            </DropdownMenuTrigger>
+                            <DropdownMenuContent>
+                              {field.medication?.dispense_status !==
+                              MedicationRequestDispenseStatus.partial ? (
+                                <Popover>
+                                  <PopoverTrigger asChild>
+                                    <div className="w-full">
+                                      <DropdownMenuItem
+                                        disabled
+                                        className="w-full"
+                                      >
+                                        {t("mark_as_all_given")}
+                                      </DropdownMenuItem>
+                                    </div>
+                                  </PopoverTrigger>
+                                  <PopoverContent>
+                                    {t("enabled_only_for_partially_dispensed")}
+                                  </PopoverContent>
+                                </Popover>
+                              ) : (
+                                <DropdownMenuItem
+                                  onSelect={() => {
+                                    updateMedicationRequest({
+                                      ...field.medication,
+                                      dispense_status: "complete",
+                                    } as MedicationRequestRead);
+                                  }}
+                                >
+                                  {t("mark_as_all_given")}
+                                </DropdownMenuItem>
+                              )}
+                            </DropdownMenuContent>
+                          </DropdownMenu>
+                        </TableCell>
                       </TableRow>
                     );
                   })}
                   <TableRow className="bg-white rounded-lg shadow-sm">
-                    <TableCell colSpan={11} className="p-0 rounded-lg">
+                    <TableCell colSpan={12} className="p-0 rounded-lg">
                       {isSearchOpen ? (
                         <Command className="w-full rounded-none border-none">
                           <CommandInput
