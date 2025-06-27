@@ -1868,7 +1868,7 @@ export default function MedicationBillForm({ patientId }: Props) {
                             placeholder={t("search_products")}
                             onValueChange={setSearch}
                             value={search}
-                            className="h-12 border-none"
+                            className="h-12 border-none ring-0"
                             onKeyDown={(e) => {
                               if (e.key === "Escape") {
                                 setIsSearchOpen(false);

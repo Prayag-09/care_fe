@@ -104,7 +104,7 @@ export default function MedicationValueSetSelect({
             placeholder={t("search_products")}
             onValueChange={setSearch}
             value={search}
-            className="border-none"
+            className="border-none ring-0"
           />
           <CommandList className="max-h-[300px] overflow-auto">
             <CommandEmpty>
