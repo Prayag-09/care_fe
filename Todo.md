@@ -6,37 +6,32 @@ x : Done
 
 - : In Progress/Assigned/Blocked
 
-## Pharmacy
+# Pharmacy
 
-- [-] Add facility-based filter & pagination in the inventory items list - Jeevan. Vignesh will add filter queryset by facility later
-- [ ] Supply Request - Add supplier[] after backend done - Rithvik
+- [BE] Add facility-based filter & pagination in the inventory items list - Jeevan. Vignesh will add filter queryset by facility later
 
 ## Billing
 
-- [-] Replace Charge Item Create with ChargeItemDef to ChargeItem API - Vignesh
-- [x] All instance level tax codes should be shown as an option in the charge item def creator - Check with Vignesh
 - [-] Add support for information components in chargeDef and Charge Item. - Rithvik
-- [x] Consider disabling onWheelChange for input[type=number] fields. - [hold till @bodhi confirms]
-- [-] Change default account name to {patient-name} + date to keep it a little bit unique and searchable in billing account dashboard - Amjith, Vignesh
-- [-] When a billing account of a patient is on hold, we should restrict users from creating any charge item to the patient, as per doc, but our platform will be creating a new wallet by ignoring the on-hold account (BE) - Vignesh
-- [ ] Allow only one active billing account for a patient at a time , Take a product suggestion before working on this
-- [-] When an invoice is marked as 'entered in error' the transaction details should be removed from the balance summary (total amount due, net payable, etc.) - Jeevan/Vignesh
+- [BE] Replace Charge Item Create with ChargeItemDef to ChargeItem API - Vignesh
+- [BE] Change default account name to {patient-name} + date to keep it a little bit unique and searchable in billing account dashboard - Amjith, Vignesh
+- [BE] When a billing account of a patient is on hold, we should restrict users from creating any charge item to the patient, as per doc, but our platform will be creating a new wallet by ignoring the on-hold account (BE) - Vignesh
+- [BE] Allow only one active billing account for a patient at a time , Take a product suggestion before working on this
+- [BE] When an invoice is marked as 'entered in error' the transaction details should be removed from the balance summary (total amount due, net payable, etc.) - Jeevan/Vignesh
 
 ## Labs
 
 - [-] Add support for multiple diagnostic report for a service request - [hold till @bodhi confirms]
-- [-] Service Request - Show specimen.collection.collector details instead of UUID (After BE change) - Vignesh
-- [-] Service Request - Show specimen.processing.performer details instead of UUID (After BE change) - Vignesh
-- [ ] Specimen Definition - Add frontend permission check for the Specimen Definition page at the facility level.
 - [-] In the Specimen Definition edit form, removing data from optional fields is not working and Fix some types and cleanup in Specimen Definition Form. - Manyu & Yash
-- [ ] SR details page - fix decimal points to two and round off amounts in charge items.
-- [ ] SR details page - Add a hyperlink to the payment page, for better UX
+- [ ] Specimen Definition - Add frontend permission check for the Specimen Definition page at the facility level.
 - [ ] SR Details page - Disable the process step once the report generation is done | Confirm with Bodhi before working on this - Backend
-
 - [-] New service request should be shown first within the list - Vignesh
-- [-] Encounter can be closed even if the SR is ACTIVE. But if encounter is closer SR cannot be marked as completed ( Showing error as encounter is already closed) - Fix can be not allow top close encounter if SR is open - Vignesh
-- [-] Not able to mark a SR as closed - Showing error location not found - Vignesh
-- [-] Roles access for Labs. Only users with lab role should have access to lab services - Vignesh
+- [BE] Service Request - Show specimen.collection.collector details instead of UUID (After BE change) - Vignesh
+- [BE] Service Request - Show specimen.processing.performer details instead of UUID (After BE change) - Vignesh
+- [BE] SR details page - fix decimal points to two and round off amounts in charge items.
+- [BE] SR details page - Add a hyperlink to the payment page, for better UX
+- [BE] Encounter can be closed even if the SR is ACTIVE. But if encounter is closer SR cannot be marked as completed ( Showing error as encounter is already closed) - Fix can be not allow top close encounter if SR is open - Vignesh
+- [BE] Roles access for Labs. Only users with lab role should have access to lab services - Vignesh
 
 ## Back End
 
@@ -106,6 +101,8 @@ x : Done
 - [x] Display the negative balance in the 'Amount Due' section as well to indicate that the user has overpaid beyond their actual bill. - Manyu
 - [x] Modify back button links in Payment details page (back to accountId/payments if navigating from there) - Jeevan
 - [x] When attempting to close a billing account with pending charge items that haven't been invoiced, disable the 'Close Account' button in the pop-up and display a message stating: 'You cannot close an account with pending charge items. - Manyu.
+- [x] All instance level tax codes should be shown as an option in the charge item def creator - Check with Vignesh
+- [x] Consider disabling onWheelChange for input[type=number] fields. - [hold till @bodhi confirms]
 
 ## Labs
 
@@ -171,6 +168,7 @@ x : Done
 - [x] SR overview page - Show the current status of the service request. Upon completion, update the status from active to complete - Manyu [Backend change pending]
 - [x] If no entries are given to a report and click on Save Result, it shows Conclusion updated successfully but report is not generated. Since report cant be blank, there should be validation and show error is no entries are there for result and conclusion. - Manyu
 - [x] If a long conclusion is given to a report, UI is breaking (Diagnostic Report) - Manyu
+- [x] Not able to mark a SR as closed - Showing error location not found - Vignesh - Data issue
 
 ## Pharmacy
 
@@ -193,3 +191,4 @@ x : Done
 - [x] Medications added from our product cannot be administered due to missing code - Jeevan/Vignesh; Medication Administration API needs support for product knowledge
 - [x] Each modification to the pre-filled quantity in bill medication triggers a component re-render, which disrupts the editing experience. - Khavin
 - [x] Supply Request - Disallow selecting current location - Jeevan
+- [x] Supply Request - Add supplier[] after backend done - Jeevan
