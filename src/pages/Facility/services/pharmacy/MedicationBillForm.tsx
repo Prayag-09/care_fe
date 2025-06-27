@@ -1,7 +1,14 @@
 import { zodResolver } from "@hookform/resolvers/zod";
 import { useMutation, useQuery, useQueryClient } from "@tanstack/react-query";
 import { formatDate } from "date-fns";
-import { ChevronDownIcon, Info, PlusIcon, Shuffle, Trash2 } from "lucide-react";
+import {
+  ChevronDownIcon,
+  Eye,
+  Info,
+  PlusIcon,
+  Shuffle,
+  Trash2,
+} from "lucide-react";
 import { navigate } from "raviger";
 import { useEffect, useState } from "react";
 import { useFieldArray, useForm } from "react-hook-form";
@@ -59,6 +66,11 @@ import {
   TableHeader,
   TableRow,
 } from "@/components/ui/table";
+import {
+  Tooltip,
+  TooltipContent,
+  TooltipTrigger,
+} from "@/components/ui/tooltip";
 
 import ComboboxQuantityInput from "@/components/Common/ComboboxQuantityInput";
 import Page from "@/components/Common/Page";
@@ -1316,6 +1328,26 @@ export default function MedicationBillForm({ patientId }: Props) {
                                       MedicationRequestDispenseStatus.partial && (
                                       <Badge variant="yellow">
                                         {t("partially_dispensed")}
+                                        <Tooltip>
+                                          <TooltipTrigger asChild>
+                                            <Button
+                                              variant="outline"
+                                              size="icon"
+                                              className="p-0 h-auto text-yellow-900 underline font-normal rounded-md w-6"
+                                              type="button"
+                                              onClick={() => {
+                                                setViewingDispensedMedicationId(
+                                                  field.medication.id,
+                                                );
+                                              }}
+                                            >
+                                              <Eye className="size-5" />
+                                            </Button>
+                                          </TooltipTrigger>
+                                          <TooltipContent>
+                                            {t("view_dispensed")}
+                                          </TooltipContent>
+                                        </Tooltip>
                                       </Badge>
                                     )}
                                   </div>
@@ -1359,22 +1391,6 @@ export default function MedicationBillForm({ patientId }: Props) {
                                       )}
                                     </div>
                                   </div>
-                                  {field.medication?.dispense_status ===
-                                    MedicationRequestDispenseStatus.partial && (
-                                    <Button
-                                      variant="link"
-                                      size="sm"
-                                      className="p-0 h-auto text-secondary-700 underline font-normal"
-                                      type="button"
-                                      onClick={() => {
-                                        setViewingDispensedMedicationId(
-                                          field.medication.id,
-                                        );
-                                      }}
-                                    >
-                                      {t("view_dispensed")}
-                                    </Button>
-                                  )}
                                 </div>
                               ) : (
                                 <div
