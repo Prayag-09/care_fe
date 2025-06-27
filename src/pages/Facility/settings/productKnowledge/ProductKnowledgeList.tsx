@@ -212,7 +212,6 @@ export default function ProductKnowledgeList({
                       <TableHead>{t("name")}</TableHead>
                       <TableHead>{t("product_type")}</TableHead>
                       <TableHead>{t("status")}</TableHead>
-                      <TableHead>{t("code")}</TableHead>
                       <TableHead>{t("actions")}</TableHead>
                     </TableRow>
                   </TableHeader>
@@ -241,11 +240,6 @@ export default function ProductKnowledgeList({
                           >
                             {t(product.status)}
                           </Badge>
-                        </TableCell>
-                        <TableCell>
-                          {product.code?.code
-                            ? `${product.code.system} | ${product.code.code}`
-                            : "-"}
                         </TableCell>
                         <TableCell>
                           <Button

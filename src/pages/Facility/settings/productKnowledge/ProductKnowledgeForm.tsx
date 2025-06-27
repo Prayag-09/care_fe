@@ -174,6 +174,7 @@ function ProductKnowledgeFormContent({
       storage_guidelines: [],
       code: null,
       definitional: null,
+      status: ProductKnowledgeStatus.active,
     };
   };
 
@@ -437,7 +438,7 @@ function ProductKnowledgeFormContent({
                     {namesArray.fields.map((field, index) => (
                       <div
                         key={field.id}
-                        className="flex items-start gap-2 rounded-md border p-3"
+                        className="flex items-end gap-2 rounded-md border p-3"
                       >
                         <div className="flex-1 space-y-3">
                           <div className="grid gap-3 md:grid-cols-2">
