@@ -930,6 +930,12 @@ export default function MedicationBillForm({ patientId }: Props) {
         queryKey: ["medication_requests", patientId, "dispense"],
       });
 
+      if (!account?.results[0]) {
+        queryClient.invalidateQueries({
+          queryKey: ["accounts", patientId],
+        });
+      }
+
       // Extract charge items and open invoice sheet
       const chargeItems = extractChargeItemsFromBatchResponse(
         response as unknown as ChargeItemBatchResponse,
