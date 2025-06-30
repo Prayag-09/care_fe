@@ -215,19 +215,19 @@ export default function MedicationDispenseList({
                 )}
               </DialogContent>
             </Dialog>
-            {medicationsWithProduct.length > 0 && (
-              <Button
-                onClick={() =>
-                  navigate(
-                    `/facility/${facilityId}/locations/${locationId}/medication_requests/patient/${patientId}/bill`,
-                  )
-                }
-                className="w-full sm:w-auto"
-              >
-                {t("start_billing")}
-                <ArrowRightIcon className="size-4" />
-              </Button>
-            )}
+            <Button
+              onClick={() =>
+                navigate(
+                  `/facility/${facilityId}/locations/${locationId}/medication_requests/patient/${patientId}/bill`,
+                )
+              }
+              className="w-full sm:w-auto"
+            >
+              {medicationsWithProduct.length > 0
+                ? t("start_billing")
+                : t("add_new_medications")}
+              <ArrowRightIcon className="size-4" />
+            </Button>
           </div>
         </div>
       </div>
