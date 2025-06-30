@@ -1,42 +1,70 @@
 import { useQuery } from "@tanstack/react-query";
-import { useState } from "react";
 import { useTranslation } from "react-i18next";
 
 import { Card, CardContent } from "@/components/ui/card";
+import { FilterTabs } from "@/components/ui/filter-tabs";
 
-import Pagination from "@/components/Common/Pagination";
 import { TableSkeleton } from "@/components/Common/SkeletonLoading";
 import ServiceRequestTable from "@/components/ServiceRequest/ServiceRequestTable";
 
-import { RESULTS_PER_PAGE_LIMIT } from "@/common/constants";
+import useFilters from "@/hooks/useFilters";
 
 import query from "@/Utils/request/query";
 import { EncounterTabProps } from "@/pages/Encounters/EncounterShow";
+import { Status } from "@/types/emr/serviceRequest/serviceRequest";
 import serviceRequestApi from "@/types/emr/serviceRequest/serviceRequestApi";
 
 export const EncounterServiceRequestTab = ({
   encounter,
 }: EncounterTabProps) => {
   const { t } = useTranslation();
-  const [page, setPage] = useState(1);
+  const {
+    qParams,
+    updateQuery,
+    Pagination: Pagination,
+    resultsPerPage,
+  } = useFilters({
+    limit: 20,
+    disableCache: true,
+  });
 
-  const limit = RESULTS_PER_PAGE_LIMIT;
   const facilityId = encounter.facility.id;
 
   const { data, isLoading } = useQuery({
-    queryKey: ["serviceRequests", facilityId, encounter.id, page, limit],
+    queryKey: ["serviceRequests", facilityId, encounter.id, qParams],
     queryFn: query(serviceRequestApi.listServiceRequest, {
       pathParams: { facilityId },
       queryParams: {
         encounter: encounter.id,
-        offset: (page - 1) * limit,
-        limit,
+        offset: ((qParams.page ?? 1) - 1) * resultsPerPage,
+        limit: resultsPerPage,
+        status: qParams.status,
       },
     }),
   });
 
   return (
     <div className="space-y-6">
+      {/* Status Filter */}
+      <div className="flex justify-start">
+        <FilterTabs
+          value={qParams.status || ""}
+          onValueChange={(value) => updateQuery({ status: value })}
+          options={Object.values(Status)}
+          variant="background"
+          showAllOption={true}
+          allOptionLabel="all_statuses"
+          showMoreDropdown={true}
+          maxVisibleTabs={3}
+          defaultVisibleOptions={[
+            Status.active,
+            Status.completed,
+            Status.draft,
+          ]}
+          className="w-auto"
+        />
+      </div>
+
       {isLoading ? (
         <TableSkeleton count={6} />
       ) : (
@@ -58,14 +86,7 @@ export const EncounterServiceRequestTab = ({
           </Card>
 
           <div className="flex justify-center">
-            {!!(data && data.count > limit) && (
-              <Pagination
-                data={{ totalCount: data.count }}
-                onChange={(page, _) => setPage(page)}
-                defaultPerPage={limit}
-                cPage={page}
-              />
-            )}
+            <Pagination totalCount={data?.count || 0} />
           </div>
         </div>
       )}

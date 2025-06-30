@@ -1,5 +1,5 @@
 import { useQuery } from "@tanstack/react-query";
-import { ChevronDown, ScanQrCode, X } from "lucide-react";
+import { ScanQrCode, X } from "lucide-react";
 import { navigate } from "raviger";
 import { useState } from "react";
 import { useTranslation } from "react-i18next";
@@ -9,12 +9,7 @@ import CareIcon from "@/CAREUI/icons/CareIcon";
 import { Badge } from "@/components/ui/badge";
 import { Button } from "@/components/ui/button";
 import { Card, CardContent } from "@/components/ui/card";
-import {
-  DropdownMenu,
-  DropdownMenuContent,
-  DropdownMenuItem,
-  DropdownMenuTrigger,
-} from "@/components/ui/dropdown-menu";
+import { FilterTabs } from "@/components/ui/filter-tabs";
 import { Input } from "@/components/ui/input";
 import {
   Select,
@@ -22,7 +17,6 @@ import {
   SelectItem,
   SelectTrigger,
 } from "@/components/ui/select";
-import { Tabs, TabsList, TabsTrigger } from "@/components/ui/tabs";
 
 import Page from "@/components/Common/Page";
 import {
@@ -199,30 +193,6 @@ export default function ServiceRequestList({
   });
   const [isBarcodeOpen, setBarcodeOpen] = useState(false);
 
-  const allStatuses = Object.values(Status);
-  const [visibleTabs, setVisibleTabs] = useState<Status[]>([
-    Status.active,
-    Status.on_hold,
-    Status.completed,
-    Status.draft,
-  ]);
-  const [dropdownItems, setDropdownItems] = useState<Status[]>(
-    allStatuses.filter((status) => !visibleTabs.includes(status)),
-  );
-
-  const handleDropdownSelect = (value: Status) => {
-    const lastVisibleTab = visibleTabs[visibleTabs.length - 1];
-    const newVisibleTabs = [...visibleTabs.slice(0, -1), value];
-    const newDropdownItems = [
-      ...dropdownItems.filter((item) => item !== value),
-      lastVisibleTab,
-    ];
-
-    setVisibleTabs(newVisibleTabs);
-    setDropdownItems(newDropdownItems);
-    updateQuery({ status: value });
-  };
-
   const { data: location } = useQuery({
     queryKey: ["location", facilityId, locationId],
     queryFn: query(locationApi.get, {
@@ -278,46 +248,21 @@ export default function ServiceRequestList({
             </div>
           </div>
           <div className="w-full mb-4">
-            <Tabs
+            <FilterTabs
               value={qParams.status || Status.active}
               onValueChange={(value) => updateQuery({ status: value })}
-            >
-              <TabsList className="w-full justify-evenly sm:justify-start border-b rounded-none bg-transparent p-0 h-auto overflow-x-auto">
-                {visibleTabs.map((statusValue) => (
-                  <TabsTrigger
-                    key={statusValue}
-                    value={statusValue}
-                    className="border-b-3 px-1.5 sm:px-2.5 py-2 text-gray-600 font-semibold hover:text-gray-900 data-[state=active]:border-b-primary-700 data-[state=active]:text-primary-800 data-[state=active]:bg-transparent data-[state=active]:shadow-none rounded-none"
-                  >
-                    {t(statusValue)}
-                  </TabsTrigger>
-                ))}
-                {dropdownItems.length > 0 && (
-                  <DropdownMenu>
-                    <DropdownMenuTrigger asChild>
-                      <Button
-                        variant="ghost"
-                        className="text-gray-500 font-semibold hover:text-gray-900 hover:bg-transparent pb-2.5 px-2.5"
-                      >
-                        {t("more")}
-                        <ChevronDown />
-                      </Button>
-                    </DropdownMenuTrigger>
-                    <DropdownMenuContent align="end">
-                      {dropdownItems.map((statusValue) => (
-                        <DropdownMenuItem
-                          key={statusValue}
-                          onClick={() => handleDropdownSelect(statusValue)}
-                          className="text-gray-950 font-medium text-sm"
-                        >
-                          {t(statusValue)}
-                        </DropdownMenuItem>
-                      ))}
-                    </DropdownMenuContent>
-                  </DropdownMenu>
-                )}
-              </TabsList>
-            </Tabs>
+              options={Object.values(Status)}
+              variant="underline"
+              showMoreDropdown={true}
+              maxVisibleTabs={4}
+              defaultVisibleOptions={[
+                Status.active,
+                Status.on_hold,
+                Status.completed,
+                Status.draft,
+              ]}
+              showAllOption={false}
+            />
           </div>
 
           <div className="flex flex-col md:flex-row justify-between items-start gap-4">
