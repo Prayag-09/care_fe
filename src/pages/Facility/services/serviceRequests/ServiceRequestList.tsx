@@ -22,14 +22,6 @@ import {
   SelectItem,
   SelectTrigger,
 } from "@/components/ui/select";
-import {
-  Table,
-  TableBody,
-  TableCell,
-  TableHead,
-  TableHeader,
-  TableRow,
-} from "@/components/ui/table";
 import { Tabs, TabsList, TabsTrigger } from "@/components/ui/tabs";
 
 import Page from "@/components/Common/Page";
@@ -38,6 +30,7 @@ import {
   TableSkeleton,
 } from "@/components/Common/SkeletonLoading";
 import SpecimenIDScanDialog from "@/components/Scan/SpecimenIDScanDialog";
+import ServiceRequestTable from "@/components/ServiceRequest/ServiceRequestTable";
 
 import useFilters from "@/hooks/useFilters";
 
@@ -129,75 +122,6 @@ function ServiceRequestCard({
         </div>
       </CardContent>
     </Card>
-  );
-}
-
-function ServiceRequestTable({
-  requests,
-  facilityId,
-  locationId,
-}: {
-  requests: ServiceRequestReadSpec[];
-  facilityId: string;
-  locationId: string;
-}) {
-  const { t } = useTranslation();
-
-  return (
-    <div className="rounded-md border">
-      <Table>
-        <TableHeader className="bg-gray-100">
-          <TableRow className="divide-gray-200">
-            <TableHead>{t("patient_name")}</TableHead>
-            <TableHead>{t("service_type")}</TableHead>
-            <TableHead>{t("status")}</TableHead>
-            <TableHead>{t("priority")}</TableHead>
-            <TableHead>{t("actions")}</TableHead>
-          </TableRow>
-        </TableHeader>
-        <TableBody className="bg-white">
-          {requests.map((request) => (
-            <TableRow key={request.id} className="divide-x divide-gray-200">
-              <TableCell className="font-medium">
-                <div className="font-semibold text-gray-900">
-                  {request.encounter.patient.name}
-                </div>
-                <div className="text-xs text-gray-500">
-                  {request.encounter.patient.id}
-                </div>
-              </TableCell>
-              <TableCell>{request.title}</TableCell>
-              <TableCell>
-                <Badge variant={SERVICE_REQUEST_STATUS_COLORS[request.status]}>
-                  {t(request.status)}
-                </Badge>
-              </TableCell>
-              <TableCell>
-                <Badge
-                  variant={SERVICE_REQUEST_PRIORITY_COLORS[request.priority]}
-                >
-                  {t(request.priority)}
-                </Badge>
-              </TableCell>
-              <TableCell className="text-left">
-                <Button
-                  variant="outline"
-                  size="sm"
-                  onClick={() =>
-                    navigate(
-                      `/facility/${facilityId}/locations/${locationId}/service_requests/${request.id}`,
-                    )
-                  }
-                >
-                  <CareIcon icon="l-edit" />
-                  {t("see_details")}
-                </Button>
-              </TableCell>
-            </TableRow>
-          ))}
-        </TableBody>
-      </Table>
-    </div>
   );
 }
 
