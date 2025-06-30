@@ -44,5 +44,6 @@ export interface DiagnosticReportRead extends Omit<DiagnosticReportBase, "id"> {
   observations: ObservationRead[];
   created_by: UserBase;
   created_date: string;
+  modified_date: string;
   updated_by: UserBase;
 }

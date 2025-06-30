@@ -473,7 +473,7 @@ export function DiagnosticReportForm({
     }
 
     try {
-      // Check if at least one observation has a value or component value
+      // Check if all observations have values
       const hasObservationValue = Object.values(observations).some((obs) => {
         const hasMainValue = obs.value.trim() !== "";
         const hasComponentValue = Object.values(obs.components).some(
@@ -482,9 +482,15 @@ export function DiagnosticReportForm({
         return hasMainValue || hasComponentValue;
       });
 
-      // Check if either observations or conclusion is provided
-      if (!hasObservationValue && !conclusion.trim()) {
-        toast.error(t("at_least_one_result"));
+      // If there's a conclusion, we must have results first
+      if (conclusion.trim() && !hasObservationValue) {
+        toast.error(t("cannot_add_conclusion_without_results"));
+        return;
+      }
+
+      // Results are mandatory
+      if (!hasObservationValue) {
+        toast.error(t("please_fill_all_results"));
         return;
       }
 

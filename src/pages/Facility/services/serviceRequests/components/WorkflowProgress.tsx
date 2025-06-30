@@ -150,6 +150,15 @@ export function WorkflowProgress({
   // Add diagnostic report events
   request.diagnostic_reports?.forEach((report: DiagnosticReportRead) => {
     events.push({
+      title: "Diagnostic Report Created",
+      description: `${request.title} diagnostic report created`,
+      timestamp: report.created_date,
+      status: "completed",
+    });
+  });
+
+  request.diagnostic_reports?.forEach((report: DiagnosticReportRead) => {
+    events.push({
       title:
         report.status === "final"
           ? "Diagnostic Report Approved"
@@ -158,7 +167,8 @@ export function WorkflowProgress({
         report.status === "final"
           ? `Report approved and finalized`
           : `Report created and pending approval`,
-      timestamp: report.created_date,
+      timestamp:
+        report.status === "final" ? report.modified_date : report.created_date,
       status: report.status === "final" ? "completed" : "in_progress",
     });
   });

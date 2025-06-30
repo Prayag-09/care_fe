@@ -735,7 +735,9 @@ export function SpecimenWorkflowCard({
               {hasCollected &&
                 !isDiscarded &&
                 request?.diagnostic_reports?.[0]?.status !==
-                  DiagnosticReportStatus.final && (
+                  DiagnosticReportStatus.final &&
+                request?.diagnostic_reports?.[0]?.status !==
+                  DiagnosticReportStatus.preliminary && (
                   <div className="px-1 pt-3 pb-4">
                     <ProcessSpecimen
                       existingProcessing={collectedSpecimen?.processing ?? []}
