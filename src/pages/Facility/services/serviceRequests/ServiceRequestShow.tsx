@@ -473,6 +473,7 @@ export default function ServiceRequestShow({
 
                 return (
                   <SpecimenWorkflowCard
+                    request={request}
                     key={requirement.id}
                     facilityId={facilityId}
                     serviceRequestId={serviceRequestId}

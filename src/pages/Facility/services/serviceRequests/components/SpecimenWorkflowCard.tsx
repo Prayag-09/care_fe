@@ -72,6 +72,8 @@ import useAuthUser from "@/hooks/useAuthUser";
 
 import mutate from "@/Utils/request/mutate";
 import { ProcessSpecimen } from "@/pages/Facility/services/serviceRequests/components/ProcessSpecimen";
+import { DiagnosticReportStatus } from "@/types/emr/diagnosticReport/diagnosticReport";
+import { ServiceRequestReadSpec } from "@/types/emr/serviceRequest/serviceRequest";
 import {
   ProcessingSpec,
   SPECIMEN_DISCARD_REASONS,
@@ -99,6 +101,7 @@ interface SpecimenWorkflowCardProps {
   requirement: SpecimenDefinitionRead;
   specimen?: SpecimenRead; // Collected specimen is optional
   onCollect: () => void; // Function to trigger collection form
+  request: ServiceRequestReadSpec;
 }
 
 export function SpecimenWorkflowCard({
@@ -107,6 +110,7 @@ export function SpecimenWorkflowCard({
   requirement,
   specimen,
   onCollect,
+  request,
 }: SpecimenWorkflowCardProps) {
   const queryClient = useQueryClient();
   const authUser = useAuthUser();
@@ -728,15 +732,18 @@ export function SpecimenWorkflowCard({
               )}
 
               {/* 3. Processing (Only if collected and not discarded) */}
-              {hasCollected && !isDiscarded && (
-                <div className="px-1 pt-3 pb-4">
-                  <ProcessSpecimen
-                    existingProcessing={collectedSpecimen?.processing ?? []}
-                    onAddProcessing={handleAddProcessing}
-                    onUpdateProcessing={handleUpdateProcessing}
-                  />
-                </div>
-              )}
+              {hasCollected &&
+                !isDiscarded &&
+                request?.diagnostic_reports?.[0]?.status !==
+                  DiagnosticReportStatus.final && (
+                  <div className="px-1 pt-3 pb-4">
+                    <ProcessSpecimen
+                      existingProcessing={collectedSpecimen?.processing ?? []}
+                      onAddProcessing={handleAddProcessing}
+                      onUpdateProcessing={handleUpdateProcessing}
+                    />
+                  </div>
+                )}
             </Accordion>
           </CardContent>
         </CollapsibleContent>
