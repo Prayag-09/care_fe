@@ -13,7 +13,7 @@ import {
 import { navigate } from "raviger";
 import { useEffect, useState } from "react";
 import { useFieldArray, useForm } from "react-hook-form";
-import { useTranslation } from "react-i18next";
+import { Trans, useTranslation } from "react-i18next";
 import { toast } from "sonner";
 import { z } from "zod";
 
@@ -80,6 +80,7 @@ import {
 } from "@/components/ui/tooltip";
 
 import ComboboxQuantityInput from "@/components/Common/ComboboxQuantityInput";
+import ConfirmActionDialog from "@/components/Common/ConfirmActionDialog";
 import Page from "@/components/Common/Page";
 import { TableSkeleton } from "@/components/Common/SkeletonLoading";
 import { SubstitutionSheet } from "@/components/Medication/SubstitutionSheet";
@@ -695,6 +696,8 @@ export default function MedicationBillForm({ patientId }: Props) {
     useState<ProductKnowledgeBase | undefined>();
   const [viewingDispensedMedicationId, setViewingDispensedMedicationId] =
     useState<string | null>(null);
+  const [medicationToMarkComplete, setMedicationToMarkComplete] =
+    useState<MedicationRequestRead | null>(null);
 
   const { mutate: updateMedicationRequest } = useMutation({
     mutationFn: (medication: MedicationRequestRead) => {
@@ -1922,10 +1925,9 @@ export default function MedicationBillForm({ patientId }: Props) {
                               ) : (
                                 <DropdownMenuItem
                                   onSelect={() => {
-                                    updateMedicationRequest({
-                                      ...field.medication,
-                                      dispense_status: "complete",
-                                    } as MedicationRequestRead);
+                                    setMedicationToMarkComplete(
+                                      field.medication as MedicationRequestRead,
+                                    );
                                   }}
                                 >
                                   {t("mark_as_all_given")}
@@ -2222,6 +2224,46 @@ export default function MedicationBillForm({ patientId }: Props) {
             facilityId={facilityId}
           />
         )}
+
+        <ConfirmActionDialog
+          open={medicationToMarkComplete !== null}
+          onOpenChange={(open) => {
+            if (!open) setMedicationToMarkComplete(null);
+          }}
+          title={t("mark_as_all_given")}
+          description={
+            <>
+              <Trans
+                i18nKey="confirm_action_description"
+                values={{
+                  action: t("mark_as_all_given").toLowerCase(),
+                }}
+                components={{
+                  1: <strong className="text-gray-900" />,
+                }}
+              />{" "}
+              {t("you_cannot_change_once_submitted")}
+              <p className="mt-2">
+                {t("medication")}:{" "}
+                <strong>
+                  {medicationToMarkComplete?.requested_product?.name}
+                </strong>
+              </p>
+            </>
+          }
+          onConfirm={() => {
+            if (medicationToMarkComplete) {
+              updateMedicationRequest({
+                ...medicationToMarkComplete,
+                dispense_status: MedicationRequestDispenseStatus.complete,
+              });
+            }
+            setMedicationToMarkComplete(null);
+          }}
+          confirmText={t("mark_as_all_given")}
+          cancelText={t("cancel")}
+          variant="primary"
+        />
       </div>
     </Page>
   );
