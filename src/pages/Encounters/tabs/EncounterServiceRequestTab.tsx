@@ -7,6 +7,7 @@ import { FilterTabs } from "@/components/ui/filter-tabs";
 import { TableSkeleton } from "@/components/Common/SkeletonLoading";
 import ServiceRequestTable from "@/components/ServiceRequest/ServiceRequestTable";
 
+import useBreakpoints from "@/hooks/useBreakpoints";
 import useFilters from "@/hooks/useFilters";
 
 import query from "@/Utils/request/query";
@@ -27,6 +28,8 @@ export const EncounterServiceRequestTab = ({
     limit: 20,
     disableCache: true,
   });
+
+  const maxVisibleTabs = useBreakpoints({ default: 2, md: 3 });
 
   const facilityId = encounter.facility.id;
 
@@ -55,13 +58,13 @@ export const EncounterServiceRequestTab = ({
           showAllOption={true}
           allOptionLabel="all_statuses"
           showMoreDropdown={true}
-          maxVisibleTabs={3}
+          maxVisibleTabs={maxVisibleTabs}
           defaultVisibleOptions={[
             Status.active,
             Status.completed,
             Status.draft,
           ]}
-          className="w-auto"
+          className="w-auto overflow-x-auto"
         />
       </div>
 

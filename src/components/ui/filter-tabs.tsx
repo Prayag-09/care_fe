@@ -45,17 +45,29 @@ export function FilterTabs({
   // State for managing visible tabs when using dropdown
   const [visibleOptions, setVisibleOptions] = useState<string[]>(() => {
     if (!showMoreDropdown) return options;
-    if (defaultVisibleOptions) return defaultVisibleOptions;
+
+    if (defaultVisibleOptions) {
+      // Validate and respect maxVisibleTabs even with defaultVisibleOptions
+      const validDefaultOptions = defaultVisibleOptions.filter((option) =>
+        options.includes(option),
+      );
+      return validDefaultOptions.slice(0, maxVisibleTabs);
+    }
+
     return options.slice(0, maxVisibleTabs);
   });
 
   const [dropdownOptions, setDropdownOptions] = useState<string[]>(() => {
     if (!showMoreDropdown) return [];
+
     if (defaultVisibleOptions) {
-      return options.filter(
-        (option) => !defaultVisibleOptions.includes(option),
-      );
+      const validDefaultOptions = defaultVisibleOptions
+        .filter((option) => options.includes(option))
+        .slice(0, maxVisibleTabs);
+
+      return options.filter((option) => !validDefaultOptions.includes(option));
     }
+
     return options.slice(maxVisibleTabs);
   });
 
@@ -69,6 +81,17 @@ export function FilterTabs({
 
   const handleDropdownSelect = (selectedOption: string) => {
     if (!showMoreDropdown) return;
+
+    // Safety check: ensure we have visible options to swap
+    if (visibleOptions.length === 0) {
+      // If no visible options, just add the selected option to visible
+      setVisibleOptions([selectedOption]);
+      setDropdownOptions(
+        dropdownOptions.filter((option) => option !== selectedOption),
+      );
+      onValueChange(selectedOption);
+      return;
+    }
 
     // Swap the last visible tab with the selected dropdown option
     const lastVisibleOption = visibleOptions[visibleOptions.length - 1];
