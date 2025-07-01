@@ -47,10 +47,10 @@ function PDFRenderer({ fileUrl }: { fileUrl: string }) {
 }
 
 export default function DiagnosticReportPrint({
-  facilityId,
+  patientId,
   diagnosticReportId,
 }: {
-  facilityId: string;
+  patientId: string;
   diagnosticReportId: string;
 }) {
   const { t } = useTranslation();
@@ -59,7 +59,7 @@ export default function DiagnosticReportPrint({
     queryKey: ["diagnosticReport", diagnosticReportId],
     queryFn: query(diagnosticReportApi.retrieveDiagnosticReport, {
       pathParams: {
-        facility_external_id: facilityId,
+        patient_external_id: patientId,
         external_id: diagnosticReportId,
       },
     }),

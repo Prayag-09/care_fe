@@ -72,6 +72,7 @@ import {
 import { SpecimenRead, SpecimenStatus } from "@/types/emr/specimen/specimen";
 
 interface DiagnosticReportFormProps {
+  patientId: string;
   facilityId: string;
   serviceRequestId: string;
   observationDefinitions: ObservationDefinitionReadSpec[];
@@ -100,7 +101,7 @@ interface ObservationValue {
 }
 
 export function DiagnosticReportForm({
-  facilityId,
+  patientId,
   serviceRequestId,
   observationDefinitions,
   diagnosticReports,
@@ -136,7 +137,7 @@ export function DiagnosticReportForm({
     queryKey: ["diagnosticReport", latestReport?.id],
     queryFn: query(diagnosticReportApi.retrieveDiagnosticReport, {
       pathParams: {
-        facility_external_id: facilityId,
+        patient_external_id: patientId,
         external_id: latestReport?.id || "",
       },
     }),
@@ -163,7 +164,7 @@ export function DiagnosticReportForm({
     useMutation({
       mutationFn: mutate(diagnosticReportApi.createDiagnosticReport, {
         pathParams: {
-          facility_external_id: facilityId,
+          patient_external_id: patientId,
         },
       }),
       onSuccess: () => {
@@ -207,7 +208,7 @@ export function DiagnosticReportForm({
     useMutation({
       mutationFn: mutate(observationApi.upsertObservations, {
         pathParams: {
-          facility_external_id: facilityId,
+          patient_external_id: patientId,
           external_id: latestReport?.id || "",
         },
       }),
@@ -231,7 +232,7 @@ export function DiagnosticReportForm({
     useMutation({
       mutationFn: mutate(diagnosticReportApi.updateDiagnosticReport, {
         pathParams: {
-          facility_external_id: facilityId,
+          patient_external_id: patientId,
           external_id: latestReport?.id || "",
         },
       }),

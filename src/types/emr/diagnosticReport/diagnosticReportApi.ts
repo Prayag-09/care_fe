@@ -9,26 +9,26 @@ import {
 
 export default {
   listDiagnosticReports: {
-    path: "/api/v1/facility/{facility_external_id}/diagnostic_report/",
+    path: "/api/v1/patient/{patient_external_id}/diagnostic_report/",
     method: HttpMethod.GET,
     TRes: Type<PaginatedResponse<DiagnosticReportRead>>(),
   },
 
   createDiagnosticReport: {
-    path: "/api/v1/facility/{facility_external_id}/diagnostic_report/",
+    path: "/api/v1/patient/{patient_external_id}/diagnostic_report/",
     method: HttpMethod.POST,
     TRes: Type<DiagnosticReportRead>(), // Response seems similar to Read
     TBody: Type<DiagnosticReportCreate>(),
   },
 
   retrieveDiagnosticReport: {
-    path: "/api/v1/facility/{facility_external_id}/diagnostic_report/{external_id}/",
+    path: "/api/v1/patient/{patient_external_id}/diagnostic_report/{external_id}/",
     method: HttpMethod.GET,
     TRes: Type<DiagnosticReportRead>(),
   },
 
   updateDiagnosticReport: {
-    path: "/api/v1/facility/{facility_external_id}/diagnostic_report/{external_id}/",
+    path: "/api/v1/patient/{patient_external_id}/diagnostic_report/{external_id}/",
     method: HttpMethod.PUT,
     TRes: Type<DiagnosticReportRead>(),
     TBody: Type<DiagnosticReportUpdate>(),

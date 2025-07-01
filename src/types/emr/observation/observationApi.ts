@@ -8,7 +8,7 @@ import {
 
 export default {
   upsertObservations: {
-    path: "/api/v1/facility/{facility_external_id}/diagnostic_report/{external_id}/upsert_observations/",
+    path: "/api/v1/patient/{patient_external_id}/diagnostic_report/{external_id}/upsert_observations/",
     method: HttpMethod.POST,
     TRes: Type<void>(),
     TBody: Type<{

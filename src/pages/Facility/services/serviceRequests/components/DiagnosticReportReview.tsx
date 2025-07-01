@@ -60,12 +60,14 @@ import diagnosticReportApi from "@/types/emr/diagnosticReport/diagnosticReportAp
 
 interface DiagnosticReportReviewProps {
   facilityId: string;
+  patientId: string;
   serviceRequestId: string;
   diagnosticReports: DiagnosticReportRead[];
 }
 
 export function DiagnosticReportReview({
   facilityId,
+  patientId,
   diagnosticReports,
 }: DiagnosticReportReviewProps) {
   const { t } = useTranslation();
@@ -79,7 +81,7 @@ export function DiagnosticReportReview({
     queryKey: ["diagnosticReport", latestReport?.id],
     queryFn: query(diagnosticReportApi.retrieveDiagnosticReport, {
       pathParams: {
-        facility_external_id: facilityId,
+        patient_external_id: patientId,
         external_id: latestReport?.id || "",
       },
     }),
@@ -110,7 +112,7 @@ export function DiagnosticReportReview({
     useMutation({
       mutationFn: mutate(diagnosticReportApi.updateDiagnosticReport, {
         pathParams: {
-          facility_external_id: facilityId,
+          patient_external_id: patientId,
           external_id: latestReport?.id || "",
         },
       }),
@@ -323,7 +325,7 @@ export function DiagnosticReportReview({
                       className="gap-2"
                       onClick={() =>
                         navigate(
-                          `/facility/${facilityId}/diagnostic_reports/${fullReport?.id}`,
+                          `/facility/${facilityId}/patient/${patientId}/diagnostic_reports/${fullReport?.id}`,
                         )
                       }
                     >

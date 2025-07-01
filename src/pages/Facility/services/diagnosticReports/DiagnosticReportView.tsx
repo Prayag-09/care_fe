@@ -23,9 +23,11 @@ import diagnosticReportApi from "@/types/emr/diagnosticReport/diagnosticReportAp
 
 export default function DiagnosticReportView({
   facilityId,
+  patientId,
   diagnosticReportId,
 }: {
   facilityId: string;
+  patientId: string;
   diagnosticReportId: string;
 }) {
   const { t } = useTranslation();
@@ -34,7 +36,7 @@ export default function DiagnosticReportView({
     queryKey: ["diagnosticReport", diagnosticReportId],
     queryFn: query(diagnosticReportApi.retrieveDiagnosticReport, {
       pathParams: {
-        facility_external_id: facilityId,
+        patient_external_id: patientId,
         external_id: diagnosticReportId,
       },
     }),
@@ -85,7 +87,7 @@ export default function DiagnosticReportView({
           variant="outline"
           onClick={() =>
             navigate(
-              `/facility/${facilityId}/diagnostic_reports/${diagnosticReportId}/print`,
+              `/facility/${facilityId}/patient/${report.encounter.patient.id}/diagnostic_reports/${diagnosticReportId}/print`,
             )
           }
         >

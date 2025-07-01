@@ -44,7 +44,7 @@ export const EncounterDiagnosticReportsTab = ({
   const { data, isLoading } = useQuery({
     queryKey: ["diagnosticReports", facilityId, encounter.id, page, limit],
     queryFn: query(diagnosticReportApi.listDiagnosticReports, {
-      pathParams: { facility_external_id: facilityId },
+      pathParams: { patient_external_id: encounter.patient.id },
       queryParams: {
         encounter: encounter.id,
         offset: (page - 1) * limit,
@@ -126,7 +126,7 @@ export const EncounterDiagnosticReportsTab = ({
                                       size="icon"
                                       onClick={() =>
                                         navigate(
-                                          `/facility/${facilityId}/diagnostic_reports/${report.id}`,
+                                          `/facility/${facilityId}/patient/${encounter.patient.id}/diagnostic_reports/${report.id}`,
                                         )
                                       }
                                     >
