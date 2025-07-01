@@ -56,6 +56,11 @@ export function SpecimenForm({
     "generate",
   );
 
+  const [errors, setErrors] = useState<{
+    quantityValue?: string;
+    quantityUnit?: string;
+  }>({});
+
   const [specimenData, setSpecimenData] = useState<
     Omit<SpecimenFromDefinitionCreate, "specimen"> & {
       specimen: Omit<
@@ -120,6 +125,15 @@ export function SpecimenForm({
           : null,
       },
     }));
+
+    if (field === "quantity") {
+      setErrors((prev) => {
+        const newErrors = { ...prev };
+        if (value?.value) delete newErrors.quantityValue;
+        if (value?.unit) delete newErrors.quantityUnit;
+        return newErrors;
+      });
+    }
   };
 
   const handleSpecimenChange = (
@@ -148,6 +162,24 @@ export function SpecimenForm({
       toast.error(t("specimen_draft_missing"));
       return;
     }
+
+    const quantity = specimenData.specimen.collection?.quantity;
+    const newErrors: typeof errors = {};
+
+    if (!quantity?.value || quantity.value <= 0) {
+      newErrors.quantityValue = t("field_required");
+    }
+
+    if (!quantity?.unit) {
+      newErrors.quantityUnit = t("field_required");
+    }
+
+    if (Object.keys(newErrors).length > 0) {
+      setErrors(newErrors);
+      return;
+    }
+
+    setErrors({});
 
     let finalData = { ...specimenData };
     if (identifierMode === "generate") {
@@ -306,24 +338,32 @@ export function SpecimenForm({
               <div>
                 <Label className="text-sm text-gray-700">{t("quantity")}</Label>
                 <div className="flex gap-2">
-                  <Input
-                    type="number"
-                    placeholder={t("value")}
-                    className="max-w-36 h-9"
-                    value={
-                      specimenData.specimen.collection?.quantity?.value ?? ""
-                    }
-                    onChange={(e) =>
-                      handleCollectionChange("quantity", {
-                        ...(specimenData.specimen.collection?.quantity ?? {}),
-                        value: e.target.value
-                          ? parseFloat(e.target.value)
-                          : null,
-                        unit: specimenData.specimen.collection?.quantity?.unit,
-                      })
-                    }
-                    step="any"
-                  />
+                  <div className="flex-1 max-w-36">
+                    <Input
+                      type="number"
+                      placeholder={t("value")}
+                      className="h-9"
+                      value={
+                        specimenData.specimen.collection?.quantity?.value ?? ""
+                      }
+                      onChange={(e) =>
+                        handleCollectionChange("quantity", {
+                          ...(specimenData.specimen.collection?.quantity ?? {}),
+                          value: e.target.value
+                            ? parseFloat(e.target.value)
+                            : null,
+                          unit: specimenData.specimen.collection?.quantity
+                            ?.unit,
+                        })
+                      }
+                      step="any"
+                    />
+                    {errors.quantityValue && (
+                      <p className="text-sm text-red-600 mt-1">
+                        {errors.quantityValue}
+                      </p>
+                    )}
+                  </div>
                   <div className="flex-1">
                     <ValueSetSelect
                       system="system-ucum-units"
@@ -339,6 +379,11 @@ export function SpecimenForm({
                       }
                       value={specimenData.specimen.collection?.quantity?.unit}
                     />
+                    {errors.quantityUnit && (
+                      <p className="text-sm text-red-600 mt-1">
+                        {errors.quantityUnit}
+                      </p>
+                    )}
                   </div>
                 </div>
               </div>
