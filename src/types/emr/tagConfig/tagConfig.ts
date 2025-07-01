@@ -35,7 +35,7 @@ export enum TagResource {
 
 export interface TagConfig {
   meta: TagConfigMeta;
-  id: string | null;
+  id: string;
   slug: string;
   display: string;
   category: TagCategory;
@@ -59,8 +59,4 @@ export interface TagConfigRequest {
   parent?: string | null;
   resource: TagResource;
   facility?: string;
-}
-
-export interface TagConfigResponse extends TagConfig {
-  id: string;
 }

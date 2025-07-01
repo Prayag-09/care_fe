@@ -12,6 +12,7 @@ import { Badge } from "@/components/ui/badge";
 
 import { CareTeamResponse } from "@/types/careTeam/careTeam";
 import { Patient } from "@/types/emr/patient/patient";
+import { TagConfig } from "@/types/emr/tagConfig/tagConfig";
 import { FacilityOrganization } from "@/types/facilityOrganization/facilityOrganization";
 import { LocationAssociationStatus } from "@/types/location/association";
 import { LocationList } from "@/types/location/location";
@@ -216,6 +217,7 @@ export interface Encounter {
   permissions: string[];
   care_team: CareTeamResponse[];
   discharge_summary_advice?: string;
+  tags: TagConfig[];
 }
 
 export interface EncounterEditRequest {

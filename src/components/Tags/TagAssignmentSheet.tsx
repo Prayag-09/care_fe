@@ -1,10 +1,18 @@
 import { useMutation, useQuery } from "@tanstack/react-query";
-import { Check, Hash, Loader2, X } from "lucide-react";
-import { useEffect, useMemo, useState } from "react";
+import {
+  Check,
+  ChevronDown,
+  ChevronRight,
+  Folder,
+  Hash,
+  Loader2,
+  Plus,
+  Tag as TagIcon,
+  X,
+} from "lucide-react";
+import { useEffect, useState } from "react";
 import { useTranslation } from "react-i18next";
 import { toast } from "sonner";
-
-import { cn } from "@/lib/utils";
 
 import { Badge } from "@/components/ui/badge";
 import { Button } from "@/components/ui/button";
@@ -35,9 +43,17 @@ import mutate from "@/Utils/request/mutate";
 import query from "@/Utils/request/query";
 import encounterApi from "@/types/emr/encounter/encounterApi";
 import patientApi from "@/types/emr/patient/patientApi";
+import { TagConfig, TagResource } from "@/types/emr/tagConfig/tagConfig";
+import tagConfigApi from "@/types/emr/tagConfig/tagConfigApi";
 
 // Define the entity types that support tags
 export type TagEntityType = "patient" | "encounter";
+
+// Mapping from entity types to tag resources
+const ENTITY_TO_RESOURCE_MAP = {
+  patient: TagResource.PATIENT,
+  encounter: TagResource.ENCOUNTER,
+} as const;
 
 // Configuration for different entity types using their respective API files
 // TODO: Add more entity configurations here as needed
@@ -70,116 +86,334 @@ const ENTITY_CONFIG = {
   // },
 } as const;
 
-// Tag interface
-interface Tag {
-  id: string;
-  slug: string;
-  display: string;
-  category: string;
-  description?: string;
-}
-
 interface TagAssignmentSheetProps {
   entityType: TagEntityType;
   entityId: string;
-  currentTags: Tag[];
+  currentTags: TagConfig[];
   onUpdate: () => void;
   trigger?: React.ReactNode;
   canWrite?: boolean;
 }
 
 interface TagSelectorProps {
-  title?: string;
-  selected: Tag[];
+  selected: TagConfig[];
+  onChange: (tags: TagConfig[]) => void;
+  resource: TagResource;
+}
+
+// Add TagExpandableItem component for expandable tag groups
+function TagExpandableItem({
+  tag,
+  selected,
+  onToggle,
+  resource,
+}: {
+  tag: TagConfig;
+  selected: TagConfig[];
   onToggle: (tagId: string) => void;
-  searchQuery: string;
-  onSearchChange: (query: string) => void;
-  isLoading?: boolean;
-  tagOptions?: Tag[];
-  className?: string;
-  triggerClassName?: string;
+  resource: TagResource;
+}) {
+  const { t } = useTranslation();
+  const [expanded, setExpanded] = useState(false);
+  const { data, isLoading } = useQuery({
+    queryKey: ["child_tags", tag.id],
+    queryFn: expanded
+      ? query(tagConfigApi.list, {
+          queryParams: {
+            resource,
+            parent: tag.id,
+          },
+        })
+      : undefined,
+    enabled: expanded,
+  });
+
+  return (
+    <div>
+      <div
+        className="flex items-center gap-2 cursor-pointer"
+        onClick={() => tag.has_children && setExpanded((e) => !e)}
+      >
+        <span className="flex items-center gap-2 flex-1">
+          <Hash className="size-4" />
+          <span>{tag.display}</span>
+          <Badge variant="outline" className="text-xs">
+            {tag.category}
+          </Badge>
+        </span>
+        {/* Only show checkmark and allow selection for leaf tags */}
+        {!tag.has_children && selected.some((t) => t.id === tag.id) && (
+          <Check className="size-4" />
+        )}
+        {tag.has_children && (
+          <Button
+            variant="ghost"
+            size="icon"
+            className="size-4 p-0"
+            onClick={(e) => {
+              e.stopPropagation();
+              setExpanded((v) => !v);
+            }}
+          >
+            {expanded ? <span>&#9660;</span> : <span>&#9654;</span>}
+          </Button>
+        )}
+      </div>
+      {expanded && (
+        <div className="ml-6 border-l pl-2 mt-1">
+          {isLoading ? (
+            <Loader2 className="size-4 animate-spin" />
+          ) : data && Array.isArray(data.results) && data.results.length > 0 ? (
+            data.results.map((child: TagConfig) =>
+              child.has_children ? (
+                <TagExpandableItem
+                  key={child.id}
+                  tag={child}
+                  selected={selected}
+                  onToggle={onToggle}
+                  resource={resource}
+                />
+              ) : (
+                <div
+                  key={child.id}
+                  className="flex items-center gap-2 cursor-pointer ml-2"
+                  onClick={() => onToggle(child.id)}
+                >
+                  <Hash className="size-4" />
+                  <span>{child.display}</span>
+                  <Badge variant="outline" className="text-xs">
+                    {child.category}
+                  </Badge>
+                  {selected.some((t) => t.id === child.id) && (
+                    <Check className="size-4" />
+                  )}
+                </div>
+              ),
+            )
+          ) : (
+            <span className="text-xs text-gray-400">{t("no_tags_found")}</span>
+          )}
+        </div>
+      )}
+    </div>
+  );
 }
 
 export function TagSelectorPopover({
-  title,
   selected,
-  onToggle,
-  searchQuery,
-  onSearchChange,
-  isLoading,
-  tagOptions,
-  className,
-  triggerClassName,
+  onChange,
+  resource,
 }: TagSelectorProps) {
-  const { t } = useTranslation();
   const [open, setOpen] = useState(false);
+  const [expanded, setExpanded] = useState<Set<string>>(new Set());
+  const [search, setSearch] = useState("");
+
+  // Fetch top-level tags
+  const { data: rootTags, isLoading } = useQuery({
+    queryKey: ["tags", resource, search],
+    queryFn: query(tagConfigApi.list, {
+      queryParams: {
+        resource,
+        parent_is_null: true,
+        ...(search ? { search } : {}),
+      },
+    }),
+  });
+
+  // Helper to fetch children for a tag
+  function useChildTags(parentId: string) {
+    return useQuery({
+      queryKey: ["tags", resource, "parent", parentId],
+      queryFn: query(tagConfigApi.list, {
+        queryParams: { resource, parent: parentId },
+      }),
+      enabled: expanded.has(parentId),
+    });
+  }
+
+  // Individual tag item component that handles its own hook
+  function TagTreeItem({ tag }: { tag: TagConfig }) {
+    const { data: children, isLoading: loadingChildren } = useChildTags(tag.id);
+    const isGroup = tag.has_children;
+
+    return (
+      <div>
+        <CommandItem
+          value={tag.display}
+          onSelect={() => {
+            if (isGroup) {
+              toggleExpand(tag.id);
+            } else {
+              handleSelect(tag);
+            }
+          }}
+          className={`flex items-center justify-between cursor-pointer ${isGroup ? "font-medium" : ""}`}
+        >
+          <div className="flex items-center gap-2">
+            {isGroup ? (
+              <Folder className="h-4 w-4 text-muted-foreground" />
+            ) : (
+              <TagIcon className="h-4 w-4 text-muted-foreground" />
+            )}
+            <span>{tag.display}</span>
+            {isGroup && (
+              <Badge variant="outline" className="text-xs ml-2">
+                Group
+              </Badge>
+            )}
+          </div>
+          {isGroup ? (
+            expanded.has(tag.id) ? (
+              <ChevronDown className="h-4 w-4" />
+            ) : (
+              <ChevronRight className="h-4 w-4" />
+            )
+          ) : (
+            selected.some((t) => t.id === tag.id) && (
+              <Badge variant="secondary" className="text-xs">
+                Selected
+              </Badge>
+            )
+          )}
+        </CommandItem>
+        {/* Children */}
+        {isGroup && expanded.has(tag.id) && (
+          <div className="ml-6 border-l border-border pl-2">
+            {loadingChildren ? (
+              <div className="text-xs text-muted-foreground p-2">
+                Loading...
+              </div>
+            ) : children?.results?.length ? (
+              <TagTree tags={children.results} />
+            ) : (
+              <div className="text-xs text-muted-foreground p-2">No tags</div>
+            )}
+          </div>
+        )}
+      </div>
+    );
+  }
+
+  // Expand/collapse group
+  const toggleExpand = (id: string) => {
+    setExpanded((prev) => {
+      const next = new Set(prev);
+      next.has(id) ? next.delete(id) : next.add(id);
+      return next;
+    });
+  };
+
+  // Select/deselect tag
+  const handleSelect = (tag: TagConfig) => {
+    if (tag.has_children) return; // Only leaf tags selectable
+    // If tag has a parent, enforce single selection per group
+    const parentId =
+      tag.parent && typeof tag.parent === "object" && "id" in tag.parent
+        ? tag.parent.id
+        : undefined;
+    if (parentId) {
+      const alreadySelectedInGroup = selected.some(
+        (t) =>
+          t.parent &&
+          typeof t.parent === "object" &&
+          "id" in t.parent &&
+          t.parent.id === parentId,
+      );
+      if (alreadySelectedInGroup && !selected.some((t) => t.id === tag.id)) {
+        toast.error("Only one tag can be selected per group.");
+        return;
+      }
+    }
+    onChange(
+      selected.some((t) => t.id === tag.id)
+        ? selected.filter((t) => t.id !== tag.id)
+        : [...selected, tag],
+    );
+  };
+
+  // Remove tag
+  const handleRemove = (tagId: string) => {
+    onChange(selected.filter((t) => t.id !== tagId));
+  };
+
+  // Recursive render for tag tree
+  function TagTree({ tags }: { tags: TagConfig[] }) {
+    return (
+      <>
+        {tags.map((tag) => (
+          <TagTreeItem key={tag.id} tag={tag} />
+        ))}
+      </>
+    );
+  }
 
   return (
-    <Popover
-      modal={true}
-      open={open}
-      onOpenChange={(isOpen) => {
-        if (!isOpen) {
-          onSearchChange("");
-        }
-        setOpen(isOpen);
-      }}
-    >
-      <PopoverTrigger asChild>
-        <Button
-          variant="outline"
-          className={cn(
-            "w-full justify-start text-left font-normal",
-            triggerClassName,
-          )}
-        >
-          <Hash className="mr-2 size-4" />
-          <span>{title || t("search_tags")}</span>
-        </Button>
-      </PopoverTrigger>
-      <PopoverContent
-        className={cn("p-0 w-[var(--radix-popover-trigger-width)]", className)}
-        align="start"
-      >
-        <Command className="rounded-lg" filter={() => 1}>
-          <CommandInput
-            placeholder={t("search_tags")}
-            value={searchQuery}
-            onValueChange={onSearchChange}
-            className="outline-hidden border-none ring-0 shadow-none"
-          />
-          <CommandList>
-            <CommandEmpty>{t("no_tags_found")}</CommandEmpty>
-            <CommandGroup>
-              {isLoading ? (
-                <div className="flex items-center justify-center py-6">
-                  <Loader2 className="size-6 animate-spin" />
-                </div>
-              ) : (
-                tagOptions?.map((tag) => (
-                  <CommandItem
-                    key={tag.id}
-                    value={tag.id}
-                    onSelect={() => onToggle(tag.id)}
-                  >
-                    <div className="flex flex-1 items-center gap-2">
-                      <Hash className="size-4" />
-                      <span>{tag.display}</span>
-                      <Badge variant="outline" className="text-xs">
-                        {tag.category}
-                      </Badge>
-                    </div>
-                    {selected.some((t) => t.id === tag.id) && (
-                      <Check className="size-4" />
-                    )}
-                  </CommandItem>
-                ))
-              )}
-            </CommandGroup>
-          </CommandList>
-        </Command>
-      </PopoverContent>
-    </Popover>
+    <div>
+      {/* Selected tags */}
+      <div className="mb-2 flex flex-wrap gap-2">
+        {selected.length === 0 ? (
+          <span className="text-muted-foreground text-sm">
+            No tags selected
+          </span>
+        ) : (
+          selected.map((tag) => (
+            <Badge
+              key={tag.id}
+              variant="secondary"
+              className="flex items-center gap-1"
+            >
+              {tag.display}
+              <button
+                onClick={() => handleRemove(tag.id)}
+                className="ml-1 hover:bg-black/10 rounded-full p-0.5"
+              >
+                <X className="h-3 w-3" />
+              </button>
+            </Badge>
+          ))
+        )}
+      </div>
+      {/* Tag selector popover */}
+      <Popover open={open} onOpenChange={setOpen}>
+        <PopoverTrigger asChild>
+          <Button
+            variant="outline"
+            className="w-full justify-between bg-transparent"
+          >
+            <div className="flex items-center gap-2">
+              <Plus className="h-4 w-4" />
+              Select tags or browse groups...
+            </div>
+          </Button>
+        </PopoverTrigger>
+        <PopoverContent className="w-[320px] p-0" align="start">
+          <Command>
+            <CommandInput
+              className="border-none focus-visible:ring-0"
+              placeholder="Search tags and groups..."
+              value={search}
+              onValueChange={setSearch}
+            />
+            <CommandList>
+              <CommandEmpty>No tags or groups found.</CommandEmpty>
+              <CommandGroup heading="Tags">
+                {isLoading ? (
+                  <div className="text-xs text-muted-foreground p-2">
+                    Loading...
+                  </div>
+                ) : rootTags?.results?.length ? (
+                  <TagTree tags={rootTags.results} />
+                ) : (
+                  <div className="text-xs text-muted-foreground p-2">
+                    No tags
+                  </div>
+                )}
+              </CommandGroup>
+            </CommandList>
+          </Command>
+        </PopoverContent>
+      </Popover>
+    </div>
   );
 }
 
@@ -193,25 +427,9 @@ export default function TagAssignmentSheet({
 }: TagAssignmentSheetProps) {
   const { t } = useTranslation();
   const [open, setOpen] = useState(false);
-  const [searchQuery, setSearchQuery] = useState("");
-  const [selectedTags, setSelectedTags] = useState<Tag[]>([]);
+  const [selectedTags, setSelectedTags] = useState<TagConfig[]>([]);
 
   const entityConfig = ENTITY_CONFIG[entityType];
-
-  // Fetch available tags (all tags in the system)
-  const { data: availableTags, isLoading } = useQuery({
-    queryKey: ["available_tags", searchQuery],
-    queryFn: query.debounced(
-      {
-        path: "/api/v1/tag_config/",
-        method: "GET",
-        TRes: {} as any,
-      },
-      {
-        queryParams: searchQuery !== "" ? { search: searchQuery } : undefined,
-      },
-    ),
-  });
 
   // Set tags mutation
   const { mutate: setTags, isPending: isSettingTags } = useMutation({
@@ -248,64 +466,34 @@ export default function TagAssignmentSheet({
     setSelectedTags(currentTags);
   }, [currentTags]);
 
-  // Merge available tags with selected tags
-  const tagOptions = useMemo(() => {
-    if (!availableTags?.results) return selectedTags;
-    if (searchQuery) return availableTags.results;
-
-    const availableIds = new Set(
-      availableTags.results.map((tag: Tag) => tag.id),
-    );
-    const selectedNotInAvailable = selectedTags.filter(
-      (selectedTag: Tag) => !availableIds.has(selectedTag.id),
-    );
-
-    return [...availableTags.results, ...selectedNotInAvailable];
-  }, [availableTags, selectedTags, searchQuery]);
-
   if (!entityConfig) {
     console.error(`Unsupported entity type: ${entityType}`);
     return null;
   }
 
-  const handleToggleTag = (tagId: string) => {
-    setSelectedTags((current) => {
-      const newTag = tagOptions?.find((tag: Tag) => tag.id === tagId);
-      return current.some((tag: Tag) => tag.id === tagId)
-        ? current.filter((tag: Tag) => tag.id !== tagId)
-        : newTag
-          ? [...current, newTag]
-          : current;
-    });
-  };
-
   const handleSave = () => {
-    const currentTagIds = new Set(currentTags.map((tag: Tag) => tag.id));
-    const selectedTagIds = new Set(selectedTags.map((tag: Tag) => tag.id));
+    const currentTagIds = new Set(currentTags.map((tag: TagConfig) => tag.id));
+    const selectedTagIds = new Set(
+      selectedTags.map((tag: TagConfig) => tag.id),
+    );
 
     // Find tags to add and remove
     const tagsToAdd = selectedTags.filter(
-      (tag: Tag) => !currentTagIds.has(tag.id),
+      (tag: TagConfig) => !currentTagIds.has(tag.id),
     );
     const tagsToRemove = currentTags.filter(
-      (tag: Tag) => !selectedTagIds.has(tag.id),
+      (tag: TagConfig) => !selectedTagIds.has(tag.id),
     );
 
     // Execute mutations
     if (tagsToAdd.length > 0) {
-      setTags({ tags: tagsToAdd.map((tag: Tag) => tag.id) });
+      setTags({ tags: tagsToAdd.map((tag: TagConfig) => tag.id!) });
     }
+
     if (tagsToRemove.length > 0) {
-      removeTags({ tags: tagsToRemove.map((tag: Tag) => tag.id) });
+      removeTags({ tags: tagsToRemove.map((tag: TagConfig) => tag.id!) });
     }
   };
-
-  const hasChanges =
-    new Set(currentTags.map((tag: Tag) => tag.id)).size !==
-      new Set(selectedTags).size ||
-    !currentTags.every((tag: Tag) =>
-      selectedTags.some((st: Tag) => st.id === tag.id),
-    );
 
   const isLoadingTags = isSettingTags || isRemovingTags;
 
@@ -330,45 +518,13 @@ export default function TagAssignmentSheet({
         </SheetHeader>
 
         <div className="space-y-6 py-4">
-          {/* Selected Tags */}
-          <div className="space-y-4">
-            <h3 className="text-sm font-medium">{t("selected_tags")}</h3>
-            <div className="flex flex-wrap gap-2">
-              {selectedTags?.map((tag) => (
-                <Badge
-                  key={tag.id}
-                  variant="secondary"
-                  className="flex items-center gap-1"
-                >
-                  {tag.display}
-                  <Button
-                    variant="ghost"
-                    size="icon"
-                    className="size-4 p-0 hover:bg-transparent"
-                    onClick={() => handleToggleTag(tag.id)}
-                    disabled={isLoadingTags || !canWrite}
-                  >
-                    <X className="size-3" />
-                  </Button>
-                </Badge>
-              ))}
-              {(!selectedTags || selectedTags.length === 0) && (
-                <p className="text-sm text-gray-500">{t("no_tags_selected")}</p>
-              )}
-            </div>
-          </div>
-
           {/* Tag Selector */}
           <div className="space-y-4">
             <h3 className="text-sm font-medium">{t("add_tags")}</h3>
             <TagSelectorPopover
               selected={selectedTags}
-              onToggle={handleToggleTag}
-              searchQuery={searchQuery}
-              onSearchChange={setSearchQuery}
-              isLoading={isLoading}
-              tagOptions={tagOptions}
-              className="w-full justify-start text-left font-normal"
+              onChange={setSelectedTags}
+              resource={ENTITY_TO_RESOURCE_MAP[entityType]}
             />
           </div>
         </div>
@@ -385,10 +541,7 @@ export default function TagAssignmentSheet({
             >
               {t("cancel")}
             </Button>
-            <Button
-              onClick={handleSave}
-              disabled={isLoadingTags || !hasChanges || !canWrite}
-            >
+            <Button onClick={handleSave} disabled={isLoadingTags || !canWrite}>
               {isLoadingTags ? (
                 <>
                   <Loader2 className="mr-2 size-4 animate-spin" />

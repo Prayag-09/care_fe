@@ -96,7 +96,7 @@ export default function TagConfigView({
           typeof childData.parent === "object" &&
           childData.parent.id
             ? childData.parent.id
-            : undefined,
+            : null,
       });
     },
     onSuccess: () => {

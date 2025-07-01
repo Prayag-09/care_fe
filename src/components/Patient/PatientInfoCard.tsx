@@ -67,7 +67,7 @@ export default function PatientInfoCard(props: PatientInfoCardProps) {
 
   const handleTagsUpdate = () => {
     // Refresh the patient data to get updated tags
-    queryClient.invalidateQueries({ queryKey: ["patient", patient.id] });
+    queryClient.invalidateQueries({ queryKey: ["encounter", encounter.id] });
   };
 
   return (
@@ -475,7 +475,7 @@ export default function PatientInfoCard(props: PatientInfoCardProps) {
                     <TagAssignmentSheet
                       entityType="encounter"
                       entityId={encounter.id}
-                      currentTags={[]}
+                      currentTags={encounter.tags || []}
                       onUpdate={handleTagsUpdate}
                       trigger={
                         <div className="flex items-center gap-1 text-gray-950 py-0.5 cursor-pointer hover:bg-secondary-100 capitalize">
