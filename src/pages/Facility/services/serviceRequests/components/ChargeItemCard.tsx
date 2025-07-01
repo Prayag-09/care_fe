@@ -1,6 +1,7 @@
 import { t } from "i18next";
 import { InfoIcon } from "lucide-react";
 
+import { Badge } from "@/components/ui/badge";
 import { Card } from "@/components/ui/card";
 import {
   Popover,
@@ -10,7 +11,10 @@ import {
 
 import ChargeItemPriceDisplay from "@/components/Billing/ChargeItem/ChargeItemPriceDisplay";
 
-import { ChargeItemRead } from "@/types/billing/chargeItem/chargeItem";
+import {
+  CHARGE_ITEM_STATUS_COLORS,
+  ChargeItemRead,
+} from "@/types/billing/chargeItem/chargeItem";
 
 interface ChargeItemCardProps {
   chargeItem: ChargeItemRead;
@@ -23,15 +27,18 @@ export function ChargeItemCard({ chargeItem }: ChargeItemCardProps) {
     <Card className="p-4 space-y-4">
       <div className="flex justify-between items-start">
         <div>
-          <div className="flex flex-row items-center text-sm text-gray-600">
-            {chargeItem.title}
+          <div className="flex flex-row items-center text-sm text-gray-600 gap-2">
+            <span className="text-base text-gray-950">{chargeItem.title}</span>
             {chargeItem.quantity > 1 && (
-              <span className="ml-1 text-xs font-medium text-gray-500">
+              <span className="text-sm text-gray-950">
                 {t("x")} {chargeItem.quantity}
               </span>
             )}
+            <Badge variant={CHARGE_ITEM_STATUS_COLORS[chargeItem.status]}>
+              {t(chargeItem.status)}
+            </Badge>
           </div>
-          <div className="font-semibold flex items-center gap-1">
+          <div className="font-semibold flex items-center">
             <span>₹{chargeItem.total_price}</span>
             {chargeItem.total_price_components?.length > 0 && (
               <Popover>
@@ -49,11 +56,9 @@ export function ChargeItemCard({ chargeItem }: ChargeItemCardProps) {
         </div>
         <div className="flex flex-col items-end gap-1">
           <div className="text-sm text-gray-600">Payment Status:</div>
-          <div
-            className={`text-sm px-2 py-1 rounded-md ${isPaid ? "bg-green-100 text-green-700" : "bg-red-100 text-red-700"}`}
-          >
-            {isPaid ? "Paid" : "Unpaid"}
-          </div>
+          <Badge variant={isPaid ? "green" : "destructive"}>
+            {isPaid ? t("paid") : t("unpaid")}
+          </Badge>
         </div>
       </div>
     </Card>
