@@ -1,8 +1,12 @@
 import { useQuery } from "@tanstack/react-query";
 import { useTranslation } from "react-i18next";
 
+import CareIcon from "@/CAREUI/icons/CareIcon";
+
 import { Card, CardContent } from "@/components/ui/card";
+import { FilterSelect } from "@/components/ui/filter-select";
 import { FilterTabs } from "@/components/ui/filter-tabs";
+import { Input } from "@/components/ui/input";
 
 import { TableSkeleton } from "@/components/Common/SkeletonLoading";
 import ServiceRequestTable from "@/components/ServiceRequest/ServiceRequestTable";
@@ -12,7 +16,7 @@ import useFilters from "@/hooks/useFilters";
 
 import query from "@/Utils/request/query";
 import { EncounterTabProps } from "@/pages/Encounters/EncounterShow";
-import { Status } from "@/types/emr/serviceRequest/serviceRequest";
+import { Priority, Status } from "@/types/emr/serviceRequest/serviceRequest";
 import serviceRequestApi from "@/types/emr/serviceRequest/serviceRequestApi";
 
 export const EncounterServiceRequestTab = ({
@@ -42,14 +46,20 @@ export const EncounterServiceRequestTab = ({
         offset: ((qParams.page ?? 1) - 1) * resultsPerPage,
         limit: resultsPerPage,
         status: qParams.status,
+        title: qParams.search,
+        priority: qParams.priority,
       },
     }),
   });
 
+  const handleClearPriority = () => {
+    updateQuery({ priority: undefined });
+  };
+
   return (
     <div className="space-y-6">
-      {/* Status Filter */}
-      <div className="flex justify-start">
+      <div className="flex flex-wrap items-center gap-4">
+        {/* Status Filter */}
         <FilterTabs
           value={qParams.status || ""}
           onValueChange={(value) => updateQuery({ status: value })}
@@ -66,6 +76,28 @@ export const EncounterServiceRequestTab = ({
           ]}
           className="w-auto overflow-x-auto"
         />
+
+        <FilterSelect
+          value={qParams.priority || ""}
+          onValueChange={(value) => updateQuery({ priority: value })}
+          options={Object.values(Priority)}
+          label="priority"
+          onClear={handleClearPriority}
+        />
+
+        <div className="relative ml-auto w-full md:w-[300px]">
+          <span className="absolute left-3 top-1/2 -translate-y-1/2 text-gray-400">
+            <CareIcon icon="l-search" className="size-5" />
+          </span>
+          <Input
+            placeholder={t("search_service_requests")}
+            value={qParams.search || ""}
+            onChange={(e) =>
+              updateQuery({ search: e.target.value || undefined })
+            }
+            className="w-full md:w-[300px] pl-10"
+          />
+        </div>
       </div>
 
       {isLoading ? (
