@@ -101,6 +101,7 @@ export default function ProductList({ facilityId }: { facilityId: string }) {
         limit: resultsPerPage,
         offset: ((qParams.page ?? 1) - 1) * resultsPerPage,
         status: qParams.status,
+        name: qParams.search,
       },
     }),
   });
