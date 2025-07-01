@@ -36,6 +36,7 @@ import Loading from "@/components/Common/Loading";
 
 import mutate from "@/Utils/request/mutate";
 import query from "@/Utils/request/query";
+import { generateSlug } from "@/Utils/utils";
 import {
   MonetaryComponent,
   MonetaryComponentRead,
@@ -253,6 +254,12 @@ export function ChargeItemDefinitionForm({
   // Main form schema
   const formSchema = z.object({
     title: z.string().min(1, { message: t("field_required") }),
+    slug: z
+      .string()
+      .min(1, { message: t("field_required") })
+      .regex(/^[a-z0-9-]+$/, {
+        message: t("slug_format_message"),
+      }),
     status: z.nativeEnum(ChargeItemDefinitionStatus),
     description: z.string().nullable(),
     purpose: z.string().nullable(),
@@ -285,6 +292,7 @@ export function ChargeItemDefinitionForm({
     resolver: zodResolver(formSchema),
     defaultValues: {
       title: initialData?.title || "",
+      slug: initialData?.slug || "",
       status: initialData?.status || ChargeItemDefinitionStatus.active,
       description: initialData?.description || null,
       purpose: initialData?.purpose || null,
@@ -332,7 +340,6 @@ export function ChargeItemDefinitionForm({
   const onSubmit = (values: z.infer<typeof formSchema>) => {
     const submissionData: ChargeItemDefinitionCreate = {
       ...values,
-      slug: values.title.toLowerCase().replace(/\s+/g, "-"),
     };
     upsert(submissionData);
   };
@@ -465,8 +472,47 @@ export function ChargeItemDefinitionForm({
                   <FormItem>
                     <FormLabel aria-required>{t("title")}</FormLabel>
                     <FormControl>
-                      <Input {...field} placeholder={t("title")} />
+                      <Input
+                        {...field}
+                        placeholder={t("title")}
+                        onChange={(e) => {
+                          const currentSlug = form.getValues("slug");
+                          const currentTitle = form.getValues("title");
+                          field.onChange(e);
+                          const updatedTitle = e.target.value;
+                          if (generateSlug(currentTitle) === currentSlug) {
+                            form.setValue("slug", generateSlug(updatedTitle));
+                          }
+                        }}
+                      />
                     </FormControl>
+                    <FormMessage />
+                  </FormItem>
+                )}
+              />
+
+              <FormField
+                control={form.control}
+                name="slug"
+                render={({ field }) => (
+                  <FormItem>
+                    <FormLabel aria-required>{t("slug")}</FormLabel>
+                    <FormControl>
+                      <Input
+                        {...field}
+                        placeholder={t("slug_input_placeholder")}
+                        onChange={(e) => {
+                          // Only allow lowercase letters, numbers, and hyphens
+                          const sanitizedValue = e.target.value
+                            .toLowerCase()
+                            .replace(/[^a-z0-9-]/g, "");
+                          field.onChange(sanitizedValue);
+                        }}
+                      />
+                    </FormControl>
+                    <p className="text-sm text-gray-500 mt-1">
+                      {t("slug_format_message")}
+                    </p>
                     <FormMessage />
                   </FormItem>
                 )}

@@ -333,3 +333,7 @@ export function getWeeklyIntervalsFromTodayTill(pastDate?: Date | string) {
 
   return intervals;
 }
+
+export function generateSlug(title: string) {
+  return title.toLowerCase().replace(/\s+/g, "-");
+}
