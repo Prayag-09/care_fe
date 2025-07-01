@@ -56,34 +56,51 @@ export const EncounterServiceRequestTab = ({
     updateQuery({ priority: undefined });
   };
 
+  const handleClearStatus = () => {
+    updateQuery({ status: undefined });
+  };
+
   return (
     <div className="space-y-6">
       <div className="flex flex-wrap items-center gap-4">
-        {/* Status Filter */}
-        <FilterTabs
-          value={qParams.status || ""}
-          onValueChange={(value) => updateQuery({ status: value })}
-          options={Object.values(Status)}
-          variant="background"
-          showAllOption={true}
-          allOptionLabel="all_statuses"
-          showMoreDropdown={true}
-          maxVisibleTabs={maxVisibleTabs}
-          defaultVisibleOptions={[
-            Status.active,
-            Status.completed,
-            Status.draft,
-          ]}
-          className="w-auto overflow-x-auto"
-        />
+        <div className="hidden md:block">
+          <FilterTabs
+            value={qParams.status || ""}
+            onValueChange={(value) => updateQuery({ status: value })}
+            options={Object.values(Status)}
+            variant="background"
+            showAllOption={true}
+            allOptionLabel="all"
+            showMoreDropdown={true}
+            maxVisibleTabs={maxVisibleTabs}
+            defaultVisibleOptions={[
+              Status.active,
+              Status.completed,
+              Status.draft,
+            ]}
+            className="w-auto overflow-x-auto"
+          />
+        </div>
 
-        <FilterSelect
-          value={qParams.priority || ""}
-          onValueChange={(value) => updateQuery({ priority: value })}
-          options={Object.values(Priority)}
-          label="priority"
-          onClear={handleClearPriority}
-        />
+        <div className="w-full md:hidden">
+          <FilterSelect
+            value={qParams.status || ""}
+            onValueChange={(value) => updateQuery({ status: value })}
+            options={Object.values(Status)}
+            label="status"
+            onClear={handleClearStatus}
+          />
+        </div>
+
+        <div className="w-full md:w-auto">
+          <FilterSelect
+            value={qParams.priority || ""}
+            onValueChange={(value) => updateQuery({ priority: value })}
+            options={Object.values(Priority)}
+            label="priority"
+            onClear={handleClearPriority}
+          />
+        </div>
 
         <div className="relative ml-auto w-full md:w-[300px]">
           <span className="absolute left-3 top-1/2 -translate-y-1/2 text-gray-400">
@@ -95,7 +112,7 @@ export const EncounterServiceRequestTab = ({
             onChange={(e) =>
               updateQuery({ search: e.target.value || undefined })
             }
-            className="w-full md:w-[300px] pl-10"
+            className="w-full md:w-[300px] pl-10 border border-gray-400 rounded-md"
           />
         </div>
       </div>
