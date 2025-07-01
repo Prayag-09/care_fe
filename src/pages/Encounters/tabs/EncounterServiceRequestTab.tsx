@@ -1,8 +1,11 @@
 import { useQuery } from "@tanstack/react-query";
+import { PlusIcon } from "lucide-react";
+import { Link } from "raviger";
 import { useTranslation } from "react-i18next";
 
 import CareIcon from "@/CAREUI/icons/CareIcon";
 
+import { Button } from "@/components/ui/button";
 import { Card, CardContent } from "@/components/ui/card";
 import { FilterSelect } from "@/components/ui/filter-select";
 import { FilterTabs } from "@/components/ui/filter-tabs";
@@ -102,18 +105,30 @@ export const EncounterServiceRequestTab = ({
           />
         </div>
 
-        <div className="relative ml-auto w-full md:w-[300px]">
-          <span className="absolute left-3 top-1/2 -translate-y-1/2 text-gray-400">
-            <CareIcon icon="l-search" className="size-5" />
-          </span>
-          <Input
-            placeholder={t("search_service_requests")}
-            value={qParams.search || ""}
-            onChange={(e) =>
-              updateQuery({ search: e.target.value || undefined })
-            }
-            className="w-full md:w-[300px] pl-10 border border-gray-400 rounded-md"
-          />
+        <div className="flex items-center gap-4 md:ml-auto">
+          <div className="relative w-full md:w-[300px]">
+            <span className="absolute left-3 top-1/2 -translate-y-1/2 text-gray-400">
+              <CareIcon icon="l-search" className="size-5" />
+            </span>
+            <Input
+              placeholder={t("search_service_requests")}
+              value={qParams.search || ""}
+              onChange={(e) =>
+                updateQuery({ search: e.target.value || undefined })
+              }
+              className="w-full md:w-[300px] pl-10 border border-gray-400 rounded-md"
+            />
+          </div>
+
+          <Button variant="primary">
+            <Link
+              href={`/facility/${facilityId}/patient/${encounter.patient.id}/encounter/${encounter.id}/questionnaire/service-request`}
+              className="flex items-center"
+            >
+              <PlusIcon className="size-5 mr-1" />
+              {t("create_service_request")}
+            </Link>
+          </Button>
         </div>
       </div>
 
