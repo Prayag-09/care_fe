@@ -11,9 +11,14 @@ import { Patient } from "@/types/emr/patient/patient";
 interface PatientHeaderProps {
   patient: Patient;
   facilityId: string;
+  encounterId?: string;
 }
 
-export function PatientHeader({ patient, facilityId }: PatientHeaderProps) {
+export function PatientHeader({
+  patient,
+  facilityId,
+  encounterId,
+}: PatientHeaderProps) {
   const { t } = useTranslation();
 
   const formatDateOfBirthAge = () => {
@@ -36,7 +41,10 @@ export function PatientHeader({ patient, facilityId }: PatientHeaderProps) {
             <div
               className="text-base font-semibold hover:underline cursor-pointer text-gray-950"
               onClick={() => {
-                navigate(`/facility/${facilityId}/patient/${patient.id}`);
+                const url = encounterId
+                  ? `/facility/${facilityId}/patient/${patient.id}/encounter/${encounterId}/updates`
+                  : `/facility/${facilityId}/patient/${patient.id}`;
+                navigate(url);
               }}
             >
               {patient.name}

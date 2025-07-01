@@ -99,6 +99,7 @@ export default function DiagnosticReportView({
           <PatientHeader
             patient={report.encounter.patient}
             facilityId={report.encounter.facility.id}
+            encounterId={report.encounter.id}
           />
         </div>
         {/* Report Details */}

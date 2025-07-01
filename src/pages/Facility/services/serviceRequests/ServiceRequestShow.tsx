@@ -368,6 +368,7 @@ export default function ServiceRequestShow({
             <PatientHeader
               patient={request.encounter.patient}
               facilityId={facilityId}
+              encounterId={request.encounter.id}
             />
           </div>
 
