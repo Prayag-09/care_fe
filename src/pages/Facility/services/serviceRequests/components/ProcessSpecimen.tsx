@@ -16,18 +16,21 @@ import { Textarea } from "@/components/ui/textarea";
 import ValueSetSelect from "@/components/Questionnaire/ValueSetSelect";
 
 import { Code } from "@/types/base/code/code";
+import { DiagnosticReportRead } from "@/types/emr/diagnosticReport/diagnosticReport";
 import { ProcessingSpec } from "@/types/emr/specimen/specimen";
 
 interface ProcessSpecimenProps {
   onAddProcessing: (processing: ProcessingSpec) => void;
   onUpdateProcessing: (index: number, processing: ProcessingSpec) => void;
   existingProcessing?: ProcessingSpec[];
+  diagnosticReports?: DiagnosticReportRead[];
 }
 
 export function ProcessSpecimen({
   onAddProcessing,
   onUpdateProcessing,
   existingProcessing = [],
+  diagnosticReports = [],
 }: ProcessSpecimenProps) {
   const [noteDialog, setNoteDialog] = useState<{
     open: boolean;
@@ -89,6 +92,9 @@ export function ProcessSpecimen({
     setNoteDialog({ open: false, index: -1, description: "", method: null });
   };
 
+  // If there are diagnostic reports, don't show the processing steps selection
+  const hasReport = diagnosticReports.length > 0;
+
   return (
     <>
       <div>
@@ -136,17 +142,19 @@ export function ProcessSpecimen({
             </div>
           ))}
 
-          <div className="space-y-2">
-            <label className="text-sm font-medium">
-              Choose Processing Steps Performed on the Specimen
-            </label>
-            <ValueSetSelect
-              system="system-specimen-processing-method-code"
-              placeholder="Select processing step..."
-              onSelect={handleSelectStep}
-              value={null}
-            />
-          </div>
+          {!hasReport && (
+            <div className="space-y-2">
+              <label className="text-sm font-medium">
+                Choose Processing Steps Performed on the Specimen
+              </label>
+              <ValueSetSelect
+                system="system-specimen-processing-method-code"
+                placeholder="Select processing step..."
+                onSelect={handleSelectStep}
+                value={null}
+              />
+            </div>
+          )}
         </div>
       </div>
 
