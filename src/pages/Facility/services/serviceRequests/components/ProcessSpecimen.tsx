@@ -1,3 +1,4 @@
+import { t } from "i18next";
 import { CircleCheckBig, Edit, Settings2 } from "lucide-react";
 import { useState } from "react";
 
@@ -101,7 +102,7 @@ export function ProcessSpecimen({
         <div className="flex-row items-center justify-between space-y-0 pb-2">
           <div className="text-sm font-medium flex items-center gap-1">
             <Settings2 className="h-4 w-4" />
-            Process Specimen
+            {t("process") + " " + t("specimen")}
             <Badge variant="primary">{existingProcessing.length}</Badge>
           </div>
         </div>
@@ -123,11 +124,26 @@ export function ProcessSpecimen({
                     </div>
                   )}
               </div>
-              {process.performer && (
+              <div>
+                {process.performer && (
+                  <div className="text-sm text-gray-600 mt-0.5">
+                    {t("performed_by")}: {process.performer}
+                  </div>
+                )}
                 <div className="text-sm text-gray-600 mt-0.5">
-                  Performed by: {process.performer}
+                  {t("performed_on")}:{" "}
+                  {process.time_date_time
+                    ? new Date(process.time_date_time).toLocaleString("en-US", {
+                        year: "numeric",
+                        month: "short",
+                        day: "2-digit",
+                        hour: "2-digit",
+                        minute: "2-digit",
+                        hour12: true,
+                      })
+                    : "N/A"}
                 </div>
-              )}
+              </div>
               <Button
                 type="button" // Explicitly set type to button
                 variant="ghost"
@@ -145,11 +161,11 @@ export function ProcessSpecimen({
           {!hasReport && (
             <div className="space-y-2">
               <label className="text-sm font-medium">
-                Choose Processing Steps Performed on the Specimen
+                {t("PROCESS_SPECIMEN__step_heading")}
               </label>
               <ValueSetSelect
                 system="system-specimen-processing-method-code"
-                placeholder="Select processing step..."
+                placeholder={t("PROCESS_SPECIMEN__valusetselect_placeholder")}
                 onSelect={handleSelectStep}
                 value={null}
               />
@@ -168,15 +184,19 @@ export function ProcessSpecimen({
           <DialogHeader>
             <DialogTitle>
               {noteDialog.index === -1
-                ? "Add Processing Step"
-                : "Edit Processing Step"}
+                ? t("PROCESS_SPECIMEN__dialog_action_title", {
+                    action: t("add"),
+                  })
+                : t("PROCESS_SPECIMEN__dialog_action_title", {
+                    action: t("edit"),
+                  })}
             </DialogTitle>
           </DialogHeader>
           <div className="space-y-4 py-4">
             {noteDialog.method && (
               <div className="rounded-md bg-gray-50 p-3">
                 <Label className="text-sm text-gray-600">
-                  Processing Method
+                  {t("processing") + " " + t("method")}
                 </Label>
                 <div className="font-medium mt-1">
                   {noteDialog.method.display}
@@ -184,7 +204,7 @@ export function ProcessSpecimen({
               </div>
             )}
             <div className="space-y-2">
-              <Label>Description</Label>
+              <Label>{t("description")}</Label>
               <Textarea
                 value={noteDialog.description}
                 onChange={(e) =>
@@ -193,12 +213,11 @@ export function ProcessSpecimen({
                     description: e.target.value,
                   }))
                 }
-                placeholder="Describe the processing step in detail..."
+                placeholder={t("PROCESS_SPECIMEN__textarea_placeholder")}
                 className="min-h-[100px]"
               />
               <p className="text-sm text-gray-500">
-                Add specific details about how this processing step was
-                performed.
+                {t("PROCESS_SPECIMEN__textarea_description")}
               </p>
             </div>
           </div>
@@ -215,10 +234,10 @@ export function ProcessSpecimen({
                 })
               }
             >
-              Cancel
+              {t("cancel")}
             </Button>
             <Button type="button" onClick={handleUpdateNote}>
-              {noteDialog.index === -1 ? "Add Step" : "Update Step"}
+              {noteDialog.index === -1 ? t("add") : t("update")}
             </Button>
           </DialogFooter>
         </DialogContent>
