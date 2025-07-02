@@ -32,6 +32,7 @@ x : Done
 - [BE] SR details page - Add a hyperlink to the payment page, for better UX
 - [BE] Encounter can be closed even if the SR is ACTIVE. But if encounter is closer SR cannot be marked as completed ( Showing error as encounter is already closed) - Fix can be not allow top close encounter if SR is open - Vignesh
 - [BE] Roles access for Labs. Only users with lab role should have access to lab services - Vignesh
+- Add support to create Observations without Observation definition
 
 ## Back End
 
