@@ -217,7 +217,7 @@ export function ProcessSpecimen({
                 className="min-h-[100px]"
               />
               <p className="text-sm text-gray-500">
-                {t("PROCESS_SPECIMEN__textarea_description")}
+                {t("PROCESS_SPECIMEN__dialog_text_area_description")}
               </p>
             </div>
           </div>
