@@ -397,7 +397,7 @@ function ObservationDefinitionFormContent({
 
                   <FormItem className="flex flex-col">
                     <FormLabel aria-required>{t("loinc_code")}</FormLabel>
-                    <div className="mt-2">
+                    <div>
                       <ValueSetSelect
                         system="system-observation"
                         value={form.watch("code")}
