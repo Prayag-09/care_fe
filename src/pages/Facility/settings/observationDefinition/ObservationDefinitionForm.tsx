@@ -192,7 +192,7 @@ function ObservationDefinitionFormContent({
       mutationFn: mutate(observationDefinitionApi.createObservationDefinition),
       onSuccess: () => {
         queryClient.invalidateQueries({ queryKey: ["observationDefinitions"] });
-        toast.success(t("observation_definition_created_successfully"));
+        toast.success(t("observation_definition_created"));
         onSuccess();
       },
     });
@@ -207,8 +207,10 @@ function ObservationDefinitionFormContent({
         queryClient.invalidateQueries({
           queryKey: ["observationDefinition", observationDefinitionId],
         });
-        toast.success(t("observation_definition_updated_successfully"));
-        navigate(`/facility/${facilityId}/settings/observation_definitions`);
+        toast.success(t("observation_definition_updated"));
+        navigate(
+          `/facility/${facilityId}/settings/observation_definitions/${observationDefinitionId}`,
+        );
       },
     });
 
@@ -254,7 +256,7 @@ function ObservationDefinitionFormContent({
                     {t("basic_information")}
                   </h2>
                   <p className="mt-0.5 text-sm text-gray-500">
-                    {t("Enter the basic details and type of the observation")}
+                    {t("observation_basic_information")}
                   </p>
                 </div>
 
@@ -429,9 +431,7 @@ function ObservationDefinitionFormContent({
                     </span>
                   </h2>
                   <p className="mt-0.5 text-sm text-gray-500">
-                    {t(
-                      "Specify additional details about how and where this observation is performed",
-                    )}
+                    {t("observation_additional_details")}
                   </p>
                 </div>
 
@@ -502,9 +502,7 @@ function ObservationDefinitionFormContent({
                       </span>
                     </h2>
                     <p className="mt-0.5 text-sm text-gray-500">
-                      {t(
-                        "Add components if this observation needs to collect multiple related values",
-                      )}
+                      {t("observation_components_description")}
                     </p>
                   </div>
                   {(form.watch("component") ?? [])?.length > 0 && (
@@ -530,7 +528,7 @@ function ObservationDefinitionFormContent({
                       }}
                     >
                       <PlusCircle className="mr-2 h-4 w-4" />
-                      {t("Add component")}
+                      {t("add_component")}
                     </Button>
                   )}
                 </div>
@@ -567,7 +565,7 @@ function ObservationDefinitionFormContent({
                       }}
                     >
                       <PlusCircle className="mr-2 h-4 w-4" />
-                      {t("Add your first component")}
+                      {t("add_your_first_component")}
                     </Button>
                   </div>
                 ) : (

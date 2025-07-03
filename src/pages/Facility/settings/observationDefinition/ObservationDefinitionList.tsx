@@ -103,7 +103,7 @@ export default function ObservationDefinitionList({
           limit: resultsPerPage,
           offset: ((qParams.page ?? 1) - 1) * resultsPerPage,
           title: qParams.search,
-          status: qParams.status,
+          status: qParams.status || "active",
           category: qParams.category,
         },
       },
@@ -156,7 +156,7 @@ export default function ObservationDefinitionList({
             <div className="flex flex-col sm:flex-row items-stretch gap-2 w-full sm:w-auto">
               <div className="flex-1 sm:flex-initial sm:w-auto">
                 <FilterSelect
-                  value={qParams.status || ""}
+                  value={qParams.status || "active"}
                   onValueChange={(value) => updateQuery({ status: value })}
                   options={OBSERVATION_DEFINITION_STATUS as unknown as string[]}
                   label="status"

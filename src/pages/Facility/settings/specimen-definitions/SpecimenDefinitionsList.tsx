@@ -54,7 +54,7 @@ function SpecimenDefinitionCard({
               </Badge>
             </div>
             <h3 className="font-medium text-gray-900">{definition.title}</h3>
-            <p className="mt-1 text-sm text-gray-500">
+            <p className="mt-1 text-sm text-gray-500 whitespace-pre-wrap">
               {definition.description}
             </p>
           </div>
@@ -95,7 +95,7 @@ export function SpecimenDefinitionsList({
       pathParams: { facilityId },
       queryParams: {
         title: qParams.search,
-        status: qParams.status,
+        status: qParams.status || SpecimenDefinitionStatus.active,
         limit: resultsPerPage,
         offset: ((qParams.page ?? 1) - 1) * resultsPerPage,
       },
@@ -148,7 +148,7 @@ export function SpecimenDefinitionsList({
             <div className="flex flex-col sm:flex-row items-stretch gap-2 w-full sm:w-auto">
               <div className="flex-1 sm:flex-initial sm:w-auto">
                 <FilterSelect
-                  value={qParams.status || ""}
+                  value={qParams.status || SpecimenDefinitionStatus.active}
                   onValueChange={(value) => updateQuery({ status: value })}
                   options={Object.values(SpecimenDefinitionStatus)}
                   label="status"

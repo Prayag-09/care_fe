@@ -103,7 +103,7 @@ export default function ProductKnowledgeList({
         offset: ((qParams.page ?? 1) - 1) * resultsPerPage,
         name: qParams.search,
         product_type: qParams.product_type,
-        status: qParams.status,
+        status: qParams.status || "active",
       },
     }),
   });
@@ -154,7 +154,7 @@ export default function ProductKnowledgeList({
             <div className="flex flex-col sm:flex-row items-stretch gap-2 w-full sm:w-auto">
               <div className="flex-1 sm:flex-initial sm:w-auto">
                 <FilterSelect
-                  value={qParams.status || ""}
+                  value={qParams.status || "active"}
                   onValueChange={(value) => updateQuery({ status: value })}
                   options={Object.values(ProductKnowledgeStatus)}
                   label={t("status")}

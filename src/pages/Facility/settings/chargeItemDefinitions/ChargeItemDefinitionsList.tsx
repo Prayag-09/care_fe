@@ -96,7 +96,7 @@ export function ChargeItemDefinitionsList({
       pathParams: { facilityId },
       queryParams: {
         title: qParams.search,
-        status: qParams.status,
+        status: qParams.status || "active",
         limit: resultsPerPage,
         offset: ((qParams.page ?? 1) - 1) * resultsPerPage,
       },
@@ -149,7 +149,7 @@ export function ChargeItemDefinitionsList({
             <div className="flex flex-col sm:flex-row items-stretch gap-2 w-full sm:w-auto">
               <div className="flex-1 sm:flex-initial sm:w-auto">
                 <FilterSelect
-                  value={qParams.status || ""}
+                  value={qParams.status || "active"}
                   onValueChange={(value) => updateQuery({ status: value })}
                   options={Object.values(ChargeItemDefinitionStatus)}
                   label="status"
