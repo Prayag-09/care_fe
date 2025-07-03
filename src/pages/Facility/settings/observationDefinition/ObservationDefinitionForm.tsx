@@ -226,8 +226,6 @@ function ObservationDefinitionFormContent({
     }
   }
 
-  console.log("Form errors:", form.formState.errors);
-  console.log("Form values:", form.getValues());
   return (
     <Page
       title={
