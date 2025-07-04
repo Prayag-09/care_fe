@@ -8,6 +8,7 @@ import { Button } from "@/components/ui/button";
 import {
   Form,
   FormControl,
+  FormDescription,
   FormField,
   FormItem,
   FormLabel,
@@ -46,7 +47,6 @@ const formSchema = z.object({
       retrieve_with_dob: z.boolean(),
       retrieve_with_year_of_birth: z.boolean(),
       retrieve_with_otp: z.boolean(),
-      retrieve_without_extra: z.boolean(),
     }),
   }),
   status: z.nativeEnum(PatientIdentifierConfigStatus),
@@ -90,8 +90,6 @@ export default function PatientIdentifierConfigForm({
                 false,
               retrieve_with_otp:
                 config.config.retrieve_config.retrieve_with_otp || false,
-              retrieve_without_extra:
-                config.config.retrieve_config.retrieve_without_extra || false,
             },
           },
           status: config.status,
@@ -110,7 +108,6 @@ export default function PatientIdentifierConfigForm({
               retrieve_with_dob: false,
               retrieve_with_year_of_birth: false,
               retrieve_with_otp: false,
-              retrieve_without_extra: false,
             },
           },
           status: PatientIdentifierConfigStatus.draft,
@@ -151,240 +148,313 @@ export default function PatientIdentifierConfigForm({
 
   return (
     <Form {...form}>
-      <form onSubmit={form.handleSubmit(onSubmit)} className="space-y-6">
-        <FormField
-          control={form.control}
-          name="config.use"
-          render={({ field }) => (
-            <FormItem>
-              <FormLabel>{t("use")}</FormLabel>
-              <Select onValueChange={field.onChange} defaultValue={field.value}>
-                <FormControl>
-                  <SelectTrigger>
-                    <SelectValue placeholder={t("select_use")} />
-                  </SelectTrigger>
-                </FormControl>
-                <SelectContent>
-                  {Object.values(PatientIdentifierUse).map((use) => (
-                    <SelectItem key={use} value={use}>
-                      {t(use)}
-                    </SelectItem>
-                  ))}
-                </SelectContent>
-              </Select>
-              <FormMessage />
-            </FormItem>
-          )}
-        />
-
-        <FormField
-          control={form.control}
-          name="config.description"
-          render={({ field }) => (
-            <FormItem>
-              <FormLabel>{t("description")}</FormLabel>
-              <FormControl>
-                <Input {...field} />
-              </FormControl>
-              <FormMessage />
-            </FormItem>
-          )}
-        />
-
-        <FormField
-          control={form.control}
-          name="config.system"
-          render={({ field }) => (
-            <FormItem>
-              <FormLabel>{t("system")}</FormLabel>
-              <FormControl>
-                <Input {...field} />
-              </FormControl>
-              <FormMessage />
-            </FormItem>
-          )}
-        />
-
-        <FormField
-          control={form.control}
-          name="config.regex"
-          render={({ field }) => (
-            <FormItem>
-              <FormLabel>{t("regex")}</FormLabel>
-              <FormControl>
-                <Input {...field} />
-              </FormControl>
-              <FormMessage />
-            </FormItem>
-          )}
-        />
-
-        <FormField
-          control={form.control}
-          name="config.display"
-          render={({ field }) => (
-            <FormItem>
-              <FormLabel>{t("display")}</FormLabel>
-              <FormControl>
-                <Input {...field} />
-              </FormControl>
-              <FormMessage />
-            </FormItem>
-          )}
-        />
-
-        <FormField
-          control={form.control}
-          name="status"
-          render={({ field }) => (
-            <FormItem>
-              <FormLabel>{t("status")}</FormLabel>
-              <Select onValueChange={field.onChange} defaultValue={field.value}>
-                <FormControl>
-                  <SelectTrigger>
-                    <SelectValue placeholder={t("select_status")} />
-                  </SelectTrigger>
-                </FormControl>
-                <SelectContent>
-                  {Object.values(PatientIdentifierConfigStatus).map(
-                    (status) => (
-                      <SelectItem key={status} value={status}>
-                        {t(status)}
-                      </SelectItem>
-                    ),
-                  )}
-                </SelectContent>
-              </Select>
-              <FormMessage />
-            </FormItem>
-          )}
-        />
-
-        <div className="space-y-4">
-          <h3 className="text-sm font-medium">{t("retrieve_config")}</h3>
-          <FormField
-            control={form.control}
-            name="config.retrieve_config.retrieve_with_dob"
-            render={({ field }) => (
-              <FormItem className="flex items-center justify-between rounded-lg border p-4">
-                <div className="space-y-0.5">
-                  <FormLabel className="text-base">
-                    {t("retrieve_with_dob")}
-                  </FormLabel>
-                </div>
-                <FormControl>
-                  <Switch
-                    checked={field.value}
-                    onCheckedChange={field.onChange}
-                  />
-                </FormControl>
-              </FormItem>
-            )}
-          />
-
-          <FormField
-            control={form.control}
-            name="config.retrieve_config.retrieve_with_year_of_birth"
-            render={({ field }) => (
-              <FormItem className="flex items-center justify-between rounded-lg border p-4">
-                <div className="space-y-0.5">
-                  <FormLabel className="text-base">
-                    {t("retrieve_with_year_of_birth")}
-                  </FormLabel>
-                </div>
-                <FormControl>
-                  <Switch
-                    checked={field.value}
-                    onCheckedChange={field.onChange}
-                  />
-                </FormControl>
-              </FormItem>
-            )}
-          />
-
-          <FormField
-            control={form.control}
-            name="config.retrieve_config.retrieve_with_otp"
-            render={({ field }) => (
-              <FormItem className="flex items-center justify-between rounded-lg border p-4">
-                <div className="space-y-0.5">
-                  <FormLabel className="text-base">
-                    {t("retrieve_with_otp")}
-                  </FormLabel>
-                </div>
-                <FormControl>
-                  <Switch
-                    checked={field.value}
-                    onCheckedChange={field.onChange}
-                  />
-                </FormControl>
-              </FormItem>
-            )}
-          />
-
-          <FormField
-            control={form.control}
-            name="config.retrieve_config.retrieve_without_extra"
-            render={({ field }) => (
-              <FormItem className="flex items-center justify-between rounded-lg border p-4">
-                <div className="space-y-0.5">
-                  <FormLabel className="text-base">
-                    {t("retrieve_without_extra")}
-                  </FormLabel>
-                </div>
-                <FormControl>
-                  <Switch
-                    checked={field.value}
-                    onCheckedChange={field.onChange}
-                  />
-                </FormControl>
-              </FormItem>
-            )}
-          />
+      <form onSubmit={form.handleSubmit(onSubmit)} className="space-y-8">
+        {/* Identifier Details Section */}
+        <div>
+          <h2 className="text-lg font-semibold mb-2">
+            {t("identifier_details")}
+          </h2>
+          <FormDescription>{t("identifier_details_help")}</FormDescription>
+          <div className="grid grid-cols-1 md:grid-cols-1 gap-6">
+            <FormField
+              control={form.control}
+              name="config.use"
+              render={({ field }) => (
+                <FormItem>
+                  <FormLabel>{t("use")}</FormLabel>
+                  <FormControl>
+                    <Select onValueChange={field.onChange} value={field.value}>
+                      <SelectTrigger>
+                        <SelectValue placeholder={t("select_use")} />
+                      </SelectTrigger>
+                      <SelectContent>
+                        {Object.values(PatientIdentifierUse).map((use) => (
+                          <SelectItem key={use} value={use}>
+                            {t(use)}
+                          </SelectItem>
+                        ))}
+                      </SelectContent>
+                    </Select>
+                  </FormControl>
+                  <FormDescription>{t("use_help")}</FormDescription>
+                  <FormMessage />
+                </FormItem>
+              )}
+            />
+            <FormField
+              control={form.control}
+              name="config.display"
+              render={({ field }) => (
+                <FormItem>
+                  <FormLabel>{t("display")}</FormLabel>
+                  <FormControl>
+                    <Input {...field} placeholder={t("eg_national_id_card")} />
+                  </FormControl>
+                  <FormDescription>{t("display_help")}</FormDescription>
+                  <FormMessage />
+                </FormItem>
+              )}
+            />
+            <FormField
+              control={form.control}
+              name="config.description"
+              render={({ field }) => (
+                <FormItem>
+                  <FormLabel>{t("description")}</FormLabel>
+                  <FormControl>
+                    <Input {...field} placeholder={t("eg_national_id")} />
+                  </FormControl>
+                  <FormDescription>{t("description_help")}</FormDescription>
+                  <FormMessage />
+                </FormItem>
+              )}
+            />
+            <FormField
+              control={form.control}
+              name="config.system"
+              render={({ field }) => (
+                <FormItem>
+                  <FormLabel>{t("system")}</FormLabel>
+                  <FormControl>
+                    <Input
+                      {...field}
+                      placeholder="https://example.org/identifier-system"
+                    />
+                  </FormControl>
+                  <FormDescription>{t("system_help")}</FormDescription>
+                  <FormMessage />
+                </FormItem>
+              )}
+            />
+            <FormField
+              control={form.control}
+              name="config.regex"
+              render={({ field }) => {
+                let regexError = "";
+                try {
+                  if (field.value) new RegExp(field.value);
+                } catch {
+                  regexError = t("invalid_regex");
+                }
+                return (
+                  <FormItem>
+                    <FormLabel>{t("regex")}</FormLabel>
+                    <FormControl>
+                      <Input {...field} placeholder={t("eg_regex_pattern")} />
+                    </FormControl>
+                    <FormDescription>{t("regex_help")}</FormDescription>
+                    {(regexError || form.formState.errors.config?.regex) && (
+                      <div className="text-xs text-red-500 mt-1">
+                        {regexError ||
+                          form.formState.errors.config?.regex?.message}
+                      </div>
+                    )}
+                  </FormItem>
+                );
+              }}
+            />
+          </div>
         </div>
 
-        <div className="flex items-center justify-between rounded-lg border p-4">
-          <div className="space-y-0.5">
-            <FormLabel className="text-base">{t("required")}</FormLabel>
+        {/* Retrieval Options Section */}
+        <div>
+          <h2 className="text-lg font-semibold mb-2">
+            {t("retrieval_options")}
+          </h2>
+          <FormDescription>{t("retrieval_options_help")}</FormDescription>
+          <div className="grid grid-cols-1 md:grid-cols-1 gap-6">
+            {/* <FormField
+              control={form.control}
+              name="config.retrieve_config.retrieve_with_dob"
+              render={({ field }) => (
+                <FormItem className="flex flex-col md:flex-row md:items-center justify-between rounded-lg border p-4 gap-2 md:gap-0">
+                  <div className="flex-1">
+                    <FormLabel className="text-base font-medium">
+                      {t("retrieve_with_dob")}
+                    </FormLabel>
+                    <FormDescription>
+                      {t("retrieve_with_dob_help")}
+                    </FormDescription>
+                  </div>
+                  <FormControl>
+                    <Switch
+                      checked={field.value}
+                      onCheckedChange={field.onChange}
+                    />
+                  </FormControl>
+                </FormItem>
+              )}
+            /> */}
+            <FormField
+              control={form.control}
+              name="config.retrieve_config.retrieve_with_year_of_birth"
+              render={({ field }) => (
+                <FormItem className="flex flex-col md:flex-row md:items-center justify-between rounded-lg border p-4 gap-2 md:gap-0">
+                  <div className="flex-1">
+                    <FormLabel className="text-base font-medium">
+                      {t("retrieve_with_year_of_birth")}
+                    </FormLabel>
+                    <FormDescription>
+                      {t("retrieve_with_year_of_birth_help")}
+                    </FormDescription>
+                  </div>
+                  <FormControl>
+                    <Switch
+                      checked={field.value}
+                      onCheckedChange={field.onChange}
+                    />
+                  </FormControl>
+                </FormItem>
+              )}
+            />
+            {/* <FormField
+              control={form.control}
+              name="config.retrieve_config.retrieve_with_otp"
+              render={({ field }) => (
+                <FormItem className="flex flex-col md:flex-row md:items-center justify-between rounded-lg border p-4 gap-2 md:gap-0">
+                  <div className="flex-1">
+                    <FormLabel className="text-base font-medium">
+                      {t("retrieve_with_otp")}
+                    </FormLabel>
+                    <FormDescription>
+                      {t("retrieve_with_otp_help")}
+                    </FormDescription>
+                  </div>
+                  <FormControl>
+                    <Switch
+                      checked={field.value}
+                      onCheckedChange={field.onChange}
+                    />
+                  </FormControl>
+                </FormItem>
+              )}
+            /> */}
           </div>
-          <FormField
-            control={form.control}
-            name="config.required"
-            render={({ field }) => (
-              <FormControl>
-                <Switch
-                  checked={field.value}
-                  onCheckedChange={field.onChange}
-                />
-              </FormControl>
-            )}
-          />
         </div>
 
-        <div className="flex items-center justify-between rounded-lg border p-4">
-          <div className="space-y-0.5">
-            <FormLabel className="text-base">{t("unique")}</FormLabel>
+        {/* Validation & Uniqueness Section */}
+        <div>
+          <h2 className="text-lg font-semibold mb-2">
+            {t("validation_and_uniqueness")}
+          </h2>
+          <FormDescription>
+            {t("validation_and_uniqueness_help")}
+          </FormDescription>
+          <div className="grid grid-cols-1 md:grid-cols-1 gap-6">
+            <FormField
+              control={form.control}
+              name="config.required"
+              render={({ field }) => (
+                <FormItem className="flex flex-col md:flex-row md:items-center justify-between rounded-lg border p-4 gap-2 md:gap-0">
+                  <div className="flex-1">
+                    <FormLabel className="text-base font-medium">
+                      {t("required")}
+                    </FormLabel>
+                    <FormDescription>{t("required_help")}</FormDescription>
+                  </div>
+                  <FormControl>
+                    <Switch
+                      checked={field.value}
+                      onCheckedChange={field.onChange}
+                    />
+                  </FormControl>
+                </FormItem>
+              )}
+            />
+            <FormField
+              control={form.control}
+              name="config.unique"
+              render={({ field }) => (
+                <FormItem className="flex flex-col md:flex-row md:items-center justify-between rounded-lg border p-4 gap-2 md:gap-0">
+                  <div className="flex-1">
+                    <FormLabel className="text-base font-medium">
+                      {t("unique")}
+                    </FormLabel>
+                    <FormDescription>{t("unique_help")}</FormDescription>
+                  </div>
+                  <FormControl>
+                    <Switch
+                      checked={field.value}
+                      onCheckedChange={field.onChange}
+                    />
+                  </FormControl>
+                </FormItem>
+              )}
+            />
           </div>
-          <FormField
-            control={form.control}
-            name="config.unique"
-            render={({ field }) => (
-              <FormControl>
-                <Switch
-                  checked={field.value}
-                  onCheckedChange={field.onChange}
-                />
-              </FormControl>
-            )}
-          />
+        </div>
+
+        {/* Status Section */}
+        <div>
+          <h2 className="text-lg font-semibold mb-2">{t("status")}</h2>
+          <FormDescription>{t("status_help")}</FormDescription>
+          <div className="max-w-xs">
+            <FormField
+              control={form.control}
+              name="status"
+              render={({ field }) => (
+                <FormItem>
+                  <FormLabel>{t("status")}</FormLabel>
+                  <FormControl>
+                    <Select
+                      onValueChange={field.onChange}
+                      defaultValue={field.value}
+                    >
+                      <SelectTrigger>
+                        <SelectValue placeholder={t("select_status")} />
+                      </SelectTrigger>
+                      <SelectContent>
+                        {Object.values(PatientIdentifierConfigStatus).map(
+                          (status) => (
+                            <SelectItem key={status} value={status}>
+                              {t(status)}
+                            </SelectItem>
+                          ),
+                        )}
+                      </SelectContent>
+                    </Select>
+                  </FormControl>
+                  <FormMessage />
+                </FormItem>
+              )}
+            />
+          </div>
         </div>
 
         <Button
           type="submit"
-          className="w-full"
+          className="w-full mt-6"
           disabled={isCreating || isUpdating}
         >
-          {config ? t("update") : t("create")}
+          {isCreating || isUpdating ? (
+            <span className="flex items-center gap-2">
+              <svg
+                className="animate-spin h-5 w-5 text-white"
+                xmlns="http://www.w3.org/2000/svg"
+                fill="none"
+                viewBox="0 0 24 24"
+              >
+                <circle
+                  className="opacity-25"
+                  cx="12"
+                  cy="12"
+                  r="10"
+                  stroke="currentColor"
+                  strokeWidth="4"
+                ></circle>
+                <path
+                  className="opacity-75"
+                  fill="currentColor"
+                  d="M4 12a8 8 0 018-8v8z"
+                ></path>
+              </svg>
+              {t("saving")}
+            </span>
+          ) : config ? (
+            t("update")
+          ) : (
+            t("create")
+          )}
         </Button>
       </form>
     </Form>

@@ -25,7 +25,6 @@ export interface RetrieveConfig {
   retrieve_with_dob: boolean;
   retrieve_with_year_of_birth: boolean;
   retrieve_with_otp: boolean;
-  retrieve_without_extra: boolean;
 }
 
 export interface PatientIdentifierConfigData {
@@ -39,12 +38,16 @@ export interface PatientIdentifierConfigData {
   retrieve_config: RetrieveConfig;
 }
 
+export interface PatientIdentifierMeta {
+  icon?: string;
+}
+
 export interface PatientIdentifierConfig {
-  meta: Record<string, any>;
+  meta?: PatientIdentifierMeta;
   id: string | null;
   config: PatientIdentifierConfigData;
   status: PatientIdentifierConfigStatus;
-  facility: string | null;
+  facility?: string;
 }
 
 export interface PatientIdentifier {
