@@ -17,6 +17,7 @@ interface ProductKnowledgeSelectProps {
   onChange: (value: ProductKnowledgeBase) => void;
   disabled?: boolean;
   className?: string;
+  placeholder?: string;
 }
 
 export function ProductKnowledgeSelect({
@@ -24,6 +25,7 @@ export function ProductKnowledgeSelect({
   onChange,
   disabled,
   className,
+  placeholder,
 }: ProductKnowledgeSelectProps) {
   const { t } = useTranslation();
   const { facilityId } = useCurrentFacility();
@@ -63,7 +65,7 @@ export function ProductKnowledgeSelect({
         value: id,
       }))}
       isLoading={isLoading}
-      placeholder={t("search_product_knowledge")}
+      placeholder={placeholder || t("search_product_knowledge")}
       noOptionsMessage={t("no_product_knowledge_found")}
       disabled={disabled}
       className={className}

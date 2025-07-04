@@ -15,6 +15,10 @@ import {
   SelectTrigger,
   SelectValue,
 } from "@/components/ui/select";
+import { Tabs, TabsList, TabsTrigger } from "@/components/ui/tabs";
+
+import Page from "@/components/Common/Page";
+import { TableSkeleton } from "@/components/Common/SkeletonLoading";
 import {
   Table,
   TableBody,
@@ -22,11 +26,7 @@ import {
   TableHead,
   TableHeader,
   TableRow,
-} from "@/components/ui/table";
-import { Tabs, TabsList, TabsTrigger } from "@/components/ui/tabs";
-
-import Page from "@/components/Common/Page";
-import { TableSkeleton } from "@/components/Common/SkeletonLoading";
+} from "@/components/Common/Table";
 
 import useFilters from "@/hooks/useFilters";
 
@@ -163,28 +163,21 @@ export function InventoryList({ facilityId, locationId }: InventoryListProps) {
           description={t("no_inventory_description")}
         />
       ) : (
-        <div className="overflow-hidden rounded-md border-2 border-white shadow-md">
-          <Table className="rounded-md">
-            <TableHeader className=" bg-gray-100 text-gray-700">
-              <TableRow className="divide-x">
-                <TableHead className="text-gray-700">{t("product")}</TableHead>
-                <TableHead className="text-gray-700">
-                  {t("net_content")}
-                </TableHead>
-                <TableHead className="text-gray-700">{t("status")}</TableHead>
-                <TableHead className="text-gray-700">
-                  {t("expiration_date")}
-                </TableHead>
-                <TableHead className="text-gray-700">{t("batch")}</TableHead>
+        <div>
+          <Table>
+            <TableHeader>
+              <TableRow>
+                <TableHead>{t("product")}</TableHead>
+                <TableHead>{t("net_content")}</TableHead>
+                <TableHead>{t("status")}</TableHead>
+                <TableHead>{t("expiration_date")}</TableHead>
+                <TableHead>{t("batch")}</TableHead>
               </TableRow>
             </TableHeader>
-            <TableBody className="bg-white">
+            <TableBody>
               {data?.results?.map((inventory) => (
-                <TableRow
-                  key={inventory.id}
-                  className="hover:bg-gray-50 divide-x"
-                >
-                  <TableCell className="font-semibold text-gray-950">
+                <TableRow key={inventory.id}>
+                  <TableCell className="font-semibold">
                     <Link
                       href={`/facility/${facilityId}/settings/product_knowledge/${inventory.product.product_knowledge.id}`}
                       basePath="/"
@@ -200,7 +193,6 @@ export function InventoryList({ facilityId, locationId }: InventoryListProps) {
                   <TableCell
                     className={cn(
                       "font-medium",
-                      "text-gray-950",
                       inventory.net_content < 10 && "text-yellow-600",
                     )}
                   >
@@ -211,14 +203,14 @@ export function InventoryList({ facilityId, locationId }: InventoryListProps) {
                       {t(inventory.status)}
                     </Badge>
                   </TableCell>
-                  <TableCell className="font-medium text-gray-950">
+                  <TableCell>
                     {inventory.product.expiration_date
                       ? new Date(
                           inventory.product.expiration_date,
                         ).toLocaleDateString()
                       : "-"}
                   </TableCell>
-                  <TableCell className="font-medium text-gray-950">
+                  <TableCell>
                     {inventory.product.batch?.lot_number || "-"}
                   </TableCell>
                 </TableRow>

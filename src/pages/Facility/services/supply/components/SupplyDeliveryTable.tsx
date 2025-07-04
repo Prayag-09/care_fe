@@ -1,4 +1,5 @@
-import { navigate } from "raviger";
+import { formatDate } from "date-fns";
+import { navigate, useQueryParams } from "raviger";
 import { useTranslation } from "react-i18next";
 
 import CareIcon from "@/CAREUI/icons/CareIcon";
@@ -17,6 +18,7 @@ import {
 
 import { TableSkeleton } from "@/components/Common/SkeletonLoading";
 
+import { makeUrl } from "@/Utils/request/utils";
 import { SupplyDeliveryTab } from "@/pages/Facility/services/supply/SupplyDeliveryList";
 import {
   SUPPLY_DELIVERY_CONDITION_COLORS,
@@ -30,6 +32,8 @@ interface Props {
   facilityId: string;
   locationId: string;
   tab?: SupplyDeliveryTab;
+  showSupplier?: boolean;
+  showDate?: boolean;
 }
 
 export default function SupplyDeliveryTable({
@@ -38,8 +42,11 @@ export default function SupplyDeliveryTable({
   facilityId,
   locationId,
   tab,
+  showSupplier = false,
+  showDate = false,
 }: Props) {
   const { t } = useTranslation();
+  const [qParams] = useQueryParams();
 
   if (isLoading) {
     return <TableSkeleton count={5} />;
@@ -62,6 +69,16 @@ export default function SupplyDeliveryTable({
           <TableRow className="divide-x">
             <TableHead className="text-gray-700">{t("item")}</TableHead>
             <TableHead className="text-gray-700">{t("quantity")}</TableHead>
+            {showSupplier && (
+              <TableHead className="text-gray-700">
+                <div className="max-w-[200px] break-words">{t("supplier")}</div>
+              </TableHead>
+            )}
+            {showDate && (
+              <TableHead className="text-gray-700">
+                {t("received_date")}
+              </TableHead>
+            )}
             <TableHead className="text-gray-700">{t("condition")}</TableHead>
             {tab != null && (
               <TableHead className="text-gray-700">
@@ -83,21 +100,40 @@ export default function SupplyDeliveryTable({
                 {delivery.supplied_item?.product_knowledge.name ||
                   delivery.supplied_inventory_item?.product.product_knowledge
                     .name}
-                {delivery.supplied_item?.batch && (
-                  <div className="text-xs text-gray-500 font-semibold ">
-                    Lot #{delivery.supplied_item.batch.lot_number}
-                  </div>
-                )}
-                {delivery.supplied_inventory_item?.product.batch && (
-                  <div className="text-xs text-gray-500 font-normal">
-                    Exp. #
-                    {delivery.supplied_inventory_item?.product.batch.lot_number}
-                  </div>
-                )}
+                <div className="flex flex-row gap-1">
+                  {delivery.supplied_item?.batch && (
+                    <div className="text-xs text-gray-500 font-semibold ">
+                      Lot #{delivery.supplied_item.batch.lot_number}
+                    </div>
+                  )}
+                  {delivery.supplied_inventory_item?.product.batch && (
+                    <div className="text-xs text-gray-500 font-normal">
+                      Exp. #
+                      {
+                        delivery.supplied_inventory_item?.product.batch
+                          .lot_number
+                      }
+                    </div>
+                  )}
+                </div>
               </TableCell>
               <TableCell className="font-medium text-gray-950">
                 {delivery.supplied_item_quantity}
               </TableCell>
+              {showSupplier && (
+                <TableCell>
+                  <div className="flex flex-col gap-1 justify-center">
+                    <span className="text-gray-500">
+                      {delivery.supplier?.name}
+                    </span>
+                  </div>
+                </TableCell>
+              )}
+              {showDate && delivery.created_date && (
+                <TableCell>
+                  {formatDate(delivery.created_date, "dd MMM yyyy")}
+                </TableCell>
+              )}
               <TableCell>
                 {delivery.supplied_item_condition && (
                   <Badge
@@ -135,7 +171,10 @@ export default function SupplyDeliveryTable({
                     className="font-semibold text-gray-950"
                     onClick={() =>
                       navigate(
-                        `/facility/${facilityId}/locations/${locationId}/supply_deliveries/${delivery.id}`,
+                        makeUrl(
+                          `/facility/${facilityId}/locations/${locationId}/external_supply/deliveries/${delivery.id}`,
+                          qParams,
+                        ),
                       )
                     }
                   >

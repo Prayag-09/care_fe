@@ -17,6 +17,8 @@ interface SupplyRequestSelectProps {
   placeholder?: string;
   inputPlaceholder?: string;
   noOptionsMessage?: string;
+  supplier?: string;
+  enabled?: boolean;
 }
 
 export function SupplyRequestSelect({
@@ -28,6 +30,8 @@ export function SupplyRequestSelect({
   placeholder,
   inputPlaceholder,
   noOptionsMessage,
+  supplier,
+  enabled = true,
 }: SupplyRequestSelectProps) {
   const { t } = useTranslation();
 
@@ -37,18 +41,20 @@ export function SupplyRequestSelect({
       queryParams: {
         deliver_to: locationId,
         deliver_from_isnull: true,
+        supplier: supplier,
       },
     }),
+    enabled,
   });
 
   const options = mergeAutocompleteOptions(
     requests?.results.map((request) => ({
-      label: `${request.item.name} (Qty: ${request.quantity}) - #${request.id.slice(0, 6)}`,
+      label: `${request.item.name} - (Qty: ${request.quantity})`,
       value: request.id,
     })) || [],
     value
       ? {
-          label: `${value.item.name} (Qty: ${value.quantity}) - #${value.id.slice(0, 6)}`,
+          label: `${value.item.name} - (Qty: ${value.quantity})`,
           value: value.id,
         }
       : undefined,
@@ -63,6 +69,8 @@ export function SupplyRequestSelect({
         );
         if (selectedRequest) {
           onChange(selectedRequest);
+        } else {
+          onChange({} as SupplyRequestRead);
         }
       }}
       options={options}

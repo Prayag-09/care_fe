@@ -1,6 +1,6 @@
 import { zodResolver } from "@hookform/resolvers/zod";
 import { useMutation, useQuery, useQueryClient } from "@tanstack/react-query";
-import { PlusCircle, Trash2 } from "lucide-react";
+import { PlusCircle, Trash2, X } from "lucide-react";
 import { navigate } from "raviger";
 import { useEffect, useState } from "react";
 import { useFieldArray, useForm } from "react-hook-form";
@@ -43,8 +43,11 @@ import {
 import Page from "@/components/Common/Page";
 import { FormSkeleton } from "@/components/Common/SkeletonLoading";
 
+import useAppHistory from "@/hooks/useAppHistory";
+
 import mutate from "@/Utils/request/mutate";
 import query from "@/Utils/request/query";
+import { PaginatedResponse } from "@/Utils/request/types";
 import productKnowledgeApi from "@/types/inventory/productKnowledge/productKnowledgeApi";
 import {
   SupplyRequestCategory,
@@ -54,56 +57,83 @@ import {
   SupplyRequestStatus,
 } from "@/types/inventory/supplyRequest/supplyRequest";
 import supplyRequestApi from "@/types/inventory/supplyRequest/supplyRequestApi";
+import { LocationList } from "@/types/location/location";
+import locationApi from "@/types/location/locationApi";
 import organizationApi from "@/types/organization/organizationApi";
 
-const purchaseOrderSchema = z.object({
-  status: z.nativeEnum(SupplyRequestStatus),
-  intent: z.nativeEnum(SupplyRequestIntent),
-  category: z.nativeEnum(SupplyRequestCategory),
-  priority: z.nativeEnum(SupplyRequestPriority),
-  reason: z.nativeEnum(SupplyRequestReason),
-  quantity: z.number().min(1, "Quantity must be at least 1"),
-  deliver_from: z.string().optional(),
-  deliver_to: z.string().min(1, "Delivery location is required"),
+const supplyRequestItemSchema = z.object({
   item: z.string().min(1, "Item is required"),
+  quantity: z.number().min(1, "Quantity must be at least 1"),
 });
 
-const formSchema = z.object({
-  requests: z
-    .array(purchaseOrderSchema)
-    .min(1, "At least one request is required"),
-  supplier: z.string().min(1, "Vendor is required"),
-});
+const createFormSchema = (mode: "external" | "internal") =>
+  z.object({
+    status: z.nativeEnum(SupplyRequestStatus),
+    intent: z.nativeEnum(SupplyRequestIntent),
+    category: z.nativeEnum(SupplyRequestCategory),
+    priority: z.nativeEnum(SupplyRequestPriority),
+    reason: z.nativeEnum(SupplyRequestReason),
+    deliver_from:
+      mode === "internal"
+        ? z.string().min(1, "Please select a location to deliver from")
+        : z.string().optional(),
+    deliver_to: z.string(),
+    requests: z
+      .array(supplyRequestItemSchema)
+      .min(1, "At least one request is required"),
+    supplier:
+      mode === "external"
+        ? z.string().min(1, "Vendor is required")
+        : z.string().optional(),
+  });
 
 interface Props {
   facilityId: string;
   locationId: string;
-  productOrderId?: string;
+  supplyRequestId?: string;
+  mode: "external" | "internal";
 }
 
-export default function PurchaseOrderForm({
+export default function SupplyRequestForm({
   facilityId,
   locationId,
-  productOrderId,
+  supplyRequestId,
+  mode,
 }: Props) {
   const { t } = useTranslation();
-  const isEditMode = Boolean(productOrderId);
+  const { goBack } = useAppHistory();
+  const isEditMode = Boolean(supplyRequestId);
+
+  const isExternalMode = mode === "external";
 
   const { data: existingData, isFetching } = useQuery({
-    queryKey: ["supplyRequest", productOrderId],
+    queryKey: ["supplyRequest", supplyRequestId],
     queryFn: query(supplyRequestApi.retrieveSupplyRequest, {
-      pathParams: { supplyRequestId: productOrderId! },
+      pathParams: { supplyRequestId: supplyRequestId! },
     }),
     enabled: isEditMode,
   });
 
   const title = isEditMode
-    ? t("edit_purchase_order")
-    : t("create_purchase_order");
+    ? isExternalMode
+      ? t("edit_purchase_order")
+      : t("edit_stock_request")
+    : isExternalMode
+      ? t("create_purchase_order")
+      : t("raise_stock_request");
+
+  const pageDescription = isExternalMode
+    ? t("request_stock_from_vendor")
+    : t("request_stock_from_another_store_or_pharmacy_within_the_facility");
+
+  const returnPath = isExternalMode
+    ? `/facility/${facilityId}/locations/${locationId}/external_supply/purchase_orders`
+    : `/facility/${facilityId}/locations/${locationId}/internal_transfers/to_receive`;
 
   const queryClient = useQueryClient();
   const [searchItem, setSearchItem] = useState("");
   const [supplierSearchQuery, setSupplierSearchQuery] = useState("");
+  const [searchDeliveryFrom, setSearchDeliveryFrom] = useState("");
 
   const { data: products, isLoading: isLoadingProducts } = useQuery({
     queryKey: ["productKnowledge", facilityId, searchItem],
@@ -132,50 +162,77 @@ export default function PurchaseOrderForm({
     }),
   });
 
+  const {
+    data: deliveryFromLocations,
+    isLoading: isLoadingDeliveryFromLocations,
+  } = useQuery({
+    queryKey: ["locations", facilityId, searchDeliveryFrom],
+    queryFn: query.debounced(locationApi.list, {
+      pathParams: { facility_id: facilityId },
+      queryParams: { search: searchDeliveryFrom, limit: 100 },
+    }),
+    select: (data: PaginatedResponse<LocationList>) => {
+      // Filter out the current location
+      return data.results.filter((location) => location.id !== locationId);
+    },
+  });
+
   const vendorOptions =
     availableSuppliers?.results.map((supplier) => ({
       label: supplier.name,
       value: supplier.id,
     })) || [];
 
-  const form = useForm<z.infer<typeof formSchema>>({
+  const deliveryFromOptions =
+    deliveryFromLocations?.map((location) => ({
+      label: location.name,
+      value: location.id,
+    })) || [];
+
+  const formSchema = createFormSchema(mode);
+  type FormValues = z.infer<typeof formSchema>;
+
+  const form = useForm<FormValues>({
     resolver: zodResolver(formSchema),
     defaultValues: {
+      status: SupplyRequestStatus.active,
+      intent: SupplyRequestIntent.order,
+      category: isExternalMode
+        ? SupplyRequestCategory.nonstock
+        : SupplyRequestCategory.central,
+      priority: SupplyRequestPriority.routine,
+      reason: SupplyRequestReason.ward_stock,
+      deliver_to: locationId,
+      deliver_from: "",
       requests: [
         {
-          status: SupplyRequestStatus.active,
-          intent: SupplyRequestIntent.order,
-          category: SupplyRequestCategory.nonstock,
-          priority: SupplyRequestPriority.routine,
-          reason: SupplyRequestReason.ward_stock,
           quantity: 1,
-          deliver_to: locationId,
+          item: "",
         },
       ],
-      supplier: undefined,
+      supplier: "",
     },
   });
 
   useEffect(() => {
     if (isEditMode && existingData) {
       form.reset({
+        status: existingData.status,
+        intent: existingData.intent,
+        category: existingData.category,
+        priority: existingData.priority,
+        reason: existingData.reason,
+        deliver_from: existingData.deliver_from?.id || "",
+        deliver_to: locationId,
         requests: [
           {
-            status: existingData.status,
-            intent: existingData.intent,
-            category: existingData.category,
-            priority: existingData.priority,
-            reason: existingData.reason,
             quantity: existingData.quantity,
-            deliver_from: existingData.deliver_from?.id,
-            deliver_to: locationId,
             item: existingData.item.id,
           },
         ],
-        supplier: existingData.supplier?.id,
+        supplier: existingData.supplier?.id || "",
       });
     }
-    // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [isEditMode, existingData]);
 
   const { fields, append, remove } = useFieldArray({
@@ -192,9 +249,7 @@ export default function PurchaseOrderForm({
       toast.success(
         isEditMode ? t("purchase_order_updated") : t("purchase_orders_created"),
       );
-      navigate(
-        `/facility/${facilityId}/locations/${locationId}/external_supply/purchase_orders`,
-      );
+      navigate(returnPath);
     },
     onError: (error) => {
       const errorData = error.cause as {
@@ -236,11 +291,19 @@ export default function PurchaseOrderForm({
     },
   });
 
-  function onSubmit(data: z.infer<typeof formSchema>) {
+  function onSubmit(data: FormValues) {
     upsertSupplyRequest({
       datapoints: data.requests.map((request) => ({
-        ...request,
-        id: productOrderId || undefined,
+        status: data.status,
+        intent: data.intent,
+        category: data.category,
+        priority: data.priority,
+        reason: data.reason,
+        deliver_from: data.deliver_from || undefined,
+        deliver_to: data.deliver_to,
+        quantity: request.quantity,
+        item: request.item,
+        id: supplyRequestId || undefined,
         supplier: data.supplier || undefined,
       })),
     });
@@ -262,8 +325,18 @@ export default function PurchaseOrderForm({
   return (
     <Page title={title} hideTitleOnPage>
       <div className="container mx-auto max-w-5xl">
-        <div className="mb-6">
+        <div className="mb-6 relative">
+          <Button
+            variant="outline"
+            size="icon"
+            className="absolute -right-2 -top-2"
+            onClick={() => goBack()}
+          >
+            <X className="size-5" />
+            <span className="sr-only">{t("close")}</span>
+          </Button>
           <h1 className="text-xl font-semibold text-gray-900">{title}</h1>
+          <p className="mt-1 text-sm text-gray-600">{pageDescription}</p>
         </div>
         <Form {...form}>
           <form onSubmit={form.handleSubmit(onSubmit)} className="space-y-6">
@@ -274,20 +347,44 @@ export default function PurchaseOrderForm({
               <CardContent className="space-y-4 bg-gray-50 m-2 p-2 rounded-md">
                 <FormField
                   control={form.control}
-                  name="supplier"
+                  name={isExternalMode ? "supplier" : "deliver_from"}
                   render={({ field }) => (
                     <FormItem>
-                      <FormLabel>{t("vendor")}</FormLabel>
+                      <FormLabel>
+                        {isExternalMode ? t("vendor") : t("deliver_from")}
+                      </FormLabel>
                       <FormControl>
                         <Autocomplete
-                          options={vendorOptions}
+                          options={
+                            isExternalMode ? vendorOptions : deliveryFromOptions
+                          }
                           value={field.value || ""}
                           onChange={field.onChange}
-                          isLoading={isLoadingProducts}
-                          onSearch={setSupplierSearchQuery}
-                          placeholder={t("select_vendor")}
-                          inputPlaceholder={t("search_vendor")}
-                          noOptionsMessage={t("no_vendor_found")}
+                          isLoading={
+                            isExternalMode
+                              ? isLoadingProducts
+                              : isLoadingDeliveryFromLocations
+                          }
+                          onSearch={
+                            isExternalMode
+                              ? setSupplierSearchQuery
+                              : setSearchDeliveryFrom
+                          }
+                          placeholder={
+                            isExternalMode
+                              ? t("select_vendor")
+                              : t("select_location")
+                          }
+                          inputPlaceholder={
+                            isExternalMode
+                              ? t("search_vendor")
+                              : t("search_location")
+                          }
+                          noOptionsMessage={
+                            isExternalMode
+                              ? t("no_vendor_found")
+                              : t("no_location_found")
+                          }
                         />
                       </FormControl>
                       <FormMessage />
@@ -297,7 +394,7 @@ export default function PurchaseOrderForm({
                 <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
                   <FormField
                     control={form.control}
-                    name="requests.0.status"
+                    name="status"
                     render={({ field }) => (
                       <FormItem>
                         <FormLabel>{t("status")}</FormLabel>
@@ -355,7 +452,7 @@ export default function PurchaseOrderForm({
 
                   <FormField
                     control={form.control}
-                    name="requests.0.priority"
+                    name="priority"
                     render={({ field }) => (
                       <FormItem>
                         <FormLabel>{t("priority")}</FormLabel>
@@ -393,6 +490,43 @@ export default function PurchaseOrderForm({
                     )}
                   />
                 </div>
+
+                {!isExternalMode && (
+                  <FormField
+                    control={form.control}
+                    name="reason"
+                    render={({ field }) => (
+                      <FormItem>
+                        <FormLabel>{t("reason")}</FormLabel>
+                        <FormControl>
+                          <RadioGroup
+                            onValueChange={field.onChange}
+                            defaultValue={field.value}
+                            value={field.value}
+                            className="flex flex-col sm:flex-row gap-2"
+                          >
+                            {Object.values(SupplyRequestReason).map(
+                              (reason) => (
+                                <div
+                                  key={reason}
+                                  className={cn(
+                                    "flex items-center space-x-2 rounded-md border border-gray-200 bg-white p-2",
+                                    field.value === reason &&
+                                      "border-primary bg-primary/10",
+                                  )}
+                                >
+                                  <RadioGroupItem value={reason} id={reason} />
+                                  <Label htmlFor={reason}>{t(reason)}</Label>
+                                </div>
+                              ),
+                            )}
+                          </RadioGroup>
+                        </FormControl>
+                        <FormMessage />
+                      </FormItem>
+                    )}
+                  />
+                )}
               </CardContent>
             </Card>
 
@@ -420,7 +554,7 @@ export default function PurchaseOrderForm({
                           key={field.id}
                           className="divide-x divide-gray-300"
                         >
-                          <TableCell>
+                          <TableCell className="align-top">
                             <FormField
                               control={form.control}
                               name={`requests.${index}.item`}
@@ -443,7 +577,7 @@ export default function PurchaseOrderForm({
                               )}
                             />
                           </TableCell>
-                          <TableCell>
+                          <TableCell className="align-top">
                             <FormField
                               control={form.control}
                               name={`requests.${index}.quantity`}
@@ -465,7 +599,7 @@ export default function PurchaseOrderForm({
                             />
                           </TableCell>
                           {!isEditMode && (
-                            <TableCell>
+                            <TableCell className="align-top">
                               <Button
                                 type="button"
                                 variant="ghost"
@@ -483,41 +617,25 @@ export default function PurchaseOrderForm({
                   </Table>
                 </div>
 
-                {!isEditMode && (
-                  <Button
-                    type="button"
-                    variant="outline"
-                    onClick={() =>
-                      append({
-                        status: form.getValues("requests.0.status"),
-                        intent: form.getValues("requests.0.intent"),
-                        category: form.getValues("requests.0.category"),
-                        priority: form.getValues("requests.0.priority"),
-                        reason: form.getValues("requests.0.reason"),
-                        deliver_from: form.getValues("requests.0.deliver_from"),
-                        deliver_to: locationId,
-                        quantity: 1,
-                        item: "",
-                      })
-                    }
-                    className="mt-4"
-                  >
-                    <PlusCircle className="mr-2 size-4" />
-                    {t("add_another_item")}
-                  </Button>
-                )}
+                <Button
+                  type="button"
+                  variant="outline"
+                  onClick={() =>
+                    append({
+                      quantity: 1,
+                      item: "",
+                    })
+                  }
+                  className="mt-4"
+                >
+                  <PlusCircle className="mr-2 size-4" />
+                  {t("add_another_item")}
+                </Button>
               </CardContent>
             </Card>
 
             <div className="flex justify-end space-x-3">
-              <Button
-                variant="outline"
-                onClick={() =>
-                  navigate(
-                    `/facility/${facilityId}/locations/${locationId}/external_supply/purchase_orders`,
-                  )
-                }
-              >
+              <Button variant="outline" onClick={() => navigate(returnPath)}>
                 {t("cancel")}
               </Button>
               <Button type="submit" disabled={isPending}>

@@ -1,11 +1,15 @@
+import { Badge } from "@/components/ui/badge";
+
 import { ProductKnowledgeBase } from "@/types/inventory/productKnowledge/productKnowledge";
 import { LocationDetail } from "@/types/location/location";
+import { Organization } from "@/types/organization/organization";
 
 export enum SupplyRequestStatus {
   draft = "draft",
   active = "active",
   suspended = "suspended",
   cancelled = "cancelled",
+  processed = "processed",
   completed = "completed",
   entered_in_error = "entered_in_error",
 }
@@ -17,7 +21,11 @@ export const SUPPLY_REQUEST_STATUS_COLORS = {
   cancelled: "destructive",
   completed: "green",
   entered_in_error: "destructive",
-} as const satisfies Record<SupplyRequestStatus, string>;
+  processed: "orange",
+} as const satisfies Record<
+  SupplyRequestStatus,
+  React.ComponentProps<typeof Badge>["variant"]
+>;
 
 export enum SupplyRequestIntent {
   proposal = "proposal",
@@ -68,6 +76,7 @@ export interface SupplyRequestCreate extends Omit<SupplyRequestBase, "id"> {
   deliver_from?: string; // Location ID
   deliver_to: string; // Location ID
   item: string; // ProductKnowledge ID
+  supplier?: string; // Organization ID
 }
 
 export interface SupplyRequestUpsert extends Omit<SupplyRequestBase, "id"> {
@@ -81,4 +90,5 @@ export interface SupplyRequestRead extends SupplyRequestBase {
   item: ProductKnowledgeBase;
   deliver_from?: LocationDetail;
   deliver_to: LocationDetail;
+  supplier?: Organization;
 }

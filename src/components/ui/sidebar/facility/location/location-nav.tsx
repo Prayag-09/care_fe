@@ -59,12 +59,13 @@ export function LocationNav() {
               url: `${baseUrl}/inventory`,
             },
             {
-              name: t("supply_request"),
-              url: `${baseUrl}/supply_requests`,
+              header: t("internal_transfers"),
+              name: t("to_receive"),
+              url: `${baseUrl}/internal_transfers/to_receive`,
             },
             {
-              name: t("supply_delivery"),
-              url: `${baseUrl}/supply_deliveries`,
+              name: t("to_dispatch"),
+              url: `${baseUrl}/internal_transfers/to_dispatch`,
             },
             {
               header: t("external_supply"),
@@ -73,12 +74,8 @@ export function LocationNav() {
               url: `${baseUrl}/external_supply/purchase_orders`,
             },
             {
-              name: t("incoming_deliveries"),
-              url: `${baseUrl}/external_supply/incoming_deliveries`,
-            },
-            {
-              name: t("receive_stock"),
-              url: `${baseUrl}/external_supply/receive`,
+              name: t("inward_entry"),
+              url: `${baseUrl}/external_supply/inward_entry`,
             },
           ],
         },

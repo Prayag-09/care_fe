@@ -6,6 +6,15 @@ x : Done
 
 - : In Progress/Assigned/Blocked
 
+# Tags & Identifiers
+
+- [-] i18n -- Khavin
+- [-] Add patient identifier config button doesn’t work -- Khavin
+- [BE] Identifier: search and filter (status) not working, (needs to be added in backend)
+- [BE] Backend throws 500 while updating the identifier
+- [BE] Tag search not working
+- [-] Once Identifier is added to an encounter, it doesn’t show up while editing -- Khavin
+
 # Pharmacy
 
 - [BE] Add facility-based filter & pagination in the inventory items list - Jeevan. Vignesh will add filter queryset by facility later

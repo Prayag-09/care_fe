@@ -31,6 +31,8 @@ import { Textarea } from "@/components/ui/textarea";
 
 import ChargeItemPriceDisplay from "@/components/Billing/ChargeItem/ChargeItemPriceDisplay";
 
+import { useIsMobile } from "@/hooks/use-mobile";
+
 import mutate from "@/Utils/request/mutate";
 import query from "@/Utils/request/query";
 import {
@@ -59,6 +61,7 @@ export default function AddMultipleChargeItemsSheet({
   disabled,
 }: AddMultipleChargeItemsSheetProps) {
   const { t } = useTranslation();
+  const isMobile = useIsMobile();
   const [selectedItems, setSelectedItems] = useState<ChargeItemUpsert[]>([]);
   const [search, setSearch] = useState("");
   const [selectedDefinitionId, setSelectedDefinitionId] = useState<
@@ -182,58 +185,85 @@ export default function AddMultipleChargeItemsSheet({
             {selectedItems.length > 0 && (
               <div className="space-y-2">
                 <h3 className="text-base font-medium">{t("selected_items")}</h3>
-                <Table>
-                  <TableHeader>
-                    <TableRow>
-                      <TableHead>{t("name")}</TableHead>
-                      <TableHead>{t("quantity")}</TableHead>
-                      <TableHead>{t("price")}</TableHead>
-                      <TableHead>{t("note")}</TableHead>
-                      <TableHead className="w-[100px]"></TableHead>
-                    </TableRow>
-                  </TableHeader>
-                  <TableBody>
+                {isMobile ? (
+                  <div className="space-y-4">
                     {selectedItems.map((item, index) => (
-                      <TableRow key={index}>
-                        <TableCell className="whitespace-pre-wrap">
-                          {item.title}
-                        </TableCell>
-                        <TableCell>
-                          <Input
-                            type="number"
-                            min={1}
-                            value={item.quantity}
-                            onChange={(e) =>
-                              handleUpdateQuantity(
-                                index,
-                                parseInt(e.target.value, 10),
-                              )
-                            }
-                            className="w-20"
-                          />
-                        </TableCell>
-                        <TableCell>
-                          <div className="flex items-center gap-1">
-                            <span>
-                              {item.unit_price_components?.[0]?.amount || 0}{" "}
-                              {item.unit_price_components?.[0]?.code?.code ||
-                                "INR"}
-                            </span>
-                            {item.unit_price_components?.length > 0 && (
-                              <Popover>
-                                <PopoverTrigger>
-                                  <InfoIcon className="h-4 w-4 text-gray-700 cursor-pointer" />
-                                </PopoverTrigger>
-                                <PopoverContent side="right" className="p-0">
-                                  <ChargeItemPriceDisplay
-                                    priceComponents={item.unit_price_components}
-                                  />
-                                </PopoverContent>
-                              </Popover>
-                            )}
+                      <div
+                        key={index}
+                        className="bg-white rounded-lg border p-4 space-y-3"
+                      >
+                        {/* Title and Remove Button */}
+                        <div className="flex items-start justify-between gap-2">
+                          <h4 className="font-medium text-base flex-1">
+                            {item.title}
+                          </h4>
+                          <Button
+                            size="sm"
+                            variant="ghost"
+                            onClick={() => handleRemoveItem(index)}
+                            className="shrink-0"
+                          >
+                            <Trash2Icon className="h-4 w-4" />
+                          </Button>
+                        </div>
+
+                        {/* Quantity and Price */}
+                        <div className="flex flex-wrap gap-4 items-center">
+                          <div className="space-y-1">
+                            <label className="text-sm text-gray-500">
+                              {t("quantity")}
+                            </label>
+                            <Input
+                              type="number"
+                              min={1}
+                              value={item.quantity}
+                              onChange={(e) =>
+                                handleUpdateQuantity(
+                                  index,
+                                  parseInt(e.target.value, 10),
+                                )
+                              }
+                              className="w-24"
+                            />
                           </div>
-                        </TableCell>
-                        <TableCell>
+
+                          <div className="space-y-1">
+                            <label className="text-sm text-gray-500">
+                              {t("price")}
+                            </label>
+                            <div className="flex items-center gap-1">
+                              <span>
+                                {item.unit_price_components?.[0]?.amount || 0}{" "}
+                                {item.unit_price_components?.[0]?.code?.code ||
+                                  "INR"}
+                              </span>
+                              {item.unit_price_components?.length > 0 && (
+                                <Popover>
+                                  <PopoverTrigger>
+                                    <InfoIcon className="h-4 w-4 text-gray-700 cursor-pointer" />
+                                  </PopoverTrigger>
+                                  <PopoverContent
+                                    side="right"
+                                    className="p-0"
+                                    align="start"
+                                  >
+                                    <ChargeItemPriceDisplay
+                                      priceComponents={
+                                        item.unit_price_components
+                                      }
+                                    />
+                                  </PopoverContent>
+                                </Popover>
+                              )}
+                            </div>
+                          </div>
+                        </div>
+
+                        {/* Notes */}
+                        <div className="space-y-1">
+                          <label className="text-sm text-gray-500">
+                            {t("note")}
+                          </label>
                           <Textarea
                             value={item.note}
                             onChange={(e) =>
@@ -242,20 +272,88 @@ export default function AddMultipleChargeItemsSheet({
                             placeholder={t("add_notes")}
                             className="min-h-[60px] resize-none"
                           />
-                        </TableCell>
-                        <TableCell>
-                          <Button
-                            size="sm"
-                            variant="ghost"
-                            onClick={() => handleRemoveItem(index)}
-                          >
-                            <Trash2Icon className="h-4 w-4" />
-                          </Button>
-                        </TableCell>
-                      </TableRow>
+                        </div>
+                      </div>
                     ))}
-                  </TableBody>
-                </Table>
+                  </div>
+                ) : (
+                  <Table>
+                    <TableHeader>
+                      <TableRow>
+                        <TableHead>{t("name")}</TableHead>
+                        <TableHead>{t("quantity")}</TableHead>
+                        <TableHead>{t("price")}</TableHead>
+                        <TableHead>{t("note")}</TableHead>
+                        <TableHead className="w-[100px]"></TableHead>
+                      </TableRow>
+                    </TableHeader>
+                    <TableBody>
+                      {selectedItems.map((item, index) => (
+                        <TableRow key={index}>
+                          <TableCell className="whitespace-pre-wrap">
+                            {item.title}
+                          </TableCell>
+                          <TableCell>
+                            <Input
+                              type="number"
+                              min={1}
+                              value={item.quantity}
+                              onChange={(e) =>
+                                handleUpdateQuantity(
+                                  index,
+                                  parseInt(e.target.value, 10),
+                                )
+                              }
+                              className="w-20"
+                            />
+                          </TableCell>
+                          <TableCell>
+                            <div className="flex items-center gap-1">
+                              <span>
+                                {item.unit_price_components?.[0]?.amount || 0}{" "}
+                                {item.unit_price_components?.[0]?.code?.code ||
+                                  "INR"}
+                              </span>
+                              {item.unit_price_components?.length > 0 && (
+                                <Popover>
+                                  <PopoverTrigger>
+                                    <InfoIcon className="size-4 text-gray-700 cursor-pointer" />
+                                  </PopoverTrigger>
+                                  <PopoverContent side="right" className="p-0">
+                                    <ChargeItemPriceDisplay
+                                      priceComponents={
+                                        item.unit_price_components
+                                      }
+                                    />
+                                  </PopoverContent>
+                                </Popover>
+                              )}
+                            </div>
+                          </TableCell>
+                          <TableCell>
+                            <Textarea
+                              value={item.note}
+                              onChange={(e) =>
+                                handleUpdateNote(index, e.target.value)
+                              }
+                              placeholder={t("add_notes")}
+                              className="min-h-[60px] resize-none"
+                            />
+                          </TableCell>
+                          <TableCell>
+                            <Button
+                              size="sm"
+                              variant="ghost"
+                              onClick={() => handleRemoveItem(index)}
+                            >
+                              <Trash2Icon className="size-4" />
+                            </Button>
+                          </TableCell>
+                        </TableRow>
+                      ))}
+                    </TableBody>
+                  </Table>
+                )}
               </div>
             )}
 

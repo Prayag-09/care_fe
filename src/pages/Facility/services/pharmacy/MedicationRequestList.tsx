@@ -15,6 +15,9 @@ import {
 import { FilterSelect } from "@/components/ui/filter-select";
 import { Input } from "@/components/ui/input";
 import { Separator } from "@/components/ui/separator";
+import { Tabs, TabsList, TabsTrigger } from "@/components/ui/tabs";
+
+import Page from "@/components/Common/Page";
 import {
   Table,
   TableBody,
@@ -22,10 +25,7 @@ import {
   TableHead,
   TableHeader,
   TableRow,
-} from "@/components/ui/table";
-import { Tabs, TabsList, TabsTrigger } from "@/components/ui/tabs";
-
-import Page from "@/components/Common/Page";
+} from "@/components/Common/Table";
 
 import useFilters from "@/hooks/useFilters";
 
@@ -227,22 +227,18 @@ export default function MedicationRequestList({
       </div>
 
       {/* Table section */}
-      <div className="overflow-hidden rounded-md border-2 border-white shadow-md">
-        <Table className="rounded-md">
-          <TableHeader className=" bg-gray-100 text-gray-700">
-            <TableRow className="divide-x">
-              <TableHead className="text-gray-700">
-                {t("patient_name")}
-              </TableHead>
-              <TableHead className="text-gray-700">{t("priority")}</TableHead>
-              <TableHead className="text-gray-700">{t("category")}</TableHead>
-              <TableHead className="text-gray-700">
-                {t("total_medicines")}
-              </TableHead>
-              <TableHead className="text-gray-700">{t("action")}</TableHead>
+      <div>
+        <Table>
+          <TableHeader>
+            <TableRow>
+              <TableHead>{t("patient_name")}</TableHead>
+              <TableHead>{t("priority")}</TableHead>
+              <TableHead>{t("category")}</TableHead>
+              <TableHead>{t("total_medicines")}</TableHead>
+              <TableHead>{t("action")}</TableHead>
             </TableRow>
           </TableHeader>
-          <TableBody className="bg-white">
+          <TableBody>
             {isLoading ? (
               <TableRow>
                 <TableCell colSpan={5} className="text-center py-8">
@@ -258,11 +254,8 @@ export default function MedicationRequestList({
             ) : (
               prescriptionQueue?.results?.map(
                 (item: MedicationRequestSummary) => (
-                  <TableRow
-                    key={item.encounter.id}
-                    className="hover:bg-gray-50 divide-x"
-                  >
-                    <TableCell className="font-semibold text-gray-950">
+                  <TableRow key={item.encounter.id}>
+                    <TableCell className="font-semibold">
                       {item.encounter.patient.name}
                     </TableCell>
                     <TableCell>
@@ -285,21 +278,18 @@ export default function MedicationRequestList({
                         )}
                       </Badge>
                     </TableCell>
-                    <TableCell className="font-medium text-gray-950">
-                      {item.count}
-                    </TableCell>
+                    <TableCell>{item.count}</TableCell>
                     <TableCell>
                       <Button
                         variant="outline"
-                        size="sm"
-                        className="w-auto font-semibold text-gray-950 border-gray-400"
+                        className="font-semibold"
                         onClick={() => {
                           navigate(
                             `/facility/${facilityId}/locations/${locationId}/medication_requests/patient/${item.encounter.patient.id}${qParams.billing_status === "partial" ? "/partial" : ""}`,
                           );
                         }}
                       >
-                        <ArrowUpRightSquare className="mr-2 size-4" />
+                        <ArrowUpRightSquare strokeWidth={1.5} />
                         {t("see_prescription")}
                       </Button>
                     </TableCell>
