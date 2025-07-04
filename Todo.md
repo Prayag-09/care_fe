@@ -50,6 +50,8 @@ x : Done
 - [ ] Observation Def - validation for empty components
 - [ ] Observation Def - Preview mobile - status badge & button clash
 - [ ] AD form - Selected location alignment
+- [ ] SR form - Improve
+- [ ] SR - Scan existing specimen QR (Use Access identifier instead of uuid)
 
 ## Back End
 
