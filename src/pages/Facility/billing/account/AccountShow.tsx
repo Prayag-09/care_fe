@@ -404,20 +404,6 @@ export function AccountShow({
             </div>
           </div>
 
-          <div className="flex-1 p-6 border-b md:border-r border-gray-200">
-            <div className="space-y-1">
-              <p className="text-sm font-medium text-gray-500">
-                {t("net_payable")}
-              </p>
-              <div className="flex items-end">
-                <p className="text-3xl font-bold text-gray-900">
-                  <MonetaryDisplay amount={account.total_net} />
-                </p>
-              </div>
-              <p className="text-xs text-gray-500">{t("after_adjustments")}</p>
-            </div>
-          </div>
-
           <div className="flex-1 p-6">
             <div className="space-y-1">
               <p className="text-sm font-medium text-gray-500">
