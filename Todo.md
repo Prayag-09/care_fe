@@ -9,12 +9,13 @@ x : Done
 # Tags & Identifiers
 
 - [x] i18n -- Khavin
-- [-] Add patient identifier config button doesn’t work -- Khavin
+- [x] Add patient identifier config button doesn’t work -- Khavin
 - [BE] Identifier: search and filter (status) not working, (needs to be added in backend)
 - [BE] Backend throws 500 while updating the identifier
 - [BE] Tag search not working
 - [-] Once Identifier is added to an encounter, it doesn’t show up while editing -- Khavin
 - [BE] Add identifiers to patient serializer or add an api to get the patient's identifiers
+- [-] When a edit identifier sheet is refreshed and opened, the config doesn't get populated
 
 # Pharmacy
 
