@@ -1,6 +1,7 @@
 import { useQuery } from "@tanstack/react-query";
 import { format } from "date-fns";
 import { navigate } from "raviger";
+import { useEffect } from "react";
 import { useTranslation } from "react-i18next";
 
 import CareIcon from "@/CAREUI/icons/CareIcon";
@@ -91,6 +92,13 @@ export default function ProductList({ facilityId }: { facilityId: string }) {
     disableCache: true,
   });
 
+  // TODO: Remove this once we have a default status (robo's PR)
+  useEffect(() => {
+    if (!qParams.status) {
+      updateQuery({ status: "active" });
+    }
+  }, []);
+
   const { data: response, isLoading } = useQuery({
     queryKey: ["products", qParams],
     queryFn: query.debounced(productApi.listProduct, {
@@ -100,7 +108,7 @@ export default function ProductList({ facilityId }: { facilityId: string }) {
       queryParams: {
         limit: resultsPerPage,
         offset: ((qParams.page ?? 1) - 1) * resultsPerPage,
-        status: qParams.status || "active",
+        status: qParams.status,
         name: qParams.search,
       },
     }),
@@ -146,7 +154,7 @@ export default function ProductList({ facilityId }: { facilityId: string }) {
             <div className="flex flex-col sm:flex-row items-stretch gap-2 w-full sm:w-auto">
               <div className="flex-1 sm:flex-initial sm:w-auto">
                 <FilterSelect
-                  value={qParams.status || "active"}
+                  value={qParams.status || ""}
                   onValueChange={(value) => updateQuery({ status: value })}
                   options={Object.values(ProductStatusOptions)}
                   label="status"
