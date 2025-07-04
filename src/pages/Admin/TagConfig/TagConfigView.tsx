@@ -162,18 +162,6 @@ export default function TagConfigView({
         {/* Header */}
         <div className="flex items-center justify-between">
           <div className="flex items-center gap-4">
-            <Button
-              variant="ghost"
-              size="sm"
-              onClick={() =>
-                facilityId
-                  ? navigate(`/facility/${facilityId}/settings/tag_config`)
-                  : navigate("/admin/tag_config")
-              }
-            >
-              <CareIcon icon="l-arrow-left" className="size-4 mr-2" />
-              {t("back_to_tags")}
-            </Button>
             <div>
               <h1 className="text-2xl font-bold text-gray-900">
                 {tagConfig.display}
