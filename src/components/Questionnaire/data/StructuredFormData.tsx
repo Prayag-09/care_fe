@@ -26,7 +26,7 @@ const medication_request_questionnaire: QuestionnaireDetail = {
   version: "0.0.1",
   title: "Medication Request",
   status: "active",
-  subject_type: "patient",
+  subject_type: "encounter",
   questions: [
     {
       id: "medication_request",
@@ -46,7 +46,7 @@ const allergy_intolerance_questionnaire: QuestionnaireDetail = {
   version: "0.0.1",
   title: "Allergy Intolerance",
   status: "active",
-  subject_type: "patient",
+  subject_type: "encounter",
   questions: [
     {
       id: "allergy_intolerance",
@@ -66,7 +66,7 @@ const medication_statement_questionnaire: QuestionnaireDetail = {
   version: "0.0.1",
   title: "Medication Statement",
   status: "active",
-  subject_type: "patient",
+  subject_type: "encounter",
   questions: [
     {
       id: "medication_statement",
@@ -86,7 +86,7 @@ const service_request_questionnaire: QuestionnaireDetail = {
   version: "0.0.1",
   title: "Service Request",
   status: "active",
-  subject_type: "patient",
+  subject_type: "encounter",
   questions: [
     {
       id: "service_request",
@@ -106,7 +106,7 @@ const diagnosis_questionnaire: QuestionnaireDetail = {
   version: "0.0.1",
   title: "Diagnosis",
   status: "active",
-  subject_type: "patient",
+  subject_type: "encounter",
   questions: [
     {
       id: "diagnosis",
@@ -126,7 +126,7 @@ const symptom_questionnaire: QuestionnaireDetail = {
   version: "0.0.1",
   title: "Symptom",
   status: "active",
-  subject_type: "patient",
+  subject_type: "encounter",
   questions: [
     {
       id: "symptom",
@@ -146,7 +146,7 @@ const files_questionnaire: QuestionnaireDetail = {
   version: "0.0.1",
   title: "Files",
   status: "active",
-  subject_type: "patient",
+  subject_type: "encounter",
   questions: [
     {
       id: "files",

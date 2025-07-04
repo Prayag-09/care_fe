@@ -123,7 +123,7 @@ export const EncounterServiceRequestTab = ({
 
           <Button variant="primary">
             <Link
-              href={`/facility/${facilityId}/patient/${encounter.patient.id}/encounter/${encounter.id}/questionnaire/service-request`}
+              href={`/facility/${facilityId}/patient/${encounter.patient.id}/encounter/${encounter.id}/questionnaire/service_request`}
               className="flex items-center"
             >
               <PlusIcon className="size-5 mr-1" />
