@@ -56,6 +56,7 @@ import useBreakpoints from "@/hooks/useBreakpoints";
 
 import query from "@/Utils/request/query";
 import { formatName } from "@/Utils/utils";
+import useCurrentFacility from "@/pages/Facility/utils/useCurrentFacility";
 import { Code } from "@/types/base/code/code";
 import {
   DoseRange,
@@ -202,7 +203,7 @@ export function MedicationRequestQuestion({
   errors,
 }: MedicationRequestQuestionProps) {
   const { t } = useTranslation();
-
+  const { facilityId } = useCurrentFacility();
   const isPreview = patientId === "preview";
   const medications =
     (questionnaireResponse.values?.[0]?.value as MedicationRequest[]) || [];
@@ -214,6 +215,7 @@ export function MedicationRequestQuestion({
       queryParams: {
         encounter: encounterId,
         limit: 100,
+        facility: facilityId,
       },
     }),
     enabled: !isPreview,

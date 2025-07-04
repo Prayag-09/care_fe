@@ -27,8 +27,6 @@ import { useSidebar } from "@/components/ui/sidebar";
 
 import PaginationComponent from "@/components/Common/Pagination";
 
-import useAppHistory from "@/hooks/useAppHistory";
-
 import { RESULTS_PER_PAGE_LIMIT } from "@/common/constants";
 
 import query from "@/Utils/request/query";
@@ -41,7 +39,6 @@ export function LocationSwitcher() {
   const { facilityId } = useCurrentLocation();
   const { location: extractedLocation } = useCurrentLocation();
   const { state } = useSidebar();
-  const { goBack } = useAppHistory();
   const [location, setLocation] = useState<LocationList | undefined>(undefined);
   const [openDialog, setOpenDialog] = useState(false);
 
@@ -56,10 +53,10 @@ export function LocationSwitcher() {
       <Button
         variant="ghost"
         size="icon"
-        onClick={() => goBack(fallbackUrl)}
+        onClick={() => navigate(fallbackUrl)}
         className="w-8 h-8"
       >
-        <CareIcon icon="l-arrow-left" />
+        <CareIcon icon="l-home-alt" />
       </Button>
     );
   }
@@ -74,9 +71,9 @@ export function LocationSwitcher() {
         setOpen={setOpenDialog}
       />
       <div className="flex flex-col items-start gap-4">
-        <Button variant="ghost" onClick={() => goBack(fallbackUrl)}>
+        <Button variant="ghost" onClick={() => navigate(fallbackUrl)}>
           <CareIcon icon="l-arrow-left" />
-          <span className="underline underline-offset-2">{t("back")}</span>
+          <span className="underline underline-offset-2">{t("home")}</span>
         </Button>
 
         <div className="w-full px-2">

@@ -20,6 +20,7 @@ import { getPermissions } from "@/common/Permissions";
 
 import query from "@/Utils/request/query";
 import { usePermissions } from "@/context/PermissionContext";
+import useCurrentFacility from "@/pages/Facility/utils/useCurrentFacility";
 import {
   Encounter,
   inactiveEncounterStatus,
@@ -88,6 +89,7 @@ export default function MedicationRequestTable({ patient, encounter }: Props) {
   const canAccess = canViewClinicalData || canViewEncounter;
   const subpathMatch = usePathParams("/facility/:facilityId/*");
   const facilityIdExists = !!subpathMatch?.facilityId;
+  const { facilityId } = useCurrentFacility();
   const canWrite =
     facilityIdExists &&
     canWriteEncounter &&
@@ -100,6 +102,7 @@ export default function MedicationRequestTable({ patient, encounter }: Props) {
         encounter: encounter.id,
         limit: 100,
         status: ["active", "on-hold", "draft", "unknown"].join(","),
+        facility: facilityId,
       },
     }),
     enabled: !!patientId && canAccess,
@@ -112,6 +115,7 @@ export default function MedicationRequestTable({ patient, encounter }: Props) {
       queryParams: {
         encounter: encounter.id,
         limit: 100,
+        facility: facilityId,
         status: ["ended", "completed", "cancelled", "entered_in_error"].join(
           ",",
         ),
