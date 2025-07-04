@@ -79,9 +79,23 @@ export default function PatientIdentifierConfigForm({
     resolver: zodResolver(formSchema),
     defaultValues: config
       ? {
-          config: config.config,
+          config: {
+            ...config.config,
+            retrieve_config: {
+              ...config.config.retrieve_config,
+              retrieve_with_dob:
+                config.config.retrieve_config.retrieve_with_dob || false,
+              retrieve_with_year_of_birth:
+                config.config.retrieve_config.retrieve_with_year_of_birth ||
+                false,
+              retrieve_with_otp:
+                config.config.retrieve_config.retrieve_with_otp || false,
+              retrieve_without_extra:
+                config.config.retrieve_config.retrieve_without_extra || false,
+            },
+          },
           status: config.status,
-          facility: config.facility,
+          facility: config.facility || null,
         }
       : {
           config: {
