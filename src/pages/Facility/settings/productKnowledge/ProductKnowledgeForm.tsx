@@ -78,10 +78,15 @@ const formSchema = z.object({
     .default([]),
   definitional: z
     .object({
-      dosage_form: codeSchema.nullable(),
+      dosage_form: codeSchema.optional(),
       intended_routes: z.array(codeSchema).default([]),
     })
-    .nullable(),
+    .nullable()
+    .optional()
+    .refine((data) => {
+      if (!data) return true; // definitional is optional
+      return data.dosage_form && data.dosage_form.code; // if definitional exists, dosage_form is required
+    }),
 });
 
 export default function ProductKnowledgeForm({
@@ -636,137 +641,172 @@ function ProductKnowledgeFormContent({
             {/* Product Definition Section */}
             <div className="rounded-lg border border-gray-200 bg-white p-4">
               <div className="space-y-4">
-                <div>
-                  <h2 className="text-base font-medium text-gray-900">
-                    {t("product_definition")}
-                  </h2>
-                  <p className="mt-0.5 text-sm text-gray-500">
-                    {t("Specify technical details about this product")}
-                  </p>
-                </div>
-
-                <div>
-                  <FormLabel>{t("dosage_form")}</FormLabel>
-                  <div className="mt-2">
-                    <Select
-                      value={form.watch("definitional.dosage_form")?.code || ""}
-                      onValueChange={(value) => {
-                        const selectedUnit = DOSAGE_UNITS_CODES.find(
-                          (unit) => unit.code === value,
-                        );
-                        if (selectedUnit) {
-                          if (!form.getValues("definitional")) {
-                            form.setValue("definitional", {
-                              dosage_form: selectedUnit,
-                              intended_routes: [],
-                            });
-                          } else {
-                            form.setValue(
-                              "definitional.dosage_form",
-                              selectedUnit,
-                            );
-                          }
-                        }
-                      }}
-                    >
-                      <FormControl>
-                        <SelectTrigger>
-                          <SelectValue
-                            placeholder={t("e.g., Tablet, Injection")}
-                          />
-                        </SelectTrigger>
-                      </FormControl>
-                      <SelectContent>
-                        {DOSAGE_UNITS_CODES.map((unit) => (
-                          <SelectItem key={unit.code} value={unit.code}>
-                            {unit.display}
-                          </SelectItem>
-                        ))}
-                      </SelectContent>
-                    </Select>
+                <div className="flex items-center justify-between">
+                  <div>
+                    <h2 className="text-base font-medium text-gray-900">
+                      {t("product_definition")}
+                    </h2>
+                    <p className="mt-0.5 text-sm text-gray-500">
+                      {t("Specify technical details about this product")}
+                    </p>
                   </div>
-                </div>
-
-                <div className="space-y-4">
-                  <div className="flex items-center justify-between">
-                    <div>
-                      <h3 className="text-sm font-medium text-gray-900">
-                        {t("intended_routes")}
-                      </h3>
-                      <p className="mt-0.5 text-xs text-gray-500">
-                        {t("Add intended routes of administration")}
-                      </p>
-                    </div>
+                  {form.watch("definitional") ? (
                     <Button
                       type="button"
                       variant="outline"
                       size="sm"
-                      onClick={() => {
-                        if (!form.getValues("definitional")) {
-                          form.setValue("definitional", {
-                            dosage_form: null,
-                            intended_routes: [],
-                          });
-                        }
-                        intendedRoutesArray.append({
-                          code: "",
-                          display: "",
-                          system: "",
-                        });
-                      }}
+                      onClick={() => form.setValue("definitional", null)}
+                    >
+                      <X className="mr-2 size-4" />
+                      {t("remove") + " " + t("definition")}
+                    </Button>
+                  ) : (
+                    <Button
+                      type="button"
+                      variant="outline"
+                      size="sm"
+                      onClick={() =>
+                        form.setValue("definitional", {
+                          intended_routes: [],
+                        })
+                      }
                     >
                       <PlusCircle className="mr-2 size-4" />
-                      {t("add_route")}
+                      {t("add_definition")}
                     </Button>
-                  </div>
-
-                  {intendedRoutesArray.fields.length > 0 ? (
-                    <div className="space-y-4">
-                      {intendedRoutesArray.fields.map((field, index) => (
-                        <div
-                          key={field.id}
-                          className="flex items-start gap-2 rounded-md border p-3"
-                        >
-                          <div className="flex-1">
-                            <FormLabel>{t("route")}</FormLabel>
-                            <div className="mt-2">
-                              <ValueSetSelect
-                                system="system-route"
-                                value={form.watch(
-                                  `definitional.intended_routes.${index}`,
-                                )}
-                                placeholder={t("e.g., Oral, Intravenous")}
-                                onSelect={(code) => {
-                                  form.setValue(
-                                    `definitional.intended_routes.${index}`,
-                                    {
-                                      code: code.code,
-                                      display: code.display,
-                                      system: code.system,
-                                    },
-                                  );
-                                }}
-                                showCode={true}
-                              />
-                            </div>
-                          </div>
-                          <Button
-                            type="button"
-                            variant="ghost"
-                            size="icon"
-                            onClick={() => intendedRoutesArray.remove(index)}
-                          >
-                            <X className="size-4" />
-                          </Button>
-                        </div>
-                      ))}
-                    </div>
-                  ) : (
-                    <div className="rounded-md bg-gray-50 p-4 text-center text-sm text-gray-500">
-                      {t("no_routes_added")}
-                    </div>
                   )}
                 </div>
+
+                {form.watch("definitional") ? (
+                  <div className="space-y-4">
+                    <div>
+                      <FormField
+                        control={form.control}
+                        name="definitional.dosage_form"
+                        render={({ field }) => (
+                          <FormItem className="flex flex-col">
+                            <FormLabel aria-required>
+                              {t("dosage_form")}
+                            </FormLabel>
+                            <FormControl>
+                              <Select
+                                value={field.value?.code || ""}
+                                onValueChange={(value) => {
+                                  const selectedUnit = DOSAGE_UNITS_CODES.find(
+                                    (unit) => unit.code === value,
+                                  );
+                                  if (selectedUnit)
+                                    field.onChange(selectedUnit);
+                                }}
+                              >
+                                <SelectTrigger>
+                                  <SelectValue
+                                    placeholder={t("e.g., Tablet, Injection")}
+                                  />
+                                </SelectTrigger>
+                                <SelectContent>
+                                  {DOSAGE_UNITS_CODES.map((unit) => (
+                                    <SelectItem
+                                      key={unit.code}
+                                      value={unit.code}
+                                    >
+                                      {unit.display}
+                                    </SelectItem>
+                                  ))}
+                                </SelectContent>
+                              </Select>
+                            </FormControl>
+                          </FormItem>
+                        )}
+                      />
+                      <FormMessage>
+                        {form.formState.errors.definitional?.dosage_form
+                          ?.message && t("required")}
+                      </FormMessage>
+                    </div>
+
+                    <div className="space-y-4">
+                      <div className="flex items-center justify-between">
+                        <div>
+                          <h3 className="text-sm font-medium text-gray-900">
+                            {t("intended_routes")}
+                          </h3>
+                          <p className="mt-0.5 text-xs text-gray-500">
+                            {t("Add intended routes of administration")}
+                          </p>
+                        </div>
+                        <Button
+                          type="button"
+                          variant="outline"
+                          size="sm"
+                          onClick={() => {
+                            intendedRoutesArray.append({
+                              code: "",
+                              display: "",
+                              system: "",
+                            });
+                          }}
+                        >
+                          <PlusCircle className="mr-2 size-4" />
+                          {t("add_route")}
+                        </Button>
+                      </div>
+
+                      {intendedRoutesArray.fields.length > 0 ? (
+                        <div className="space-y-4">
+                          {intendedRoutesArray.fields.map((field, index) => (
+                            <div
+                              key={field.id}
+                              className="flex items-start gap-2 rounded-md border p-3"
+                            >
+                              <div className="flex-1">
+                                <FormLabel>{t("route")}</FormLabel>
+                                <div className="mt-2">
+                                  <ValueSetSelect
+                                    system="system-route"
+                                    value={form.watch(
+                                      `definitional.intended_routes.${index}`,
+                                    )}
+                                    placeholder={t("e.g., Oral, Intravenous")}
+                                    onSelect={(code) => {
+                                      form.setValue(
+                                        `definitional.intended_routes.${index}`,
+                                        {
+                                          code: code.code,
+                                          display: code.display,
+                                          system: code.system,
+                                        },
+                                      );
+                                    }}
+                                    showCode={true}
+                                  />
+                                </div>
+                              </div>
+                              <Button
+                                type="button"
+                                variant="ghost"
+                                size="icon"
+                                onClick={() =>
+                                  intendedRoutesArray.remove(index)
+                                }
+                              >
+                                <X className="size-4" />
+                              </Button>
+                            </div>
+                          ))}
+                        </div>
+                      ) : (
+                        <div className="rounded-md bg-gray-50 p-4 text-center text-sm text-gray-500">
+                          {t("no_routes_added")}
+                        </div>
+                      )}
+                    </div>
+                  </div>
+                ) : (
+                  <div className="rounded-md bg-gray-50 p-4 text-center text-sm text-gray-500">
+                    {t("no_product_definition_added")}
+                  </div>
+                )}
               </div>
             </div>
 
