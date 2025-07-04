@@ -70,7 +70,7 @@ export function SpecimenHistorySheet({
                       <p className="text-gray-500">{t("quantity")}</p>
                       <p>
                         {specimen.collection?.quantity
-                          ? `${specimen.collection.quantity.value} ${specimen.collection.quantity.unit}`
+                          ? `${specimen.collection.quantity.value} ${specimen.collection.quantity.unit.display}`
                           : "-"}
                       </p>
                     </div>
