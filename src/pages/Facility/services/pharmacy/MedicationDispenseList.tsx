@@ -5,7 +5,6 @@ import { useTranslation } from "react-i18next";
 
 import { Badge } from "@/components/ui/badge";
 import { Button } from "@/components/ui/button";
-import { Dialog, DialogContent, DialogTrigger } from "@/components/ui/dialog";
 import { EmptyState } from "@/components/ui/empty-state";
 import { FilterSelect } from "@/components/ui/filter-select";
 import { FilterTabs } from "@/components/ui/filter-tabs";
@@ -20,11 +19,9 @@ import {
 
 import { TableSkeleton } from "@/components/Common/SkeletonLoading";
 import { formatTotalUnits } from "@/components/Medicine/utils";
-import { PrescriptionPreview } from "@/components/Prescription/PrescriptionPreview";
 
 import useFilters from "@/hooks/useFilters";
 
-import routes from "@/Utils/request/api";
 import query from "@/Utils/request/query";
 import useCurrentLocation from "@/pages/Facility/locations/utils/useCurrentLocation";
 import {
@@ -155,14 +152,6 @@ export default function MedicationDispenseList({
     }),
   });
 
-  const { data: patient } = useQuery({
-    queryKey: ["patient", patientId],
-    queryFn: query(routes.getPatient, {
-      pathParams: { id: patientId || "" },
-    }),
-    enabled: !!patientId,
-  });
-
   const medications = response?.results || [];
   const medicationsWithProduct = medications.filter(
     (med) => med.requested_product,
@@ -196,25 +185,31 @@ export default function MedicationDispenseList({
             </div>
           </div>
           <div className="ml-auto flex gap-2">
-            <Dialog>
-              <DialogTrigger asChild>
-                <Button
-                  variant="outline"
-                  className="w-full sm:w-auto border-gray-400 font-semibold"
-                >
-                  <PrinterIcon className="size-4" />
-                  {t("print_prescriptions")}
-                </Button>
-              </DialogTrigger>
-              <DialogContent className="md:max-w-4xl max-h-screen overflow-auto">
-                {patient && medications.length > 0 && (
-                  <PrescriptionPreview
-                    medications={medications}
-                    patient={patient}
-                  />
-                )}
-              </DialogContent>
-            </Dialog>
+            <Button
+              variant="outline"
+              className="w-full sm:w-auto border-gray-400 font-semibold"
+              disabled={medications.length === 0}
+              onClick={() =>
+                navigate(
+                  `/facility/${facilityId}/locations/${locationId}/medication_requests/patient/${patientId}/print`,
+                  {
+                    query: {
+                      status: qParams.status || "active",
+                      priority: qParams.priority || "",
+                      dispense_status: partial ? "partial" : "",
+                      dispense_status_isnull: !partial,
+                      type:
+                        medicationsWithProduct.length > 0
+                          ? "pharmacy"
+                          : "other",
+                    },
+                  },
+                )
+              }
+            >
+              <PrinterIcon className="size-4" />
+              {t("print_prescriptions")}
+            </Button>
             <Button
               onClick={() =>
                 navigate(

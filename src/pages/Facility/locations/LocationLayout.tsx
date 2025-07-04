@@ -21,6 +21,7 @@ import MedicationRequestList from "@/pages/Facility/services/pharmacy/Medication
 import PrescriptionsView, {
   PharmacyMedicationTab,
 } from "@/pages/Facility/services/pharmacy/PrescriptionsView";
+import { PrintPharmacyPrescription } from "@/pages/Facility/services/pharmacy/PrintPharmacyPrescription";
 import ServiceRequestList from "@/pages/Facility/services/serviceRequests/ServiceRequestList";
 import ServiceRequestShow from "@/pages/Facility/services/serviceRequests/ServiceRequestShow";
 import SupplyDeliveryForm from "@/pages/Facility/services/supply/SupplyDeliveryForm";
@@ -260,6 +261,13 @@ const getRoutes = (facilityId: string, locationId: string) => ({
       patientId={patientId}
       tab={PharmacyMedicationTab.PENDING}
     />
+  ),
+  "/medication_requests/patient/:patientId/print": ({
+    patientId,
+  }: {
+    patientId: string;
+  }) => (
+    <PrintPharmacyPrescription facilityId={facilityId} patientId={patientId} />
   ),
   "/medication_requests/patient/:patientId/partial": ({
     patientId,
