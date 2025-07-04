@@ -22,6 +22,8 @@ x : Done
 - [BE] Add facility-based filter & pagination in the inventory items list - Jeevan. Vignesh will add filter queryset by facility later
 - [ ] Dispense - Select all
 - [ ] Dispense screen - Flip paid/unpaid filter - default to paid
+- [ ] Dispense queue - delete - update dispense_status
+- [ ] Medication Administration - Product knowledge
 
 ## Billing
 
