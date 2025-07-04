@@ -170,6 +170,10 @@ export function SpecimenForm({
       newErrors.quantityValue = t("field_required");
     }
 
+    if (quantity?.value && quantity.value <= 0) {
+      newErrors.quantityValue = t("invalid_quantity");
+    }
+
     if (!quantity?.unit) {
       newErrors.quantityUnit = t("field_required");
     }
@@ -340,6 +344,7 @@ export function SpecimenForm({
                 <div className="flex gap-2">
                   <div className="flex-1 max-w-36">
                     <Input
+                      pattern="[0-9]*"
                       type="number"
                       placeholder={t("value")}
                       className="h-9"

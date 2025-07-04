@@ -2104,6 +2104,7 @@
   "invalid_patient_data": "Invalid Patient Data",
   "invalid_pincode": "Invalid Pincode",
   "invalid_pincode_msg": "Please enter valid pincode",
+  "invalid_quantity": "Please enter a valid quantity",
   "invalid_reset": "Invalid Reset",
   "invalid_url": "Please enter a valid url",
   "invalid_url_format": "Invalid URL format",
