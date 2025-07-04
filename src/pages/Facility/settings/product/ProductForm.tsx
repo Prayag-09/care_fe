@@ -2,7 +2,7 @@ import { zodResolver } from "@hookform/resolvers/zod";
 import { useMutation, useQuery, useQueryClient } from "@tanstack/react-query";
 import { format } from "date-fns";
 import { navigate } from "raviger";
-import { useState } from "react";
+import { useEffect, useState } from "react";
 import { useForm } from "react-hook-form";
 import { useTranslation } from "react-i18next";
 import { toast } from "sonner";
@@ -62,7 +62,10 @@ import {
   ProductUpdate,
 } from "@/types/inventory/product/product";
 import productApi from "@/types/inventory/product/productApi";
-import { ProductKnowledgeStatus } from "@/types/inventory/productKnowledge/productKnowledge";
+import {
+  ProductKnowledgeBase,
+  ProductKnowledgeStatus,
+} from "@/types/inventory/productKnowledge/productKnowledge";
 import productKnowledgeApi from "@/types/inventory/productKnowledge/productKnowledgeApi";
 
 const formSchema = z.object({
@@ -137,6 +140,7 @@ export default function ProductForm({
           productId={productId}
           existingData={existingData}
           onSuccess={onSuccess}
+          containerClassName="rounded-lg border border-gray-200 bg-white p-6"
         />
       </div>
     </Page>
@@ -148,13 +152,23 @@ export function ProductFormContent({
   productId,
   existingData,
   productKnowledgeId,
+  containerClassName,
   onSuccess = () => navigate(`/facility/${facilityId}/settings/product`),
+  onCancel = () => navigate(`/facility/${facilityId}/settings/product`),
+  disableButtons = false,
+  externalSubmitRef,
+  enabled = true,
 }: {
   facilityId: string;
   productId?: string;
   existingData?: ProductRead;
   productKnowledgeId?: string;
+  containerClassName?: string;
   onSuccess?: (product: ProductRead) => void;
+  onCancel?: () => void;
+  disableButtons?: boolean;
+  externalSubmitRef?: React.RefObject<(() => void) | null>;
+  enabled?: boolean;
 }) {
   const { t } = useTranslation();
   const queryClient = useQueryClient();
@@ -172,7 +186,29 @@ export function ProductFormContent({
         status: ProductKnowledgeStatus.active,
       },
     }),
+    enabled,
   });
+
+  const { data: existingProductKnowledge } = useQuery({
+    queryKey: ["productKnowledge", productKnowledgeId],
+    queryFn: query(productKnowledgeApi.retrieveProductKnowledge, {
+      pathParams: {
+        productKnowledgeId: productKnowledgeId!,
+      },
+    }),
+    enabled: !!productKnowledgeId && enabled,
+  });
+
+  // Add selected product knowledge to the product knowledge list if it's not already there
+  const productKnowledgeData: ProductKnowledgeBase[] =
+    productKnowledgeResponse?.results.find(
+      (pk) => pk.id === existingProductKnowledge?.id,
+    )
+      ? productKnowledgeResponse?.results
+      : [
+          ...(productKnowledgeResponse?.results || []),
+          ...(existingProductKnowledge ? [existingProductKnowledge] : []),
+        ];
 
   // Get charge item definition list for the dropdown with search
   const { data: chargeItemDefinitionResponse, isLoading: isLoadingCID } =
@@ -273,10 +309,19 @@ export function ProductFormContent({
     }
   }
 
+  useEffect(() => {
+    if (externalSubmitRef) {
+      externalSubmitRef.current = () => {
+        form.handleSubmit(onSubmit)();
+      };
+    }
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [externalSubmitRef]);
+
   return (
     <Form {...form}>
       <form onSubmit={form.handleSubmit(onSubmit)} className="space-y-6">
-        <div className="rounded-lg border border-gray-200 bg-white p-6">
+        <div className={containerClassName}>
           <div className="space-y-4">
             <FormField
               control={form.control}
@@ -306,7 +351,7 @@ export function ProductFormContent({
               )}
             />
 
-            {!isEditMode && (
+            {!isEditMode && !existingProductKnowledge && (
               <FormField
                 control={form.control}
                 name="product_knowledge"
@@ -317,7 +362,7 @@ export function ProductFormContent({
                     </FormLabel>
                     <FormControl>
                       <ProductKnowledgeSelect
-                        value={productKnowledgeResponse?.results.find(
+                        value={productKnowledgeData?.find(
                           (pk) => pk.id === field.value,
                         )}
                         onChange={(selected) => field.onChange(selected.id)}
@@ -477,18 +522,16 @@ export function ProductFormContent({
           </div>
         </div>
 
-        <div className="flex justify-end gap-4">
-          <Button
-            type="button"
-            variant="outline"
-            onClick={() => navigate(`/facility/${facilityId}/settings/product`)}
-          >
-            {t("cancel")}
-          </Button>
-          <Button type="submit" disabled={isPending}>
-            {isPending ? t("saving") : isEditMode ? t("update") : t("create")}
-          </Button>
-        </div>
+        {!disableButtons && (
+          <div className="flex justify-end gap-4">
+            <Button type="button" variant="outline" onClick={onCancel}>
+              {t("cancel")}
+            </Button>
+            <Button type="submit" disabled={isPending}>
+              {isPending ? t("saving") : isEditMode ? t("update") : t("create")}
+            </Button>
+          </div>
+        )}
       </form>
     </Form>
   );

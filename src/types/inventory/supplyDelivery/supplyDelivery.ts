@@ -72,6 +72,8 @@ export interface SupplyDeliveryRead extends SupplyDeliveryBase {
   origin?: LocationDetail;
   destination: LocationDetail;
   supplier?: Organization;
+  created_date?: string;
+  modified_date?: string;
 }
 
 export interface SupplyDeliveryRetrieve extends SupplyDeliveryRead {
