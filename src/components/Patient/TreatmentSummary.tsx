@@ -137,7 +137,7 @@ export default function TreatmentSummary({
     queryKey: ["medication_requests", patientId, encounterId],
     queryFn: query.paginated(medicationRequestApi.list, {
       pathParams: { patientId },
-      queryParams: { encounter: encounterId },
+      queryParams: { encounter: encounterId, facility: facilityId },
       pageSize: 100,
     }),
     enabled: !!encounterId,

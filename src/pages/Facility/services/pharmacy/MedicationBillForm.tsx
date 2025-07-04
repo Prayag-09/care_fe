@@ -2360,12 +2360,13 @@ const DispensedItemsSheet = ({
   medicationRequestId,
 }: DispensedItemsSheetProps) => {
   const { t } = useTranslation();
-
+  const { facilityId } = useCurrentFacility();
   const { data: dispensedItems, isLoading } = useQuery({
     queryKey: ["medication_dispense", medicationRequestId],
     queryFn: query(medicationDispenseApi.list, {
       queryParams: {
         authorizing_prescription: medicationRequestId,
+        facility: facilityId,
       },
     }),
     enabled: open && !!medicationRequestId,
