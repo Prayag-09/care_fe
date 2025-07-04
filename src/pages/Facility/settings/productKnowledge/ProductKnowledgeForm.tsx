@@ -69,10 +69,12 @@ const formSchema = z.object({
     .array(
       z.object({
         note: z.string().min(1, "Note is required"),
-        stability_duration: z.object({
-          value: z.number().min(0, "Value must be a positive number"),
-          unit: codeSchema,
-        }),
+        stability_duration: z
+          .object({
+            value: z.number().int().optional(),
+            unit: codeSchema,
+          })
+          .refine((data) => data.value !== undefined && data.value !== null),
       }),
     )
     .default([]),
@@ -169,7 +171,11 @@ function ProductKnowledgeFormContent({
         code: existingData.code?.code ? existingData.code : null,
         names: existingData.names || [],
         storage_guidelines: existingData.storage_guidelines || [],
-        definitional: existingData.definitional || null,
+        definitional:
+          existingData.definitional &&
+          Object.keys(existingData.definitional).length > 0
+            ? existingData.definitional
+            : null,
       };
     }
 
@@ -533,7 +539,7 @@ function ProductKnowledgeFormContent({
                       storageGuidelinesArray.append({
                         note: "",
                         stability_duration: {
-                          value: 0,
+                          value: undefined,
                           unit: defaultUnitCode,
                         },
                       });
@@ -579,17 +585,23 @@ function ProductKnowledgeFormContent({
                                   <FormControl>
                                     <Input
                                       {...field}
+                                      pattern="[0-9]*"
                                       type="number"
+                                      value={field.value ?? ""}
                                       onChange={(e) =>
                                         field.onChange(
                                           e.target.value
-                                            ? parseFloat(e.target.value)
-                                            : 0,
+                                            ? parseInt(e.target.value)
+                                            : "",
                                         )
                                       }
                                     />
                                   </FormControl>
-                                  <FormMessage />
+                                  <FormMessage>
+                                    {form.formState.errors.storage_guidelines?.[
+                                      index
+                                    ]?.stability_duration && t("required")}
+                                  </FormMessage>
                                 </FormItem>
                               )}
                             />
@@ -720,8 +732,7 @@ function ProductKnowledgeFormContent({
                         )}
                       />
                       <FormMessage>
-                        {form.formState.errors.definitional?.dosage_form
-                          ?.message && t("required")}
+                        {form.formState.errors.definitional && t("required")}
                       </FormMessage>
                     </div>
 
