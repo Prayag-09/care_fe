@@ -923,7 +923,7 @@ export default function PatientRegistration(
                             {c.config.display}
                           </FormLabel>
                           <FormDescription>
-                            {/* {c.config.description} */}
+                            {c.config.description}
                           </FormDescription>
                           <FormControl>
                             <Input
