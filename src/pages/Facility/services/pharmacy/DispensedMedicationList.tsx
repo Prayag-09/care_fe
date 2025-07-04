@@ -244,7 +244,9 @@ export default function DispensedMedicationList({
   const { t } = useTranslation();
   const queryClient = useQueryClient();
   const [selectedMedications, setSelectedMedications] = useState<string[]>([]);
-  const [paymentFilter, setPaymentFilter] = useState<"paid" | "unpaid">("paid");
+  const [paymentFilter, setPaymentFilter] = useState<"paid" | "unpaid">(
+    "unpaid",
+  );
   const { qParams, Pagination, resultsPerPage } = useFilters({
     limit: 100,
     disableCache: true,
@@ -344,8 +346,8 @@ export default function DispensedMedicationList({
           className="w-full"
         >
           <TabsList>
-            <TabsTrigger value="paid">{t("paid")}</TabsTrigger>
             <TabsTrigger value="unpaid">{t("unpaid")}</TabsTrigger>
+            <TabsTrigger value="paid">{t("paid")}</TabsTrigger>
           </TabsList>
         </Tabs>
       </div>
