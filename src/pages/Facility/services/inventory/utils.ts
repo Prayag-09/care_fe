@@ -8,6 +8,7 @@ export interface ReceiveStockEntry {
   supplied_item_quantity: number;
   _checked?: boolean;
   _product_knowledge: ProductKnowledgeBase | null;
+  _is_additional: boolean;
 }
 
 export interface EditingItem {

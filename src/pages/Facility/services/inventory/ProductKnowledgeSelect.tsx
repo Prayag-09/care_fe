@@ -50,7 +50,7 @@ export function ProductKnowledgeSelect({
       onSearch={setSearch}
       onChange={(selectedId) => {
         if (!selectedId) {
-          onChange({} as ProductKnowledgeBase);
+          onChange({} as any);
           return;
         }
         const selectedProductKnowledge = productKnowledges.find(

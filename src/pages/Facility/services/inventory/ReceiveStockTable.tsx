@@ -75,13 +75,16 @@ export function ReceiveStockTable({
               <TableRow className="divide-x">
                 <TableHead className="w-8">
                   <Checkbox
+                    disabled={entries.some((entry) => !entry.supplied_item)}
                     checked={entries.every((entry) => !!entry._checked)}
                     onCheckedChange={(checked) => {
                       form.setValue(
                         "entries",
                         entries.map((entry) => ({
                           ...entry,
-                          _checked: checked,
+                          _checked: entry.supplied_item
+                            ? checked
+                            : entry._checked,
                         })),
                       );
                     }}
@@ -107,6 +110,7 @@ export function ReceiveStockTable({
                     {/* Checkbox */}
                     <TableCell>
                       <Checkbox
+                        disabled={!entry.supplied_item}
                         checked={!!entry._checked}
                         onCheckedChange={(checked) => {
                           form.setValue(`entries.${idx}._checked`, checked);

@@ -131,7 +131,7 @@ export function ProductSearch({
             onChange(selectedProductObj);
             setSelectedProduct(selectedProductObj);
           } else {
-            onChange({} as ProductRead);
+            onChange({} as any);
             setSelectedProduct(undefined);
           }
         }}

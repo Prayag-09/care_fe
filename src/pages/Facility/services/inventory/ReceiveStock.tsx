@@ -71,6 +71,7 @@ const receiveStockSchema = z.object({
         supplied_item_quantity: z.number().min(0),
         _checked: z.boolean().optional(),
         _product_knowledge: objectReference.nullable(),
+        _is_additional: z.boolean(),
       }),
     )
     .min(1),
@@ -147,6 +148,7 @@ export function ReceiveStock({
         supplied_item_quantity: 1,
         _checked: false,
         _product_knowledge: null,
+        _is_additional: false,
       },
       index: null,
     });
@@ -190,8 +192,11 @@ export function ReceiveStock({
                 <FormLabel>{t("supplier")}</FormLabel>
                 <FormControl>
                   <SupplierSelect
-                    value={field.value as Organization}
+                    value={
+                      field.value ? (field.value as Organization) : undefined
+                    }
                     onChange={field.onChange}
+                    showClearButton={entries.length === 0}
                   />
                 </FormControl>
                 <FormMessage />
@@ -217,7 +222,9 @@ export function ReceiveStock({
                 variant="primary"
                 disabled={
                   batchRequest.isPending ||
-                  entries.filter((entry) => entry._checked).length === 0
+                  entries.filter(
+                    (entry) => entry._checked && entry.supplied_item,
+                  ).length === 0
                 }
               >
                 <Plus className="size-4" />
@@ -290,7 +297,9 @@ function AddItemForm({
   >(null);
   const [isProductCreationInProgress, setIsProductCreationInProgress] =
     useState(false);
-  const [activeTab, setActiveTab] = useState("requested");
+  const [activeTab, setActiveTab] = useState(
+    entry._is_additional ? "additional" : "requested",
+  );
 
   useEffect(() => {
     setCurrentEntry(entry);
@@ -326,6 +335,7 @@ function AddItemForm({
                   supplied_item: null,
                   supply_request: null,
                   _product_knowledge: null,
+                  _is_additional: value === "additional",
                 }));
               }}
             >

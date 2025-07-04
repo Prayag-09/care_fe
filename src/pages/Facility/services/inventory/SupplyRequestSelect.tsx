@@ -70,7 +70,7 @@ export function SupplyRequestSelect({
         if (selectedRequest) {
           onChange(selectedRequest);
         } else {
-          onChange({} as SupplyRequestRead);
+          onChange({} as any);
         }
       }}
       options={options}

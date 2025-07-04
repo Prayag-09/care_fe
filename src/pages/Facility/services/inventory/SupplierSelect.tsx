@@ -13,6 +13,7 @@ interface SupplierSelectProps {
   onChange: (value: Organization) => void;
   disabled?: boolean;
   className?: string;
+  showClearButton?: boolean;
 }
 
 export function SupplierSelect({
@@ -20,6 +21,7 @@ export function SupplierSelect({
   onChange,
   disabled,
   className,
+  showClearButton = true,
 }: SupplierSelectProps) {
   const { t } = useTranslation();
 
@@ -47,6 +49,8 @@ export function SupplierSelect({
         );
         if (selectedSupplier) {
           onChange(selectedSupplier);
+        } else {
+          onChange(undefined as any);
         }
       }}
       options={options}
@@ -57,6 +61,7 @@ export function SupplierSelect({
       disabled={disabled}
       className={className}
       closeOnSelect
+      showClearButton={showClearButton}
     />
   );
 }
