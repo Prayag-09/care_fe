@@ -24,6 +24,9 @@ x : Done
 - [ ] Dispense screen - Flip paid/unpaid filter - default to paid
 - [ ] Dispense queue - delete - update dispense_status
 - [ ] Medication Administration - Product knowledge
+- [ ] Dispense screen - Create Invoice button opening the sheet with billable charge items from unpaid dispense objects in preparation tab
+- [ ] Prescription queue - partially billed - Mark as all given for each row
+- [ ] Location navbar - back button breaks when browser back is used in between
 
 ## Billing
 
@@ -58,6 +61,7 @@ x : Done
 - [ ] AD form - Selected location alignment
 - [ ] SR form - Improve
 - [ ] SR - Scan existing specimen QR (Use Access identifier instead of uuid)
+- [ ] Activity Def, Observation def form - Enter goes back
 
 ## Back End
 
