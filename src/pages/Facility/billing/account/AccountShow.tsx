@@ -41,6 +41,7 @@ import query from "@/Utils/request/query";
 import PaymentReconciliationSheet from "@/pages/Facility/billing/PaymentReconciliationSheet";
 import InvoicesData from "@/pages/Facility/billing/invoice/InvoicesData";
 import PaymentsData from "@/pages/Facility/billing/paymentReconciliation/PaymentsData";
+import { PatientHeader } from "@/pages/Facility/services/serviceRequests/components/PatientHeader";
 import {
   ACCOUNT_STATUS_COLORS,
   AccountBillingStatus,
@@ -197,16 +198,18 @@ export function AccountShow({
   }
 
   return (
-    <div className="space-y-6">
-      <div className="flex justify-between gap-2">
-        <Button
-          variant="outline"
-          className="text-gray-950 gap-1 border-gray-400"
-          onClick={() => navigate(`/facility/${facilityId}/billing/accounts`)}
-        >
-          <CareIcon icon="l-arrow-left" className="size-4" />
-          {t("back")}
-        </Button>
+    <div className="space-y-3">
+      <Button
+        variant="outline"
+        size="xs"
+        className="text-gray-950 gap-1 border-gray-400"
+        onClick={() => navigate(`/facility/${facilityId}/billing/accounts`)}
+      >
+        <CareIcon icon="l-arrow-left" className="size-4" />
+        {t("back")}
+      </Button>
+      <div className="flex justify-between items-center gap-2">
+        <PatientHeader patient={account.patient} facilityId={facilityId} />
         <div className="flex gap-2">
           <div className="hidden sm:flex gap-2">
             {account.status === AccountStatus.active &&
