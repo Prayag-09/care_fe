@@ -76,18 +76,6 @@ export default function VerifyPatient() {
     enabled: !!patientData?.id && canListEncounters,
   });
 
-  const { data: closedEncounters } = useQuery({
-    queryKey: ["encounters", "closed", patientData?.id],
-    queryFn: query(routes.encounter.list, {
-      queryParams: {
-        patient: patientData?.id,
-        live: true,
-      },
-      silent: true,
-    }),
-    enabled: !!patientData?.id && canListEncounters,
-  });
-
   useEffect(() => {
     if (phone_number && year_of_birth && partial_id) {
       verifyPatient({
@@ -277,43 +265,6 @@ export default function VerifyPatient() {
                     <p className="text-xs md:text-sm text-gray-500">
                       {t("create_a_new_encounter_to_get_started")}
                     </p>
-                  </div>
-                )}
-              </CardContent>
-              <CardHeader className="pb-2">
-                <CardTitle>{t("completed_encounters")}</CardTitle>
-                <CardDescription>
-                  {t("view_completed_encounters")}
-                </CardDescription>
-              </CardHeader>
-              <CardContent className="flex flex-col gap-3 pt-2">
-                {closedEncounters?.results &&
-                closedEncounters.results.length > 0 ? (
-                  <>
-                    {closedEncounters.results.map((encounter: Encounter) => (
-                      <EncounterCard
-                        encounter={encounter}
-                        key={encounter.id}
-                        permissions={facility?.permissions ?? []}
-                        facilityId={
-                          encounter.facility.id === facilityId
-                            ? facilityId
-                            : undefined
-                        }
-                      />
-                    ))}
-                  </>
-                ) : (
-                  <div className="flex flex-col items-center justify-center p-6 md:p-8 text-center border rounded-lg border-dashed">
-                    <div className="rounded-full bg-primary/10 p-2 md:p-3 mb-3 md:mb-4">
-                      <CareIcon
-                        icon="l-folder-open"
-                        className="size-5 md:size-6 text-primary"
-                      />
-                    </div>
-                    <h3 className="text-base md:text-lg font-semibold mb-1">
-                      {t("no_completed_encounters_found")}
-                    </h3>
                   </div>
                 )}
               </CardContent>
