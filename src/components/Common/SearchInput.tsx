@@ -320,7 +320,7 @@ export default function SearchInput({
                                 onMouseLeave={() => setFocusedIndex(-1)}
                               >
                                 <span className="flex-1 text-sm">
-                                  {t(option.key)}
+                                  {t(option.display)}
                                 </span>
                                 {focusedIndex === index && (
                                   <kbd
