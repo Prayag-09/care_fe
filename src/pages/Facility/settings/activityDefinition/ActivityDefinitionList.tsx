@@ -1,5 +1,6 @@
 import { useQuery } from "@tanstack/react-query";
 import { navigate } from "raviger";
+import { useEffect } from "react";
 import { useTranslation } from "react-i18next";
 
 import CareIcon from "@/CAREUI/icons/CareIcon";
@@ -93,6 +94,13 @@ export default function ActivityDefinitionList({
     disableCache: true,
   });
 
+  // TODO: Remove this once we have a default status (robo's PR)
+  useEffect(() => {
+    if (!qParams.status) {
+      updateQuery({ status: "active" });
+    }
+  }, []);
+
   const { data: response, isLoading } = useQuery({
     queryKey: ["activityDefinitions", qParams],
     queryFn: query.debounced(activityDefinitionApi.listActivityDefinition, {
@@ -101,7 +109,7 @@ export default function ActivityDefinitionList({
         limit: resultsPerPage,
         offset: ((qParams.page ?? 1) - 1) * resultsPerPage,
         title: qParams.search,
-        status: qParams.status || Status.active,
+        status: qParams.status,
         category: qParams.category,
       },
     }),
@@ -154,7 +162,7 @@ export default function ActivityDefinitionList({
             <div className="flex flex-col sm:flex-row items-stretch gap-2 w-full sm:w-auto">
               <div className="flex-1 sm:flex-initial sm:w-auto">
                 <FilterSelect
-                  value={qParams.status || Status.active}
+                  value={qParams.status || ""}
                   onValueChange={(value) => updateQuery({ status: value })}
                   options={Object.values(Status)}
                   label="status"
