@@ -128,8 +128,8 @@ export default function PatientIdentifierConfigList({
   };
 
   const handleAdd = () => {
-    setSelectedConfig(null);
     setIsSheetOpen(true);
+    setSelectedConfig(null);
   };
 
   const handleSheetClose = () => {
@@ -152,7 +152,15 @@ export default function PatientIdentifierConfigList({
                   : t("manage_instance_patient_identifier_config")}
               </p>
             </div>
-            <Sheet open={isSheetOpen} onOpenChange={handleSheetClose}>
+            <Sheet
+              open={isSheetOpen}
+              onOpenChange={(open) => {
+                setIsSheetOpen(open);
+                if (!open) {
+                  setSelectedConfig(null);
+                }
+              }}
+            >
               <SheetTrigger asChild>
                 <Button onClick={handleAdd}>
                   <CareIcon icon="l-plus" className="mr-2" />
