@@ -384,7 +384,7 @@ export function CreateInvoicePage({
                         </div>
                       </TableHead>
                       <TableHead className="border-y bg-gray-100 text-gray-700">
-                        {t("medicine")}
+                        {t("items")}
                       </TableHead>
                       <TableHead className="border bg-gray-100 text-gray-700">
                         {t("quantity")}
