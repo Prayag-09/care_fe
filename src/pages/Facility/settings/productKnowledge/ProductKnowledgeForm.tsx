@@ -760,27 +760,38 @@ function ProductKnowledgeFormContent({
                               className="flex items-start gap-2 rounded-md border p-3"
                             >
                               <div className="flex-1">
-                                <FormLabel>{t("route")}</FormLabel>
-                                <div className="mt-2">
-                                  <ValueSetSelect
-                                    system="system-route"
-                                    value={form.watch(
-                                      `definitional.intended_routes.${index}`,
-                                    )}
-                                    placeholder={t("e.g., Oral, Intravenous")}
-                                    onSelect={(code) => {
-                                      form.setValue(
-                                        `definitional.intended_routes.${index}`,
-                                        {
-                                          code: code.code,
-                                          display: code.display,
-                                          system: code.system,
-                                        },
-                                      );
-                                    }}
-                                    showCode={true}
-                                  />
-                                </div>
+                                <FormField
+                                  control={form.control}
+                                  name={`definitional.intended_routes.${index}`}
+                                  render={({ field: routeField }) => (
+                                    <FormItem className="flex flex-col">
+                                      <FormLabel aria-required>
+                                        {t("route")}
+                                      </FormLabel>
+                                      <FormControl>
+                                        <ValueSetSelect
+                                          system="system-route"
+                                          value={routeField.value}
+                                          placeholder={t(
+                                            "e.g., Oral, Intravenous",
+                                          )}
+                                          onSelect={(code) => {
+                                            routeField.onChange({
+                                              code: code.code,
+                                              display: code.display,
+                                              system: code.system,
+                                            });
+                                          }}
+                                          showCode={true}
+                                        />
+                                      </FormControl>
+                                    </FormItem>
+                                  )}
+                                />
+                                <FormMessage>
+                                  {form.formState.errors.definitional
+                                    ?.intended_routes?.[index] && t("required")}
+                                </FormMessage>
                               </div>
                               <Button
                                 type="button"
