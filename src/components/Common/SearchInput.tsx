@@ -28,6 +28,7 @@ interface SearchOption {
   placeholder: string;
   value: string;
   component?: React.ComponentType<HTMLDivElement>;
+  display: string;
 }
 
 interface SearchInputProps
@@ -375,7 +376,7 @@ export default function SearchInput({
                 buttonClassName,
               )}
             >
-              {t(option.key)}
+              {t(option.display)}
             </Button>
           ))}
         </div>

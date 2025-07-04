@@ -42,12 +42,14 @@ export default function OrganizationPatients({ id, navOrganizationId }: Props) {
       type: "text" as const,
       placeholder: t("search_by_patient_name"),
       value: qParams.name || "",
+      display: t("name"),
     },
     {
       key: "phone_number",
       type: "phone" as const,
       placeholder: t("search_by_phone_number"),
       value: qParams.phone_number || "",
+      display: t("phone_number"),
     },
   ];
 

@@ -59,6 +59,7 @@ import mutate from "@/Utils/request/mutate";
 import query from "@/Utils/request/query";
 import { dateQueryString } from "@/Utils/utils";
 import validators from "@/Utils/validators";
+import useCurrentFacility from "@/pages/Facility/utils/useCurrentFacility";
 import GovtOrganizationSelector from "@/pages/Organization/components/GovtOrganizationSelector";
 import { Patient } from "@/types/emr/patient/patient";
 import { Organization } from "@/types/organization/organization";
@@ -81,6 +82,7 @@ export default function PatientRegistration(
   const { t } = useTranslation();
   const { goBack } = useAppHistory();
   const defaultCountry = careConfig.defaultCountry.name;
+  const { facility } = useCurrentFacility();
 
   const [suppressDuplicateWarning, setSuppressDuplicateWarning] =
     useState(!!patientId);
@@ -132,6 +134,12 @@ export default function PatientRegistration(
           }),
           _selected_levels: z.array(z.custom<Organization>()),
           _is_deceased: z.boolean(),
+          identifiers: z.array(
+            z.object({
+              config: z.string().uuid(),
+              value: z.string(),
+            }),
+          ),
         })
         .refine(
           (data) => (data.age_or_dob === "dob" ? !!data.date_of_birth : true),
@@ -883,6 +891,76 @@ export default function PatientRegistration(
                 )}
               </div>
             </div>
+
+            {/* Patient Identifiers */}
+            {facility && facility.patient_instance_identifier_configs && (
+              <div className="space-y-4">
+                <h2 className="text-lg font-semibold">{t("identifiers")}</h2>
+                {facility.patient_instance_identifier_configs.map((c, idx) => {
+                  const identifiers = form.watch("identifiers") || [];
+                  const identifierValue = identifiers[idx]?.value || "";
+                  const isRequired = c.config.required;
+                  const regex = c.config.regex;
+                  const error = (() => {
+                    if (isRequired && !identifierValue)
+                      return t("field_required");
+                    if (
+                      regex &&
+                      identifierValue &&
+                      !new RegExp(regex).test(identifierValue)
+                    )
+                      return t("invalid_format");
+                    return undefined;
+                  })();
+                  return (
+                    <FormField
+                      key={c.id}
+                      control={form.control}
+                      name={`identifiers.${idx}.value` as const}
+                      render={({ field }) => (
+                        <FormItem>
+                          <FormLabel aria-required={isRequired}>
+                            {c.config.display}
+                          </FormLabel>
+                          <FormDescription>
+                            {/* {c.config.description} */}
+                          </FormDescription>
+                          <FormControl>
+                            <Input
+                              {...field}
+                              value={identifierValue}
+                              onChange={(e) => {
+                                const value = e.target.value;
+                                const identifiers = [
+                                  ...(form.getValues("identifiers") || []),
+                                ];
+                                identifiers[idx] = {
+                                  config: c.id || "",
+                                  value,
+                                };
+                                form.setValue("identifiers", identifiers, {
+                                  shouldDirty: true,
+                                  shouldValidate: true,
+                                });
+                              }}
+                              placeholder={t("enter_identifier_value")}
+                              required={isRequired}
+                              data-cy={`identifier-input-${c.id || ""}`}
+                            />
+                          </FormControl>
+                          {error && (
+                            <div className="text-xs text-red-500 mt-1">
+                              {error}
+                            </div>
+                          )}
+                          <FormMessage />
+                        </FormItem>
+                      )}
+                    />
+                  );
+                })}
+              </div>
+            )}
 
             <div className="flex justify-end gap-4">
               <Button

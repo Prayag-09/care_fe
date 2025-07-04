@@ -91,6 +91,7 @@ export function FacilitiesPage() {
               type: "text",
               placeholder: t("search_by_facility_name"),
               value: qParams.name || "",
+              display: t("name"),
             },
           ]}
           className="w-[calc(100vw-2rem)] sm:max-w-min sm:min-w-64"

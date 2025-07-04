@@ -120,6 +120,7 @@ export default function ResourceList({ facilityId }: { facilityId: string }) {
                       type: "text",
                       placeholder: t("search_by_resource_title"),
                       value: title || "",
+                      display: t("title"),
                     },
                   ]}
                   onFieldChange={() => updateQuery({ title: undefined })}

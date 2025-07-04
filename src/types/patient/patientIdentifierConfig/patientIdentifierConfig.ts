@@ -44,7 +44,7 @@ export interface PatientIdentifierMeta {
 
 export interface PatientIdentifierConfig {
   meta?: PatientIdentifierMeta;
-  id: string | null;
+  id: string;
   config: PatientIdentifierConfigData;
   status: PatientIdentifierConfigStatus;
   facility?: string;

@@ -16,6 +16,11 @@ export type BloodGroupChoices =
 
 export type GenderChoices = "male" | "female" | "non_binary" | "transgender";
 
+export interface PatientIdentifierCreate {
+  config: string;
+  value: string;
+}
+
 export interface Patient {
   id: string;
   name: string;
@@ -37,6 +42,7 @@ export interface Patient {
   permissions: string[];
   nationality?: string;
   partial_id: string;
+  identifiers: PatientIdentifier[];
 }
 
 export interface PatientRead extends Patient {
@@ -51,4 +57,9 @@ export interface PartialPatientModel {
   name: string;
   phone_number: string;
   partial_id: string;
+}
+
+export interface PatientSearchResponse {
+  partial: boolean;
+  results: PartialPatientModel[] | Patient[];
 }

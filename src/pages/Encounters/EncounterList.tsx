@@ -150,18 +150,21 @@ export function EncounterList({
       type: "text" as const,
       placeholder: t("search_by_patient_name"),
       value: name || "",
+      display: t("name"),
     },
     {
       key: "encounter_id",
       type: "text" as const,
       placeholder: t("search_by_encounter_id"),
       value: encounter_id || "",
+      display: t("encounter_id"),
     },
     {
       key: "external_identifier",
       type: "text" as const,
       placeholder: t("search_by_external_id"),
       value: external_identifier || "",
+      display: t("external_identifier"),
     },
   ];
 

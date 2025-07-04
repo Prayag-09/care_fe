@@ -42,14 +42,15 @@ import routes from "@/Utils/request/api";
 import query from "@/Utils/request/query";
 import { usePermissions } from "@/context/PermissionContext";
 import useCurrentFacility from "@/pages/Facility/utils/useCurrentFacility";
-import { PartialPatientModel } from "@/types/emr/patient/patient";
+import { PartialPatientModel, Patient } from "@/types/emr/patient/patient";
 
 export default function PatientIndex({ facilityId }: { facilityId: string }) {
   const [{ phone_number: phoneNumber = "" }, setPhoneNumberQuery] =
     useQueryParams();
   const [yearOfBirth, setYearOfBirth] = useState("");
-  const [selectedPatient, setSelectedPatient] =
-    useState<PartialPatientModel | null>(null);
+  const [selectedPatient, setSelectedPatient] = useState<
+    PartialPatientModel | Patient | null
+  >(null);
   const [verificationOpen, setVerificationOpen] = useState(false);
   const { t } = useTranslation();
   const { hasPermission } = usePermissions();
@@ -97,28 +98,77 @@ export default function PatientIndex({ facilityId }: { facilityId: string }) {
     );
   }
 
+  // Build search options
+  const identifierOptions =
+    facility?.patient_instance_identifier_configs?.map((c) => ({
+      key: c.id,
+      type: "text" as const,
+      placeholder: t("search_by_identifier", { name: c.config.display }),
+      value: "",
+      display: c.config.display,
+    })) || [];
+
+  const searchOptions = [
+    {
+      key: "phone_number",
+      type: "phone" as const,
+      placeholder: t("search_by_phone_number"),
+      value: phoneNumber,
+      display: t("phone_number"),
+    },
+    ...identifierOptions,
+  ];
+
+  // Track identifier search state
+  const [identifierSearch, setIdentifierSearch] = useState<{
+    config?: string;
+    value?: string;
+  }>({});
+
   const handleSearch = useCallback((key: string, value: string) => {
     if (key === "phone_number") {
       setPhoneNumberQuery({
         phone_number: isValidPhoneNumber(value) || value === "" ? value : null,
       });
+      setIdentifierSearch({});
+    } else {
+      setPhoneNumberQuery({ phone_number: "" });
+      setIdentifierSearch({ config: key, value });
     }
   }, []);
 
   const { data: patientList, isFetching } = useQuery({
-    queryKey: ["patient-search", facilityId, phoneNumber],
+    queryKey: ["patient-search", facilityId, phoneNumber, identifierSearch],
     queryFn: query.debounced(routes.searchPatient, {
-      body: {
-        phone_number: phoneNumber,
-      },
+      body: phoneNumber
+        ? { phone_number: phoneNumber }
+        : identifierSearch.config && identifierSearch.value
+          ? { config: identifierSearch.config, value: identifierSearch.value }
+          : {},
     }),
-    enabled: !!isValidPhoneNumber(phoneNumber),
+    enabled:
+      (!!isValidPhoneNumber(phoneNumber) && !!phoneNumber) ||
+      (!!identifierSearch.config && !!identifierSearch.value),
   });
 
-  const handlePatientSelect = (patient: PartialPatientModel) => {
-    setSelectedPatient(patient);
-    setVerificationOpen(true);
-    setYearOfBirth("");
+  const handlePatientSelect = (index: number) => {
+    const patient = patientList?.results[index];
+    if (!patient) {
+      return;
+    }
+    if (patientList && patientList.partial) {
+      setSelectedPatient(patient);
+      setVerificationOpen(true);
+      setYearOfBirth("");
+    } else {
+      navigate(`/facility/${facilityId}/patients/verify`, {
+        query: {
+          phone_number: patient.phone_number,
+          year_of_birth: (patient as Patient).year_of_birth.toString(),
+          partial_id: (patient as Patient).id.slice(0, 5),
+        },
+      });
+    }
   };
 
   const handleVerify = () => {
@@ -160,21 +210,15 @@ export default function PatientIndex({ facilityId }: { facilityId: string }) {
             <div className="space-y-6">
               <SearchInput
                 data-cy="patient-search"
-                options={[
-                  {
-                    key: "phone_number",
-                    type: "phone",
-                    placeholder: t("search_by_phone_number"),
-                    value: phoneNumber,
-                  },
-                ]}
+                options={searchOptions}
                 onSearch={handleSearch}
                 className="w-full"
                 autoFocus
               />
 
               <div className="min-h-[200px]" id="patient-search-results">
-                {!!phoneNumber && (
+                {(!!phoneNumber ||
+                  (!!identifierSearch.config && !!identifierSearch.value)) && (
                   <>
                     {isFetching || !patientList ? (
                       <div className="flex items-center justify-center h-[200px]">
@@ -205,11 +249,11 @@ export default function PatientIndex({ facilityId }: { facilityId: string }) {
                             </TableRow>
                           </TableHeader>
                           <TableBody>
-                            {patientList.results.map((patient) => (
+                            {patientList.results.map((patient, index) => (
                               <TableRow
                                 key={patient.id}
                                 className="cursor-pointer"
-                                onClick={() => handlePatientSelect(patient)}
+                                onClick={() => handlePatientSelect(index)}
                               >
                                 <TableCell className="font-medium">
                                   {patient.name}

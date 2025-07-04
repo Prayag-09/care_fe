@@ -22,7 +22,7 @@ import {
   Observation,
   ObservationAnalyzeResponse,
 } from "@/types/emr/observation";
-import { PartialPatientModel, Patient } from "@/types/emr/patient/patient";
+import { Patient, PatientSearchResponse } from "@/types/emr/patient/patient";
 import {
   BaseFacility,
   CreateFacility,
@@ -204,7 +204,12 @@ const routes = {
   searchPatient: {
     path: "/api/v1/patient/search/",
     method: "POST",
-    TRes: Type<PaginatedResponse<PartialPatientModel>>(),
+    TRes: Type<PatientSearchResponse>(),
+    TBody: Type<{
+      phone_number?: string;
+      config?: string;
+      value?: string;
+    }>(),
   },
 
   addPatient: {
