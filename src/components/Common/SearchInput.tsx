@@ -284,7 +284,7 @@ export default function SearchInput({
                             className="bg-primary-100 text-primary-700 hover:bg-primary-200 border-primary-400"
                           >
                             <CareIcon icon="l-check" className="mr-1" />
-                            {t(options[selectedOptionIndex].key)}
+                            {t(options[selectedOptionIndex].display)}
                           </Button>
                         </div>
                       </div>
