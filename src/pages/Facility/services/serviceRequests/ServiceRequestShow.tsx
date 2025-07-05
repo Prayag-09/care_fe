@@ -302,7 +302,7 @@ export default function ServiceRequestShow({
 
   return (
     <div className="flex flex-col lg:flex-row min-h-screen bg-gray-50 relative">
-      <div className="flex-1 p-4 max-w-6xl mx-auto">
+      <div className="flex-1 p-4 max-w-6xl">
         <div className="space-y-6">
           <div className="flex items-center justify-between gap-2">
             <Button
@@ -425,10 +425,14 @@ export default function ServiceRequestShow({
                       onClick={preparePrintAllQRCodes}
                       disabled={isCreatingDraftSpecimen || isPrintingAllQRCodes}
                     >
-                      <PrinterIcon className="h-4 w-4 mr-2" />
-                      {isPrintingAllQRCodes
-                        ? t("preparing")
-                        : t("print_all_qr_codes")}
+                      <PrinterIcon className="size-4" />
+                      {isPrintingAllQRCodes ? (
+                        t("preparing")
+                      ) : (
+                        <span className="hidden sm:inline">
+                          {t("print_all_qr_codes")}
+                        </span>
+                      )}
                     </Button>
                   </MultiQRCodePrintSheet>
                   <DropdownMenu>

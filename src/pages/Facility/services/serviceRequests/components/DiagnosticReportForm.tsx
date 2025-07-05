@@ -818,9 +818,9 @@ export function DiagnosticReportForm({
                 {componentIndex + 1}.{" "}
                 {component.code.display || component.code.code}
               </Label>
-              <div className="flex space-x-4 items-center">
+              <div className="flex flex-col sm:flex-row space-y-4 sm:space-y-0 sm:space-x-4 items-stretch sm:items-center">
                 {component.permitted_unit && (
-                  <div className="w-32">
+                  <div className="w-full sm:w-32">
                     <Label className="text-sm font-medium mb-1 block text-gray-700">
                       Unit
                     </Label>
@@ -835,7 +835,7 @@ export function DiagnosticReportForm({
                         )
                       }
                     >
-                      <SelectTrigger>
+                      <SelectTrigger className="w-full">
                         {componentData.unit ? (
                           componentData.unit
                         ) : (
@@ -883,7 +883,7 @@ export function DiagnosticReportForm({
                   />
                 </div>
 
-                <div className="flex items-center space-x-2 pt-6">
+                <div className="flex items-center space-x-2 sm:pt-6">
                   <Checkbox
                     id={`abnormal-checkbox-${definition.id}-${component.code.code}-${index}`}
                     checked={!componentData.isNormal}
@@ -939,7 +939,7 @@ export function DiagnosticReportForm({
       <Collapsible open={isExpanded} onOpenChange={setIsExpanded}>
         <CollapsibleTrigger asChild className="px-2 py-4">
           <CardHeader>
-            <div className="flex justify-between items-center rounded-md">
+            <div className="flex flex-row justify-between items-start sm:items-center gap-4 sm:gap-2 rounded-md">
               <div className="flex items-center gap-2">
                 <CardTitle>
                   <p className="flex items-center gap-1.5">
@@ -952,7 +952,7 @@ export function DiagnosticReportForm({
               </div>
               <div className="flex items-center gap-5">
                 {hasReport && fullReport?.created_by && (
-                  <div className="flex items-center gap-2">
+                  <div className="flex flex-col sm:flex-row items-start sm:items-center gap-2 sm:gap-5 w-full sm:w-auto">
                     <Avatar
                       name={
                         fullReport.created_by.first_name ||
@@ -968,28 +968,32 @@ export function DiagnosticReportForm({
                     </span>
                   </div>
                 )}
-                {hasReport && fullReport && (
-                  <Badge
-                    variant={DIAGNOSTIC_REPORT_STATUS_COLORS[fullReport.status]}
-                  >
-                    {t(fullReport.status)}
-                  </Badge>
-                )}
-                <Button
-                  variant="ghost"
-                  size="icon"
-                  className="size-10 border border-gray-400 bg-white shadow p-4"
-                  onClick={(e) => {
-                    e.stopPropagation();
-                    setIsExpanded(!isExpanded);
-                  }}
-                >
-                  {isExpanded ? (
-                    <ChevronsDownUp className="size-5" />
-                  ) : (
-                    <ChevronsUpDown className="size-5" />
+                <div className="flex items-center gap-2">
+                  {hasReport && fullReport && (
+                    <Badge
+                      variant={
+                        DIAGNOSTIC_REPORT_STATUS_COLORS[fullReport.status]
+                      }
+                    >
+                      {t(fullReport.status)}
+                    </Badge>
                   )}
-                </Button>
+                  <Button
+                    variant="ghost"
+                    size="icon"
+                    className="size-10 border border-gray-400 bg-white shadow p-4"
+                    onClick={(e) => {
+                      e.stopPropagation();
+                      setIsExpanded(!isExpanded);
+                    }}
+                  >
+                    {isExpanded ? (
+                      <ChevronsDownUp className="size-5" />
+                    ) : (
+                      <ChevronsUpDown className="size-5" />
+                    )}
+                  </Button>
+                </div>
               </div>
             </div>
           </CardHeader>
@@ -1032,9 +1036,9 @@ export function DiagnosticReportForm({
                                 {(!hasComponents ||
                                   definition.permitted_data_type !==
                                     "quantity") && (
-                                  <div className="flex space-x-4 items-center">
+                                  <div className="flex flex-col sm:flex-row space-y-4 sm:space-y-0 sm:space-x-4 items-stretch sm:items-center">
                                     {definition.permitted_unit && (
-                                      <div className="w-32">
+                                      <div className="w-full sm:w-32">
                                         <Label className="text-sm font-medium mb-1 block text-gray-700">
                                           Unit
                                         </Label>
@@ -1048,7 +1052,7 @@ export function DiagnosticReportForm({
                                             )
                                           }
                                         >
-                                          <SelectTrigger>
+                                          <SelectTrigger className="w-full">
                                             <SelectValue placeholder="Unit" />
                                           </SelectTrigger>
                                           <SelectContent>
@@ -1091,7 +1095,7 @@ export function DiagnosticReportForm({
                                       />
                                     </div>
 
-                                    <div className="flex items-center space-x-2 pt-6">
+                                    <div className="flex items-center space-x-2 sm:pt-6">
                                       <Checkbox
                                         id={`abnormal-checkbox-${definition.id}-${index}`}
                                         checked={!observationData.isNormal}
@@ -1278,19 +1282,18 @@ export function DiagnosticReportForm({
                 </div>
               </div>
             ) : (
-              <div className="space-y-4 bg-gray-50 rounded-lg">
+              <div className="space-y-4 bg-gray-50 rounded-lg p-4">
                 <div className="text-gray-500 flex justify-center items-center">
-                  <p></p>
-                  <p className="mt-2 text-sm text-gray-500">
+                  <p className="mt-2 text-sm text-gray-500 text-center">
                     {!hasCollectedSpecimens
                       ? t("collect_specimen_before_report")
                       : t("no_test_results_recorded")}
                   </p>
                 </div>
-                <div className="flex items-center justify-center gap-4 p-1">
+                <div className="flex flex-col sm:flex-row items-stretch sm:items-center gap-4">
                   {activityDefinition?.diagnostic_report_codes &&
                     activityDefinition.diagnostic_report_codes.length > 0 && (
-                      <div className="flex-1">
+                      <div className="flex-1 min-w-0">
                         <Select
                           value={selectedReportCode?.code}
                           onValueChange={(value) => {
@@ -1302,7 +1305,7 @@ export function DiagnosticReportForm({
                           }}
                           disabled={!hasCollectedSpecimens}
                         >
-                          <SelectTrigger>
+                          <SelectTrigger className="w-full">
                             <SelectValue
                               placeholder={t("select_diagnostic_report_type")}
                             />
@@ -1312,7 +1315,7 @@ export function DiagnosticReportForm({
                               (code) => (
                                 <SelectItem key={code.code} value={code.code}>
                                   <div className="flex flex-col">
-                                    <span>
+                                    <span className="truncate">
                                       {code.display} ({code.code})
                                     </span>
                                   </div>
@@ -1331,7 +1334,7 @@ export function DiagnosticReportForm({
                       (!!activityDefinition?.diagnostic_report_codes?.length &&
                         !selectedReportCode)
                     }
-                    className="shrink-0"
+                    className="w-full sm:w-auto sm:shrink-0"
                   >
                     <PlusCircle className="h-4 w-4 mr-2" />
                     {t("create_report")}

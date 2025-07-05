@@ -234,7 +234,7 @@ export function SpecimenWorkflowCard({
           >
             {hasCollected && collectedSpecimen ? (
               // --- Collected Header ---
-              <div className="flex justify-between items-start">
+              <div className="flex justify-between items-start overflow-x-auto">
                 <div className="space-y-1.5">
                   <CardTitle className="text-lg font-semibold">
                     {/* Use a more prominent ID like accession or fallback */}
@@ -412,28 +412,30 @@ export function SpecimenWorkflowCard({
               </div>
             ) : (
               // --- Pending Collection Header ---
-              <div className="flex flex-row items-center justify-between gap-2">
+              <div className="flex flex-col sm:flex-row sm:items-center sm:justify-between gap-3 sm:gap-2">
                 <CardTitle className="text-base font-medium flex items-center gap-2">
                   <PackageSearch className="h-5 w-5 text-gray-600" />
-                  Required: {requirement.title}
+                  <span className="truncate">
+                    {t("required")}: {requirement.title}
+                  </span>
                 </CardTitle>
-                <Badge variant="orange">
-                  <CircleDashed className="h-4 w-4 mr-1.5" />
-                  Collection Pending
-                </Badge>
-
-                {isDraft && (
-                  <Badge variant="secondary">
-                    <>
-                      <FileText className="size-4 mr-1.5 stroke-1.5" />
-                      <span className="text-xs">{t("draft")}</span>
-                    </>
+                <div className="flex flex-wrap items-center gap-2">
+                  <Badge variant="orange">
+                    <CircleDashed className="h-4 w-4 mr-1.5" />
+                    {t("collection_pending")}
                   </Badge>
-                )}
+
+                  {isDraft && (
+                    <Badge variant="secondary">
+                      <FileText className="size-4 mr-1.5 stroke-1.5" />
+                      {t("draft")}
+                    </Badge>
+                  )}
+                </div>
 
                 <Button onClick={onCollect} variant="outline_primary">
                   <Plus className="h-4 w-4" />
-                  Collect Specimen
+                  {t("collect_specimen")}
                 </Button>
               </div>
             )}

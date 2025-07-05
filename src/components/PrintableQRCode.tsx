@@ -35,8 +35,8 @@ export function PrintableQRCode({
 
   return (
     <>
-      <div className="flex justify-between items-start">
-        <div className="flex gap-6">
+      <div className="flex flex-col sm:flex-row justify-between items-center sm:items-start gap-4 sm:gap-6">
+        <div className="flex flex-col sm:flex-row gap-4 sm:gap-6 items-center sm:items-start">
           <div ref={qrCodeRef} className="shrink-0">
             <QRCodeSVG
               value={value}
@@ -51,7 +51,7 @@ export function PrintableQRCode({
               level="H"
             />
           </div>
-          <div>
+          <div className="text-center sm:text-left">
             {title && (
               <div className="text-lg font-semibold pt-2.5">{title}</div>
             )}
@@ -68,7 +68,7 @@ export function PrintableQRCode({
         <Button
           variant="outline"
           size="sm"
-          className="shrink-0"
+          className="w-auto"
           type="button"
           onClick={() => setShowPrintDialog(true)}
         >
