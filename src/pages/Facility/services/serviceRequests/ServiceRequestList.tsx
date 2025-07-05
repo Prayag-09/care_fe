@@ -69,9 +69,9 @@ function ServiceRequestCard({
 
   return (
     <Card>
-      <CardContent className="p-6">
-        <div className="mb-4 flex items-start justify-between gap-4">
-          <div>
+      <CardContent className="p-4">
+        <div className="mb-2 flex flex-col sm:flex-row sm:items-start gap-4">
+          <div className="flex-1 min-w-0">
             <div className="mb-2">
               <div className="font-semibold text-gray-900">
                 {request.encounter.patient.name}
@@ -90,10 +90,14 @@ function ServiceRequestCard({
                 {t(request.priority)}
               </Badge>
             </div>
-            <h3 className="font-medium text-gray-900">{request.title}</h3>
-            <p className="mt-1 text-sm text-gray-500">
-              {request.note || t("no_notes")}
-            </p>
+            <div>
+              <div className="text-lg">{request.title || "-"}</div>
+              {request.code?.display && (
+                <div className="text-xs text-gray-500">
+                  {request.code.display}
+                </div>
+              )}
+            </div>
           </div>
           <Button
             variant="outline"
@@ -107,12 +111,6 @@ function ServiceRequestCard({
             <CareIcon icon="l-edit" />
             {t("see_details")}
           </Button>
-        </div>
-        <div className="flex flex-wrap items-center gap-4 text-sm text-gray-500">
-          <div className="flex items-center gap-1">
-            <CareIcon icon="l-calender" className="size-4" />
-            <span>{request.occurance || t("no_occurrence_set")}</span>
-          </div>
         </div>
       </CardContent>
     </Card>
@@ -231,7 +229,7 @@ export default function ServiceRequestList({
         locationId={locationId}
       />
       <div className="container mx-auto pb-8">
-        <div className="mb-8">
+        <div className="mb-6 sm:mb-8">
           <div className="mb-4">
             <p className="text-sm text-gray-600">{location?.name}</p>
             <div className="flex flex-col sm:flex-row justify-between items-start gap-4 mb-4">
@@ -242,6 +240,7 @@ export default function ServiceRequestList({
                 variant="primary"
                 size="sm"
                 onClick={() => setBarcodeOpen(true)}
+                className="w-full sm:w-auto"
               >
                 <ScanQrCode className="size-4" />
                 {t("scan_qr")}
