@@ -42,7 +42,8 @@ export interface Patient {
   permissions: string[];
   nationality?: string;
   partial_id: string;
-  identifiers: PatientIdentifier[];
+  identifiers: PatientIdentifierCreate[];
+  instance_identifiers: PatientIdentifier[];
 }
 
 export interface PatientRead extends Patient {

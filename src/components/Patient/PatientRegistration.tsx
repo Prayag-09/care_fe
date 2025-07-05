@@ -348,6 +348,10 @@ export default function PatientRegistration(
           patientQuery.data.geo_organization as unknown as Organization
         )?.id,
         deceased_datetime: null,
+        identifiers: patientQuery.data.instance_identifiers.map((i) => ({
+          config: i.config.id,
+          value: i.value,
+        })),
       } as unknown as z.infer<typeof formSchema>);
     }
   }, [patientQuery.data]);
