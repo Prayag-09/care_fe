@@ -989,6 +989,7 @@
   "collection_date_time": "Collection Date & Time",
   "collection_information": "Collection Information",
   "collection_method": "Collection Method",
+  "collection_pending": "Collection Pending",
   "collector": "Collector",
   "columns_required_for_table_sections": "Columns are required for table sections",
   "combine_files_pdf": "Combine Files To PDF",
