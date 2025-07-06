@@ -9,7 +9,6 @@ import CareIcon from "@/CAREUI/icons/CareIcon";
 
 import { Badge } from "@/components/ui/badge";
 import { Button } from "@/components/ui/button";
-import { Input } from "@/components/ui/input";
 import { MonetaryDisplay } from "@/components/ui/monetary-display";
 import {
   Select,
@@ -37,7 +36,6 @@ import { RESULTS_PER_PAGE_LIMIT } from "@/common/constants";
 
 import query from "@/Utils/request/query";
 import {
-  PAYMENT_RECONCILIATION_OUTCOME_COLORS,
   PAYMENT_RECONCILIATION_STATUS_COLORS,
   PaymentReconciliationPaymentMethod,
   PaymentReconciliationRead,
@@ -94,7 +92,6 @@ export default function PaymentsData({
         account: accountId,
         limit: resultsPerPage,
         offset: ((qParams.page ?? 1) - 1) * resultsPerPage,
-        search: qParams.search,
         status: qParams.status,
         reconciliation_type: qParams.reconciliation_type,
         ordering: qParams.ordering,
@@ -203,20 +200,6 @@ export default function PaymentsData({
             </Select>
           </div>
         </div>
-        <div className="relative w-full sm:max-w-xs">
-          <CareIcon
-            icon="l-search"
-            className="absolute left-3 top-1/2 -translate-y-1/2 size-4 text-gray-500"
-          />
-          <Input
-            placeholder={t("search_payments")}
-            value={qParams.search || ""}
-            onChange={(e) =>
-              updateQuery({ search: e.target.value || undefined })
-            }
-            className="w-full pl-10"
-          />
-        </div>
       </div>
       {isLoading ? (
         <TableSkeleton count={3} />
@@ -225,42 +208,25 @@ export default function PaymentsData({
           <Table>
             <TableHeader>
               <TableRow>
-                <TableHead>{t("payment_id")}</TableHead>
+                <TableHead>{t("date")}</TableHead>
                 <TableHead>{t("invoice")}</TableHead>
                 <TableHead>{t("type")}</TableHead>
                 <TableHead>{t("method")}</TableHead>
-                <TableHead>{t("date")}</TableHead>
                 <TableHead>{t("amount")}</TableHead>
                 <TableHead>{t("status")}</TableHead>
-                <TableHead>{t("outcome")}</TableHead>
                 <TableHead>{t("actions")}</TableHead>
               </TableRow>
             </TableHeader>
             <TableBody>
               {!payments?.length ? (
                 <TableRow>
-                  <TableCell colSpan={9} className="text-center text-gray-500">
+                  <TableCell colSpan={8} className="text-center text-gray-500">
                     {t("no_payments")}
                   </TableCell>
                 </TableRow>
               ) : (
                 payments.map((payment) => (
                   <TableRow key={payment.id}>
-                    <TableCell>
-                      <div>#{payment.id}</div>
-                    </TableCell>
-                    <TableCell>
-                      <div className="font-medium">
-                        #{payment.target_invoice?.id}
-                      </div>
-                      <div className="text-xs text-gray-500 mt-px">
-                        {payment.target_invoice?.title}
-                      </div>
-                    </TableCell>
-                    <TableCell>
-                      {typeMap[payment.reconciliation_type]}
-                    </TableCell>
-                    <TableCell>{methodMap[payment.method]}</TableCell>
                     <TableCell>
                       {payment.payment_datetime
                         ? format(
@@ -269,6 +235,26 @@ export default function PaymentsData({
                           )
                         : "-"}
                     </TableCell>
+                    <TableCell>
+                      <Link
+                        href={`/facility/${facilityId}/billing/invoices/${payment.target_invoice?.id}`}
+                        className="hover:text-primary transition-colors"
+                        target="_blank"
+                        rel="noopener noreferrer"
+                      >
+                        <div className="font-medium flex items-center gap-1">
+                          {t("view_invoice")}
+                          <CareIcon
+                            icon="l-external-link-alt"
+                            className="size-3"
+                          />
+                        </div>
+                      </Link>
+                    </TableCell>
+                    <TableCell>
+                      {typeMap[payment.reconciliation_type]}
+                    </TableCell>
+                    <TableCell>{methodMap[payment.method]}</TableCell>
                     <TableCell>
                       <MonetaryDisplay amount={payment.amount} />
                     </TableCell>
@@ -279,15 +265,6 @@ export default function PaymentsData({
                         }
                       >
                         {t(payment.status)}
-                      </Badge>
-                    </TableCell>
-                    <TableCell>
-                      <Badge
-                        variant={
-                          PAYMENT_RECONCILIATION_OUTCOME_COLORS[payment.outcome]
-                        }
-                      >
-                        {t(payment.outcome)}
                       </Badge>
                     </TableCell>
                     <TableCell>
