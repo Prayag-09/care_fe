@@ -1,5 +1,7 @@
 import { zodResolver } from "@hookform/resolvers/zod";
 import { useMutation, useQuery, useQueryClient } from "@tanstack/react-query";
+import { Loader } from "lucide-react";
+import { useEffect } from "react";
 import { useForm } from "react-hook-form";
 import { useTranslation } from "react-i18next";
 import * as z from "zod";
@@ -67,7 +69,7 @@ export default function PatientIdentifierConfigForm({
   const { t } = useTranslation();
   const queryClient = useQueryClient();
 
-  const { data: config } = useQuery({
+  const { data: config, isLoading } = useQuery({
     queryKey: ["patientIdentifierConfig", configId, facilityId],
     queryFn: query(patientIdentifierConfigApi.retrievePatientIdentifierConfig, {
       pathParams: { external_id: configId || "" },
@@ -77,43 +79,35 @@ export default function PatientIdentifierConfigForm({
 
   const form = useForm<z.infer<typeof formSchema>>({
     resolver: zodResolver(formSchema),
-    defaultValues: config
-      ? {
-          config: {
-            ...config.config,
-            retrieve_config: {
-              ...config.config.retrieve_config,
-              retrieve_with_dob:
-                config.config.retrieve_config.retrieve_with_dob || false,
-              retrieve_with_year_of_birth:
-                config.config.retrieve_config.retrieve_with_year_of_birth ||
-                false,
-              retrieve_with_otp:
-                config.config.retrieve_config.retrieve_with_otp || false,
-            },
-          },
-          status: config.status,
-          facility: config.facility || null,
-        }
-      : {
-          config: {
-            use: PatientIdentifierUse.usual,
-            description: "",
-            system: "",
-            required: false,
-            unique: false,
-            regex: "",
-            display: "",
-            retrieve_config: {
-              retrieve_with_dob: false,
-              retrieve_with_year_of_birth: false,
-              retrieve_with_otp: false,
-            },
-          },
-          status: PatientIdentifierConfigStatus.draft,
-          facility: facilityId || null,
+    defaultValues: {
+      config: {
+        use: PatientIdentifierUse.usual,
+        description: "",
+        system: "",
+        required: false,
+        unique: false,
+        regex: "",
+        display: "",
+        retrieve_config: {
+          retrieve_with_dob: false,
+          retrieve_with_year_of_birth: false,
+          retrieve_with_otp: false,
         },
+      },
+      status: PatientIdentifierConfigStatus.draft,
+      facility: facilityId || null,
+    },
   });
+
+  useEffect(() => {
+    if (config) {
+      form.reset({
+        config: config.config,
+        status: config.status,
+        facility: config.facility,
+      });
+    }
+  }, [config, form]);
 
   const { mutate: createConfig, isPending: isCreating } = useMutation({
     mutationFn: mutate(
@@ -129,7 +123,7 @@ export default function PatientIdentifierConfigForm({
     mutationFn: mutate(
       patientIdentifierConfigApi.updatePatientIdentifierConfig,
       {
-        pathParams: { external_id: config?.id || "" },
+        pathParams: { external_id: config?.id || configId || "" },
       },
     ),
     onSuccess: () => {
@@ -155,105 +149,117 @@ export default function PatientIdentifierConfigForm({
             {t("identifier_details")}
           </h2>
           <FormDescription>{t("identifier_details_help")}</FormDescription>
-          <div className="grid grid-cols-1 md:grid-cols-1 gap-6">
-            <FormField
-              control={form.control}
-              name="config.use"
-              render={({ field }) => (
-                <FormItem>
-                  <FormLabel>{t("use")}</FormLabel>
-                  <FormControl>
-                    <Select onValueChange={field.onChange} value={field.value}>
-                      <SelectTrigger>
-                        <SelectValue placeholder={t("select_use")} />
-                      </SelectTrigger>
-                      <SelectContent>
-                        {Object.values(PatientIdentifierUse).map((use) => (
-                          <SelectItem key={use} value={use}>
-                            {t(use)}
-                          </SelectItem>
-                        ))}
-                      </SelectContent>
-                    </Select>
-                  </FormControl>
-                  <FormDescription>{t("use_help")}</FormDescription>
-                  <FormMessage />
-                </FormItem>
-              )}
-            />
-            <FormField
-              control={form.control}
-              name="config.display"
-              render={({ field }) => (
-                <FormItem>
-                  <FormLabel>{t("display")}</FormLabel>
-                  <FormControl>
-                    <Input {...field} placeholder={t("eg_national_id_card")} />
-                  </FormControl>
-                  <FormDescription>{t("display_help")}</FormDescription>
-                  <FormMessage />
-                </FormItem>
-              )}
-            />
-            <FormField
-              control={form.control}
-              name="config.description"
-              render={({ field }) => (
-                <FormItem>
-                  <FormLabel>{t("description")}</FormLabel>
-                  <FormControl>
-                    <Input {...field} placeholder={t("eg_national_id")} />
-                  </FormControl>
-                  <FormDescription>{t("description_help")}</FormDescription>
-                  <FormMessage />
-                </FormItem>
-              )}
-            />
-            <FormField
-              control={form.control}
-              name="config.system"
-              render={({ field }) => (
-                <FormItem>
-                  <FormLabel>{t("system")}</FormLabel>
-                  <FormControl>
-                    <Input
-                      {...field}
-                      placeholder="https://example.org/identifier-system"
-                    />
-                  </FormControl>
-                  <FormDescription>{t("system_help")}</FormDescription>
-                  <FormMessage />
-                </FormItem>
-              )}
-            />
-            <FormField
-              control={form.control}
-              name="config.regex"
-              render={({ field }) => {
-                let regexError = "";
-                try {
-                  if (field.value) new RegExp(field.value);
-                } catch {
-                  regexError = t("invalid_regex");
-                }
-                return (
+          {isLoading ? (
+            <div className="flex justify-center items-center h-full">
+              <Loader className="w-4 h-4 animate-spin" />
+            </div>
+          ) : (
+            <div className="grid grid-cols-1 md:grid-cols-1 gap-6">
+              <FormField
+                control={form.control}
+                name="config.use"
+                render={({ field }) => (
                   <FormItem>
-                    <FormLabel>{t("regex")}</FormLabel>
+                    <FormLabel>{t("use")}</FormLabel>
                     <FormControl>
-                      <Input {...field} placeholder={t("eg_regex_pattern")} />
+                      <Select
+                        onValueChange={field.onChange}
+                        value={field.value}
+                      >
+                        <SelectTrigger>
+                          <SelectValue placeholder={t("select_use")} />
+                        </SelectTrigger>
+                        <SelectContent>
+                          {Object.values(PatientIdentifierUse).map((use) => (
+                            <SelectItem key={use} value={use}>
+                              {t(use)}
+                            </SelectItem>
+                          ))}
+                        </SelectContent>
+                      </Select>
                     </FormControl>
-                    <FormDescription>{t("regex_help")}</FormDescription>
-                    {(regexError || form.formState.errors.config?.regex) && (
-                      <div className="text-xs text-red-500 mt-1">
-                        {regexError ||
-                          form.formState.errors.config?.regex?.message}
-                      </div>
-                    )}
+                    <FormDescription>{t("use_help")}</FormDescription>
+                    <FormMessage />
                   </FormItem>
-                );
-              }}
-            />
-          </div>
+                )}
+              />
+              <FormField
+                control={form.control}
+                name="config.display"
+                render={({ field }) => (
+                  <FormItem>
+                    <FormLabel>{t("display")}</FormLabel>
+                    <FormControl>
+                      <Input
+                        {...field}
+                        placeholder={t("eg_national_id_card")}
+                      />
+                    </FormControl>
+                    <FormDescription>{t("display_help")}</FormDescription>
+                    <FormMessage />
+                  </FormItem>
+                )}
+              />
+              <FormField
+                control={form.control}
+                name="config.description"
+                render={({ field }) => (
+                  <FormItem>
+                    <FormLabel>{t("description")}</FormLabel>
+                    <FormControl>
+                      <Input {...field} placeholder={t("eg_national_id")} />
+                    </FormControl>
+                    <FormDescription>{t("description_help")}</FormDescription>
+                    <FormMessage />
+                  </FormItem>
+                )}
+              />
+              <FormField
+                control={form.control}
+                name="config.system"
+                render={({ field }) => (
+                  <FormItem>
+                    <FormLabel>{t("system")}</FormLabel>
+                    <FormControl>
+                      <Input
+                        {...field}
+                        placeholder="https://example.org/identifier-system"
+                      />
+                    </FormControl>
+                    <FormDescription>{t("system_help")}</FormDescription>
+                    <FormMessage />
+                  </FormItem>
+                )}
+              />
+              <FormField
+                control={form.control}
+                name="config.regex"
+                render={({ field }) => {
+                  let regexError = "";
+                  try {
+                    if (field.value) new RegExp(field.value);
+                  } catch {
+                    regexError = t("invalid_regex");
+                  }
+                  return (
+                    <FormItem>
+                      <FormLabel>{t("regex")}</FormLabel>
+                      <FormControl>
+                        <Input {...field} placeholder={t("eg_regex_pattern")} />
+                      </FormControl>
+                      <FormDescription>{t("regex_help")}</FormDescription>
+                      {(regexError || form.formState.errors.config?.regex) && (
+                        <div className="text-xs text-red-500 mt-1">
+                          {regexError ||
+                            form.formState.errors.config?.regex?.message}
+                        </div>
+                      )}
+                    </FormItem>
+                  );
+                }}
+              />
+            </div>
+          )}
         </div>
 
         {/* Retrieval Options Section */}
