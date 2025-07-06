@@ -302,14 +302,15 @@ export function PaymentReconciliationShow({
                         href={`/facility/${facilityId}/billing/invoices/${payment.target_invoice.id}`}
                         className="text-lg font-medium text-primary hover:underline"
                       >
-                        {t("invoice")} #{payment.target_invoice.id}
+                        {t("view_invoice")}
                       </Link>
                       <Badge variant="outline">
                         {payment.target_invoice.status}
                       </Badge>
                     </div>
                     <p className="text-sm text-gray-500 mt-1">
-                      {payment.target_invoice.title}
+                      {payment.target_invoice.title} (#
+                      {payment.target_invoice.id})
                     </p>
                   </div>
                   <div className="text-right">
