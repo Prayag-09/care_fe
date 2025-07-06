@@ -4,7 +4,7 @@ import { Demography } from "@/components/Patient/PatientDetailsTab/Demography";
 
 import { HasPermissionFn, getPermissions } from "@/common/Permissions";
 
-import { Patient } from "@/types/emr/patient/patient";
+import { PatientRead } from "@/types/emr/patient/patient";
 
 import { Accounts } from "./Accounts";
 import { Appointments } from "./Appointments";
@@ -16,7 +16,7 @@ import { Updates } from "./patientUpdates";
 export interface PatientProps {
   facilityId?: string;
   patientId: string;
-  patientData: Patient;
+  patientData: PatientRead;
 }
 
 export interface Tab {

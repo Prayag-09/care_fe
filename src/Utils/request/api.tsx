@@ -22,7 +22,11 @@ import {
   Observation,
   ObservationAnalyzeResponse,
 } from "@/types/emr/observation";
-import { Patient, PatientSearchResponse } from "@/types/emr/patient/patient";
+import {
+  Patient,
+  PatientRead,
+  PatientSearchResponse,
+} from "@/types/emr/patient/patient";
 import {
   BaseFacility,
   CreateFacility,
@@ -83,6 +87,9 @@ export const API = <TResponse, TBody = undefined>(
   };
 };
 
+/**
+ * @deprecated use object specific api instead
+ */
 const routes = {
   // Auth Endpoints
   login: {
@@ -211,22 +218,11 @@ const routes = {
       value?: string;
     }>(),
   },
-
-  addPatient: {
-    path: "/api/v1/patient/",
-    method: "POST",
-    TRes: Type<Patient>(),
-  },
   getPatient: {
     path: "/api/v1/patient/{id}/",
     method: "GET",
     TBody: Type<Patient>(),
-    TRes: Type<Patient>(),
-  },
-  updatePatient: {
-    path: "/api/v1/patient/{id}/",
-    method: "PUT",
-    TRes: Type<Patient>(),
+    TRes: Type<PatientRead>(),
   },
 
   //Profile

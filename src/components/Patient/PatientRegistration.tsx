@@ -61,7 +61,8 @@ import { dateQueryString } from "@/Utils/utils";
 import validators from "@/Utils/validators";
 import useCurrentFacility from "@/pages/Facility/utils/useCurrentFacility";
 import GovtOrganizationSelector from "@/pages/Organization/components/GovtOrganizationSelector";
-import { Patient } from "@/types/emr/patient/patient";
+import { BloodGroupChoices, PatientRead } from "@/types/emr/patient/patient";
+import patientApi from "@/types/emr/patient/patientApi";
 import { Organization } from "@/types/organization/organization";
 
 interface PatientRegistrationPageProps {
@@ -96,7 +97,7 @@ export default function PatientRegistration(
           same_phone_number: z.boolean(),
           emergency_phone_number: validators().phoneNumber.required,
           gender: z.enum(GENDERS, { required_error: t("gender_is_required") }),
-          blood_group: z.enum(BLOOD_GROUPS, {
+          blood_group: z.nativeEnum(BloodGroupChoices, {
             required_error: t("blood_group_is_required"),
           }),
           age_or_dob: z.enum(["dob", "age"]),
@@ -108,7 +109,7 @@ export default function PatientRegistration(
               return parsedDate.isValid() && !parsedDate.isAfter(dayjs());
             }, t("enter_valid_dob"))
             .optional(),
-          deceased_datetime: tzAwareDateTime.optional(),
+          deceased_datetime: tzAwareDateTime.optional().nullable(),
           age: z
             .number()
             .int()
@@ -205,8 +206,8 @@ export default function PatientRegistration(
 
   const { mutate: createPatient, isPending: isCreatingPatient } = useMutation({
     mutationKey: ["create_patient"],
-    mutationFn: mutate(routes.addPatient),
-    onSuccess: (resp: Patient) => {
+    mutationFn: mutate(patientApi.addPatient),
+    onSuccess: (resp: PatientRead) => {
       toast.success(t("patient_registration_success"));
       // Lets navigate the user to the verify page as the patient is not accessible to the user yet
       navigate(`/facility/${facilityId}/patients/verify`, {
@@ -227,7 +228,7 @@ export default function PatientRegistration(
     isPending: isUpdatingPatient,
     isSuccess: isUpdateSuccess,
   } = useMutation({
-    mutationFn: mutate(routes.updatePatient, {
+    mutationFn: mutate(patientApi.updatePatient, {
       pathParams: { id: patientId || "" },
     }),
     onSuccess: () => {
@@ -243,7 +244,6 @@ export default function PatientRegistration(
     if (patientId) {
       updatePatient({
         ...values,
-        ward_old: undefined,
         age: values.age_or_dob === "age" ? values.age : undefined,
         date_of_birth:
           values.age_or_dob === "dob" ? values.date_of_birth : undefined,
@@ -253,12 +253,10 @@ export default function PatientRegistration(
         permanent_address: values.same_address
           ? values.address
           : values.permanent_address,
-        pincode: values.pincode || undefined,
+        pincode: String(values.pincode) || undefined,
       });
       return;
-    }
-
-    if (facilityId) {
+    } else if (facilityId) {
       createPatient({
         ...values,
         emergency_phone_number: values.same_phone_number
@@ -268,7 +266,7 @@ export default function PatientRegistration(
           ? values.address
           : values.permanent_address,
         facility: facilityId,
-        ward_old: undefined,
+        pincode: String(values.pincode) || undefined,
       });
     }
   }
@@ -311,7 +309,7 @@ export default function PatientRegistration(
 
   const patientQuery = useQuery({
     queryKey: ["patient", patientId],
-    queryFn: query(routes.getPatient, {
+    queryFn: query(patientApi.getPatient, {
       pathParams: { id: patientId || "" },
     }),
     enabled: !!patientId,
@@ -385,7 +383,9 @@ export default function PatientRegistration(
         <Form {...form}>
           <form
             className="md:w-[500px] space-y-10"
-            onSubmit={form.handleSubmit(onSubmit)}
+            onSubmit={form.handleSubmit(onSubmit, (errors) => {
+              console.log("errors", errors);
+            })}
           >
             <PLUGIN_Component
               __name="PatientRegistrationForm"

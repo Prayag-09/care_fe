@@ -3,9 +3,9 @@ import { useQueryParams } from "raviger";
 
 import { PrescriptionPreview } from "@/components/Prescription/PrescriptionPreview";
 
-import routes from "@/Utils/request/api";
 import query from "@/Utils/request/query";
 import medicationRequestApi from "@/types/emr/medicationRequest/medicationRequestApi";
+import patientApi from "@/types/emr/patient/patientApi";
 
 interface Props {
   facilityId: string;
@@ -31,7 +31,7 @@ export function PrintPharmacyPrescription({ facilityId, patientId }: Props) {
 
   const { data: patient } = useQuery({
     queryKey: ["patient", patientId],
-    queryFn: query(routes.getPatient, {
+    queryFn: query(patientApi.getPatient, {
       pathParams: { id: patientId || "" },
     }),
     enabled: !!patientId,

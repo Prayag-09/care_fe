@@ -201,6 +201,14 @@ export const Demography = (props: PatientProps) => {
         ...getGeoOrgDetails(patientData.geo_organization),
       ],
     },
+    {
+      id: "identifiers",
+      allowEdit: false,
+      details: patientData.instance_identifiers.map((i) => ({
+        label: i.config.config.display,
+        value: i.value,
+      })),
+    },
   ];
 
   return (

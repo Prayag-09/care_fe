@@ -42,7 +42,11 @@ import routes from "@/Utils/request/api";
 import query from "@/Utils/request/query";
 import { usePermissions } from "@/context/PermissionContext";
 import useCurrentFacility from "@/pages/Facility/utils/useCurrentFacility";
-import { PartialPatientModel, Patient } from "@/types/emr/patient/patient";
+import {
+  PartialPatientModel,
+  Patient,
+  getPartialId,
+} from "@/types/emr/patient/patient";
 
 export default function PatientIndex({ facilityId }: { facilityId: string }) {
   const [{ phone_number: phoneNumber = "" }, setPhoneNumberQuery] =
@@ -181,7 +185,7 @@ export default function PatientIndex({ facilityId }: { facilityId: string }) {
       query: {
         phone_number: selectedPatient.phone_number,
         year_of_birth: yearOfBirth,
-        partial_id: selectedPatient.partial_id,
+        partial_id: getPartialId(selectedPatient),
       },
     });
   };

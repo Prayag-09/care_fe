@@ -3,16 +3,17 @@ import { UserBareMinimum } from "@/components/Users/models";
 import { Organization } from "@/types/organization/organization";
 import { PatientIdentifier } from "@/types/patient/patientIdentifierConfig/patientIdentifierConfig";
 
-export type BloodGroupChoices =
-  | "A_negative"
-  | "A_positive"
-  | "B_negative"
-  | "B_positive"
-  | "AB_negative"
-  | "AB_positive"
-  | "O_negative"
-  | "O_positive"
-  | "unknown";
+export enum BloodGroupChoices {
+  A_negative = "A_negative",
+  A_positive = "A_positive",
+  B_negative = "B_negative",
+  B_positive = "B_positive",
+  AB_negative = "AB_negative",
+  AB_positive = "AB_positive",
+  O_negative = "O_negative",
+  O_positive = "O_positive",
+  Unknown = "unknown",
+}
 
 export type GenderChoices = "male" | "female" | "non_binary" | "transgender";
 
@@ -27,11 +28,11 @@ export interface Patient {
   gender: GenderChoices;
   phone_number: string;
   emergency_phone_number?: string;
-  address: string;
-  permanent_address: string;
-  pincode: string;
-  date_of_birth: string;
-  deceased_datetime?: string;
+  address?: string;
+  permanent_address?: string;
+  pincode?: string;
+  date_of_birth?: string;
+  deceased_datetime?: string | null;
   blood_group?: BloodGroupChoices;
   year_of_birth: number;
   created_date: string;
@@ -41,9 +42,46 @@ export interface Patient {
   updated_by: UserBareMinimum | null;
   permissions: string[];
   nationality?: string;
-  partial_id: string;
+}
+
+export interface PatientCreate
+  extends Omit<
+    Patient,
+    | "id"
+    | "created_date"
+    | "modified_date"
+    | "created_by"
+    | "updated_by"
+    | "year_of_birth"
+    | "permissions"
+    | "geo_organization"
+    | "instance_identifiers"
+  > {
+  age?: number;
   identifiers: PatientIdentifierCreate[];
-  instance_identifiers: PatientIdentifier[];
+  // organizationId
+  geo_organization: string;
+  // facilityId
+  facility: string;
+}
+
+export interface PatientUpdate
+  extends Omit<
+    Patient,
+    | "id"
+    | "created_date"
+    | "modified_date"
+    | "created_by"
+    | "updated_by"
+    | "year_of_birth"
+    | "permissions"
+    | "geo_organization"
+    | "instance_identifiers"
+  > {
+  age?: number;
+  identifiers: PatientIdentifierCreate[];
+  // organizationId
+  geo_organization: string;
 }
 
 export interface PatientRead extends Patient {
@@ -63,4 +101,11 @@ export interface PartialPatientModel {
 export interface PatientSearchResponse {
   partial: boolean;
   results: PartialPatientModel[] | Patient[];
+}
+
+export function getPartialId(patient: PartialPatientModel | Patient) {
+  if ("partial_id" in patient) {
+    return patient.partial_id;
+  }
+  return patient.id.slice(0, 5);
 }
