@@ -31,7 +31,6 @@ import SupplyDeliveryList, {
 import SupplyRequestList, {
   SupplyRequestTab,
 } from "@/pages/Facility/services/supply/SupplyRequestList";
-import SupplyRequestView from "@/pages/Facility/services/supply/SupplyRequestView";
 import { MedicationDispenseStatus } from "@/types/emr/medicationDispense/medicationDispense";
 
 interface LocationLayoutProps {
@@ -95,20 +94,6 @@ const getRoutes = (facilityId: string, locationId: string) => ({
       tab={SupplyRequestTab.REQUESTED}
     />
   ),
-  "/supply_requests/:id": ({ id }: { id: string }) => (
-    <SupplyRequestView
-      facilityId={facilityId}
-      locationId={locationId}
-      supplyRequestId={id}
-    />
-  ),
-  // "/supply_requests/:id/edit": ({ id }: { id: string }) => (
-  //   <SupplyRequestForm
-  //     facilityId={facilityId}
-  //     locationId={locationId}
-  //     supplyRequestId={id}
-  //   /raise_stock_reques>
-  // ),
 
   // Supply Delivery Routes
   "/supply_deliveries": () => (
