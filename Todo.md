@@ -23,7 +23,7 @@ x : Done
 - [ ] Dispense - Select all - Jeevan
 - [ ] Dispense screen - Flip paid/unpaid filter - default to paid - Jeevan
 - [ ] Dispense queue - delete - update dispense_status - Jeevan
-- [ ] Medication Administration - Product knowledge
+- [x] Medication Administration - Product knowledge - Amjith
 - [ ] Dispense screen - Create Invoice button opening the sheet with billable charge items from unpaid dispense objects in preparation tab
 - [ ] Prescription queue - partially billed - Mark as all given for each row
 - [ ] Location navbar - back button breaks when browser back is used in between

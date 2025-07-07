@@ -25,11 +25,16 @@ export function createMedicationAdministrationRequest(
   return {
     request: medication.id,
     encounter: encounterId,
-    medication: {
-      code: medication.medication?.code,
-      display: medication.medication?.display,
-      system: medication.medication?.system,
-    },
+    ...(medication.medication?.code && {
+      medication: {
+        code: medication.medication?.code,
+        display: medication.medication?.display,
+        system: medication.medication?.system,
+      },
+    }),
+    ...(medication.requested_product && {
+      administered_product: medication.requested_product.id,
+    }),
     occurrence_period_start: format(new Date(), "yyyy-MM-dd'T'HH:mm"),
     occurrence_period_end: format(new Date(), "yyyy-MM-dd'T'HH:mm"),
     note: "",

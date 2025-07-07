@@ -276,9 +276,10 @@ export const PrintMedicationAdministration = (props: {
                 )
                 .map((administration) => {
                   return {
-                    medicine:
-                      administration.medication.display ??
-                      administration.medication.code,
+                    medicine: administration.medication?.code
+                      ? (administration.medication.display ??
+                        administration.medication.code)
+                      : administration.administered_product?.name,
                     administered_at: format(
                       new Date(administration.occurrence_period_start),
                       "dd MMM yyyy, hh:mm a",
@@ -397,7 +398,10 @@ const MedicationAdministrationTable = ({
     return (
       <div className="flex flex-col items-center gap-2">
         <h5>
-          {administration.medication.display ?? administration.medication.code}
+          {administration.medication?.code
+            ? (administration.medication.display ??
+              administration.medication.code)
+            : administration.administered_product?.name}
         </h5>
         <p className="text-sm flex items-center justify-center gap-1 flex-wrap">
           <span>
