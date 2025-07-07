@@ -6,6 +6,10 @@ x : Done
 
 - : In Progress/Assigned/Blocked
 
+# Inventory
+
+- [-] Clean up and more reuse and organization of the inventory code between external and internal inventory - Yash
+
 # Tags & Identifiers
 
 - [x] i18n -- Khavin
@@ -29,6 +33,7 @@ x : Done
 - [ ] Location navbar - back button breaks when browser back is used in between
 - [x] Medication Request & Dispense - add facility param in list apis - Amjith
 - [-] Bill Medication - Button to return to dispense after invoice creation - Bodhi
+- [x] No pagination in dispense history sheet - Yash
 
 ## Billing
 
@@ -63,9 +68,9 @@ x : Done
 - [ ] AD form - Selected location alignment
 - [ ] SR form - Improve
 - [ ] SR - Scan existing specimen QR (Use Access identifier instead of uuid)
-- [-] Activity Def, Observation def form - Enter goes back - Yash
-- [-] Diagnostic Report - Filter out inactive observations - Yash
-- [-] Diag Report View - Browser back - Yash
+- [x] Activity Def, Observation def form - Enter goes back - Yash
+- [x] Diagnostic Report - Filter out inactive observations - Yash
+- [x] Diag Report View - Browser back - Yash
 
 ## Back End
 
