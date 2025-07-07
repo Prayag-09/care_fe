@@ -3,8 +3,6 @@ import { MoreVertical, Printer } from "lucide-react";
 import { navigate } from "raviger";
 import { useTranslation } from "react-i18next";
 
-import CareIcon from "@/CAREUI/icons/CareIcon";
-
 import { Badge } from "@/components/ui/badge";
 import { Button } from "@/components/ui/button";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
@@ -16,6 +14,7 @@ import {
 } from "@/components/ui/dropdown-menu";
 import { Skeleton } from "@/components/ui/skeleton";
 
+import BackButton from "@/components/Common/BackButton";
 import { FileListTable } from "@/components/Files/FileListTable";
 import { FileUploadModel } from "@/components/Patient/models";
 
@@ -80,17 +79,7 @@ export default function DiagnosticReportView({
   return (
     <div className="container mx-auto py-6 space-y-6">
       <div className="space-y-6 flex justify-between">
-        <Button
-          variant="outline"
-          onClick={() =>
-            navigate(
-              `/facility/${facilityId}/patient/${report.encounter.patient.id}/encounter/${report.encounter.id}/diagnostic_reports`,
-            )
-          }
-        >
-          <CareIcon icon="l-arrow-left" className="mr-2 size-4" />
-          Back to encounter
-        </Button>
+        <BackButton />
         <Button
           variant="outline"
           onClick={() =>
