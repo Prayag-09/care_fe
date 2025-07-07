@@ -110,12 +110,6 @@ export default function EditInvoiceSheet({
     // Get the charge item IDs from the current invoice
     const chargeItemIds = invoice.charge_items.map((item) => item.id);
 
-    // Create the update payload
-    // Note: For account, we need to send a string ID representing the account
-    // Since this value isn't directly available in the invoice data structure,
-    // we'd typically get it from the URL or a parent component
-    // For this example, we're using a dummy value that would need to be replaced
-    // with the actual account ID in a real implementation
     const data: InvoiceCreate = {
       title: values.title.trim(),
       status: invoice.status,
