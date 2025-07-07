@@ -20,9 +20,9 @@ x : Done
 # Pharmacy
 
 - [BE] Add facility-based filter & pagination in the inventory items list - Jeevan. Vignesh will add filter queryset by facility later
-- [ ] Dispense - Select all - Jeevan
-- [ ] Dispense screen - Flip paid/unpaid filter - default to paid - Jeevan
-- [ ] Dispense queue - delete - update dispense_status - Jeevan
+- [x] Dispense - Select all - Jeevan
+- [x] Dispense screen - Flip paid/unpaid filter - default to paid - Jeevan
+- [x] Dispense queue - delete - update dispense_status - Jeevan
 - [ ] Medication Administration - Product knowledge
 - [ ] Dispense screen - Create Invoice button opening the sheet with billable charge items from unpaid dispense objects in preparation tab
 - [ ] Prescription queue - partially billed - Mark as all given for each row

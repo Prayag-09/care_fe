@@ -8,7 +8,6 @@ import {
   MoreVertical,
   PlusIcon,
   Shuffle,
-  Trash2,
 } from "lucide-react";
 import { navigate } from "raviger";
 import { useEffect, useState } from "react";
@@ -699,8 +698,16 @@ export default function MedicationBillForm({ patientId }: Props) {
     useState<ProductKnowledgeBase | undefined>();
   const [viewingDispensedMedicationId, setViewingDispensedMedicationId] =
     useState<string | null>(null);
-  const [medicationToMarkComplete, setMedicationToMarkComplete] =
-    useState<MedicationRequestRead | null>(null);
+  const [medicationToMarkComplete, setMedicationToMarkComplete] = useState<{
+    medication: MedicationRequestRead;
+    index: number;
+  } | null>(null);
+  const [medicationToRemove, setMedicationToRemove] = useState<{
+    medication: MedicationRequestRead;
+    medicationName: string;
+    index: number;
+    isAdded: boolean;
+  } | null>(null);
 
   const { mutate: updateMedicationRequest } = useMutation({
     mutationFn: (medication: MedicationRequestRead) => {
@@ -709,9 +716,6 @@ export default function MedicationBillForm({ patientId }: Props) {
       })(medication);
     },
     onSuccess: () => {
-      queryClient.invalidateQueries({
-        queryKey: ["medication_requests", patientId, "dispense"],
-      });
       toast.success(t("medication_request_status_updated_successfully"));
     },
     onError: () => {
@@ -758,7 +762,7 @@ export default function MedicationBillForm({ patientId }: Props) {
           facility: facilityId,
           limit: 100,
           status: "active,on-hold,draft,unknown,ended,completed,cancelled",
-          exclude_dispense_status: "complete",
+          exclude_dispense_status: "complete,incomplete",
         },
       })({ signal });
 
@@ -1119,6 +1123,20 @@ export default function MedicationBillForm({ patientId }: Props) {
     }
 
     dispense({ requests });
+  };
+
+  const handleRemoveMedication = (
+    medication: MedicationRequestRead,
+    isAdded: boolean,
+    index: number,
+  ) => {
+    if (!isAdded) {
+      updateMedicationRequest({
+        ...medication,
+        dispense_status: MedicationRequestDispenseStatus.incomplete,
+      });
+    }
+    remove(index);
   };
 
   return (
@@ -1511,18 +1529,6 @@ export default function MedicationBillForm({ patientId }: Props) {
                                 {t("substitute")}
                               </Button>
                             )}
-                            {!field.medication && (
-                              <Button
-                                variant="outline"
-                                className="hover:bg-red-50 hover:text-red-700"
-                                size="sm"
-                                type="button"
-                                onClick={() => remove(index)}
-                              >
-                                <Trash2 className="size-5" />
-                                <span className="">{t("remove")}</span>
-                              </Button>
-                            )}
                           </div>
                         </TableCell>
                         <TableCell className={tableCellClass}>
@@ -1906,7 +1912,7 @@ export default function MedicationBillForm({ patientId }: Props) {
                                 <MoreVertical className="size-5" />
                               </Button>
                             </DropdownMenuTrigger>
-                            <DropdownMenuContent>
+                            <DropdownMenuContent align="end">
                               {field.medication?.dispense_status !==
                               MedicationRequestDispenseStatus.partial ? (
                                 <Popover>
@@ -1927,14 +1933,30 @@ export default function MedicationBillForm({ patientId }: Props) {
                               ) : (
                                 <DropdownMenuItem
                                   onSelect={() => {
-                                    setMedicationToMarkComplete(
-                                      field.medication as MedicationRequestRead,
-                                    );
+                                    setMedicationToMarkComplete({
+                                      medication:
+                                        field.medication as MedicationRequestRead,
+                                      index,
+                                    });
                                   }}
                                 >
                                   {t("mark_as_all_given")}
                                 </DropdownMenuItem>
                               )}
+                              <DropdownMenuItem
+                                onSelect={() => {
+                                  setMedicationToRemove({
+                                    medication:
+                                      field.medication as MedicationRequestRead,
+                                    medicationName:
+                                      effectiveProductKnowledge.name,
+                                    index,
+                                    isAdded: !field.medication ? true : false,
+                                  });
+                                }}
+                              >
+                                {t("remove_medication")}
+                              </DropdownMenuItem>
                             </DropdownMenuContent>
                           </DropdownMenu>
                         </TableCell>
@@ -2249,7 +2271,10 @@ export default function MedicationBillForm({ patientId }: Props) {
               <p className="mt-2">
                 {t("medication")}:{" "}
                 <strong>
-                  {medicationToMarkComplete?.requested_product?.name}
+                  {
+                    medicationToMarkComplete?.medication?.requested_product
+                      ?.name
+                  }
                 </strong>
               </p>
             </>
@@ -2257,13 +2282,52 @@ export default function MedicationBillForm({ patientId }: Props) {
           onConfirm={() => {
             if (medicationToMarkComplete) {
               updateMedicationRequest({
-                ...medicationToMarkComplete,
+                ...medicationToMarkComplete.medication,
                 dispense_status: MedicationRequestDispenseStatus.complete,
               });
+              remove(medicationToMarkComplete.index);
             }
             setMedicationToMarkComplete(null);
           }}
           confirmText={t("mark_as_all_given")}
+          cancelText={t("cancel")}
+          variant="primary"
+        />
+        <ConfirmActionDialog
+          open={medicationToRemove !== null}
+          onOpenChange={(open) => {
+            if (!open) setMedicationToRemove(null);
+          }}
+          title={t("remove_medication")}
+          description={
+            <>
+              <Trans
+                i18nKey="confirm_action_description"
+                values={{
+                  action: t("remove_medication").toLowerCase(),
+                }}
+                components={{
+                  1: <strong className="text-gray-900" />,
+                }}
+              />{" "}
+              {t("you_cannot_change_once_submitted")}
+              <p className="mt-2">
+                {t("medication")}:{" "}
+                <strong>{medicationToRemove?.medicationName}</strong>
+              </p>
+            </>
+          }
+          onConfirm={() => {
+            if (medicationToRemove) {
+              handleRemoveMedication(
+                medicationToRemove.medication,
+                medicationToRemove.isAdded,
+                medicationToRemove.index,
+              );
+            }
+            setMedicationToRemove(null);
+          }}
+          confirmText={t("remove_medication")}
           cancelText={t("cancel")}
           variant="primary"
         />
