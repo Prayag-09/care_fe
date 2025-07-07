@@ -1,6 +1,5 @@
 import { useMutation, useQuery } from "@tanstack/react-query";
 import {
-  Check,
   ChevronDown,
   ChevronRight,
   Folder,
@@ -99,104 +98,6 @@ interface TagSelectorProps {
   selected: TagConfig[];
   onChange: (tags: TagConfig[]) => void;
   resource: TagResource;
-}
-
-// Add TagExpandableItem component for expandable tag groups
-function TagExpandableItem({
-  tag,
-  selected,
-  onToggle,
-  resource,
-}: {
-  tag: TagConfig;
-  selected: TagConfig[];
-  onToggle: (tagId: string) => void;
-  resource: TagResource;
-}) {
-  const { t } = useTranslation();
-  const [expanded, setExpanded] = useState(false);
-  const { data, isLoading } = useQuery({
-    queryKey: ["child_tags", tag.id],
-    queryFn: expanded
-      ? query(tagConfigApi.list, {
-          queryParams: {
-            resource,
-            parent: tag.id,
-          },
-        })
-      : undefined,
-    enabled: expanded,
-  });
-
-  return (
-    <div>
-      <div
-        className="flex items-center gap-2 cursor-pointer"
-        onClick={() => tag.has_children && setExpanded((e) => !e)}
-      >
-        <span className="flex items-center gap-2 flex-1">
-          <Hash className="size-4" />
-          <span>{tag.display}</span>
-          <Badge variant="outline" className="text-xs">
-            {tag.category}
-          </Badge>
-        </span>
-        {/* Only show checkmark and allow selection for leaf tags */}
-        {!tag.has_children && selected.some((t) => t.id === tag.id) && (
-          <Check className="size-4" />
-        )}
-        {tag.has_children && (
-          <Button
-            variant="ghost"
-            size="icon"
-            className="size-4 p-0"
-            onClick={(e) => {
-              e.stopPropagation();
-              setExpanded((v) => !v);
-            }}
-          >
-            {expanded ? <span>&#9660;</span> : <span>&#9654;</span>}
-          </Button>
-        )}
-      </div>
-      {expanded && (
-        <div className="ml-6 border-l pl-2 mt-1">
-          {isLoading ? (
-            <Loader2 className="size-4 animate-spin" />
-          ) : data && Array.isArray(data.results) && data.results.length > 0 ? (
-            data.results.map((child: TagConfig) =>
-              child.has_children ? (
-                <TagExpandableItem
-                  key={child.id}
-                  tag={child}
-                  selected={selected}
-                  onToggle={onToggle}
-                  resource={resource}
-                />
-              ) : (
-                <div
-                  key={child.id}
-                  className="flex items-center gap-2 cursor-pointer ml-2"
-                  onClick={() => onToggle(child.id)}
-                >
-                  <Hash className="size-4" />
-                  <span>{child.display}</span>
-                  <Badge variant="outline" className="text-xs">
-                    {child.category}
-                  </Badge>
-                  {selected.some((t) => t.id === child.id) && (
-                    <Check className="size-4" />
-                  )}
-                </div>
-              ),
-            )
-          ) : (
-            <span className="text-xs text-gray-400">{t("no_tags_found")}</span>
-          )}
-        </div>
-      )}
-    </div>
-  );
 }
 
 export function TagSelectorPopover({
@@ -311,23 +212,20 @@ export function TagSelectorPopover({
       tag.parent && typeof tag.parent === "object" && "id" in tag.parent
         ? tag.parent.id
         : undefined;
-    if (parentId) {
-      const alreadySelectedInGroup = selected.some(
-        (t) =>
-          t.parent &&
-          typeof t.parent === "object" &&
-          "id" in t.parent &&
-          t.parent.id === parentId,
-      );
-      if (alreadySelectedInGroup && !selected.some((t) => t.id === tag.id)) {
-        toast.error("Only one tag can be selected per group.");
-        return;
-      }
+    const alreadySelectedInGroup = selected.find(
+      (t) =>
+        t.parent &&
+        typeof t.parent === "object" &&
+        "id" in t.parent &&
+        t.parent.id === parentId,
+    );
+    if (alreadySelectedInGroup) {
+      handleRemove(alreadySelectedInGroup.id!);
     }
     onChange(
       selected.some((t) => t.id === tag.id)
         ? selected.filter((t) => t.id !== tag.id)
-        : [...selected, tag],
+        : [...selected.filter((t) => t.id !== alreadySelectedInGroup?.id), tag],
     );
   };
 
@@ -362,6 +260,7 @@ export function TagSelectorPopover({
               variant="secondary"
               className="flex items-center gap-1"
             >
+              {tag.parent ? `${tag.parent.display}: ` : ""}
               {tag.display}
               <button
                 onClick={() => handleRemove(tag.id)}
@@ -498,7 +397,7 @@ export default function TagAssignmentSheet({
   const isLoadingTags = isSettingTags || isRemovingTags;
 
   return (
-    <Sheet open={open} onOpenChange={setOpen}>
+    <Sheet open={open} onOpenChange={setOpen} modal={false}>
       <SheetTrigger asChild>
         {trigger || (
           <Button variant="outline" size="sm" disabled={!canWrite}>
