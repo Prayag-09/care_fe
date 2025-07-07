@@ -24,16 +24,15 @@ x : Done
 # Pharmacy
 
 - [BE] Add facility-based filter & pagination in the inventory items list - Jeevan. Vignesh will add filter queryset by facility later
-- [x] Medication Administration - Product knowledge - Amjith
-- [x] Dispense - Select all - Jeevan
-- [x] Dispense screen - Flip paid/unpaid filter - default to paid - Jeevan
-- [x] Dispense queue - delete - update dispense_status - Jeevan
+
 - [-] Dispense screen - Create Invoice button opening the sheet with billable charge items from unpaid dispense objects in preparation tab - Jeevan
 - [ ] Prescription queue - partially billed - Mark as all given for each row
 - [ ] Location navbar - back button breaks when browser back is used in between
-- [x] Medication Request & Dispense - add facility param in list apis - Amjith
 - [-] Bill Medication - Button to return to dispense after invoice creation - Bodhi
-- [x] No pagination in dispense history sheet - Yash
+- [-] Medication Request - Prefill unit from product knowledge and disallow modification - Yash
+- [-] Purchase Order - Receive stock sheet - show only active Supply Requests - Yash
+- [-] Bill medication - Add validation for days > 0 - Yash
+- [-] Bill medication - Add validation for quantity to be less than selected lot's quantity - Yash
 
 ## Billing
 
@@ -59,7 +58,6 @@ x : Done
 - [ ] Loading skeletons
 - [ ] Disable save if no changes in all forms
 - [ ] Specimen Def - URI validation failing
-- [x] AD form - Location Sheet - remove cursor pointer on hover on name - Amjith
 - [-] Product Knowledge form - Validations - Yash
 - [ ] Definitions - Add Delete button
 - [ ] Valueset - Wrap long text on mobile
@@ -68,9 +66,6 @@ x : Done
 - [ ] AD form - Selected location alignment
 - [ ] SR form - Improve
 - [ ] SR - Scan existing specimen QR (Use Access identifier instead of uuid)
-- [x] Activity Def, Observation def form - Enter goes back - Yash
-- [x] Diagnostic Report - Filter out inactive observations - Yash
-- [x] Diag Report View - Browser back - Yash
 
 ## Back End
 
@@ -210,6 +205,10 @@ x : Done
 - [x] If no entries are given to a report and click on Save Result, it shows Conclusion updated successfully but report is not generated. Since report cant be blank, there should be validation and show error is no entries are there for result and conclusion. - Manyu
 - [x] If a long conclusion is given to a report, UI is breaking (Diagnostic Report) - Manyu
 - [x] Not able to mark a SR as closed - Showing error location not found - Vignesh - Data issue
+- [x] Activity Def, Observation def form - Enter goes back - Yash
+- [x] Diagnostic Report - Filter out inactive observations - Yash
+- [x] Diag Report View - Browser back - Yash
+- [x] AD form - Location Sheet - remove cursor pointer on hover on name - Amjith
 
 ## Pharmacy
 
@@ -233,3 +232,9 @@ x : Done
 - [x] Each modification to the pre-filled quantity in bill medication triggers a component re-render, which disrupts the editing experience. - Khavin
 - [x] Supply Request - Disallow selecting current location - Jeevan
 - [x] Supply Request - Add supplier[] after backend done - Jeevan
+- [x] No pagination in dispense history sheet - Yash
+- [x] Medication Administration - Product knowledge - Amjith
+- [x] Dispense - Select all - Jeevan
+- [x] Dispense screen - Flip paid/unpaid filter - default to paid - Jeevan
+- [x] Dispense queue - delete - update dispense_status - Jeevan
+- [x] Medication Request & Dispense - add facility param in list apis - Amjith
