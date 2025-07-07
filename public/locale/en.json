@@ -3236,6 +3236,7 @@
   "quantity": "Quantity",
   "quantity_approved": "Quantity Approved",
   "quantity_cannot_be_zero": "Quantity cannot be zero",
+  "quantity_for_medication_selected_exceeds_available_stock": "For {{medication}} (Lot #{{lot}}), requested quantity ({{requested}}) exceeds available stock ({{available}}).",
   "quantity_question_description": "Select the valueset of options for this quantity question",
   "quantity_requested": "Quantity Requested",
   "quantity_required": "Quantity Required",

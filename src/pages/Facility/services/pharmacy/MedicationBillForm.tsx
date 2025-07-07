@@ -1073,6 +1073,48 @@ export default function MedicationBillForm({ patientId }: Props) {
       return;
     }
 
+    const medsWithInsufficientStock: {
+      name: string;
+      lot: string;
+      requested: number;
+      available: number;
+    }[] = [];
+    selectedItems.forEach((item) => {
+      const productKnowledge = item.productKnowledge;
+      const effectiveProductKnowledge =
+        item.substitution?.substitutedProductKnowledge || productKnowledge;
+      const inventoryList =
+        productKnowledgeInventoriesMap[effectiveProductKnowledge.id] || [];
+
+      item.lots.forEach((lot) => {
+        const inventory = inventoryList.find(
+          (inv) => inv.id === lot.selectedInventoryId,
+        );
+        if (inventory && lot.quantity > inventory.net_content) {
+          medsWithInsufficientStock.push({
+            name: effectiveProductKnowledge.name,
+            lot: inventory.product.batch?.lot_number || "N/A",
+            requested: lot.quantity,
+            available: inventory.net_content,
+          });
+        }
+      });
+    });
+
+    if (medsWithInsufficientStock.length > 0) {
+      medsWithInsufficientStock.forEach((med) => {
+        toast.error(
+          t("quantity_for_medication_selected_exceeds_available_stock", {
+            medication: med.name,
+            lot: med.lot,
+            requested: med.requested,
+            available: med.available,
+          }),
+        );
+      });
+      return;
+    }
+
     const requests = [];
     const defaultEncounterId = response?.results[0]?.encounter;
 
