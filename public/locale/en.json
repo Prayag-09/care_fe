@@ -2919,6 +2919,7 @@
   "patient__identifiers": "Identifiers",
   "patient__insurance-details": "Insurance Details",
   "patient__social-profile": "Social Profile",
+  "patient__tags": "Patient Tags",
   "patient__volunteer-contact": "Volunteer Contact",
   "patient_address": "Patient Address",
   "patient_and_billing_details": "Patient and billing details",

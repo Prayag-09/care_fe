@@ -1,5 +1,6 @@
 import { UserBareMinimum } from "@/components/Users/models";
 
+import { TagConfig } from "@/types/emr/tagConfig/tagConfig";
 import { Organization } from "@/types/organization/organization";
 import { PatientIdentifier } from "@/types/patient/patientIdentifierConfig/patientIdentifierConfig";
 
@@ -63,6 +64,8 @@ export interface PatientCreate
   geo_organization: string;
   // facilityId
   facility: string;
+  // tags to assign at creation (array of UUIDs)
+  tags?: string[];
 }
 
 export interface PatientUpdate
@@ -85,8 +88,8 @@ export interface PatientUpdate
 }
 
 export interface PatientRead extends Patient {
-  instance_tags: string[];
-  facility_tags: string[];
+  instance_tags: TagConfig[];
+  facility_tags: TagConfig[];
   instance_identifiers: PatientIdentifier[];
 }
 

@@ -45,6 +45,7 @@ import Loading from "@/components/Common/Loading";
 import Page from "@/components/Common/Page";
 import DuplicatePatientDialog from "@/components/Facility/DuplicatePatientDialog";
 import RadioInput from "@/components/Questionnaire/RadioInput";
+import { TagSelectorPopover } from "@/components/Tags/TagAssignmentSheet";
 
 import useAppHistory from "@/hooks/useAppHistory";
 
@@ -63,6 +64,7 @@ import useCurrentFacility from "@/pages/Facility/utils/useCurrentFacility";
 import GovtOrganizationSelector from "@/pages/Organization/components/GovtOrganizationSelector";
 import { BloodGroupChoices, PatientRead } from "@/types/emr/patient/patient";
 import patientApi from "@/types/emr/patient/patientApi";
+import { TagConfig, TagResource } from "@/types/emr/tagConfig/tagConfig";
 import { Organization } from "@/types/organization/organization";
 
 interface PatientRegistrationPageProps {
@@ -87,6 +89,7 @@ export default function PatientRegistration(
 
   const [suppressDuplicateWarning, setSuppressDuplicateWarning] =
     useState(!!patientId);
+  const [selectedTags, setSelectedTags] = useState<TagConfig[]>([]);
 
   const formSchema = useMemo(
     () =>
@@ -267,6 +270,7 @@ export default function PatientRegistration(
           : values.permanent_address,
         facility: facilityId,
         pincode: String(values.pincode) || undefined,
+        tags: selectedTags.map((tag) => tag.id),
       });
     }
   }
@@ -565,6 +569,18 @@ export default function PatientRegistration(
                   </FormItem>
                 )}
               />
+
+              {/* Tag Selector (only for create) */}
+              {!patientId && (
+                <div className="space-y-2">
+                  <h3 className="text-sm font-medium">{t("tags")}</h3>
+                  <TagSelectorPopover
+                    selected={selectedTags}
+                    onChange={setSelectedTags}
+                    resource={TagResource.PATIENT}
+                  />
+                </div>
+              )}
 
               <Tabs
                 value={form.watch("age_or_dob")}

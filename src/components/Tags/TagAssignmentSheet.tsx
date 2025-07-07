@@ -59,8 +59,8 @@ const ENTITY_TO_RESOURCE_MAP = {
 // TODO: Add more entity configurations here as needed
 const ENTITY_CONFIG = {
   patient: {
-    setTagsApi: patientApi.setTags,
-    removeTagsApi: patientApi.removeTags,
+    setTagsApi: patientApi.setInstanceTags,
+    removeTagsApi: patientApi.removeInstanceTags,
     displayName: "patient",
   },
   encounter: {

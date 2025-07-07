@@ -40,14 +40,14 @@ export default {
     >(),
   },
   // Tag-related endpoints
-  setTags: {
-    path: "/api/v1/patient/{external_id}/set_tags/",
+  setInstanceTags: {
+    path: "/api/v1/patient/{external_id}/set_instance_tags/",
     method: HttpMethod.POST,
     TRes: Type<unknown>(),
     TBody: Type<{ tags: string[] }>(),
   },
-  removeTags: {
-    path: "/api/v1/patient/{external_id}/remove_tags/",
+  removeInstanceTags: {
+    path: "/api/v1/patient/{external_id}/remove_instance_tags/",
     method: HttpMethod.POST,
     TRes: Type<unknown>(),
     TBody: Type<{ tags: string[] }>(),
