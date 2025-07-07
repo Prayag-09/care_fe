@@ -48,14 +48,8 @@ export function PatientHeader({
           <div className="rounded-lg border border-gray-400 px-4 py-1 flex items-center justify-between cursor-pointer bg-white">
             <span className="font-semibold text-gray-950 text-base flex items-center gap-2">
               {patient.name}
-              <span className="text-gray-500 text-xs font-normal">
-                - {formatDateOfBirthAge()}
-              </span>
-              <span className="text-gray-500 text-xs font-normal">
-                - {t(patient.gender)}
-              </span>
               <CareIcon
-                icon="l-angle-right"
+                icon="l-angle-down"
                 className="size-5 opacity-40 transition-transform group-active:translate-x-1"
               />
             </span>
