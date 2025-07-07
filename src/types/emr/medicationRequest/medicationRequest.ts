@@ -576,13 +576,23 @@ export function parseMedicationStringToRequest(
   medication?: Code,
   productKnowledge?: ProductKnowledgeBase,
 ): MedicationRequest {
+  const dosageInstruction: MedicationRequestDosageInstruction = {
+    as_needed_boolean: false,
+  };
+
+  if (productKnowledge?.definitional?.dosage_form) {
+    dosageInstruction.dose_and_rate = {
+      type: "ordered",
+      dose_quantity: {
+        value: 0,
+        unit: productKnowledge.definitional.dosage_form,
+      },
+    };
+  }
+
   const medicationRequest: MedicationRequest = {
     do_not_perform: false,
-    dosage_instruction: [
-      {
-        as_needed_boolean: false,
-      },
-    ],
+    dosage_instruction: [dosageInstruction],
     ...(medication ? { medication } : {}),
     ...(productKnowledge
       ? {
