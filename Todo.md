@@ -49,7 +49,7 @@ x : Done
 - [-] In the Specimen Definition edit form, removing data from optional fields is not working and Fix some types and cleanup in Specimen Definition Form. - Manyu & Yash
 - [ ] Specimen Definition - Add frontend permission check for the Specimen Definition page at the facility level.
 - [ ] SR Details page - Disable the process step once the report generation is done | Confirm with Bodhi before working on this - Backend
-- [-] New service request should be shown first within the list - Vignesh
+- [x] New service request should be shown first within the list - Vignesh
 - [BE] SR details page - fix decimal points to two and round off amounts in charge items.
 - [BE] SR details page - Add a hyperlink to the payment page, for better UX
 - [BE] Encounter can be closed even if the SR is ACTIVE. But if encounter is closer SR cannot be marked as completed ( Showing error as encounter is already closed) - Fix can be not allow top close encounter if SR is open - Vignesh
@@ -63,9 +63,9 @@ x : Done
 - [ ] Valueset - Wrap long text on mobile
 - [ ] Observation Def - validation for empty components
 - [ ] Observation Def - Preview mobile - status badge & button clash
-- [ ] AD form - Selected location alignment
 - [ ] SR form - Improve
 - [ ] SR - Scan existing specimen QR (Use Access identifier instead of uuid)
+- [x] AD form - Selected location alignment - Amjith
 
 ## Back End
 

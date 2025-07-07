@@ -68,7 +68,7 @@ function SelectedItemCard({
       >
         <Trash2 className="size-4 text-gray-500" />
       </Button>
-      <p className="mb-2 font-medium text-sm text-gray-900">{title}</p>
+      <p className="my-px font-medium text-sm text-gray-900">{title}</p>
       <div className="grid grid-cols-1 gap-1 md:grid-cols-2">
         {details.map(({ label, value }, index) => (
           <div key={index} className="flex text-sm">
