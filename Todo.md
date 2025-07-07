@@ -28,10 +28,10 @@ x : Done
 - [ ] Prescription queue - partially billed - Mark as all given for each row
 - [ ] Location navbar - back button breaks when browser back is used in between
 - [-] Bill Medication - Button to return to dispense after invoice creation - Bodhi
-- [-] Medication Request - Prefill unit from product knowledge and disallow modification - Yash
-- [-] Purchase Order - Receive stock sheet - show only active Supply Requests - Yash
-- [-] Bill medication - Add validation for days > 0 - Yash
-- [-] Bill medication - Add validation for quantity to be less than selected lot's quantity - Yash
+- [x] Medication Request - Prefill unit from product knowledge and disallow modification - Yash
+- [x] Purchase Order - Receive stock sheet - show only active Supply Requests - Yash
+- [x] Bill medication - Add validation for days > 0 - Yash
+- [x] Bill medication - Add validation for quantity to be less than selected lot's quantity - Yash
 
 ## Billing
 
