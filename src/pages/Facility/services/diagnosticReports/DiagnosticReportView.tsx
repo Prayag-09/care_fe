@@ -1,15 +1,20 @@
 import { useQuery } from "@tanstack/react-query";
-import { Printer } from "lucide-react";
+import { MoreVertical, Printer } from "lucide-react";
 import { navigate } from "raviger";
 import { useTranslation } from "react-i18next";
-
-import CareIcon from "@/CAREUI/icons/CareIcon";
 
 import { Badge } from "@/components/ui/badge";
 import { Button } from "@/components/ui/button";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
+import {
+  DropdownMenu,
+  DropdownMenuContent,
+  DropdownMenuItem,
+  DropdownMenuTrigger,
+} from "@/components/ui/dropdown-menu";
 import { Skeleton } from "@/components/ui/skeleton";
 
+import BackButton from "@/components/Common/BackButton";
 import { FileListTable } from "@/components/Files/FileListTable";
 import { FileUploadModel } from "@/components/Patient/models";
 
@@ -17,9 +22,11 @@ import routes from "@/Utils/request/api";
 import query from "@/Utils/request/query";
 import { PaginatedResponse } from "@/Utils/request/types";
 import { DiagnosticReportResultsTable } from "@/pages/Facility/services/diagnosticReports/components/DiagnosticReportResultsTable";
+import { ObservationHistorySheet } from "@/pages/Facility/services/serviceRequests/components/ObservationHistorySheet";
 import { PatientHeader } from "@/pages/Facility/services/serviceRequests/components/PatientHeader";
 import { DIAGNOSTIC_REPORT_STATUS_COLORS } from "@/types/emr/diagnosticReport/diagnosticReport";
 import diagnosticReportApi from "@/types/emr/diagnosticReport/diagnosticReportApi";
+import { ObservationStatus } from "@/types/emr/observation/observation";
 
 export default function DiagnosticReportView({
   facilityId,
@@ -72,17 +79,7 @@ export default function DiagnosticReportView({
   return (
     <div className="container mx-auto py-6 space-y-6">
       <div className="space-y-6 flex justify-between">
-        <Button
-          variant="outline"
-          onClick={() =>
-            navigate(
-              `/facility/${facilityId}/patient/${report.encounter.patient.id}/encounter/${report.encounter.id}/diagnostic_reports`,
-            )
-          }
-        >
-          <CareIcon icon="l-arrow-left" className="mr-2 size-4" />
-          Back to encounter
-        </Button>
+        <BackButton />
         <Button
           variant="outline"
           onClick={() =>
@@ -181,10 +178,38 @@ export default function DiagnosticReportView({
         {/* Test Results */}
         <Card>
           <CardHeader>
-            <CardTitle>{t("test_results")}</CardTitle>
+            <div className="flex items-center justify-between">
+              <CardTitle>{t("test_results")}</CardTitle>
+              <DropdownMenu>
+                <DropdownMenuTrigger asChild>
+                  <Button variant="outline" size="icon">
+                    <MoreVertical className="size-4" />
+                  </Button>
+                </DropdownMenuTrigger>
+                <DropdownMenuContent align="end">
+                  <ObservationHistorySheet
+                    patientId={report.encounter.patient.id}
+                    diagnosticReportId={diagnosticReportId}
+                  >
+                    <DropdownMenuItem
+                      onSelect={(e) => e.preventDefault()}
+                      onClick={(e) => {
+                        e.stopPropagation();
+                      }}
+                    >
+                      {t("view_observation_history")}
+                    </DropdownMenuItem>
+                  </ObservationHistorySheet>
+                </DropdownMenuContent>
+              </DropdownMenu>
+            </div>
           </CardHeader>
           <CardContent>
-            <DiagnosticReportResultsTable observations={report.observations} />
+            <DiagnosticReportResultsTable
+              observations={report.observations.filter(
+                (obs) => obs.status !== ObservationStatus.ENTERED_IN_ERROR,
+              )}
+            />
           </CardContent>
         </Card>
       </div>

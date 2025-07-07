@@ -46,13 +46,13 @@ const formSchema = z.object({
     regex: z.string(),
     display: z.string().min(1, "Display is required"),
     retrieve_config: z.object({
-      retrieve_with_dob: z.boolean(),
-      retrieve_with_year_of_birth: z.boolean(),
-      retrieve_with_otp: z.boolean(),
+      retrieve_with_dob: z.boolean().optional(),
+      retrieve_with_year_of_birth: z.boolean().optional(),
+      retrieve_with_otp: z.boolean().optional(),
     }),
   }),
   status: z.nativeEnum(PatientIdentifierConfigStatus),
-  facility: z.string().nullable(),
+  facility: z.string().optional().nullable(),
 });
 
 interface PatientIdentifierConfigFormProps {
@@ -142,7 +142,12 @@ export default function PatientIdentifierConfigForm({
 
   return (
     <Form {...form}>
-      <form onSubmit={form.handleSubmit(onSubmit)} className="space-y-8">
+      <form
+        onSubmit={form.handleSubmit(onSubmit, (errors) => {
+          console.log(errors);
+        })}
+        className="space-y-8"
+      >
         {/* Identifier Details Section */}
         <div>
           <h2 className="text-lg font-semibold mb-2">

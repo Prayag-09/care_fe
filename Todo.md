@@ -6,6 +6,10 @@ x : Done
 
 - : In Progress/Assigned/Blocked
 
+# Inventory
+
+- [-] Clean up and more reuse and organization of the inventory code between external and internal inventory - Yash
+
 # Tags & Identifiers
 
 - [x] i18n -- Khavin
@@ -20,15 +24,16 @@ x : Done
 # Pharmacy
 
 - [BE] Add facility-based filter & pagination in the inventory items list - Jeevan. Vignesh will add filter queryset by facility later
-- [ ] Dispense - Select all - Jeevan
-- [ ] Dispense screen - Flip paid/unpaid filter - default to paid - Jeevan
-- [ ] Dispense queue - delete - update dispense_status - Jeevan
 - [x] Medication Administration - Product knowledge - Amjith
+- [x] Dispense - Select all - Jeevan
+- [x] Dispense screen - Flip paid/unpaid filter - default to paid - Jeevan
+- [x] Dispense queue - delete - update dispense_status - Jeevan
 - [ ] Dispense screen - Create Invoice button opening the sheet with billable charge items from unpaid dispense objects in preparation tab
 - [ ] Prescription queue - partially billed - Mark as all given for each row
 - [ ] Location navbar - back button breaks when browser back is used in between
 - [x] Medication Request & Dispense - add facility param in list apis - Amjith
 - [-] Bill Medication - Button to return to dispense after invoice creation - Bodhi
+- [x] No pagination in dispense history sheet - Yash
 
 ## Billing
 
@@ -63,9 +68,9 @@ x : Done
 - [ ] AD form - Selected location alignment
 - [ ] SR form - Improve
 - [ ] SR - Scan existing specimen QR (Use Access identifier instead of uuid)
-- [-] Activity Def, Observation def form - Enter goes back - Yash
-- [-] Diagnostic Report - Filter out inactive observations - Yash
-- [-] Diag Report View - Browser back - Yash
+- [x] Activity Def, Observation def form - Enter goes back - Yash
+- [x] Diagnostic Report - Filter out inactive observations - Yash
+- [x] Diag Report View - Browser back - Yash
 
 ## Back End
 
