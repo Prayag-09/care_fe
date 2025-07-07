@@ -1,5 +1,5 @@
 import { useQuery } from "@tanstack/react-query";
-import React, { useEffect } from "react";
+import React from "react";
 import { useTranslation } from "react-i18next";
 
 import CareIcon from "@/CAREUI/icons/CareIcon";
@@ -98,13 +98,6 @@ export default function PatientIdentifierConfigList({
     PatientIdentifierConfig | PatientIdentifierConfigCreate | null
   >(null);
 
-  // TODO: Remove this once we have a default status (robo's PR)
-  useEffect(() => {
-    if (!qParams.status) {
-      updateQuery({ status: "active" });
-    }
-  }, []);
-
   const { data: response, isLoading } = useQuery({
     queryKey: ["patientIdentifierConfig", qParams, facilityId],
     queryFn: query.debounced(
@@ -195,7 +188,11 @@ export default function PatientIdentifierConfigList({
                 <div className="mt-6 pb-6">
                   <PatientIdentifierConfigForm
                     facilityId={facilityId}
-                    configId={selectedConfig?.id || undefined}
+                    configId={
+                      selectedConfig && "id" in selectedConfig
+                        ? selectedConfig.id
+                        : undefined
+                    }
                     onSuccess={handleSheetClose}
                   />
                 </div>

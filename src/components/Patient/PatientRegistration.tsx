@@ -316,7 +316,7 @@ export default function PatientRegistration(
   });
 
   useEffect(() => {
-    if (patientQuery.data) {
+    if (patientQuery.data && facility) {
       form.reset({
         _selected_levels: [
           patientQuery.data.geo_organization as unknown as Organization,
@@ -346,13 +346,20 @@ export default function PatientRegistration(
           patientQuery.data.geo_organization as unknown as Organization
         )?.id,
         deceased_datetime: null,
-        identifiers: patientQuery.data.instance_identifiers.map((i) => ({
-          config: i.config.id,
-          value: i.value,
-        })),
+        identifiers: facility.patient_instance_identifier_configs.map(
+          (identifierConfig) => {
+            const identifier = patientQuery.data.instance_identifiers.find(
+              (i) => i.config.id === identifierConfig.id,
+            );
+            return {
+              config: identifierConfig.id,
+              value: identifier?.value,
+            };
+          },
+        ),
       } as unknown as z.infer<typeof formSchema>);
     }
-  }, [patientQuery.data]);
+  }, [patientQuery.data, facility]);
 
   const showDuplicate =
     !patientPhoneSearch.isLoading &&
