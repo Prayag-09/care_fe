@@ -3066,6 +3066,7 @@
   "please_enter_new_password": "Please enter your new password.",
   "please_enter_organization_name": "Please enter an organization name",
   "please_enter_username": "Please enter the username",
+  "please_enter_valid_days_supply_for_medications": "Days supply should be greater than 0 for medications: {{medications}}",
   "please_fill_all_required_fields": "Please fill all the required fields",
   "please_fill_all_results": "Please fill all results",
   "please_fix_errors": "Please fix the errors in the highlighted fields and try submitting again.",

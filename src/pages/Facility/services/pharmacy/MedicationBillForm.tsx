@@ -166,7 +166,7 @@ const formSchema = z.object({
       medication: z.any(),
       productKnowledge: z.any(),
       isSelected: z.boolean(),
-      daysSupply: z.number().min(0),
+      daysSupply: z.number().min(1),
       isFullyDispensed: z.boolean(),
       dosageInstructions: z.any().optional(),
       lots: z
@@ -1043,6 +1043,21 @@ export default function MedicationBillForm({ patientId }: Props) {
       return;
     }
 
+    const medsWithInvalidDaysSupply = selectedItems.filter(
+      (item) => item.daysSupply <= 0,
+    );
+
+    if (medsWithInvalidDaysSupply.length > 0) {
+      toast.error(
+        t("please_enter_valid_days_supply_for_medications", {
+          medications: medsWithInvalidDaysSupply
+            .map((item) => item.productKnowledge.name)
+            .join(", "),
+        }),
+      );
+      return;
+    }
+
     const medsWithoutInventory = selectedItems.filter((item) => {
       return !item.lots.some((lot) => lot.selectedInventoryId);
     });
@@ -1779,7 +1794,7 @@ export default function MedicationBillForm({ patientId }: Props) {
                                 <FormControl>
                                   <Input
                                     type="number"
-                                    min={0}
+                                    min={1}
                                     {...formField}
                                     onChange={(e) => {
                                       formField.onChange(
