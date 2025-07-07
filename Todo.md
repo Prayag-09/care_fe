@@ -20,14 +20,15 @@ x : Done
 # Pharmacy
 
 - [BE] Add facility-based filter & pagination in the inventory items list - Jeevan. Vignesh will add filter queryset by facility later
-- [ ] Dispense - Select all
-- [ ] Dispense screen - Flip paid/unpaid filter - default to paid
-- [ ] Dispense queue - delete - update dispense_status
+- [ ] Dispense - Select all - Jeevan
+- [ ] Dispense screen - Flip paid/unpaid filter - default to paid - Jeevan
+- [ ] Dispense queue - delete - update dispense_status - Jeevan
 - [ ] Medication Administration - Product knowledge
 - [ ] Dispense screen - Create Invoice button opening the sheet with billable charge items from unpaid dispense objects in preparation tab
 - [ ] Prescription queue - partially billed - Mark as all given for each row
 - [ ] Location navbar - back button breaks when browser back is used in between
-- [ ] Medication Request & Dispense - add facility param in list apis
+- [x] Medication Request & Dispense - add facility param in list apis - Amjith
+- [-] Bill Medication - Button to return to dispense after invoice creation - Bodhi
 
 ## Billing
 
@@ -53,7 +54,7 @@ x : Done
 - [ ] Loading skeletons
 - [ ] Disable save if no changes in all forms
 - [ ] Specimen Def - URI validation failing
-- [ ] AD form - Location Sheet - remove cursor pointer on hover on name
+- [x] AD form - Location Sheet - remove cursor pointer on hover on name - Amjith
 - [-] Product Knowledge form - Validations - Yash
 - [ ] Definitions - Add Delete button
 - [ ] Valueset - Wrap long text on mobile
@@ -62,9 +63,9 @@ x : Done
 - [ ] AD form - Selected location alignment
 - [ ] SR form - Improve
 - [ ] SR - Scan existing specimen QR (Use Access identifier instead of uuid)
-- [ ] Activity Def, Observation def form - Enter goes back
-- [ ] Diagnostic Report - Filter out inactive observations
-- [ ] Diag Report View - Browser back
+- [-] Activity Def, Observation def form - Enter goes back - Yash
+- [-] Diagnostic Report - Filter out inactive observations - Yash
+- [-] Diag Report View - Browser back - Yash
 
 ## Back End
 

@@ -35,19 +35,23 @@ export default function ViewDefaultAccountButton({
     }),
   });
 
+  const accountId = account?.results[0]?.id;
+
   return (
-    <Button
-      variant="outline_primary"
-      onClick={() =>
-        window.open(
-          `/facility/${facilityId}/billing/account/${account?.results[0].id}`,
-          "_blank",
-        )
-      }
-      disabled={disabled}
-    >
-      {t("view_account")}
-      <ExternalLinkIcon className="w-4 h-4" />
-    </Button>
+    accountId && (
+      <Button
+        variant="outline_primary"
+        onClick={() =>
+          window.open(
+            `/facility/${facilityId}/billing/account/${accountId}`,
+            "_blank",
+          )
+        }
+        disabled={disabled}
+      >
+        {t("view_account")}
+        <ExternalLinkIcon className="w-4 h-4" />
+      </Button>
+    )
   );
 }

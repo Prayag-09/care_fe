@@ -1,5 +1,5 @@
 import { useQuery } from "@tanstack/react-query";
-import React, { useEffect } from "react";
+import React from "react";
 import { useTranslation } from "react-i18next";
 
 import CareIcon from "@/CAREUI/icons/CareIcon";
@@ -36,7 +36,9 @@ import query from "@/Utils/request/query";
 import {
   PATIENT_IDENTIFIER_CONFIG_STATUS_COLORS,
   PatientIdentifierConfig,
+  PatientIdentifierConfigCreate,
   PatientIdentifierConfigStatus,
+  PatientIdentifierUse,
 } from "@/types/patient/patientIdentifierConfig/patientIdentifierConfig";
 import patientIdentifierConfigApi from "@/types/patient/patientIdentifierConfig/patientIdentifierConfigApi";
 
@@ -92,16 +94,9 @@ export default function PatientIdentifierConfigList({
     disableCache: true,
   });
 
-  const [isSheetOpen, setIsSheetOpen] = React.useState(false);
-  const [selectedConfig, setSelectedConfig] =
-    React.useState<PatientIdentifierConfig | null>(null);
-
-  // TODO: Remove this once we have a default status (robo's PR)
-  useEffect(() => {
-    if (!qParams.status) {
-      updateQuery({ status: "active" });
-    }
-  }, []);
+  const [selectedConfig, setSelectedConfig] = React.useState<
+    PatientIdentifierConfig | PatientIdentifierConfigCreate | null
+  >(null);
 
   const { data: response, isLoading } = useQuery({
     queryKey: ["patientIdentifierConfig", qParams, facilityId],
@@ -124,16 +119,13 @@ export default function PatientIdentifierConfigList({
 
   const handleEdit = (config: PatientIdentifierConfig) => {
     setSelectedConfig(config);
-    setIsSheetOpen(true);
   };
 
   const handleAdd = () => {
-    setIsSheetOpen(true);
     setSelectedConfig(null);
   };
 
   const handleSheetClose = () => {
-    setIsSheetOpen(false);
     setSelectedConfig(null);
   };
 
@@ -153,11 +145,29 @@ export default function PatientIdentifierConfigList({
               </p>
             </div>
             <Sheet
-              open={isSheetOpen}
+              open={!!selectedConfig}
               onOpenChange={(open) => {
-                setIsSheetOpen(open);
                 if (!open) {
                   setSelectedConfig(null);
+                } else {
+                  setSelectedConfig({
+                    config: {
+                      use: PatientIdentifierUse.usual,
+                      description: "",
+                      system: "",
+                      required: false,
+                      unique: false,
+                      regex: "",
+                      display: "",
+                      retrieve_config: {
+                        retrieve_with_dob: false,
+                        retrieve_with_year_of_birth: false,
+                        retrieve_with_otp: false,
+                      },
+                    },
+                    status: PatientIdentifierConfigStatus.draft,
+                    facility: facilityId || undefined,
+                  });
                 }
               }}
             >
@@ -178,7 +188,11 @@ export default function PatientIdentifierConfigList({
                 <div className="mt-6 pb-6">
                   <PatientIdentifierConfigForm
                     facilityId={facilityId}
-                    configId={selectedConfig?.id || undefined}
+                    configId={
+                      selectedConfig && "id" in selectedConfig
+                        ? selectedConfig.id
+                        : undefined
+                    }
                     onSuccess={handleSheetClose}
                   />
                 </div>

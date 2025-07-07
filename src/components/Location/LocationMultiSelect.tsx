@@ -76,9 +76,7 @@ function LocationTreeNode({
   return (
     <div className="space-y-1">
       <div
-        className={cn(
-          "group flex items-center py-1 px-2 rounded-md hover:bg-gray-100 cursor-pointer",
-        )}
+        className={cn("group flex items-center py-1 px-2 rounded-md")}
         style={{ paddingLeft: `${level}rem` }}
       >
         {isLoading ? (

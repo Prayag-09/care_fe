@@ -24,14 +24,6 @@ import PrescriptionsView, {
 import { PrintPharmacyPrescription } from "@/pages/Facility/services/pharmacy/PrintPharmacyPrescription";
 import ServiceRequestList from "@/pages/Facility/services/serviceRequests/ServiceRequestList";
 import ServiceRequestShow from "@/pages/Facility/services/serviceRequests/ServiceRequestShow";
-import SupplyDeliveryForm from "@/pages/Facility/services/supply/SupplyDeliveryForm";
-import SupplyDeliveryList, {
-  SupplyDeliveryTab,
-} from "@/pages/Facility/services/supply/SupplyDeliveryList";
-import SupplyRequestList, {
-  SupplyRequestTab,
-} from "@/pages/Facility/services/supply/SupplyRequestList";
-import SupplyRequestView from "@/pages/Facility/services/supply/SupplyRequestView";
 import { MedicationDispenseStatus } from "@/types/emr/medicationDispense/medicationDispense";
 
 interface LocationLayoutProps {
@@ -72,66 +64,6 @@ const getRoutes = (facilityId: string, locationId: string) => ({
   // Inventory
   "/inventory": () => (
     <InventoryList facilityId={facilityId} locationId={locationId} />
-  ),
-  "/supply_requests": () => (
-    <Redirect
-      to={`/facility/${facilityId}/locations/${locationId}/supply_requests/incoming`}
-    />
-  ),
-  // "/supply_requests/new": () => (
-  //   <SupplyRequestForm facilityId={facilityId} locationId={locationId} />
-  // ),
-  "/supply_requests/incoming": () => (
-    <SupplyRequestList
-      facilityId={facilityId}
-      locationId={locationId}
-      tab={SupplyRequestTab.INCOMING}
-    />
-  ),
-  "/supply_requests/requested": () => (
-    <SupplyRequestList
-      facilityId={facilityId}
-      locationId={locationId}
-      tab={SupplyRequestTab.REQUESTED}
-    />
-  ),
-  "/supply_requests/:id": ({ id }: { id: string }) => (
-    <SupplyRequestView
-      facilityId={facilityId}
-      locationId={locationId}
-      supplyRequestId={id}
-    />
-  ),
-  // "/supply_requests/:id/edit": ({ id }: { id: string }) => (
-  //   <SupplyRequestForm
-  //     facilityId={facilityId}
-  //     locationId={locationId}
-  //     supplyRequestId={id}
-  //   /raise_stock_reques>
-  // ),
-
-  // Supply Delivery Routes
-  "/supply_deliveries": () => (
-    <Redirect
-      to={`/facility/${facilityId}/locations/${locationId}/supply_deliveries/incoming`}
-    />
-  ),
-  "/supply_deliveries/new": () => (
-    <SupplyDeliveryForm facilityId={facilityId} locationId={locationId} />
-  ),
-  "/supply_deliveries/incoming": () => (
-    <SupplyDeliveryList
-      facilityId={facilityId}
-      locationId={locationId}
-      tab={SupplyDeliveryTab.INCOMING}
-    />
-  ),
-  "/supply_deliveries/outgoing": () => (
-    <SupplyDeliveryList
-      facilityId={facilityId}
-      locationId={locationId}
-      tab={SupplyDeliveryTab.OUTGOING}
-    />
   ),
 
   // Inventory - Internal Transfers

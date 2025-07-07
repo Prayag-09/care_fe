@@ -89,6 +89,8 @@ import { formatDoseRange, formatTotalUnits } from "@/components/Medicine/utils";
 import { reverseFrequencyOption } from "@/components/Questionnaire/QuestionTypes/MedicationRequestQuestion";
 import ValueSetSelect from "@/components/Questionnaire/ValueSetSelect";
 
+import useFilters from "@/hooks/useFilters";
+
 import routes from "@/Utils/request/api";
 import mutate from "@/Utils/request/mutate";
 import query from "@/Utils/request/query";
@@ -2361,12 +2363,19 @@ const DispensedItemsSheet = ({
 }: DispensedItemsSheetProps) => {
   const { t } = useTranslation();
   const { facilityId } = useCurrentFacility();
+  const { qParams, Pagination, resultsPerPage } = useFilters({
+    limit: 10,
+    disableCache: true,
+  });
+
   const { data: dispensedItems, isLoading } = useQuery({
-    queryKey: ["medication_dispense", medicationRequestId],
+    queryKey: ["medication_dispense", medicationRequestId, qParams],
     queryFn: query(medicationDispenseApi.list, {
       queryParams: {
         authorizing_prescription: medicationRequestId,
         facility: facilityId,
+        limit: resultsPerPage,
+        offset: ((qParams.page ?? 1) - 1) * resultsPerPage,
       },
     }),
     enabled: open && !!medicationRequestId,
@@ -2382,53 +2391,66 @@ const DispensedItemsSheet = ({
           {isLoading ? (
             <TableSkeleton count={3} />
           ) : dispensedItems?.results.length ? (
-            <Table>
-              <TableHeader>
-                <TableRow>
-                  <TableHead>{t("item")}</TableHead>
-                  <TableHead>{t("quantity")}</TableHead>
-                  <TableHead>{t("lot_number")}</TableHead>
-                  <TableHead>{t("dispensed_on")}</TableHead>
-                  <TableHead>{t("status")}</TableHead>
-                  <TableHead>{t("total") + " " + t("price")}</TableHead>
-                </TableRow>
-              </TableHeader>
-              <TableBody>
-                {dispensedItems?.results.map((item: MedicationDispenseRead) => (
-                  <TableRow key={item.id}>
-                    <TableCell>
-                      {item.item.product.product_knowledge.name}
-                    </TableCell>
-                    <TableCell>
-                      {item.charge_item.quantity}{" "}
-                      {
-                        item.dosage_instruction?.[0]?.dose_and_rate
-                          ?.dose_quantity?.unit?.display
-                      }
-                    </TableCell>
-                    <TableCell>
-                      {item.item.product.batch?.lot_number || "-"}
-                    </TableCell>
-                    <TableCell>
-                      {formatDate(
-                        new Date(item.when_prepared),
-                        "dd/MM/yyyy hh:mm a",
-                      )}
-                    </TableCell>
-                    <TableCell>
-                      <Badge
-                        variant={MEDICATION_DISPENSE_STATUS_COLORS[item.status]}
-                      >
-                        {t(item.status)}
-                      </Badge>
-                    </TableCell>
-                    <TableCell>
-                      <MonetaryDisplay amount={item.charge_item.total_price} />
-                    </TableCell>
+            <>
+              <Table>
+                <TableHeader>
+                  <TableRow>
+                    <TableHead>{t("item")}</TableHead>
+                    <TableHead>{t("quantity")}</TableHead>
+                    <TableHead>{t("lot_number")}</TableHead>
+                    <TableHead>{t("dispensed_on")}</TableHead>
+                    <TableHead>{t("status")}</TableHead>
+                    <TableHead>{t("total") + " " + t("price")}</TableHead>
                   </TableRow>
-                ))}
-              </TableBody>
-            </Table>
+                </TableHeader>
+                <TableBody>
+                  {dispensedItems?.results.map(
+                    (item: MedicationDispenseRead) => (
+                      <TableRow key={item.id}>
+                        <TableCell>
+                          {item.item.product.product_knowledge.name}
+                        </TableCell>
+                        <TableCell>
+                          {item.charge_item.quantity}{" "}
+                          {
+                            item.dosage_instruction?.[0]?.dose_and_rate
+                              ?.dose_quantity?.unit?.display
+                          }
+                        </TableCell>
+                        <TableCell>
+                          {item.item.product.batch?.lot_number || "-"}
+                        </TableCell>
+                        <TableCell>
+                          {formatDate(
+                            new Date(item.when_prepared),
+                            "dd/MM/yyyy hh:mm a",
+                          )}
+                        </TableCell>
+                        <TableCell>
+                          <Badge
+                            variant={
+                              MEDICATION_DISPENSE_STATUS_COLORS[item.status]
+                            }
+                          >
+                            {t(item.status)}
+                          </Badge>
+                        </TableCell>
+                        <TableCell>
+                          <MonetaryDisplay
+                            amount={item.charge_item.total_price}
+                          />
+                        </TableCell>
+                      </TableRow>
+                    ),
+                  )}
+                </TableBody>
+              </Table>
+              {dispensedItems.count > resultsPerPage && (
+                <div className="mt-4 flex justify-center">
+                  <Pagination totalCount={dispensedItems.count} />
+                </div>
+              )}
+            </>
           ) : (
             <p className="text-center text-gray-500">
               {t("no_items_dispensed_yet")}

@@ -4,7 +4,7 @@ import { useTranslation } from "react-i18next";
 
 import { cn } from "@/lib/utils";
 
-import CareIcon, { IconName } from "@/CAREUI/icons/CareIcon";
+import CareIcon from "@/CAREUI/icons/CareIcon";
 
 import { Badge } from "@/components/ui/badge";
 import { EmptyState } from "@/components/ui/empty-state";
@@ -15,7 +15,6 @@ import {
   SelectTrigger,
   SelectValue,
 } from "@/components/ui/select";
-import { Tabs, TabsList, TabsTrigger } from "@/components/ui/tabs";
 
 import Page from "@/components/Common/Page";
 import { TableSkeleton } from "@/components/Common/SkeletonLoading";
@@ -38,36 +37,6 @@ import {
 } from "@/types/inventory/product/inventory";
 import inventoryApi from "@/types/inventory/product/inventoryApi";
 
-interface StockLevelOption {
-  label: string;
-  icon: string;
-  max?: number;
-  min?: number;
-}
-
-const STOCK_LEVEL_OPTIONS: Record<string, StockLevelOption> = {
-  all: {
-    label: "all_stock",
-    icon: "l-box",
-  },
-  in_stock: {
-    label: "in_stock",
-    icon: "l-check-circle",
-    min: 999,
-  },
-  low_stock: {
-    label: "low_stock",
-    icon: "l-exclamation-triangle",
-    min: 1,
-    max: 999,
-  },
-  no_stock: {
-    label: "no_stock",
-    icon: "l-times-circle",
-    max: 0,
-  },
-} as const;
-
 interface InventoryListProps {
   facilityId: string;
   locationId: string;
@@ -89,16 +58,6 @@ export function InventoryList({ facilityId, locationId }: InventoryListProps) {
         facility: facilityId,
         limit: resultsPerPage,
         offset: ((qParams.page ?? 1) - 1) * resultsPerPage,
-        net_content_max: qParams.stock_level
-          ? STOCK_LEVEL_OPTIONS[
-              qParams.stock_level as keyof typeof STOCK_LEVEL_OPTIONS
-            ].max
-          : undefined,
-        net_content_min: qParams.stock_level
-          ? STOCK_LEVEL_OPTIONS[
-              qParams.stock_level as keyof typeof STOCK_LEVEL_OPTIONS
-            ].min
-          : undefined,
       },
     }),
   });
@@ -130,40 +89,18 @@ export function InventoryList({ facilityId, locationId }: InventoryListProps) {
         </Select>
       }
     >
-      {/* Stock Level Tabs */}
-      <div className="mb-4 pt-6">
-        <Tabs
-          value={qParams.stock_level || "all"}
-          onValueChange={(value) => updateQuery({ stock_level: value })}
-          className="w-full"
-        >
-          <TabsList className="w-full justify-evenly sm:justify-start border-b rounded-none bg-transparent p-0 h-auto overflow-x-auto">
-            {Object.entries(STOCK_LEVEL_OPTIONS).map(([key, { label }]) => (
-              <TabsTrigger
-                key={key}
-                value={key}
-                className="border-b-2 px-2 sm:px-4 py-2 text-gray-600 hover:text-gray-900 data-[state=active]:border-b-primary-700 data-[state=active]:text-primary-800 data-[state=active]:bg-transparent data-[state=active]:shadow-none rounded-none"
-              >
-                <CareIcon icon={STOCK_LEVEL_OPTIONS[key].icon as IconName} />
-                {t(label)}
-              </TabsTrigger>
-            ))}
-          </TabsList>
-        </Tabs>
-      </div>
-
-      {isLoading ? (
-        <div className="rounded-md border">
-          <TableSkeleton count={10} />
-        </div>
-      ) : !data?.results?.length ? (
-        <EmptyState
-          icon="l-box"
-          title={t("no_inventory")}
-          description={t("no_inventory_description")}
-        />
-      ) : (
-        <div>
+      <div className="mt-3">
+        {isLoading ? (
+          <div className="rounded-md border">
+            <TableSkeleton count={10} />
+          </div>
+        ) : !data?.results?.length ? (
+          <EmptyState
+            icon="l-box"
+            title={t("no_inventory")}
+            description={t("no_inventory_description")}
+          />
+        ) : (
           <Table>
             <TableHeader>
               <TableRow>
@@ -217,8 +154,8 @@ export function InventoryList({ facilityId, locationId }: InventoryListProps) {
               ))}
             </TableBody>
           </Table>
-        </div>
-      )}
+        )}
+      </div>
 
       <div className="mt-8 flex justify-center">
         <Pagination totalCount={data?.count || 0} />
