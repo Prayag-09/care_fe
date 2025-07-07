@@ -51,6 +51,7 @@ interface MedicationTableProps {
   medications: MedicationDispenseRead[];
   selectedMedications: string[];
   onSelectionChange: (id: string) => void;
+  onSelectAll: () => void;
   showCheckbox?: boolean;
 }
 
@@ -58,6 +59,7 @@ function MedicationTable({
   medications,
   selectedMedications,
   onSelectionChange,
+  onSelectAll,
   showCheckbox = true,
 }: MedicationTableProps) {
   const { t } = useTranslation();
@@ -91,7 +93,15 @@ function MedicationTable({
       <Table className="rounded-md">
         <TableHeader className="bg-gray-100 text-gray-700">
           <TableRow className="divide-x">
-            {showCheckbox && <TableHead className="w-[50px]" />}
+            {showCheckbox && (
+              <TableHead className="w-[50px] pl-4">
+                <Checkbox
+                  checked={selectedMedications.length === medications.length}
+                  onCheckedChange={onSelectAll}
+                  className="mb-2 checked:mb-0"
+                />
+              </TableHead>
+            )}
             <TableHead className="text-gray-700">{t("medicine")}</TableHead>
             <TableHead className="text-gray-700">{t("dosage")}</TableHead>
             <TableHead className="text-gray-700">{t("frequency")}</TableHead>
@@ -244,16 +254,14 @@ export default function DispensedMedicationList({
   const { t } = useTranslation();
   const queryClient = useQueryClient();
   const [selectedMedications, setSelectedMedications] = useState<string[]>([]);
-  const [paymentFilter, setPaymentFilter] = useState<"paid" | "unpaid">(
-    "unpaid",
-  );
+  const [paymentFilter, setPaymentFilter] = useState<"paid" | "unpaid">("paid");
   const { qParams, Pagination, resultsPerPage } = useFilters({
     limit: 100,
     disableCache: true,
   });
 
   const { data: response, isLoading } = useQuery({
-    queryKey: ["medication_dispense", qParams, patientId, status],
+    queryKey: ["medication_dispense", patientId, qParams, status],
     queryFn: query(medicationDispenseApi.list, {
       queryParams: {
         facility: facilityId,
@@ -309,6 +317,14 @@ export default function DispensedMedicationList({
     return true;
   });
 
+  const handleSelectAll = () => {
+    if (selectedMedications.length === filteredMedications?.length) {
+      setSelectedMedications([]);
+    } else {
+      setSelectedMedications(filteredMedications?.map((med) => med.id) || []);
+    }
+  };
+
   return (
     <div>
       <div className="mb-6">
@@ -346,8 +362,8 @@ export default function DispensedMedicationList({
           className="w-full"
         >
           <TabsList>
-            <TabsTrigger value="unpaid">{t("unpaid")}</TabsTrigger>
             <TabsTrigger value="paid">{t("paid")}</TabsTrigger>
+            <TabsTrigger value="unpaid">{t("unpaid")}</TabsTrigger>
           </TabsList>
         </Tabs>
       </div>
@@ -367,6 +383,7 @@ export default function DispensedMedicationList({
               medications={filteredMedications}
               selectedMedications={selectedMedications}
               onSelectionChange={handleSelectionChange}
+              onSelectAll={handleSelectAll}
               showCheckbox={
                 paymentFilter !== "unpaid" &&
                 (status === MedicationDispenseStatus.preparation ||
