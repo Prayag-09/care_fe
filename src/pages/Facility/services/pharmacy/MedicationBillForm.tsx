@@ -2032,6 +2032,7 @@ export default function MedicationBillForm({ patientId }: Props) {
                 `/facility/${facilityId}/locations/${locationId}/medication_dispense/patient/${patientId}/preparation`,
               );
             }}
+            sourceUrl={`/facility/${facilityId}/locations/${locationId}/medication_dispense/patient/${patientId}/preparation`}
           />
         )}
 

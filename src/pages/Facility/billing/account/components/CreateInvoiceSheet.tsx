@@ -21,6 +21,7 @@ interface CreateInvoiceSheetProps {
   preSelectedChargeItems?: ChargeItemRead[];
   trigger?: React.ReactNode;
   onSuccess?: () => void;
+  sourceUrl?: string;
 }
 
 export function CreateInvoiceSheet({
@@ -31,6 +32,7 @@ export function CreateInvoiceSheet({
   preSelectedChargeItems,
   trigger,
   onSuccess,
+  sourceUrl,
 }: CreateInvoiceSheetProps) {
   const { t } = useTranslation();
 
@@ -50,6 +52,7 @@ export function CreateInvoiceSheet({
             redirectInNewTab={true}
             onSuccess={onSuccess}
             showHeader={false}
+            sourceUrl={sourceUrl}
           />
         </ScrollArea>
       </SheetContent>
