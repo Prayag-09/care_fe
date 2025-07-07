@@ -380,7 +380,7 @@ function AddItemForm({
                       }}
                       locationId={locationId}
                       placeholder={t("select_item")}
-                      inputPlaceholder={t("search_items")}
+                      inputPlaceholder={t("search") + " " + t("items")}
                       noOptionsMessage={t("no_items_found")}
                       supplier={supplier}
                       enabled={open}
