@@ -27,7 +27,7 @@ x : Done
 - [ ] Dispense screen - Create Invoice button opening the sheet with billable charge items from unpaid dispense objects in preparation tab
 - [ ] Prescription queue - partially billed - Mark as all given for each row
 - [ ] Location navbar - back button breaks when browser back is used in between
-- [ ] Medication Request & Dispense - add facility param in list apis
+- [x] Medication Request & Dispense - add facility param in list apis - Amjith
 
 ## Billing
 
@@ -62,9 +62,9 @@ x : Done
 - [ ] AD form - Selected location alignment
 - [ ] SR form - Improve
 - [ ] SR - Scan existing specimen QR (Use Access identifier instead of uuid)
-- [ ] Activity Def, Observation def form - Enter goes back
-- [ ] Diagnostic Report - Filter out inactive observations
-- [ ] Diag Report View - Browser back
+- [-] Activity Def, Observation def form - Enter goes back - Yash
+- [-] Diagnostic Report - Filter out inactive observations - Yash
+- [-] Diag Report View - Browser back - Yash
 
 ## Back End
 
