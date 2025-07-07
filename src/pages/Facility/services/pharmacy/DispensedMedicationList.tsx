@@ -37,6 +37,16 @@ import useFilters from "@/hooks/useFilters";
 import mutate from "@/Utils/request/mutate";
 import query from "@/Utils/request/query";
 import ViewDefaultAccountButton from "@/pages/Facility/billing/account/ViewDefaultAccountButton";
+import { CreateInvoiceSheet } from "@/pages/Facility/billing/account/components/CreateInvoiceSheet";
+import {
+  AccountBillingStatus,
+  AccountStatus,
+} from "@/types/billing/account/Account";
+import accountApi from "@/types/billing/account/accountApi";
+import {
+  ChargeItemRead,
+  ChargeItemStatus,
+} from "@/types/billing/chargeItem/chargeItem";
 import {
   MedicationDispenseCategory,
   MedicationDispenseRead,
@@ -243,12 +253,14 @@ function MedicationTable({
 interface Props {
   facilityId: string;
   patientId: string;
+  locationId: string;
   status?: MedicationDispenseStatus;
 }
 
 export default function DispensedMedicationList({
   facilityId,
   patientId,
+  locationId,
   status,
 }: Props) {
   const { t } = useTranslation();
@@ -259,6 +271,10 @@ export default function DispensedMedicationList({
     limit: 100,
     disableCache: true,
   });
+  const [billableChargeItems, setBillableChargeItems] = useState<
+    ChargeItemRead[]
+  >([]);
+  const [createInvoiceSheetOpen, setCreateInvoiceSheetOpen] = useState(false);
 
   const { data: response, isLoading } = useQuery({
     queryKey: ["medication_dispense", patientId, qParams, status],
@@ -269,6 +285,20 @@ export default function DispensedMedicationList({
         offset: ((qParams.page ?? 1) - 1) * resultsPerPage,
         status: status ?? qParams.status,
         patient: patientId,
+      },
+    }),
+  });
+
+  const { data: account } = useQuery({
+    queryKey: ["accounts", patientId],
+    queryFn: query(accountApi.listAccount, {
+      pathParams: { facilityId },
+      queryParams: {
+        patient: patientId,
+        limit: 1,
+        offset: 0,
+        status: AccountStatus.active,
+        billing_status: AccountBillingStatus.open,
       },
     }),
   });
@@ -317,6 +347,15 @@ export default function DispensedMedicationList({
     return true;
   });
 
+  const billableItems =
+    paymentFilter === "unpaid"
+      ? filteredMedications
+          ?.filter((med) => {
+            return med.charge_item.status === ChargeItemStatus.billable;
+          })
+          .map((med) => med.charge_item)
+      : [];
+
   const handleSelectAll = () => {
     if (selectedMedications.length === filteredMedications?.length) {
       setSelectedMedications([]);
@@ -333,11 +372,26 @@ export default function DispensedMedicationList({
             <h1 className="text-xl font-semibold text-gray-900">
               {t("medications_dispense")}
             </h1>
-            <ViewDefaultAccountButton
-              facilityId={facilityId}
-              patientId={patientId}
-              disabled={isPending}
-            />
+            <div className="flex items-center gap-2">
+              {status === MedicationDispenseStatus.preparation &&
+                billableItems &&
+                billableItems.length > 0 && (
+                  <Button
+                    variant="outline"
+                    onClick={() => {
+                      setBillableChargeItems(billableItems);
+                      setCreateInvoiceSheetOpen(true);
+                    }}
+                  >
+                    {t("bill_medication")}
+                  </Button>
+                )}
+              <ViewDefaultAccountButton
+                facilityId={facilityId}
+                patientId={patientId}
+                disabled={isPending}
+              />
+            </div>
           </div>
 
           {selectedMedications.length > 0 && (
@@ -397,6 +451,20 @@ export default function DispensedMedicationList({
           </div>
         </div>
       )}
+
+      <CreateInvoiceSheet
+        facilityId={facilityId}
+        accountId={account?.results[0].id || ""}
+        open={createInvoiceSheetOpen}
+        onOpenChange={setCreateInvoiceSheetOpen}
+        preSelectedChargeItems={billableChargeItems}
+        redirectInNewTab={false}
+        sourceUrl={`/facility/${facilityId}/locations/${locationId}/medication_dispense/patient/${patientId}/preparation`}
+        onSuccess={() => {
+          setCreateInvoiceSheetOpen(false);
+          setBillableChargeItems([]);
+        }}
+      />
     </div>
   );
 }

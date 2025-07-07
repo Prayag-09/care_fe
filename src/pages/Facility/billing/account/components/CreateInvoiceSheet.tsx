@@ -20,6 +20,7 @@ interface CreateInvoiceSheetProps {
   onOpenChange: (open: boolean) => void;
   preSelectedChargeItems?: ChargeItemRead[];
   trigger?: React.ReactNode;
+  redirectInNewTab?: boolean;
   onSuccess?: () => void;
   sourceUrl?: string;
 }
@@ -31,6 +32,7 @@ export function CreateInvoiceSheet({
   onOpenChange,
   preSelectedChargeItems,
   trigger,
+  redirectInNewTab = true,
   onSuccess,
   sourceUrl,
 }: CreateInvoiceSheetProps) {
@@ -49,7 +51,7 @@ export function CreateInvoiceSheet({
             facilityId={facilityId}
             accountId={accountId}
             preSelectedChargeItems={preSelectedChargeItems}
-            redirectInNewTab={true}
+            redirectInNewTab={redirectInNewTab}
             onSuccess={onSuccess}
             showHeader={false}
             sourceUrl={sourceUrl}

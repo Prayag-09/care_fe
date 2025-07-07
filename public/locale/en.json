@@ -769,6 +769,7 @@
   "before": "before",
   "begin_clinical_encounter": "Begin a new clinical encounter for {{patientName}}. Select the appropriate encounter type, status, and priority to ensure proper documentation and care delivery.",
   "beta": "beta",
+  "bill_medication": "Bill Medication",
   "bill_medications": "Bill Medications",
   "bill_selected": "Bill Selected",
   "bill_to": "Bill To",

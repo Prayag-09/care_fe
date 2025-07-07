@@ -140,6 +140,7 @@ export default function DispensesView({
               <DispensedMedicationList
                 facilityId={facilityId}
                 patientId={patientId}
+                locationId={locationId}
                 status={statusValue}
               />
             </TabsContent>

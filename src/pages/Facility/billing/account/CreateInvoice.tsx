@@ -197,6 +197,7 @@ export function CreateInvoicePage({
         window.open(invoiceUrl, "_blank");
         onSuccess?.();
       } else {
+        onSuccess?.();
         navigate(invoiceUrl);
       }
     },

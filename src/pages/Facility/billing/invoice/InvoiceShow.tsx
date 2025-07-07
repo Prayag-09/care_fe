@@ -9,7 +9,7 @@ import {
   MoreHorizontal,
   Wallet,
 } from "lucide-react";
-import { Link } from "raviger";
+import { Link, useQueryParams } from "raviger";
 import React, { useState } from "react";
 import { useTranslation } from "react-i18next";
 import { formatPhoneNumberIntl } from "react-phone-number-input";
@@ -272,6 +272,11 @@ export function InvoiceShow({
     invoice?.status !== InvoiceStatus.entered_in_error &&
     invoice?.status !== InvoiceStatus.cancelled;
 
+  const [{ sourceUrl }] = useQueryParams();
+  const backUrl = sourceUrl
+    ? `${sourceUrl}`
+    : `/facility/${facilityId}/billing/invoices`;
+
   if (isLoading) {
     return <TableSkeleton count={5} />;
   }
@@ -298,9 +303,7 @@ export function InvoiceShow({
         <div className="flex items-center gap-4">
           <Button variant="outline" className="border-gray-400 gap-1" asChild>
             {/* TODO: Redirect to the account that the invoice is for once the API is updated */}
-            <Link
-              href={`/facility/${facilityId}/billing/account/${invoice.account.id}`}
-            >
+            <Link href={backUrl}>
               <CareIcon icon="l-arrow-left" className="size-4" />
               <span className="text-gray-950 font-medium">{t("back")}</span>
             </Link>

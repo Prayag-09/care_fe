@@ -25,7 +25,6 @@ x : Done
 
 - [BE] Add facility-based filter & pagination in the inventory items list - Jeevan. Vignesh will add filter queryset by facility later
 
-- [-] Dispense screen - Create Invoice button opening the sheet with billable charge items from unpaid dispense objects in preparation tab - Jeevan
 - [ ] Prescription queue - partially billed - Mark as all given for each row
 - [ ] Location navbar - back button breaks when browser back is used in between
 - [-] Bill Medication - Button to return to dispense after invoice creation - Bodhi
@@ -238,3 +237,4 @@ x : Done
 - [x] Dispense screen - Flip paid/unpaid filter - default to paid - Jeevan
 - [x] Dispense queue - delete - update dispense_status - Jeevan
 - [x] Medication Request & Dispense - add facility param in list apis - Amjith
+- [x] Dispense screen - Create Invoice button opening the sheet with billable charge items from unpaid dispense objects in preparation tab - Jeevan
