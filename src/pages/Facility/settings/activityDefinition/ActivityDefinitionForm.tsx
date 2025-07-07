@@ -1049,6 +1049,7 @@ function ActivityDefinitionFormContent({
 
             <div className="flex justify-end space-x-3">
               <Button
+                type="button"
                 variant="outline"
                 onClick={() =>
                   navigate(
