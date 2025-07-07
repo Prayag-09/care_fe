@@ -5,7 +5,10 @@ import Autocomplete from "@/components/ui/autocomplete";
 
 import query from "@/Utils/request/query";
 import { mergeAutocompleteOptions } from "@/Utils/utils";
-import { SupplyRequestRead } from "@/types/inventory/supplyRequest/supplyRequest";
+import {
+  SupplyRequestRead,
+  SupplyRequestStatus,
+} from "@/types/inventory/supplyRequest/supplyRequest";
 import supplyRequestApi from "@/types/inventory/supplyRequest/supplyRequestApi";
 
 interface SupplyRequestSelectProps {
@@ -42,6 +45,7 @@ export function SupplyRequestSelect({
         deliver_to: locationId,
         deliver_from_isnull: true,
         supplier: supplier,
+        status: SupplyRequestStatus.active,
       },
     }),
     enabled,
