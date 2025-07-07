@@ -65,18 +65,6 @@ const getRoutes = (facilityId: string, locationId: string) => ({
   "/inventory": () => (
     <InventoryList facilityId={facilityId} locationId={locationId} />
   ),
-  "/supply_requests": () => (
-    <Redirect
-      to={`/facility/${facilityId}/locations/${locationId}/supply_requests/incoming`}
-    />
-  ),
-
-  // Supply Delivery Routes
-  "/supply_deliveries": () => (
-    <Redirect
-      to={`/facility/${facilityId}/locations/${locationId}/supply_deliveries/incoming`}
-    />
-  ),
 
   // Inventory - Internal Transfers
   "/internal_transfers/to_receive": () => (
