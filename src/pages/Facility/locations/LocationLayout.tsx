@@ -24,9 +24,6 @@ import PrescriptionsView, {
 import { PrintPharmacyPrescription } from "@/pages/Facility/services/pharmacy/PrintPharmacyPrescription";
 import ServiceRequestList from "@/pages/Facility/services/serviceRequests/ServiceRequestList";
 import ServiceRequestShow from "@/pages/Facility/services/serviceRequests/ServiceRequestShow";
-import SupplyRequestList, {
-  SupplyRequestTab,
-} from "@/pages/Facility/services/supply/SupplyRequestList";
 import { MedicationDispenseStatus } from "@/types/emr/medicationDispense/medicationDispense";
 
 interface LocationLayoutProps {
@@ -71,20 +68,6 @@ const getRoutes = (facilityId: string, locationId: string) => ({
   "/supply_requests": () => (
     <Redirect
       to={`/facility/${facilityId}/locations/${locationId}/supply_requests/incoming`}
-    />
-  ),
-  "/supply_requests/incoming": () => (
-    <SupplyRequestList
-      facilityId={facilityId}
-      locationId={locationId}
-      tab={SupplyRequestTab.INCOMING}
-    />
-  ),
-  "/supply_requests/requested": () => (
-    <SupplyRequestList
-      facilityId={facilityId}
-      locationId={locationId}
-      tab={SupplyRequestTab.REQUESTED}
     />
   ),
 
