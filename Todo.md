@@ -54,7 +54,7 @@ x : Done
 - [ ] Loading skeletons
 - [ ] Disable save if no changes in all forms
 - [ ] Specimen Def - URI validation failing
-- [ ] AD form - Location Sheet - remove cursor pointer on hover on name
+- [x] AD form - Location Sheet - remove cursor pointer on hover on name - Amjith
 - [-] Product Knowledge form - Validations - Yash
 - [ ] Definitions - Add Delete button
 - [ ] Valueset - Wrap long text on mobile
