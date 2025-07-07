@@ -180,7 +180,7 @@ export default function PatientIdentifierConfigList({
               <SheetContent className="overflow-y-auto">
                 <SheetHeader>
                   <SheetTitle>
-                    {selectedConfig
+                    {selectedConfig && "id" in selectedConfig
                       ? t("edit_patient_identifier_config")
                       : t("add_patient_identifier_config")}
                   </SheetTitle>
