@@ -28,6 +28,7 @@ x : Done
 - [ ] Prescription queue - partially billed - Mark as all given for each row
 - [ ] Location navbar - back button breaks when browser back is used in between
 - [x] Medication Request & Dispense - add facility param in list apis - Amjith
+- [-] Bill Medication - Button to return to dispense after invoice creation - Bodhi
 
 ## Billing
 
