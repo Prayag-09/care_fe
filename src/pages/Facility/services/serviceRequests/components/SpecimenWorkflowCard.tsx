@@ -72,7 +72,10 @@ import useAuthUser from "@/hooks/useAuthUser";
 
 import mutate from "@/Utils/request/mutate";
 import { ProcessSpecimen } from "@/pages/Facility/services/serviceRequests/components/ProcessSpecimen";
-import { ServiceRequestReadSpec } from "@/types/emr/serviceRequest/serviceRequest";
+import {
+  ServiceRequestReadSpec,
+  Status,
+} from "@/types/emr/serviceRequest/serviceRequest";
 import {
   ProcessingSpec,
   SPECIMEN_DISCARD_REASONS,
@@ -433,7 +436,11 @@ export function SpecimenWorkflowCard({
                   )}
                 </div>
 
-                <Button onClick={onCollect} variant="outline_primary">
+                <Button
+                  onClick={onCollect}
+                  variant="outline_primary"
+                  disabled={request.status === Status.completed}
+                >
                   <Plus className="h-4 w-4" />
                   {t("collect_specimen")}
                 </Button>
