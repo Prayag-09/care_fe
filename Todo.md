@@ -24,14 +24,9 @@ x : Done
 # Pharmacy
 
 - [BE] Add facility-based filter & pagination in the inventory items list - Jeevan. Vignesh will add filter queryset by facility later
-
 - [-] Prescription queue - partially billed - Mark as all given for each row - Jeevan
 - [ ] Location navbar - back button breaks when browser back is used in between
 - [-] Bill Medication - Button to return to dispense after invoice creation - Bodhi
-- [x] Medication Request - Prefill unit from product knowledge and disallow modification - Yash
-- [x] Purchase Order - Receive stock sheet - show only active Supply Requests - Yash
-- [x] Bill medication - Add validation for days > 0 - Yash
-- [x] Bill medication - Add validation for quantity to be less than selected lot's quantity - Yash
 
 ## Billing
 
@@ -48,7 +43,6 @@ x : Done
 - [-] In the Specimen Definition edit form, removing data from optional fields is not working and Fix some types and cleanup in Specimen Definition Form. - Manyu & Yash
 - [ ] Specimen Definition - Add frontend permission check for the Specimen Definition page at the facility level.
 - [ ] SR Details page - Disable the process step once the report generation is done | Confirm with Bodhi before working on this - Backend
-- [x] New service request should be shown first within the list - Vignesh
 - [BE] SR details page - fix decimal points to two and round off amounts in charge items.
 - [BE] SR details page - Add a hyperlink to the payment page, for better UX
 - [BE] Encounter can be closed even if the SR is ACTIVE. But if encounter is closer SR cannot be marked as completed ( Showing error as encounter is already closed) - Fix can be not allow top close encounter if SR is open - Vignesh
@@ -64,12 +58,11 @@ x : Done
 - [-] Observation Def - Preview mobile - status badge & button clash - Manyu
 - [ ] SR form - Improve
 - [ ] SR - Scan existing specimen QR (Use Access identifier instead of uuid)
-- [x] AD form - Selected location alignment - Amjith
 
 ## Back End
 
-- [ ] Service Request - Show specimen.collection.collector details instead of UUID (After BE change)
-- [ ] Service Request - Show specimen.processing.performer details instead of UUID (After BE change)
+- [-] Service Request - Show specimen.collection.collector details instead of UUID (After BE change) - Aakash
+- [-] Service Request - Show specimen.processing.performer details instead of UUID (After BE change) - Aakash
 - [ ] Patient - There shouldn't be more than one active account at any point in time
 - [ ] BE need to sort by internal id by default, all apis has jumping issue
 - [-] Need sort by payment_datetime for Payment Reconciliation list - Aakash
@@ -208,6 +201,8 @@ x : Done
 - [x] Diagnostic Report - Filter out inactive observations - Yash
 - [x] Diag Report View - Browser back - Yash
 - [x] AD form - Location Sheet - remove cursor pointer on hover on name - Amjith
+- [x] New service request should be shown first within the list - Vignesh
+- [x] AD form - Selected location alignment - Amjith
 
 ## Pharmacy
 
@@ -238,3 +233,7 @@ x : Done
 - [x] Dispense queue - delete - update dispense_status - Jeevan
 - [x] Medication Request & Dispense - add facility param in list apis - Amjith
 - [x] Dispense screen - Create Invoice button opening the sheet with billable charge items from unpaid dispense objects in preparation tab - Jeevan
+- [x] Medication Request - Prefill unit from product knowledge and disallow modification - Yash
+- [x] Purchase Order - Receive stock sheet - show only active Supply Requests - Yash
+- [x] Bill medication - Add validation for days > 0 - Yash
+- [x] Bill medication - Add validation for quantity to be less than selected lot's quantity - Yash
