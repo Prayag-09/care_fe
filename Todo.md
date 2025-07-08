@@ -57,7 +57,7 @@ x : Done
 - [ ] Loading skeletons
 - [ ] Disable save if no changes in all forms
 - [ ] Specimen Def - URI validation failing
-- [-] Product Knowledge form - Validations - Yash
+- [x] Product Knowledge form - Validations - Yash
 - [-] Definitions - Add Delete button - Manyu
 - [-] Valueset - Wrap long text on mobile - Manyu
 - [-] Observation Def - validation for empty components - Manyu
