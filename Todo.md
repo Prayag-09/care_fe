@@ -65,7 +65,6 @@ x : Done
 - [-] Service Request - Show specimen.collection.collector details instead of UUID (After BE change) - Aakash
 - [-] Service Request - Show specimen.processing.performer details instead of UUID (After BE change) - Aakash
 - [ ] Patient - There shouldn't be more than one active account at any point in time
-- [ ] BE need to sort by internal id by default, all apis has jumping issue
 - [ ] Replace Charge Item Create with ChargeItemDef to ChargeItem API
 - [ ] Add support for information codes (such as MRP)
 - [ ] Create Charge Item from Charge Definition
@@ -79,6 +78,7 @@ x : Done
 - [x] Medication Administration API needs support for product knowledge
 - [x] Supply Request - Add supplier[] - Added supplier
 - [x] New service request should be shown first within the list - Aakash
+- [x] BE need to sort by internal id by default, all apis has jumping issue - Aakash
 
 # Archived
 
