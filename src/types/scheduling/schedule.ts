@@ -4,6 +4,7 @@ import { Badge } from "@/components/ui/badge";
 
 import { Time } from "@/Utils/types";
 import { Patient } from "@/types/emr/patient/patient";
+import { TagConfig } from "@/types/emr/tagConfig/tagConfig";
 import { FacilityBareMinimum } from "@/types/facility/facility";
 import { UserBase } from "@/types/user/user";
 
@@ -171,6 +172,10 @@ export interface Appointment {
   user: UserBase;
   booked_by: UserBase | null; // This is null if the appointment was booked by the patient itself.
   facility: FacilityBareMinimum;
+}
+
+export interface AppointmentRead extends Appointment {
+  tags: TagConfig[];
 }
 
 export interface AppointmentCreateRequest {
