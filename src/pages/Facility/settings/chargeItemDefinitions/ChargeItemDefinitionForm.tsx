@@ -237,9 +237,12 @@ export function ChargeItemDefinitionForm({
   facilityId,
   initialData,
   isUpdate = false,
-  onSuccess = () =>
-    navigate(`/facility/${facilityId}/settings/charge_item_definitions`),
-  onCancel,
+  onSuccess = () => {
+    navigate(`/facility/${facilityId}/settings/charge_item_definitions`);
+  },
+  onCancel = () => {
+    navigate(`/facility/${facilityId}/settings/charge_item_definitions`);
+  },
 }: ChargeItemDefinitionFormProps) {
   const { t } = useTranslation();
 

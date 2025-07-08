@@ -1,6 +1,8 @@
-import { useQuery } from "@tanstack/react-query";
+import { useMutation, useQuery, useQueryClient } from "@tanstack/react-query";
 import { navigate } from "raviger";
+import { useState } from "react";
 import { useTranslation } from "react-i18next";
+import { toast } from "sonner";
 
 import CareIcon from "@/CAREUI/icons/CareIcon";
 
@@ -16,8 +18,10 @@ import {
 } from "@/components/ui/card";
 import { Separator } from "@/components/ui/separator";
 
+import ConfirmActionDialog from "@/components/Common/ConfirmActionDialog";
 import Page from "@/components/Common/Page";
 
+import mutate from "@/Utils/request/mutate";
 import query from "@/Utils/request/query";
 import { Code } from "@/types/base/code/code";
 import { ACTIVITY_DEFINITION_STATUS_COLORS } from "@/types/emr/activityDefinition/activityDefinition";
@@ -68,6 +72,8 @@ export default function ActivityDefinitionView({
   activityDefinitionId,
 }: Props) {
   const { t } = useTranslation();
+  const queryClient = useQueryClient();
+  const [showDeleteDialog, setShowDeleteDialog] = useState(false);
 
   const {
     data: definition,
@@ -79,6 +85,29 @@ export default function ActivityDefinitionView({
       pathParams: { activityDefinitionId, facilityId },
     }),
   });
+
+  const { mutate: updateActivityDefinition, isPending: isDeleting } =
+    useMutation({
+      mutationFn: mutate(activityDefinitionApi.updateActivityDefinition, {
+        pathParams: { activityDefinitionId, facilityId },
+      }),
+      onSuccess: () => {
+        toast.success(t("definition_deleted_successfully"));
+        queryClient.invalidateQueries({ queryKey: ["activityDefinition"] });
+        queryClient.invalidateQueries({
+          queryKey: ["activityDefinition", activityDefinitionId],
+        });
+        navigate(`/facility/${facilityId}/settings/activity_definitions`);
+      },
+    });
+
+  const handleDelete = () => {
+    if (!definition) return;
+    updateActivityDefinition({
+      ...definition,
+      status: "retired",
+    });
+  };
 
   if (isLoading) {
     return (
@@ -94,10 +123,8 @@ export default function ActivityDefinitionView({
         <div className="container mx-auto max-w-3xl py-8">
           <Alert variant="destructive">
             <CareIcon icon="l-exclamation-triangle" className="size-4" />
-            <AlertTitle>{t("error_loading_activity_definition")}</AlertTitle>
-            <AlertDescription>
-              {t("activity_definition_not_found")}
-            </AlertDescription>
+            <AlertTitle>{t("error_loading_definitions")}</AlertTitle>
+            <AlertDescription>{t("definition_not_found")}</AlertDescription>
           </Alert>
           <Button
             variant="outline"
@@ -143,18 +170,51 @@ export default function ActivityDefinitionView({
               {definition.code.system} | {definition.code.code}
             </p>
           </div>
-          <Button
-            variant="outline"
-            onClick={() =>
-              navigate(
-                `/facility/${facilityId}/settings/activity_definitions/${definition.id}/edit`,
-              )
-            }
-          >
-            <CareIcon icon="l-pen" className="mr-2 size-4" />
-            {t("edit")}
-          </Button>
+          <div className="flex gap-2">
+            {definition.status !== "retired" && (
+              <Button
+                variant="outline"
+                onClick={() => setShowDeleteDialog(true)}
+                disabled={isDeleting}
+              >
+                <CareIcon icon="l-trash" className="mr-2 size-4" />
+                {t("delete")}
+              </Button>
+            )}
+            <Button
+              variant="outline"
+              onClick={() =>
+                navigate(
+                  `/facility/${facilityId}/settings/activity_definitions/${definition.id}/edit`,
+                )
+              }
+            >
+              <CareIcon icon="l-pen" className="mr-2 size-4" />
+              {t("edit")}
+            </Button>
+          </div>
         </div>
+
+        <ConfirmActionDialog
+          open={showDeleteDialog}
+          onOpenChange={setShowDeleteDialog}
+          title={t("delete_activity_definition")}
+          description={
+            <Alert variant="destructive">
+              <AlertTitle>{t("warning")}</AlertTitle>
+              <AlertDescription>
+                {t("are_you_sure_want_to_delete", {
+                  name: definition?.title,
+                })}
+              </AlertDescription>
+            </Alert>
+          }
+          confirmText={isDeleting ? t("deleting") : t("confirm")}
+          cancelText={t("cancel")}
+          onConfirm={handleDelete}
+          variant="destructive"
+          disabled={isDeleting}
+        />
 
         <Card>
           <CardHeader>

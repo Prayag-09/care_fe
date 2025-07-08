@@ -47,7 +47,7 @@ x : Done
 - [ ] Loading skeletons
 - [ ] Disable save if no changes in all forms
 - [ ] Specimen Def - URI validation failing
-- [-] Definitions - Add Delete button - Manyu
+- [x] Definitions - Add Delete button - Manyu
 - [-] Valueset - Wrap long text on mobile - Manyu
 - [-] Observation Def - validation for empty components - Manyu
 - [-] Observation Def - Preview mobile - status badge & button clash - Manyu

@@ -1,23 +1,31 @@
-import { useQuery } from "@tanstack/react-query";
+import { useMutation, useQuery, useQueryClient } from "@tanstack/react-query";
 import { navigate } from "raviger";
+import { useState } from "react";
 import { useTranslation } from "react-i18next";
+import { toast } from "sonner";
 
 import CareIcon from "@/CAREUI/icons/CareIcon";
 
+import { Alert, AlertDescription, AlertTitle } from "@/components/ui/alert";
 import { Badge } from "@/components/ui/badge";
 import { Button } from "@/components/ui/button";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { Separator } from "@/components/ui/separator";
 
+import ConfirmActionDialog from "@/components/Common/ConfirmActionDialog";
 import Page from "@/components/Common/Page";
 import { TableSkeleton } from "@/components/Common/SkeletonLoading";
 
+import mutate from "@/Utils/request/mutate";
 import query from "@/Utils/request/query";
 import {
   MonetaryComponent,
   MonetaryComponentOrder,
 } from "@/types/base/monetaryComponent/monetaryComponent";
-import { CHARGE_ITEM_DEFINITION_STATUS_COLORS } from "@/types/billing/chargeItemDefinition/chargeItemDefinition";
+import {
+  CHARGE_ITEM_DEFINITION_STATUS_COLORS,
+  ChargeItemDefinitionStatus,
+} from "@/types/billing/chargeItemDefinition/chargeItemDefinition";
 import chargeItemDefinitionApi from "@/types/billing/chargeItemDefinition/chargeItemDefinitionApi";
 
 interface ChargeItemDefinitionDetailProps {
@@ -30,6 +38,8 @@ export function ChargeItemDefinitionDetail({
   chargeItemDefinitionId,
 }: ChargeItemDefinitionDetailProps) {
   const { t } = useTranslation();
+  const queryClient = useQueryClient();
+  const [showDeleteDialog, setShowDeleteDialog] = useState(false);
 
   const { data: chargeItemDefinition, isLoading } = useQuery({
     queryKey: ["charge_item_definition", chargeItemDefinitionId],
@@ -37,6 +47,29 @@ export function ChargeItemDefinitionDetail({
       pathParams: { facilityId, chargeItemDefinitionId },
     }),
   });
+
+  const { mutate: updateChargeItemDefinition, isPending: isDeleting } =
+    useMutation({
+      mutationFn: mutate(chargeItemDefinitionApi.updateChargeItemDefinition, {
+        pathParams: { facilityId, id: chargeItemDefinitionId },
+      }),
+      onSuccess: () => {
+        toast.success(t("definition_deleted_successfully"));
+        queryClient.invalidateQueries({ queryKey: ["charge_item_definition"] });
+        queryClient.invalidateQueries({
+          queryKey: ["charge_item_definition", chargeItemDefinitionId],
+        });
+        navigate(`/facility/${facilityId}/settings/charge_item_definitions`);
+      },
+    });
+
+  const handleDelete = () => {
+    if (!chargeItemDefinition) return;
+    updateChargeItemDefinition({
+      ...chargeItemDefinition,
+      status: ChargeItemDefinitionStatus.retired,
+    });
+  };
 
   const renderPriceComponent = (component: MonetaryComponent) => {
     const typeLabels: Record<string, string> = {
@@ -128,17 +161,50 @@ export function ChargeItemDefinitionDetail({
                 )}
               </div>
             </div>
-            <Button
-              onClick={() =>
-                navigate(
-                  `/facility/${facilityId}/settings/charge_item_definitions/${chargeItemDefinitionId}/edit`,
-                )
-              }
-            >
-              <CareIcon icon="l-pen" className="mr-2" />
-              {t("edit")}
-            </Button>
+            <div className="flex gap-2">
+              {chargeItemDefinition.status !== "retired" && (
+                <Button
+                  variant="outline"
+                  onClick={() => setShowDeleteDialog(true)}
+                  disabled={isDeleting}
+                >
+                  <CareIcon icon="l-trash" className="mr-2 size-4" />
+                  {t("delete")}
+                </Button>
+              )}
+              <Button
+                onClick={() =>
+                  navigate(
+                    `/facility/${facilityId}/settings/charge_item_definitions/${chargeItemDefinitionId}/edit`,
+                  )
+                }
+              >
+                <CareIcon icon="l-pen" className="mr-2" />
+                {t("edit")}
+              </Button>
+            </div>
           </div>
+
+          <ConfirmActionDialog
+            open={showDeleteDialog}
+            onOpenChange={setShowDeleteDialog}
+            title={t("delete_charge_item_definition")}
+            description={
+              <Alert variant="destructive">
+                <AlertTitle>{t("warning")}</AlertTitle>
+                <AlertDescription>
+                  {t("are_you_sure_want_to_delete", {
+                    name: chargeItemDefinition?.title,
+                  })}
+                </AlertDescription>
+              </Alert>
+            }
+            confirmText={isDeleting ? t("deleting") : t("confirm")}
+            cancelText={t("cancel")}
+            onConfirm={handleDelete}
+            variant="destructive"
+            disabled={isDeleting}
+          />
 
           <Card className="mb-4">
             <CardHeader>

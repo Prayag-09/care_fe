@@ -1,6 +1,8 @@
-import { useQuery } from "@tanstack/react-query";
+import { useMutation, useQuery, useQueryClient } from "@tanstack/react-query";
 import { navigate } from "raviger";
+import { useState } from "react";
 import { useTranslation } from "react-i18next";
+import { toast } from "sonner";
 
 import CareIcon from "@/CAREUI/icons/CareIcon";
 
@@ -16,8 +18,10 @@ import {
 } from "@/components/ui/card";
 import { Separator } from "@/components/ui/separator";
 
+import ConfirmActionDialog from "@/components/Common/ConfirmActionDialog";
 import Page from "@/components/Common/Page";
 
+import mutate from "@/Utils/request/mutate";
 import query from "@/Utils/request/query";
 import { Code } from "@/types/base/code/code";
 import { OBSERVATION_DEFINITION_STATUS_COLORS } from "@/types/emr/observationDefinition/observationDefinition";
@@ -68,6 +72,8 @@ export default function ObservationDefinitionView({
   observationDefinitionId,
 }: Props) {
   const { t } = useTranslation();
+  const queryClient = useQueryClient();
+  const [showDeleteDialog, setShowDeleteDialog] = useState(false);
 
   const {
     data: definition,
@@ -79,6 +85,30 @@ export default function ObservationDefinitionView({
       pathParams: { observationDefinitionId },
     }),
   });
+
+  const { mutate: updateObservationDefinition, isPending: isDeleting } =
+    useMutation({
+      mutationFn: mutate(observationDefinitionApi.updateObservationDefinition, {
+        pathParams: { observationDefinitionId },
+      }),
+      onSuccess: () => {
+        toast.success(t("definition_deleted_successfully"));
+        queryClient.invalidateQueries({ queryKey: ["observationDefinition"] });
+        queryClient.invalidateQueries({
+          queryKey: ["observationDefinition", observationDefinitionId],
+        });
+        navigate(`/facility/${facilityId}/settings/observation_definitions`);
+      },
+    });
+
+  const handleDelete = () => {
+    if (!definition) return;
+    updateObservationDefinition({
+      ...definition,
+      component: definition.component || [],
+      status: "retired",
+    });
+  };
 
   if (isLoading) {
     return (
@@ -147,18 +177,51 @@ export default function ObservationDefinitionView({
               {definition.code.system} | {definition.code.code}
             </p>
           </div>
-          <Button
-            variant="outline"
-            onClick={() =>
-              navigate(
-                `/facility/${facilityId}/settings/observation_definitions/${definition.id}/edit`,
-              )
-            }
-          >
-            <CareIcon icon="l-pen" className="mr-2 size-4" />
-            {t("edit")}
-          </Button>
+          <div className="flex gap-2">
+            {definition.status !== "retired" && (
+              <Button
+                variant="outline"
+                onClick={() => setShowDeleteDialog(true)}
+                disabled={isDeleting}
+              >
+                <CareIcon icon="l-trash" className="mr-2 size-4" />
+                {t("delete")}
+              </Button>
+            )}
+            <Button
+              variant="outline"
+              onClick={() =>
+                navigate(
+                  `/facility/${facilityId}/settings/observation_definitions/${definition.id}/edit`,
+                )
+              }
+            >
+              <CareIcon icon="l-pen" className="mr-2 size-4" />
+              {t("edit")}
+            </Button>
+          </div>
         </div>
+
+        <ConfirmActionDialog
+          open={showDeleteDialog}
+          onOpenChange={setShowDeleteDialog}
+          title={t("delete_observation_definition")}
+          description={
+            <Alert variant="destructive">
+              <AlertTitle>{t("warning")}</AlertTitle>
+              <AlertDescription>
+                {t("are_you_sure_want_to_delete", {
+                  name: definition?.title,
+                })}
+              </AlertDescription>
+            </Alert>
+          }
+          confirmText={isDeleting ? t("deleting") : t("confirm")}
+          cancelText={t("cancel")}
+          onConfirm={handleDelete}
+          variant="destructive"
+          disabled={isDeleting}
+        />
 
         <Card>
           <CardHeader>
