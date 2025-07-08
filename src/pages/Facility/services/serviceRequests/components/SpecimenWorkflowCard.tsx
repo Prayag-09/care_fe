@@ -240,9 +240,7 @@ export function SpecimenWorkflowCard({
               <div className="flex justify-between items-start overflow-x-auto">
                 <div className="space-y-1.5">
                   <CardTitle className="text-lg font-semibold">
-                    {/* Use a more prominent ID like accession or fallback */}
-                    {collectedSpecimen.accession_identifier ||
-                      collectedSpecimen.specimen_definition.title}
+                    {collectedSpecimen.specimen_definition.title}
                   </CardTitle>
                   {/* Mimic original UI structure */}
                   <div className="flex flex-wrap gap-x-8 gap-y-1 text-sm text-gray-500 mt-4">
