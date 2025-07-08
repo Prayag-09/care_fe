@@ -21,7 +21,7 @@ x : Done
 
 - [BE] Add facility-based filter & pagination in the inventory items list - Jeevan. Vignesh will add filter queryset by facility later
 
-- [ ] Location navbar - back button breaks when browser back is used in between
+- [ ] Location navbar - back button breaks when browser back is used in between - Check with Aravind
 - [-] Bill Medication - Button to return to dispense after invoice creation - Bodhi
 - [-] Clean up and more reuse and organization of the inventory code between external and internal inventory - Yash
 
