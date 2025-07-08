@@ -57,7 +57,9 @@ function ObservationDefinitionCard({
                 {t(definition.status)}
               </Badge>
             </div>
-            <h3 className="font-medium text-gray-900">{definition.title}</h3>
+            <p className="text-lg font-medium text-gray-900">
+              {definition.title}
+            </p>
             <p className="mt-1 text-sm text-gray-500">
               {t(definition.category)}
             </p>

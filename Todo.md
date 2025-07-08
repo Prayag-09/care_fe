@@ -49,8 +49,8 @@ x : Done
 - [ ] Specimen Def - URI validation failing
 - [x] Definitions - Add Delete button - Manyu
 - [-] Valueset - Wrap long text on mobile - Manyu
-- [-] Observation Def - validation for empty components - Manyu
-- [-] Observation Def - Preview mobile - status badge & button clash - Manyu
+- [x] Observation Def - validation for empty components - Manyu
+- [x] Observation Def - Preview mobile - status badge & button clash - Manyu
 - [ ] SR form - Improve
 - [-] SR - Scan existing specimen QR (Use Access identifier instead of uuid) - Yash
 - [-] SR Details page - Disable the collect specimen for completed SR - Yash
