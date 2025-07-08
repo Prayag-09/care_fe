@@ -6,10 +6,6 @@ x : Done
 
 - : In Progress/Assigned/Blocked
 
-# Inventory
-
-- [-] Clean up and more reuse and organization of the inventory code between external and internal inventory - Yash
-
 # Tags & Identifiers
 
 - [x] i18n -- Khavin
@@ -27,6 +23,7 @@ x : Done
 - [-] Prescription queue - partially billed - Mark as all given for each row - Jeevan
 - [ ] Location navbar - back button breaks when browser back is used in between
 - [-] Bill Medication - Button to return to dispense after invoice creation - Bodhi
+- [-] Clean up and more reuse and organization of the inventory code between external and internal inventory - Yash
 
 ## Billing
 
@@ -42,7 +39,6 @@ x : Done
 - [-] Add support for multiple diagnostic report for a service request - [hold till @bodhi confirms]
 - [-] In the Specimen Definition edit form, removing data from optional fields is not working and Fix some types and cleanup in Specimen Definition Form. - Manyu & Yash
 - [ ] Specimen Definition - Add frontend permission check for the Specimen Definition page at the facility level.
-- [ ] SR Details page - Disable the process step once the report generation is done | Confirm with Bodhi before working on this - Backend
 - [BE] SR details page - fix decimal points to two and round off amounts in charge items.
 - [BE] SR details page - Add a hyperlink to the payment page, for better UX
 - [BE] Encounter can be closed even if the SR is ACTIVE. But if encounter is closer SR cannot be marked as completed ( Showing error as encounter is already closed) - Fix can be not allow top close encounter if SR is open - Vignesh
@@ -58,6 +54,8 @@ x : Done
 - [-] Observation Def - Preview mobile - status badge & button clash - Manyu
 - [ ] SR form - Improve
 - [ ] SR - Scan existing specimen QR (Use Access identifier instead of uuid)
+- [x] SR Details page - Disable the process step once the report generation is done
+- [-] SR Details page - Disable the collect specimen for completed SR - Yash
 
 ## Back End
 
