@@ -78,17 +78,25 @@ const formSchema = z.object({
   component: z
     .array(
       z.object({
-        code: z.object({
-          code: z.string(),
-          display: z.string(),
-          system: z.string(),
-        }),
+        code: z
+          .object({
+            code: z.string(),
+            display: z.string(),
+            system: z.string(),
+          })
+          .refine((data) => data.code && data.display && data.system, {
+            message: "Required",
+          }),
         permitted_data_type: z.nativeEnum(QuestionType),
-        permitted_unit: z.object({
-          code: z.string(),
-          display: z.string(),
-          system: z.string(),
-        }),
+        permitted_unit: z
+          .object({
+            code: z.string(),
+            display: z.string(),
+            system: z.string(),
+          })
+          .refine((data) => data.code && data.display && data.system, {
+            message: "Required",
+          }),
       }),
     )
     .default([]),
@@ -599,26 +607,33 @@ function ObservationDefinitionFormContent({
                         </div>
 
                         <div className="grid gap-4">
-                          <div>
-                            <FormLabel>{t("code")}</FormLabel>
-                            <div className="mt-2">
-                              <ValueSetSelect
-                                system="system-observation"
-                                placeholder={t("search_for_observation_codes")}
-                                value={form.getValues(
-                                  `component.${index}.code`,
-                                )}
-                                showCode={true}
-                                onSelect={(code) => {
-                                  form.setValue(`component.${index}.code`, {
-                                    code: code.code,
-                                    display: code.display,
-                                    system: code.system,
-                                  });
-                                }}
-                              />
-                            </div>
-                          </div>
+                          <FormField
+                            control={form.control}
+                            name={`component.${index}.code`}
+                            render={({ field }) => (
+                              <FormItem>
+                                <FormLabel aria-required>{t("code")}</FormLabel>
+                                <FormControl>
+                                  <ValueSetSelect
+                                    system="system-observation"
+                                    placeholder={t(
+                                      "search_for_observation_codes",
+                                    )}
+                                    value={field.value}
+                                    showCode={true}
+                                    onSelect={(code) => {
+                                      field.onChange({
+                                        code: code.code,
+                                        display: code.display,
+                                        system: code.system,
+                                      });
+                                    }}
+                                  />
+                                </FormControl>
+                                <FormMessage />
+                              </FormItem>
+                            )}
+                          />
 
                           <div className="grid gap-4 md:grid-cols-2">
                             <FormField
@@ -651,29 +666,33 @@ function ObservationDefinitionFormContent({
                               )}
                             />
 
-                            <div>
-                              <FormLabel>{t("unit")}</FormLabel>
-                              <div className="mt-2">
-                                <ValueSetSelect
-                                  system="system-ucum-units"
-                                  placeholder={t("search_for_units")}
-                                  value={form.getValues(
-                                    `component.${index}.permitted_unit`,
-                                  )}
-                                  showCode={true}
-                                  onSelect={(code) => {
-                                    form.setValue(
-                                      `component.${index}.permitted_unit`,
-                                      {
-                                        code: code.code,
-                                        display: code.display,
-                                        system: code.system,
-                                      },
-                                    );
-                                  }}
-                                />
-                              </div>
-                            </div>
+                            <FormField
+                              control={form.control}
+                              name={`component.${index}.permitted_unit`}
+                              render={({ field }) => (
+                                <FormItem>
+                                  <FormLabel aria-required>
+                                    {t("unit")}
+                                  </FormLabel>
+                                  <FormControl>
+                                    <ValueSetSelect
+                                      system="system-ucum-units"
+                                      placeholder={t("search_for_units")}
+                                      value={field.value}
+                                      showCode={true}
+                                      onSelect={(code) => {
+                                        field.onChange({
+                                          code: code.code,
+                                          display: code.display,
+                                          system: code.system,
+                                        });
+                                      }}
+                                    />
+                                  </FormControl>
+                                  <FormMessage />
+                                </FormItem>
+                              )}
+                            />
                           </div>
                         </div>
                       </div>

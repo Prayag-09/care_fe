@@ -20,7 +20,7 @@ x : Done
 # Pharmacy
 
 - [BE] Add facility-based filter & pagination in the inventory items list - Jeevan. Vignesh will add filter queryset by facility later
-- [-] Prescription queue - partially billed - Mark as all given for each row - Jeevan
+
 - [ ] Location navbar - back button breaks when browser back is used in between
 - [-] Bill Medication - Button to return to dispense after invoice creation - Bodhi
 - [-] Clean up and more reuse and organization of the inventory code between external and internal inventory - Yash
@@ -49,8 +49,8 @@ x : Done
 - [ ] Specimen Def - URI validation failing
 - [x] Definitions - Add Delete button - Manyu
 - [-] Valueset - Wrap long text on mobile - Manyu
-- [-] Observation Def - validation for empty components - Manyu
-- [-] Observation Def - Preview mobile - status badge & button clash - Manyu
+- [x] Observation Def - validation for empty components - Manyu
+- [x] Observation Def - Preview mobile - status badge & button clash - Manyu
 - [ ] SR form - Improve
 - [-] SR - Scan existing specimen QR (Use Access identifier instead of uuid) - Yash
 - [-] SR Details page - Disable the collect specimen for completed SR - Yash
@@ -233,3 +233,4 @@ x : Done
 - [x] Purchase Order - Receive stock sheet - show only active Supply Requests - Yash
 - [x] Bill medication - Add validation for days > 0 - Yash
 - [x] Bill medication - Add validation for quantity to be less than selected lot's quantity - Yash
+- [x] Prescription queue - partially billed - Mark as all given for each row - Jeevan

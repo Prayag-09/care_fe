@@ -161,7 +161,7 @@ export default function ObservationDefinitionView({
           {t("back")}
         </Button>
 
-        <div className="flex items-center justify-between">
+        <div className="flex md:items-center justify-between flex-col md:flex-row ">
           <div>
             <div className="flex items-center gap-3">
               <h1 className="text-2xl font-bold">{definition.title}</h1>
@@ -173,11 +173,11 @@ export default function ObservationDefinitionView({
                 {t(definition.status)}
               </Badge>
             </div>
-            <p className="mt-1 text-sm text-gray-600">
+            <p className="mt-1 text-sm text-gray-600 mb-4 md:mb-0">
               {definition.code.system} | {definition.code.code}
             </p>
           </div>
-          <div className="flex gap-2">
+          <div className="flex flex-col md:flex-row gap-2">
             {definition.status !== "retired" && (
               <Button
                 variant="outline"

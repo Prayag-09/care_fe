@@ -2403,7 +2403,7 @@
   "mark_all_as_read": "Mark all as Read",
   "mark_as_abandoned": "Mark as Abandoned",
   "mark_as_active": "Mark as Active",
-  "mark_as_all_given": "Mark as All Given",
+  "mark_as_already_given": "Mark as Already Given",
   "mark_as_balanced": "Mark as balanced",
   "mark_as_cancelled": "Mark as cancelled",
   "mark_as_complete": "Mark as Complete",

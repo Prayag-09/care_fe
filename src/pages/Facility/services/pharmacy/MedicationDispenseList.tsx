@@ -1,10 +1,20 @@
-import { useQuery } from "@tanstack/react-query";
-import { ArrowRightIcon, PrinterIcon } from "lucide-react";
+import { useMutation, useQuery, useQueryClient } from "@tanstack/react-query";
+import { ArrowRightIcon, MoreVertical, PrinterIcon } from "lucide-react";
 import { navigate } from "raviger";
-import { useTranslation } from "react-i18next";
+import { useState } from "react";
+import { Trans, useTranslation } from "react-i18next";
+import { toast } from "sonner";
+
+import CareIcon from "@/CAREUI/icons/CareIcon";
 
 import { Badge } from "@/components/ui/badge";
 import { Button } from "@/components/ui/button";
+import { DropdownMenuItem } from "@/components/ui/dropdown-menu";
+import {
+  DropdownMenu,
+  DropdownMenuContent,
+  DropdownMenuTrigger,
+} from "@/components/ui/dropdown-menu";
 import { EmptyState } from "@/components/ui/empty-state";
 import { FilterSelect } from "@/components/ui/filter-select";
 import { FilterTabs } from "@/components/ui/filter-tabs";
@@ -17,11 +27,13 @@ import {
   TableRow,
 } from "@/components/ui/table";
 
+import ConfirmActionDialog from "@/components/Common/ConfirmActionDialog";
 import { TableSkeleton } from "@/components/Common/SkeletonLoading";
 import { formatTotalUnits } from "@/components/Medicine/utils";
 
 import useFilters from "@/hooks/useFilters";
 
+import mutate from "@/Utils/request/mutate";
 import query from "@/Utils/request/query";
 import useCurrentLocation from "@/pages/Facility/locations/utils/useCurrentLocation";
 import {
@@ -30,16 +42,25 @@ import {
   MEDICATION_REQUEST_PRIORITY_COLORS,
   MEDICATION_REQUEST_STATUS_COLORS,
   MedicationPriority,
+  MedicationRequestDispenseStatus,
   MedicationRequestRead,
   displayMedicationName,
 } from "@/types/emr/medicationRequest/medicationRequest";
 import medicationRequestApi from "@/types/emr/medicationRequest/medicationRequestApi";
 
+import { DispensedItemsSheet } from "./MedicationBillForm";
+
 interface MedicationTableProps {
   medications: MedicationRequestRead[];
+  setDispensedMedicationId?: (id: string) => void;
+  setMedicationToMarkComplete?: (medication: MedicationRequestRead) => void;
 }
 
-function MedicationTable({ medications }: MedicationTableProps) {
+function MedicationTable({
+  medications,
+  setDispensedMedicationId,
+  setMedicationToMarkComplete,
+}: MedicationTableProps) {
   const { t } = useTranslation();
 
   return (
@@ -56,6 +77,15 @@ function MedicationTable({ medications }: MedicationTableProps) {
             </TableHead>
             <TableHead className="text-gray-700">{t("priority")}</TableHead>
             <TableHead className="text-gray-700">{t("status")}</TableHead>
+            {medications.some(
+              (medication) =>
+                medication.dispense_status ===
+                MedicationRequestDispenseStatus.partial,
+            ) && (
+              <TableHead className="text-gray-700 w-10">
+                {t("actions")}
+              </TableHead>
+            )}
           </TableRow>
         </TableHeader>
         <TableBody className="bg-white">
@@ -70,8 +100,23 @@ function MedicationTable({ medications }: MedicationTableProps) {
                 key={medication.id}
                 className="hover:bg-gray-50 divide-x"
               >
-                <TableCell className="font-semibold text-gray-950">
+                <TableCell className="font-semibold text-gray-950 flex items-center gap-2">
                   {displayMedicationName(medication)}
+                  {medication?.dispense_status ===
+                    MedicationRequestDispenseStatus.partial && (
+                    <Button
+                      variant="secondary"
+                      type="button"
+                      size="xs"
+                      className="flex gap-1"
+                      onClick={() => {
+                        setDispensedMedicationId?.(medication.id);
+                      }}
+                    >
+                      <CareIcon icon="l-eye" className="size-4" />
+                      {t("view_dispensed")}
+                    </Button>
+                  )}
                 </TableCell>
                 <TableCell className="text-gray-950 font-medium">
                   {dosage ? `${dosage.value} ${dosage.unit.display}` : "-"}
@@ -109,6 +154,27 @@ function MedicationTable({ medications }: MedicationTableProps) {
                     {t(medication.status)}
                   </Badge>
                 </TableCell>
+                {medication?.dispense_status ===
+                  MedicationRequestDispenseStatus.partial && (
+                  <TableCell className="w-10">
+                    <DropdownMenu>
+                      <DropdownMenuTrigger asChild>
+                        <Button variant="outline" size="icon">
+                          <MoreVertical className="size-5" />
+                        </Button>
+                      </DropdownMenuTrigger>
+                      <DropdownMenuContent align="end">
+                        <DropdownMenuItem
+                          onSelect={() => {
+                            setMedicationToMarkComplete?.(medication);
+                          }}
+                        >
+                          {t("mark_as_already_given")}
+                        </DropdownMenuItem>
+                      </DropdownMenuContent>
+                    </DropdownMenu>
+                  </TableCell>
+                )}
               </TableRow>
             );
           })}
@@ -135,7 +201,12 @@ export default function MedicationDispenseList({
     limit: 100,
     disableCache: true,
   });
-
+  const queryClient = useQueryClient();
+  const [dispensedMedicationId, setDispensedMedicationId] = useState<
+    string | null
+  >(null);
+  const [medicationToMarkComplete, setMedicationToMarkComplete] =
+    useState<MedicationRequestRead | null>(null);
   const { data: response, isLoading } = useQuery({
     queryKey: ["medication_requests", qParams, patientId],
     queryFn: query(medicationRequestApi.list, {
@@ -157,6 +228,23 @@ export default function MedicationDispenseList({
     (med) => med.requested_product,
   );
   const otherMedications = medications.filter((med) => !med.requested_product);
+
+  const { mutate: updateMedicationRequest } = useMutation({
+    mutationFn: (medication: MedicationRequestRead) => {
+      return mutate(medicationRequestApi.update, {
+        pathParams: { patientId, id: medication.id },
+      })(medication);
+    },
+    onSuccess: () => {
+      toast.success(t("medication_request_status_updated_successfully"));
+      queryClient.invalidateQueries({
+        queryKey: ["medication_requests", qParams, patientId],
+      });
+    },
+    onError: () => {
+      toast.error(t("something_went_wrong"));
+    },
+  });
 
   return (
     <div>
@@ -242,7 +330,15 @@ export default function MedicationDispenseList({
               <h2 className="text-lg font-semibold text-gray-900">
                 {t("pharmacy_medications")}
               </h2>
-              <MedicationTable medications={medicationsWithProduct} />
+              <MedicationTable
+                medications={medicationsWithProduct}
+                setDispensedMedicationId={
+                  partial ? setDispensedMedicationId : undefined
+                }
+                setMedicationToMarkComplete={
+                  partial ? setMedicationToMarkComplete : undefined
+                }
+              />
             </div>
           )}
 
@@ -259,6 +355,59 @@ export default function MedicationDispenseList({
           </div>
         </div>
       )}
+
+      {dispensedMedicationId && (
+        <DispensedItemsSheet
+          open={!!dispensedMedicationId}
+          onOpenChange={(open) => {
+            if (!open) {
+              setDispensedMedicationId(null);
+            }
+          }}
+          medicationRequestId={dispensedMedicationId}
+          facilityId={facilityId}
+        />
+      )}
+
+      <ConfirmActionDialog
+        open={medicationToMarkComplete !== null}
+        onOpenChange={(open) => {
+          if (!open) setMedicationToMarkComplete(null);
+        }}
+        title={t("mark_as_already_given")}
+        description={
+          <>
+            <Trans
+              i18nKey="confirm_action_description"
+              values={{
+                action: t("mark_as_already_given").toLowerCase(),
+              }}
+              components={{
+                1: <strong className="text-gray-900" />,
+              }}
+            />{" "}
+            {t("you_cannot_change_once_submitted")}
+            <p className="mt-2">
+              {t("medication")}:{" "}
+              <strong>
+                {medicationToMarkComplete?.requested_product?.name}
+              </strong>
+            </p>
+          </>
+        }
+        onConfirm={() => {
+          if (medicationToMarkComplete) {
+            updateMedicationRequest({
+              ...medicationToMarkComplete,
+              dispense_status: MedicationRequestDispenseStatus.complete,
+            });
+          }
+          setMedicationToMarkComplete(null);
+        }}
+        confirmText={t("mark_as_already_given")}
+        cancelText={t("cancel")}
+        variant="primary"
+      />
     </div>
   );
 }
