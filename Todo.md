@@ -25,7 +25,7 @@ x : Done
 
 - [BE] Add facility-based filter & pagination in the inventory items list - Jeevan. Vignesh will add filter queryset by facility later
 
-- [ ] Prescription queue - partially billed - Mark as all given for each row
+- [-] Prescription queue - partially billed - Mark as all given for each row - Jeevan
 - [ ] Location navbar - back button breaks when browser back is used in between
 - [-] Bill Medication - Button to return to dispense after invoice creation - Bodhi
 - [x] Medication Request - Prefill unit from product knowledge and disallow modification - Yash
@@ -58,10 +58,10 @@ x : Done
 - [ ] Disable save if no changes in all forms
 - [ ] Specimen Def - URI validation failing
 - [-] Product Knowledge form - Validations - Yash
-- [ ] Definitions - Add Delete button
-- [ ] Valueset - Wrap long text on mobile
-- [ ] Observation Def - validation for empty components
-- [ ] Observation Def - Preview mobile - status badge & button clash
+- [-] Definitions - Add Delete button - Manyu
+- [-] Valueset - Wrap long text on mobile - Manyu
+- [-] Observation Def - validation for empty components - Manyu
+- [-] Observation Def - Preview mobile - status badge & button clash - Manyu
 - [ ] SR form - Improve
 - [ ] SR - Scan existing specimen QR (Use Access identifier instead of uuid)
 - [x] AD form - Selected location alignment - Amjith
