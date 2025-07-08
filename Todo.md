@@ -20,7 +20,7 @@ x : Done
 # Pharmacy
 
 - [BE] Add facility-based filter & pagination in the inventory items list - Jeevan. Vignesh will add filter queryset by facility later
-- [-] Prescription queue - partially billed - Mark as all given for each row - Jeevan
+
 - [ ] Location navbar - back button breaks when browser back is used in between
 - [-] Bill Medication - Button to return to dispense after invoice creation - Bodhi
 - [-] Clean up and more reuse and organization of the inventory code between external and internal inventory - Yash
@@ -233,3 +233,4 @@ x : Done
 - [x] Purchase Order - Receive stock sheet - show only active Supply Requests - Yash
 - [x] Bill medication - Add validation for days > 0 - Yash
 - [x] Bill medication - Add validation for quantity to be less than selected lot's quantity - Yash
+- [x] Prescription queue - partially billed - Mark as all given for each row - Jeevan

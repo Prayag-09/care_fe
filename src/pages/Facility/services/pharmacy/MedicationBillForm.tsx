@@ -1206,12 +1206,20 @@ export default function MedicationBillForm({ patientId }: Props) {
     index: number,
   ) => {
     if (!isAdded) {
-      updateMedicationRequest({
-        ...medication,
-        dispense_status: MedicationRequestDispenseStatus.incomplete,
-      });
+      updateMedicationRequest(
+        {
+          ...medication,
+          dispense_status: MedicationRequestDispenseStatus.incomplete,
+        },
+        {
+          onSuccess: () => {
+            remove(index);
+          },
+        },
+      );
+    } else {
+      remove(index);
     }
-    remove(index);
   };
 
   return (
@@ -1460,7 +1468,7 @@ export default function MedicationBillForm({ patientId }: Props) {
                                     {field.medication?.dispense_status ===
                                       MedicationRequestDispenseStatus.partial && (
                                       <Badge variant="yellow">
-                                        {t("partially_dispensed")}
+                                        {t("partially_billed")}
                                         <Tooltip>
                                           <TooltipTrigger asChild>
                                             <Button
@@ -1997,7 +2005,7 @@ export default function MedicationBillForm({ patientId }: Props) {
                                         disabled
                                         className="w-full"
                                       >
-                                        {t("mark_as_all_given")}
+                                        {t("mark_as_already_given")}
                                       </DropdownMenuItem>
                                     </div>
                                   </PopoverTrigger>
@@ -2015,7 +2023,7 @@ export default function MedicationBillForm({ patientId }: Props) {
                                     });
                                   }}
                                 >
-                                  {t("mark_as_all_given")}
+                                  {t("mark_as_already_given")}
                                 </DropdownMenuItem>
                               )}
                               <DropdownMenuItem
@@ -2330,13 +2338,13 @@ export default function MedicationBillForm({ patientId }: Props) {
           onOpenChange={(open) => {
             if (!open) setMedicationToMarkComplete(null);
           }}
-          title={t("mark_as_all_given")}
+          title={t("mark_as_already_given")}
           description={
             <>
               <Trans
                 i18nKey="confirm_action_description"
                 values={{
-                  action: t("mark_as_all_given").toLowerCase(),
+                  action: t("mark_as_already_given").toLowerCase(),
                 }}
                 components={{
                   1: <strong className="text-gray-900" />,
@@ -2356,15 +2364,21 @@ export default function MedicationBillForm({ patientId }: Props) {
           }
           onConfirm={() => {
             if (medicationToMarkComplete) {
-              updateMedicationRequest({
-                ...medicationToMarkComplete.medication,
-                dispense_status: MedicationRequestDispenseStatus.complete,
-              });
-              remove(medicationToMarkComplete.index);
+              updateMedicationRequest(
+                {
+                  ...medicationToMarkComplete.medication,
+                  dispense_status: MedicationRequestDispenseStatus.complete,
+                },
+                {
+                  onSuccess: () => {
+                    remove(medicationToMarkComplete.index);
+                  },
+                },
+              );
             }
             setMedicationToMarkComplete(null);
           }}
-          confirmText={t("mark_as_all_given")}
+          confirmText={t("mark_as_already_given")}
           cancelText={t("cancel")}
           variant="primary"
         />
@@ -2500,7 +2514,7 @@ interface DispensedItemsSheetProps {
   facilityId: string;
 }
 
-const DispensedItemsSheet = ({
+export const DispensedItemsSheet = ({
   open,
   onOpenChange,
   medicationRequestId,
