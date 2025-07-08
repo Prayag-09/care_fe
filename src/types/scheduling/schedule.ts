@@ -176,6 +176,7 @@ export interface Appointment {
 export interface AppointmentCreateRequest {
   patient: string;
   reason_for_visit: string;
+  tags?: string[];
 }
 
 export interface AppointmentUpdateRequest {
