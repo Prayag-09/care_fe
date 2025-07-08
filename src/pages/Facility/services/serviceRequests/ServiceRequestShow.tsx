@@ -442,7 +442,12 @@ export default function ServiceRequestShow({
                     </DropdownMenuTrigger>
                     <DropdownMenuContent align="end">
                       <SpecimenHistorySheet
-                        specimens={request?.specimens || []}
+                        specimens={(request?.specimens || []).filter(
+                          (specimen) =>
+                            specimen.status ===
+                              SpecimenStatus.entered_in_error ||
+                            specimen.status === SpecimenStatus.unsatisfactory,
+                        )}
                       >
                         <DropdownMenuItem
                           onSelect={(e) => e.preventDefault()}
