@@ -47,15 +47,15 @@ x : Done
 - [ ] Loading skeletons
 - [ ] Disable save if no changes in all forms
 - [ ] Specimen Def - URI validation failing
-- [x] Product Knowledge form - Validations - Yash
 - [-] Definitions - Add Delete button - Manyu
 - [-] Valueset - Wrap long text on mobile - Manyu
 - [-] Observation Def - validation for empty components - Manyu
 - [-] Observation Def - Preview mobile - status badge & button clash - Manyu
 - [ ] SR form - Improve
-- [ ] SR - Scan existing specimen QR (Use Access identifier instead of uuid)
-- [x] SR Details page - Disable the process step once the report generation is done
+- [-] SR - Scan existing specimen QR (Use Access identifier instead of uuid) - Yash
 - [-] SR Details page - Disable the collect specimen for completed SR - Yash
+- [x] Product Knowledge form - Validations - Yash
+- [x] SR Details page - Disable the process step once the report generation is done
 
 ## Back End
 
@@ -63,21 +63,19 @@ x : Done
 - [-] Service Request - Show specimen.processing.performer details instead of UUID (After BE change) - Aakash
 - [ ] Patient - There shouldn't be more than one active account at any point in time
 - [ ] BE need to sort by internal id by default, all apis has jumping issue
-- [-] Need sort by payment_datetime for Payment Reconciliation list - Aakash
 - [ ] Replace Charge Item Create with ChargeItemDef to ChargeItem API
 - [ ] Add support for information codes (such as MRP)
 - [ ] Create Charge Item from Charge Definition
 - [ ] Observation Interpretation
 - [ ] Spec for Ingredients, Nutrients, Drug_characteristic are incomplete in Product Knowledge
 - [ ] Find which location a product is in within a facility
-- [ ] Medication Administration API needs support for product knowledge
-- [ ] Supply Request - Add supplier[]
 - [ ] Not able to mark a SR as closed - Showing error location not found
-- [-] New service request should be shown first within the list - Aakash
 - [ ] Roles access for Labs. Only users with lab role should have access to lab services
 - [ ] Encounter can be closed even if the SR is ACTIVE. But if encounter is closer SR cannot be marked as completed ( Showing error as encounter is already closed) - - [ ] Fix can be not allow top close encounter if SR is open
-- [x] Service Request - Show specimen.collection.collector details instead of UUID (After BE change) - Aakash
-- [x] Service Request - Show specimen.processing.performer details instead of UUID (After BE change) - Aakash
+- [x] Need sort by payment_datetime for Payment Reconciliation list - Aakash
+- [x] Medication Administration API needs support for product knowledge
+- [x] Supply Request - Add supplier[] - Added supplier
+- [x] New service request should be shown first within the list - Aakash
 
 # Archived
 
