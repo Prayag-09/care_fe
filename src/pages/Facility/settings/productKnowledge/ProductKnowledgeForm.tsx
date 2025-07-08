@@ -490,7 +490,9 @@ function ProductKnowledgeFormContent({
                               name={`names.${index}.name`}
                               render={({ field }) => (
                                 <FormItem className="flex flex-col">
-                                  <FormLabel>{t("name")}</FormLabel>
+                                  <FormLabel aria-required>
+                                    {t("name")}
+                                  </FormLabel>
                                   <FormControl>
                                     <Input {...field} />
                                   </FormControl>
@@ -563,7 +565,7 @@ function ProductKnowledgeFormContent({
                             name={`storage_guidelines.${index}.note`}
                             render={({ field }) => (
                               <FormItem className="flex flex-col">
-                                <FormLabel>{t("note")}</FormLabel>
+                                <FormLabel aria-required>{t("note")}</FormLabel>
                                 <FormControl>
                                   <Textarea
                                     {...field}
@@ -581,7 +583,9 @@ function ProductKnowledgeFormContent({
                               name={`storage_guidelines.${index}.stability_duration.value`}
                               render={({ field }) => (
                                 <FormItem className="flex flex-col">
-                                  <FormLabel>{t("duration_value")}</FormLabel>
+                                  <FormLabel aria-required>
+                                    {t("duration_value")}
+                                  </FormLabel>
                                   <FormControl>
                                     <Input
                                       {...field}
@@ -607,7 +611,9 @@ function ProductKnowledgeFormContent({
                             />
 
                             <div>
-                              <FormLabel>{t("duration_unit")}</FormLabel>
+                              <FormLabel aria-required>
+                                {t("duration_unit")}
+                              </FormLabel>
                               <div className="mt-2">
                                 <ValueSetSelect
                                   system="system-ucum-units"
