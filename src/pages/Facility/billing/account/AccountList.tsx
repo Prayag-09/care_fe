@@ -77,13 +77,13 @@ export function AccountList({
 
   const { data: response, isLoading } = useQuery({
     queryKey: ["accounts", qParams],
-    queryFn: query(accountApi.listAccount, {
+    queryFn: query.debounced(accountApi.listAccount, {
       pathParams: { facilityId },
       queryParams: {
         patient: patientId,
         limit: resultsPerPage,
         offset: ((qParams.page ?? 1) - 1) * resultsPerPage,
-        search: qParams.search,
+        name: qParams.search,
         status: qParams.status,
         billing_status: qParams.billing_status,
         ordering: "-created_date",
