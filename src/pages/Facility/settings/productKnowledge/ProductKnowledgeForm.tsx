@@ -297,7 +297,7 @@ function ProductKnowledgeFormContent({
                     {t("basic_information")}
                   </h2>
                   <p className="mt-0.5 text-sm text-gray-500">
-                    {t("Enter the basic details of the product")}
+                    {t("PKF_basic_information_description")}
                   </p>
                 </div>
 
@@ -530,7 +530,7 @@ function ProductKnowledgeFormContent({
                       {t("storage_guidelines")}
                     </h2>
                     <p className="mt-0.5 text-sm text-gray-500">
-                      {t("Add storage guidelines for this product")}
+                      {t("PKF_storage_guidelines_description")}
                     </p>
                   </div>
                   <Button
@@ -665,7 +665,7 @@ function ProductKnowledgeFormContent({
                       {t("product_definition")}
                     </h2>
                     <p className="mt-0.5 text-sm text-gray-500">
-                      {t("Specify technical details about this product")}
+                      {t("PKF_definitional_description")}
                     </p>
                   </div>
                   {form.watch("definitional") ? (
@@ -749,7 +749,7 @@ function ProductKnowledgeFormContent({
                             {t("intended_routes")}
                           </h3>
                           <p className="mt-0.5 text-xs text-gray-500">
-                            {t("Add intended routes of administration")}
+                            {t("PKF_intended_routes_description")}
                           </p>
                         </div>
                         <Button

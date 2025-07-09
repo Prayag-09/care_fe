@@ -332,7 +332,7 @@ const AddMedicationSheet = ({
               </SheetTitle>
             </SheetHeader>
           </div>
-          <div className="flex-1 px-20">
+          <div className="flex-1 px-0 md:px-20">
             <div className="space-y-6">
               {selectedProduct && (
                 <>
@@ -346,7 +346,7 @@ const AddMedicationSheet = ({
                   </div>
                   <div className="space-y-4 pb-4">
                     {/* Dosage and Frequency Row */}
-                    <div className="grid grid-cols-2 gap-4">
+                    <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
                       {/* Dosage */}
                       <div>
                         <Label className="mb-1.5 block text-sm">
@@ -486,7 +486,7 @@ const AddMedicationSheet = ({
                     </div>
 
                     {/* Duration and Method Row */}
-                    <div className="grid grid-cols-2 gap-4">
+                    <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
                       {/* Duration */}
                       <div>
                         <Label className="mb-1.5 block text-sm">
@@ -632,7 +632,7 @@ const AddMedicationSheet = ({
                     </div>
 
                     {/* Route and Site Row */}
-                    <div className="grid grid-cols-2 gap-4">
+                    <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
                       {/* Route */}
                       <div data-cy="route">
                         <Label className="mb-1.5 block text-sm">
@@ -1224,11 +1224,11 @@ export default function MedicationBillForm({ patientId }: Props) {
   return (
     <Page title={t("bill_medications")} hideTitleOnPage={true} isInsidePage>
       <div>
-        <div className="mb-6 flex items-center justify-between">
+        <div className="mb-6 flex items-center justify-between flex-wrap gap-2">
           <h1 className="text-2xl font-bold whitespace-nowrap">
             {t("bill_medications")}
           </h1>
-          <div className="flex gap-2 justify-end w-full">
+          <div className="flex gap-2 justify-end">
             <Button
               variant="outline"
               onClick={() => navigate(`../${patientId}`)}
