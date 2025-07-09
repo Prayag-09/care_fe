@@ -146,14 +146,14 @@ export default function ReceiveItem({
   });
   const { mutateAsync: updateSupplyDelivery, isPending: isUpdatingDelivery } =
     useMutation({
-      mutationFn: mutate(supplyDeliveryApi.updateSupplyDelivery, {
+      mutationFn: mutate(supplyDeliveryApi.updateSupplyDeliveryAsReceiver, {
         pathParams: { supplyDeliveryId: deliveryId },
       }),
     });
 
   const { mutateAsync: updateSupplyRequest, isPending: isUpdatingRequest } =
     useMutation({
-      mutationFn: mutate(supplyRequestApi.updateSupplyRequest, {
+      mutationFn: mutate(supplyRequestApi.updateSupplyRequestAsReceiver, {
         pathParams: { supplyRequestId: delivery?.supply_request?.id || "" },
       }),
     });

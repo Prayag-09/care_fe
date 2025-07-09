@@ -22,11 +22,14 @@ import { TaxCodeSettings } from "@/pages/Facility/settings/billing/tax/tax-codes
 import { TaxComponentSettings } from "@/pages/Facility/settings/billing/tax/tax-components/TaxComponentSettings";
 import useCurrentFacility from "@/pages/Facility/utils/useCurrentFacility";
 
+import { InformationalCodeSettings } from "./informational/InformationalCodeSettings";
+
 const routes = {
-  "/discount-components": () => <DiscountComponentSettings />,
-  "/discount-codes": () => <DiscountCodeSettings />,
-  "/tax-codes": () => <TaxCodeSettings />,
-  "/tax-components": () => <TaxComponentSettings />,
+  "/discount_components": () => <DiscountComponentSettings />,
+  "/discount_codes": () => <DiscountCodeSettings />,
+  "/tax_codes": () => <TaxCodeSettings />,
+  "/tax_components": () => <TaxComponentSettings />,
+  "/informational_codes": () => <InformationalCodeSettings />,
   "*": () => <ErrorPage />,
 };
 
@@ -36,11 +39,11 @@ const sidebarNavItems = [
     items: [
       {
         title: "Discount Codes",
-        href: "/discount-codes",
+        href: "/discount_codes",
       },
       {
         title: "Discount Components",
-        href: "/discount-components",
+        href: "/discount_components",
       },
     ],
   },
@@ -49,11 +52,20 @@ const sidebarNavItems = [
     items: [
       {
         title: "Tax Codes",
-        href: "/tax-codes",
+        href: "/tax_codes",
       },
       {
         title: "Tax Components",
-        href: "/tax-components",
+        href: "/tax_components",
+      },
+    ],
+  },
+  {
+    category: "Informational",
+    items: [
+      {
+        title: "Informational Codes",
+        href: "/informational_codes",
       },
     ],
   },

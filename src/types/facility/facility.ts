@@ -44,6 +44,7 @@ export interface FacilityData {
   child_org_permissions: string[];
   instance_discount_codes: Code[];
   instance_discount_monetary_components: MonetaryComponentRead[];
+  instance_informational_codes: Code[];
   instance_tax_codes: Code[];
   instance_tax_monetary_components: MonetaryComponentRead[];
   discount_codes: Code[];

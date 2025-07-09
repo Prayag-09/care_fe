@@ -68,11 +68,11 @@ x : Done
 - [-] Service Request - Show specimen.processing.performer details instead of UUID (After BE change) - Aakash
 - [ ] Patient - There shouldn't be more than one active account at any point in time
 - [ ] Replace Charge Item Create with ChargeItemDef to ChargeItem API
-- [ ] Add support for information codes (such as MRP)
-- [ ] Create Charge Item from Charge Definition
+- [x] Add support for information codes (such as MRP)
+- [x] Create Charge Item from Charge Definition
 - [ ] Observation Interpretation
-- [ ] Spec for Ingredients, Nutrients, Drug_characteristic are incomplete in Product Knowledge
-- [ ] Find which location a product is in within a facility
+- [x] Spec for Ingredients, Nutrients, Drug_characteristic are incomplete in Product Knowledge
+- [-] Find which location a product is in within a facility
 - [x] Not able to mark a SR as closed - Showing error location not found
 - [ ] Roles access for Labs. Only users with lab role should have access to lab services
 - [ ] Encounter can be closed even if the SR is ACTIVE. But if encounter is closer SR cannot be marked as completed ( Showing error as encounter is already closed) - - [ ] Fix can be not allow top close encounter if SR is open

@@ -38,4 +38,10 @@ export default {
     TRes: Type<SupplyDeliveryBase>(),
     TBody: Type<SupplyDeliveryUpdate>(),
   },
+  updateSupplyDeliveryAsReceiver: {
+    path: "/api/v1/supply_delivery/{supplyDeliveryId}/update_as_receiver/",
+    method: HttpMethod.PUT,
+    TRes: Type<SupplyDeliveryBase>(),
+    TBody: Type<SupplyDeliveryUpdate>(),
+  },
 } as const;

@@ -185,7 +185,7 @@ export function PrintPaymentReconciliation({
                           <div>#{payment.target_invoice.id}</div>
                         </div>
                       </td>
-                      <td className="py-4">{payment.target_invoice.title}</td>
+                      <td className="py-4">{payment.target_invoice.number}</td>
                       <td className="py-4">{payment.target_invoice.status}</td>
                       <td className="py-4 text-right">
                         <MonetaryDisplay

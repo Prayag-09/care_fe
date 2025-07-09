@@ -90,7 +90,7 @@ export function PrintInvoice({ facilityId, invoiceId }: PrintInvoiceProps) {
         <div className="flex justify-between items-start pb-6 border-b border-gray-200">
           <div className="space-y-4 flex-1">
             <div>
-              <h1 className="text-3xl font-semibold">{invoice.title}</h1>
+              <h1 className="text-3xl font-semibold">{invoice.number}</h1>
               <h2 className="text-gray-500 uppercase text-sm tracking-wide font-semibold mt-1">
                 {t("invoice")} #{invoice.id}
               </h2>

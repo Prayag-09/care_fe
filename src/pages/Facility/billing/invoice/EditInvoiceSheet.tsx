@@ -59,7 +59,6 @@ export default function EditInvoiceSheet({
   });
 
   const formSchema = z.object({
-    title: z.string().min(1, { message: t("field_required") }),
     payment_terms: z.string().optional(),
     note: z.string().optional(),
   });
@@ -67,7 +66,6 @@ export default function EditInvoiceSheet({
   const form = useForm<z.infer<typeof formSchema>>({
     resolver: zodResolver(formSchema),
     defaultValues: {
-      title: "",
       payment_terms: "",
       note: "",
     },
@@ -76,7 +74,6 @@ export default function EditInvoiceSheet({
   useEffect(() => {
     if (invoice) {
       form.reset({
-        title: invoice.title,
         payment_terms: invoice.payment_terms || "",
         note: invoice.note || "",
       });
@@ -111,7 +108,6 @@ export default function EditInvoiceSheet({
     const chargeItemIds = invoice.charge_items.map((item) => item.id);
 
     const data: InvoiceCreate = {
-      title: values.title.trim(),
       status: invoice.status,
       payment_terms: values.payment_terms?.trim() || null,
       note: values.note?.trim() || null,
@@ -155,23 +151,6 @@ export default function EditInvoiceSheet({
               onSubmit={form.handleSubmit(onSubmit)}
               className="space-y-6 py-4"
             >
-              <FormField
-                control={form.control}
-                name="title"
-                render={({ field }) => (
-                  <FormItem>
-                    <FormLabel>{t("invoice_title")}</FormLabel>
-                    <FormControl>
-                      <Input
-                        {...field}
-                        placeholder={t("invoice_title_placeholder")}
-                      />
-                    </FormControl>
-                    <FormMessage />
-                  </FormItem>
-                )}
-              />
-
               <FormField
                 control={form.control}
                 name="payment_terms"
