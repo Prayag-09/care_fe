@@ -59,7 +59,7 @@ export default function AddChargeItemSheet({
 
   const { data: response, isLoading } = useQuery({
     queryKey: ["charge-items", qParams],
-    queryFn: query(chargeItemApi.listChargeItem, {
+    queryFn: query.debounced(chargeItemApi.listChargeItem, {
       pathParams: { facilityId },
       queryParams: {
         limit: resultsPerPage,
