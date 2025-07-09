@@ -79,7 +79,7 @@ export default function InvoicesData({
 
   const { data: response, isLoading } = useQuery({
     queryKey: ["invoices", qParams, accountId],
-    queryFn: query(
+    queryFn: query.debounced(
       invoiceApi.retrieveInvoice.method === "GET"
         ? invoiceApi.listInvoice
         : invoiceApi.listInvoice,
@@ -89,7 +89,7 @@ export default function InvoicesData({
           account: accountId,
           limit: resultsPerPage,
           offset: ((qParams.page ?? 1) - 1) * resultsPerPage,
-          search: qParams.search,
+          number: qParams.search,
           status: qParams.status,
           ordering: "-created_date",
         },
