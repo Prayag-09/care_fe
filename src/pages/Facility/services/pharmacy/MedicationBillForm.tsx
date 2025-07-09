@@ -2661,6 +2661,8 @@ export const DispensedItemsSheet = ({
 }: DispensedItemsSheetProps) => {
   const { t } = useTranslation();
   const { facilityId } = useCurrentFacility();
+  const { locationId } = useCurrentLocation();
+
   const { qParams, Pagination, resultsPerPage } = useFilters({
     limit: 10,
     disableCache: true,
@@ -2672,6 +2674,7 @@ export const DispensedItemsSheet = ({
       queryParams: {
         authorizing_prescription: medicationRequestId,
         facility: facilityId,
+        location: locationId,
         limit: resultsPerPage,
         offset: ((qParams.page ?? 1) - 1) * resultsPerPage,
       },
