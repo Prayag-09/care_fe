@@ -325,7 +325,21 @@ function ProductKnowledgeFormContent({
                       <FormItem className="flex flex-col">
                         <FormLabel aria-required>{t("name")}</FormLabel>
                         <FormControl>
-                          <Input {...field} />
+                          <Input
+                            {...field}
+                            onChange={(e) => {
+                              field.onChange(e);
+                              if (!isEditMode) {
+                                form.setValue(
+                                  "slug",
+                                  generateSlug(e.target.value || ""),
+                                  {
+                                    shouldValidate: true,
+                                  },
+                                );
+                              }
+                            }}
+                          />
                         </FormControl>
                         <FormMessage />
                       </FormItem>
