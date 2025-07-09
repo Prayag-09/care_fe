@@ -40,7 +40,7 @@ x : Done
 - [-] In the Specimen Definition edit form, removing data from optional fields is not working and Fix some types and cleanup in Specimen Definition Form. - Manyu & Yash
 - [ ] Specimen Definition - Add frontend permission check for the Specimen Definition page at the facility level.
 - [BE] SR details page - fix decimal points to two and round off amounts in charge items.
-- [BE] SR details page - Add a hyperlink to the payment page, for better UX
+- [ ] SR details page - Add a hyperlink to the payment page, for better UX
 - [BE] Encounter can be closed even if the SR is ACTIVE. But if encounter is closer SR cannot be marked as completed ( Showing error as encounter is already closed) - Fix can be not allow top close encounter if SR is open - Vignesh
 - [BE] Roles access for Labs. Only users with lab role should have access to lab services - Vignesh
 - [ ] Add support to create Observations without Observation definition
