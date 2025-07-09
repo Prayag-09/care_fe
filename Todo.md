@@ -59,6 +59,7 @@ x : Done
 - [ ] Activity Definition - Add Healthcare Services
 - [ ] SR Create - Add Healthcare Services during create
 - [ ] SR Update - Allow all status updates
+- [ ] SR View - Disable patient name link for pharmacist role
 
 ## Back End
 
