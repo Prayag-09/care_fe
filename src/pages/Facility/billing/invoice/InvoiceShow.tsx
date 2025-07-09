@@ -1,6 +1,7 @@
 import { useMutation, useQuery, useQueryClient } from "@tanstack/react-query";
 import { format } from "date-fns";
 import {
+  BadgeCheck,
   BanknoteArrowDownIcon,
   Building2,
   CreditCard,
@@ -9,7 +10,7 @@ import {
   MoreHorizontal,
   Wallet,
 } from "lucide-react";
-import { Link } from "raviger";
+import { Link, navigate, useQueryParams } from "raviger";
 import React, { useState } from "react";
 import { useTranslation } from "react-i18next";
 import { formatPhoneNumberIntl } from "react-phone-number-input";
@@ -19,6 +20,7 @@ import { cn } from "@/lib/utils";
 
 import CareIcon from "@/CAREUI/icons/CareIcon";
 
+import { Alert, AlertTitle } from "@/components/ui/alert";
 import {
   AlertDialog,
   AlertDialogAction,
@@ -275,6 +277,12 @@ export function InvoiceShow({
     invoice?.status !== InvoiceStatus.entered_in_error &&
     invoice?.status !== InvoiceStatus.cancelled;
 
+  const [{ sourceUrl }] = useQueryParams();
+
+  const alertButtonText = sourceUrl?.includes("medication_dispense")
+    ? t("medication_dispense_invoice_alert")
+    : t("service_request_invoice_alert");
+
   if (isLoading) {
     return <TableSkeleton count={5} />;
   }
@@ -296,7 +304,7 @@ export function InvoiceShow({
   }
 
   return (
-    <div className="space-y-8">
+    <div className="space-y-8 relative">
       <div className="flex items-center justify-between">
         <div className="flex items-center gap-4">
           <Button
@@ -1060,6 +1068,28 @@ export function InvoiceShow({
           </AlertDialogFooter>
         </AlertDialogContent>
       </AlertDialog>
+
+      {sourceUrl && (
+        <Alert className="fixed bottom-6 left-1/2 -translate-x-1/2 z-50 max-w-2xl w-full mx-auto shadow-lg rounded-lg p-0 bg-white border border-gray-200">
+          <AlertTitle className="flex items-center justify-between gap-0">
+            <div className="flex items-center gap-2 bg-green-50 border border-green-200 rounded-l-lg p-4 flex-1">
+              <BadgeCheck className="size-5 text-green-600" />
+              <span className="font-semibold text-green-900">
+                {t("invoice_alert_title")}
+              </span>
+            </div>
+            <div className="flex items-center bg-white rounded-r-lg p-2 pl-0">
+              <Button
+                variant="primary"
+                onClick={() => navigate(sourceUrl)}
+                className="shadow ml-2"
+              >
+                {alertButtonText}
+              </Button>
+            </div>
+          </AlertTitle>
+        </Alert>
+      )}
     </div>
   );
 }
