@@ -265,7 +265,7 @@ function ProductKnowledgeFormContent({
             ...data.definitional,
             ingredients: [],
             nutrients: [],
-            drug_characteristic: {},
+            drug_characteristic: [],
           }
         : undefined,
     };

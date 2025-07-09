@@ -42,13 +42,29 @@ export interface StorageGuideline {
   stability_duration: Duration;
 }
 
+export enum DrugCharacteristicCode {
+  imprint_code = "imprint_code",
+  size = "size",
+  shape = "shape",
+  color = "color",
+  coating = "coating",
+  scoring = "scoring",
+  logo = "logo",
+  image = "image",
+}
+
+export interface DrugCharacteristic {
+  code: DrugCharacteristicCode;
+  value: string;
+}
+
 export interface ProductDefinition {
   dosage_form: Code;
   intended_routes: Code[];
   // TODO: Add ingredients, nutrients, and drug_characteristic types when BE is ready
   ingredients: Code[];
   nutrients: Code[];
-  drug_characteristic: { id?: string };
+  drug_characteristic: DrugCharacteristic[];
 }
 
 export interface ProductKnowledgeBase {
