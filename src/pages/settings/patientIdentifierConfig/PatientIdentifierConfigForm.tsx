@@ -1,7 +1,8 @@
 import { zodResolver } from "@hookform/resolvers/zod";
 import { useMutation, useQuery, useQueryClient } from "@tanstack/react-query";
 import { Loader } from "lucide-react";
-import { useEffect } from "react";
+import { Info } from "lucide-react";
+import { useEffect, useState } from "react";
 import { useForm } from "react-hook-form";
 import { useTranslation } from "react-i18next";
 import * as z from "zod";
@@ -17,6 +18,12 @@ import {
   FormMessage,
 } from "@/components/ui/form";
 import { Input } from "@/components/ui/input";
+import {
+  Popover,
+  PopoverContent,
+  PopoverTrigger,
+} from "@/components/ui/popover";
+import { RadioGroup, RadioGroupItem } from "@/components/ui/radio-group";
 import {
   Select,
   SelectContent,
@@ -45,6 +52,7 @@ const formSchema = z.object({
     unique: z.boolean(),
     regex: z.string(),
     display: z.string().min(1, "Display is required"),
+    default_value: z.string().optional(),
     retrieve_config: z.object({
       retrieve_with_dob: z.boolean().optional(),
       retrieve_with_year_of_birth: z.boolean().optional(),
@@ -139,6 +147,9 @@ export default function PatientIdentifierConfigForm({
       createConfig(values as PatientIdentifierConfigCreate);
     }
   }
+
+  // Add state for serial number mode
+  const [serialMode, setSerialMode] = useState<"user" | "auto">("user");
 
   return (
     <Form {...form}>
@@ -394,6 +405,90 @@ export default function PatientIdentifierConfigForm({
             />
           </div>
         </div>
+
+        {/* Serial Number Mode Selection */}
+        <div>
+          <h2 className="text-lg font-semibold mb-2">
+            {t("serial_number_mode")}
+          </h2>
+          <FormDescription>{t("serial_number_mode_help")}</FormDescription>
+          <RadioGroup
+            value={serialMode}
+            onValueChange={(v) => setSerialMode(v as "user" | "auto")}
+            className="flex flex-row gap-6 mt-2"
+          >
+            <div className="flex items-center gap-2">
+              <RadioGroupItem value="user" id="serial-user" />
+              <label htmlFor="serial-user" className="text-sm cursor-pointer">
+                {t("serial_number_mode_user")}
+              </label>
+            </div>
+            <div className="flex items-center gap-2">
+              <RadioGroupItem value="auto" id="serial-auto" />
+              <label htmlFor="serial-auto" className="text-sm cursor-pointer">
+                {t("serial_number_mode_auto")}
+              </label>
+            </div>
+          </RadioGroup>
+        </div>
+
+        {/* Default Value Section - only show if auto-generated */}
+        {serialMode === "auto" && (
+          <div>
+            <h2 className="text-lg font-semibold mb-2">{t("default_value")}</h2>
+            <FormField
+              control={form.control}
+              name="config.default_value"
+              render={({ field }) => (
+                <FormItem>
+                  <FormLabel>{t("default_value_title")}</FormLabel>
+                  <FormControl>
+                    <Input {...field} placeholder={t("eg_default_value")} />
+                  </FormControl>
+                  <div className="flex items-center gap-2">
+                    <FormDescription>{t("default_value_help")}</FormDescription>
+                    <Popover>
+                      <PopoverTrigger asChild>
+                        <button
+                          type="button"
+                          aria-label="Help"
+                          className="text-muted-foreground hover:text-primary"
+                        >
+                          <Info className="w-4 h-4" />
+                        </button>
+                      </PopoverTrigger>
+                      <PopoverContent align="start">
+                        <div className="font-semibold mb-1">
+                          {t("supported_variables")}
+                        </div>
+                        <ul className="list-disc list-inside mb-1">
+                          <li>
+                            <code>{"{patient_count}"}</code>:{" "}
+                            {t("patient_count_help")}
+                          </li>
+                          <li>
+                            <code>{"{current_year_yy}"}</code>:{" "}
+                            {t("current_year_yy_help")}
+                          </li>
+                          <li>
+                            <code>{"{current_year_yyyy}"}</code>:{" "}
+                            {t("current_year_yyyy_help")}
+                          </li>
+                        </ul>
+                        <div className="mb-1">{t("arithmetic_help")}</div>
+                        <div className="font-mono bg-background rounded px-2 py-1 inline-block">
+                          f'#Patient{"{patient_count} + 100"}
+                          {"{current_year_yy}"}'
+                        </div>
+                      </PopoverContent>
+                    </Popover>
+                  </div>
+                  <FormMessage />
+                </FormItem>
+              )}
+            />
+          </div>
+        )}
 
         {/* Status Section */}
         <div>
