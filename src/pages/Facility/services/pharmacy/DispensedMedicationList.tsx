@@ -280,7 +280,6 @@ export default function DispensedMedicationList({
     queryKey: ["medication_dispense", patientId, qParams, status],
     queryFn: query(medicationDispenseApi.list, {
       queryParams: {
-        facility: facilityId,
         location: locationId,
         limit: resultsPerPage,
         offset: ((qParams.page ?? 1) - 1) * resultsPerPage,
