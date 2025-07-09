@@ -14,7 +14,6 @@ import {
 
 import ChargeItemPriceDisplay from "@/components/Billing/ChargeItem/ChargeItemPriceDisplay";
 
-import useCurrentLocation from "@/pages/Facility/locations/utils/useCurrentLocation";
 import useCurrentFacility from "@/pages/Facility/utils/useCurrentFacility";
 import {
   CHARGE_ITEM_STATUS_COLORS,
@@ -33,9 +32,8 @@ export function ChargeItemCard({
 }: ChargeItemCardProps) {
   const isPaid = chargeItem.paid_invoice?.status === InvoiceStatus.balanced;
   const { facilityId } = useCurrentFacility();
-  const { locationId } = useCurrentLocation();
   const invoiceUrl = chargeItem.paid_invoice
-    ? `/facility/${facilityId}/billing/invoices/${chargeItem.paid_invoice.id}?sourceUrl=/facility/${facilityId}/locations/${locationId}/service_requests/${serviceRequestId}`
+    ? `/facility/${facilityId}/billing/invoices/${chargeItem.paid_invoice.id}?sourceUrl=/facility/${facilityId}/services_requests/${serviceRequestId}`
     : null;
 
   return (

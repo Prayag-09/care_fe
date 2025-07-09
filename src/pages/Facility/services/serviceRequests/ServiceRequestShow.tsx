@@ -470,7 +470,7 @@ export default function ServiceRequestShow({
                 });
                 setInvoiceSheetState({ open: false, chargeItems: [] });
               }}
-              sourceUrl={`/facility/${facilityId}${locationId ? `/locations/${locationId}` : ""}/service_requests/${serviceRequestId}`}
+              sourceUrl={`/facility/${facilityId}${locationId ? `/locations/${locationId}` : ""}/services_requests/${serviceRequestId}`}
               redirectInNewTab={false}
             />
           )}
