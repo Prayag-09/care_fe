@@ -430,7 +430,7 @@ export default function PatientIdentifierConfigForm({
                   if (v === "user") {
                     form.setValue("config.default_value", "");
                   } else if (v === "auto") {
-                    form.setValue("config.default_value", 'f""');
+                    form.setValue("config.default_value", "f'{patient_count}'");
                   }
                 }}
                 className="flex flex-row gap-6 mt-2"
@@ -469,20 +469,7 @@ export default function PatientIdentifierConfigForm({
                     <FormItem>
                       <FormLabel>{t("default_value_title")}</FormLabel>
                       <FormControl>
-                        <Input
-                          {...field}
-                          placeholder={t("eg_default_value")}
-                          value={
-                            field.value?.replace(/^f"/, "").replace(/"$/, "") ||
-                            ""
-                          }
-                          onChange={(e) => {
-                            const trimmedValue = e.target.value
-                              .replace(/^f"/, "")
-                              .replace(/"$/, "");
-                            field.onChange(`f"${trimmedValue}"`);
-                          }}
-                        />
+                        <Input {...field} placeholder={t("eg_default_value")} />
                       </FormControl>
                       <div className="flex items-center gap-2">
                         <FormDescription>
