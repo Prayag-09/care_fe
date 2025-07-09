@@ -541,7 +541,7 @@ export default function SupplyRequestForm({
                           defaultValue={field.value}
                         >
                           <FormControl>
-                            <SelectTrigger>
+                            <SelectTrigger className="border border-gray-400">
                               <SelectValue placeholder={t("select_intent")} />
                             </SelectTrigger>
                           </FormControl>
