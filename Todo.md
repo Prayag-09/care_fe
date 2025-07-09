@@ -61,6 +61,7 @@ x : Done
 - [ ] SR Create - Add Healthcare Services during create
 - [ ] SR Update - Allow all status updates
 - [ ] SR View - Disable patient name link for pharmacist role
+- [ ] Should we allow soft deletion for locations, specimen requirements, observation requirements etc. if they are linked to a service request
 
 ## Back End
 
