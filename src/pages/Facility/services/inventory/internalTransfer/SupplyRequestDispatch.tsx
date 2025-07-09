@@ -170,6 +170,7 @@ export default function SupplyRequestDispatch({
       queryParams: {
         facility: facilityId,
         supply_request: supplyRequestId,
+        origin: locationId,
       },
     }),
   });
