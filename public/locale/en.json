@@ -2739,6 +2739,8 @@
   "no_slots_available_for_this_date": "No slots available for this date",
   "no_slots_found": "No slots found",
   "no_social_profile_details_available": "No Social Profile Details Available",
+  "no_specimens_available": "No Specimens Available",
+  "no_specimens_available_description": "There are no specimens available to print QR codes for.",
   "no_staff": "No staff found",
   "no_starred": "Use the {{star}} icon to add to starred",
   "no_stock": "No Stock",
