@@ -250,17 +250,18 @@ export default function ServiceRequestShow({
 
   const preparePrintAllQRCodes = async () => {
     // First create drafts for any specimen definitions without specimens
-    const missingDraftDefinitions = specimenRequirements.filter(
-      (requirement) => {
-        // Check if there's no draft or available specimen for this definition
-        return !request.specimens.some(
-          (spec) =>
-            spec.specimen_definition?.id === requirement.id &&
-            (spec.status === SpecimenStatus.draft ||
-              spec.status === SpecimenStatus.available),
-        );
-      },
-    );
+    const missingDraftDefinitions =
+      request.status !== Status.completed
+        ? specimenRequirements.filter((requirement) => {
+            // Check if there's no draft or available specimen for this definition
+            return !request.specimens.some(
+              (spec) =>
+                spec.specimen_definition?.id === requirement.id &&
+                (spec.status === SpecimenStatus.draft ||
+                  spec.status === SpecimenStatus.available),
+            );
+          })
+        : [];
 
     if (missingDraftDefinitions.length > 0) {
       setIsPrintingAllQRCodes(true);
