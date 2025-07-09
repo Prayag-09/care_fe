@@ -17,7 +17,7 @@ import useFilters from "@/hooks/useFilters";
 import query from "@/Utils/request/query";
 import roleApi from "@/types/emr/role/roleApi";
 
-export function RolesIndex() {
+export function PermissionsIndex() {
   const { t } = useTranslation();
   const { qParams, Pagination, resultsPerPage } = useFilters({
     limit: 15,

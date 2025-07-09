@@ -29,9 +29,19 @@ function generateAdminLinks(t: TFunction) {
       icon: <CareIcon icon="l-tag-alt" />,
     },
     {
-      name: "Roles",
-      url: `${baseUrl}/roles`,
-      icon: <CareIcon icon="d-people" />,
+      name: "RBAC",
+      url: `${baseUrl}/rbac`,
+      icon: <CareIcon icon="l-shield-check" />,
+      children: [
+        {
+          name: "Permissions",
+          url: `${baseUrl}/rbac/permissions`,
+        },
+        {
+          name: "Roles",
+          url: `${baseUrl}/rbac/roles`,
+        },
+      ],
     },
     {
       name: "Organizations",

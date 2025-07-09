@@ -6,7 +6,8 @@ import { ValueSetEditor } from "@/components/ValueSet/ValueSetEditor";
 import { ValueSetList } from "@/components/ValueSet/ValueSetList";
 
 import { AppRoutes } from "@/Routers/AppRouter";
-import { RolesIndex } from "@/pages/Admin/Role/RolesIndex";
+import { PermissionsIndex } from "@/pages/Admin/Permissions/PermissionsIndex";
+import RolesIndex from "@/pages/Admin/Roles/RolesIndex";
 import TagConfigForm from "@/pages/Admin/TagConfig/TagConfigForm";
 import TagConfigList from "@/pages/Admin/TagConfig/TagConfigList";
 import TagConfigView from "@/pages/Admin/TagConfig/TagConfigView";
@@ -35,7 +36,8 @@ const AdminRoutes: AppRoutes = {
   "/admin/tag_config/new": () => <TagConfigForm />,
   "/admin/tag_config/:id": ({ id }) => <TagConfigView tagId={id} />,
   "/admin/tag_config/:id/edit": ({ id }) => <TagConfigForm configId={id} />,
-  "/admin/roles": () => <RolesIndex />,
+  "/admin/rbac/permissions": () => <PermissionsIndex />,
+  "/admin/rbac/roles": () => <RolesIndex />,
   ...["govt", "product_supplier", "role"].reduce((acc: AppRoutes, type) => {
     acc[`/admin/organizations/${type}/:id`] = ({ id }) => (
       <AdminOrganizationList organizationType={type} organizationId={id} />
