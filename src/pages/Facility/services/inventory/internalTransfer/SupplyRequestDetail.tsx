@@ -126,7 +126,10 @@ export default function SupplyRequestDetail({
   const { data: deliveriesResponse, isLoading: deliveriesLoading } = useQuery({
     queryKey: ["deliveries", id],
     queryFn: query(supplyDeliveryApi.listSupplyDelivery, {
-      queryParams: { supply_request: id },
+      queryParams: {
+        supply_request: id,
+        destination: locationId,
+      },
     }),
     enabled: !!id,
   });
