@@ -10,12 +10,13 @@ import {
   Shuffle,
 } from "lucide-react";
 import { navigate } from "raviger";
-import { useEffect, useState } from "react";
+import React, { useEffect, useState } from "react";
 import { useFieldArray, useForm } from "react-hook-form";
 import { Trans, useTranslation } from "react-i18next";
 import { toast } from "sonner";
 import { z } from "zod";
 
+import { groupItemsByTime } from "@/lib/time";
 import { cn } from "@/lib/utils";
 
 import { Badge } from "@/components/ui/badge";
@@ -184,6 +185,7 @@ const formSchema = z.object({
           reason: z.nativeEnum(SubstitutionReason),
         })
         .optional(),
+      timeGroup: z.string().optional(), // Add time group identifier
     }),
   ),
 });
@@ -841,6 +843,9 @@ export default function MedicationBillForm({ patientId }: Props) {
   const medications =
     response?.results.filter((med) => med.requested_product) || [];
 
+  // Group medications by time periods
+  const groupedMedications = groupItemsByTime(medications);
+
   const { data: productKnowledges, isFetching: isProductLoading } = useQuery({
     queryKey: ["productKnowledge", "medication", search],
     queryFn: query.debounced(productKnowledgeApi.listProductKnowledge, {
@@ -856,27 +861,41 @@ export default function MedicationBillForm({ patientId }: Props) {
 
   useEffect(() => {
     form.reset({ items: [] }); // Reset form with empty items array
-    medications.forEach((medication) => {
-      append({
-        reference_id: crypto.randomUUID(),
-        productKnowledge: medication.requested_product,
-        medication,
-        isSelected: true,
-        daysSupply: convertDurationToDays(
-          medication.dosage_instruction[0]?.timing?.repeat?.bounds_duration
-            ?.value || 0,
-          medication.dosage_instruction[0]?.timing?.repeat?.bounds_duration
-            ?.unit || "",
-        ),
-        isFullyDispensed: true,
-        dosageInstructions: medication.dosage_instruction,
-        lots: [
-          {
-            selectedInventoryId:
-              (medication.inventory_items_internal?.[0]?.id as string) || "",
-            quantity: computeInitialQuantity(medication),
-          },
-        ],
+
+    // Process medications in order: today, yesterday, this week, this month, this year, older
+    const orderedGroups = [
+      { key: "today", medications: groupedMedications.today },
+      { key: "yesterday", medications: groupedMedications.yesterday },
+      { key: "thisWeek", medications: groupedMedications.thisWeek },
+      { key: "thisMonth", medications: groupedMedications.thisMonth },
+      { key: "thisYear", medications: groupedMedications.thisYear },
+      { key: "older", medications: groupedMedications.older },
+    ];
+
+    orderedGroups.forEach(({ key, medications: groupMedications }) => {
+      groupMedications.forEach((medication) => {
+        append({
+          reference_id: crypto.randomUUID(),
+          productKnowledge: medication.requested_product,
+          medication,
+          isSelected: true,
+          daysSupply: convertDurationToDays(
+            medication.dosage_instruction[0]?.timing?.repeat?.bounds_duration
+              ?.value || 0,
+            medication.dosage_instruction[0]?.timing?.repeat?.bounds_duration
+              ?.unit || "",
+          ),
+          isFullyDispensed: true,
+          dosageInstructions: medication.dosage_instruction,
+          lots: [
+            {
+              selectedInventoryId:
+                (medication.inventory_items_internal?.[0]?.id as string) || "",
+              quantity: computeInitialQuantity(medication),
+            },
+          ],
+          timeGroup: key, // Add group identifier
+        });
       });
     });
   }, [medications.length]);
@@ -1328,723 +1347,844 @@ export default function MedicationBillForm({ patientId }: Props) {
                   </TableRow>
                 </TableHeader>
                 <TableBody>
-                  {fields.map((field, index) => {
-                    const productKnowledge =
-                      field.productKnowledge as ProductKnowledgeBase;
-                    const substitution = form.watch(
-                      `items.${index}.substitution`,
+                  {(() => {
+                    // Group fields by timeGroup for rendering
+                    const groupedFields = fields.reduce(
+                      (acc, field, index) => {
+                        const group = field.timeGroup || "today";
+                        if (!acc[group]) acc[group] = [];
+                        acc[group].push({ field, index });
+                        return acc;
+                      },
+                      {} as Record<
+                        string,
+                        Array<{ field: any; index: number }>
+                      >,
                     );
-                    const effectiveProductKnowledge =
-                      substitution?.substitutedProductKnowledge ||
-                      productKnowledge;
 
-                    return (
-                      <TableRow
-                        key={field.id}
-                        className="bg-white hover:bg-gray-50/50 shadow-sm rounded-lg"
-                      >
-                        <TableCell
-                          className={cn(tableCellClass, "rounded-l-lg")}
-                        >
-                          <FormField
-                            control={form.control}
-                            name={`items.${index}.isSelected`}
-                            render={({ field: formField }) => (
-                              <FormItem>
-                                <FormControl>
-                                  <Checkbox
-                                    checked={formField.value}
-                                    onCheckedChange={formField.onChange}
+                    const orderedGroups = [
+                      { key: "today", label: t("today") },
+                      { key: "yesterday", label: t("yesterday") },
+                      { key: "thisWeek", label: t("this_week") },
+                      { key: "thisMonth", label: t("this_month") },
+                      { key: "thisYear", label: t("this_year") },
+                      { key: "older", label: t("older") },
+                    ];
+
+                    return orderedGroups.map(({ key, label }) => {
+                      const groupFields = groupedFields[key];
+                      if (!groupFields || groupFields.length === 0) return null;
+
+                      return (
+                        <React.Fragment key={key}>
+                          {/* Group Header Row */}
+                          <TableRow className="bg-gray-50">
+                            <TableCell
+                              colSpan={10}
+                              className="py-2 px-4 font-semibold text-gray-800 border-b"
+                            >
+                              {label} ({groupFields.length})
+                            </TableCell>
+                          </TableRow>
+                          {/* Group Items */}
+                          {groupFields.map(({ field, index }) => {
+                            const productKnowledge =
+                              field.productKnowledge as ProductKnowledgeBase;
+                            const substitution = form.watch(
+                              `items.${index}.substitution`,
+                            );
+                            const effectiveProductKnowledge =
+                              substitution?.substitutedProductKnowledge ||
+                              productKnowledge;
+
+                            return (
+                              <TableRow
+                                key={field.id}
+                                className="bg-white hover:bg-gray-50/50 shadow-sm rounded-lg"
+                              >
+                                <TableCell
+                                  className={cn(tableCellClass, "rounded-l-lg")}
+                                >
+                                  <FormField
+                                    control={form.control}
+                                    name={`items.${index}.isSelected`}
+                                    render={({ field: formField }) => (
+                                      <FormItem>
+                                        <FormControl>
+                                          <Checkbox
+                                            checked={formField.value}
+                                            onCheckedChange={formField.onChange}
+                                          />
+                                        </FormControl>
+                                      </FormItem>
+                                    )}
                                   />
-                                </FormControl>
-                              </FormItem>
-                            )}
-                          />
-                        </TableCell>
-                        <TableCell className={tableCellClass}>
-                          <div className="flex items-center justify-between gap-2">
-                            <div>
-                              <div className="font-medium text-gray-950 text-base flex items-center">
-                                <div>
-                                  <div className="flex items-center gap-2">
-                                    {effectiveProductKnowledge.name}
-                                    {substitution && (
+                                </TableCell>
+                                <TableCell className={tableCellClass}>
+                                  <div className="flex items-center justify-between gap-2">
+                                    <div>
+                                      <div className="font-medium text-gray-950 text-base flex items-center">
+                                        <div>
+                                          <div className="flex items-center gap-2">
+                                            {effectiveProductKnowledge.name}
+                                            {substitution && (
+                                              <Popover>
+                                                <PopoverTrigger asChild>
+                                                  <Button
+                                                    variant="ghost"
+                                                    size="sm"
+                                                    className="p-1 h-6 w-6 rounded-full hover:bg-blue-100"
+                                                  >
+                                                    <Info className="h-4 w-4" />
+                                                    <span className="sr-only">
+                                                      {t(
+                                                        "substitution_details",
+                                                      )}
+                                                    </span>
+                                                  </Button>
+                                                </PopoverTrigger>
+                                                <PopoverContent
+                                                  className="p-4 w-auto"
+                                                  align="start"
+                                                  side="bottom"
+                                                >
+                                                  <div className="space-y-3">
+                                                    <div className="font-semibold text-sm text-gray-950 underline">
+                                                      {t(
+                                                        "substitution_details",
+                                                      )}{" "}
+                                                      :
+                                                    </div>
+                                                    <div className="space-y-3 text-sm max-w-md">
+                                                      <div>
+                                                        <div className="flex items-center gap-1 mb-1">
+                                                          <span className="font-medium text-gray-600">
+                                                            {t(
+                                                              "original_medication",
+                                                            )}
+                                                            :
+                                                          </span>
+                                                          <div className="text-gray-950 font-medium">
+                                                            {
+                                                              productKnowledge.name
+                                                            }
+                                                          </div>
+                                                        </div>
+                                                      </div>
+                                                      <div>
+                                                        <div className="flex items-center gap-1 mb-1">
+                                                          <span className="font-medium text-gray-600">
+                                                            {t(
+                                                              "substituted_with",
+                                                            )}
+                                                            :
+                                                          </span>
+                                                          <div className="text-gray-950 font-medium">
+                                                            {
+                                                              effectiveProductKnowledge.name
+                                                            }
+                                                          </div>
+                                                        </div>
+                                                      </div>
+                                                      <div>
+                                                        <div className="flex items-center gap-1">
+                                                          <span className="font-medium text-gray-600">
+                                                            {t(
+                                                              "substitution_type",
+                                                            )}
+                                                            :
+                                                          </span>
+                                                          <div className="text-gray-950 font-medium">
+                                                            {getSubstitutionTypeDisplay(
+                                                              t,
+                                                              substitution.type,
+                                                            )}{" "}
+                                                            ({substitution.type}
+                                                            )
+                                                          </div>
+                                                        </div>
+                                                        <div className="text-gray-700 text-xs italic leading-relaxed">
+                                                          {getSubstitutionTypeDescription(
+                                                            t,
+                                                            substitution.type,
+                                                          )}
+                                                        </div>
+                                                      </div>
+                                                      <div>
+                                                        <div className="flex items-center gap-1">
+                                                          <span className="font-medium text-gray-600">
+                                                            {t(
+                                                              "substitution_reason",
+                                                            )}
+                                                            :
+                                                          </span>
+                                                          <div className="text-gray-950 font-medium">
+                                                            {getSubstitutionReasonDisplay(
+                                                              t,
+                                                              substitution.reason,
+                                                            )}{" "}
+                                                            (
+                                                            {
+                                                              substitution.reason
+                                                            }
+                                                            )
+                                                          </div>
+                                                        </div>
+                                                        <div className="text-gray-700 text-xs italic leading-relaxed">
+                                                          {getSubstitutionReasonDescription(
+                                                            t,
+                                                            substitution.reason,
+                                                          )}
+                                                        </div>
+                                                      </div>
+                                                    </div>
+                                                  </div>
+                                                </PopoverContent>
+                                              </Popover>
+                                            )}
+                                            {substitution && (
+                                              <Badge variant="orange">
+                                                {t("substituted")}
+                                              </Badge>
+                                            )}
+                                            {field.medication
+                                              ?.dispense_status ===
+                                              MedicationRequestDispenseStatus.partial && (
+                                              <Badge variant="yellow">
+                                                {t("partially_billed")}
+                                                <Tooltip>
+                                                  <TooltipTrigger asChild>
+                                                    <Button
+                                                      variant="outline"
+                                                      size="icon"
+                                                      className="p-0 h-auto text-yellow-900 underline font-normal rounded-md w-6"
+                                                      type="button"
+                                                      onClick={() => {
+                                                        setViewingDispensedMedicationId(
+                                                          field.medication.id,
+                                                        );
+                                                      }}
+                                                    >
+                                                      <Eye className="size-5" />
+                                                    </Button>
+                                                  </TooltipTrigger>
+                                                  <TooltipContent>
+                                                    {t("view_dispensed")}
+                                                  </TooltipContent>
+                                                </Tooltip>
+                                              </Badge>
+                                            )}
+                                          </div>
+                                          {substitution && (
+                                            <div className="text-gray-500 font-normal italic line-through text-sm">
+                                              {productKnowledge.name}
+                                            </div>
+                                          )}
+                                        </div>
+                                      </div>
+                                      {field.medication ? (
+                                        <div>
+                                          <div className="text-sm text-gray-700 font-medium flex items-center gap-1">
+                                            {/* Existing medication - show read-only dosage instructions */}
+                                            {
+                                              field.dosageInstructions?.[0]
+                                                ?.dose_and_rate?.dose_quantity
+                                                ?.value
+                                            }{" "}
+                                            {
+                                              field.dosageInstructions?.[0]
+                                                ?.dose_and_rate?.dose_quantity
+                                                ?.unit?.display
+                                            }{" "}
+                                            ×{" "}
+                                            {
+                                              field.dosageInstructions?.[0]
+                                                ?.timing?.code?.code
+                                            }{" "}
+                                            ×{" "}
+                                            {field.dosageInstructions?.[0]
+                                              ?.timing?.repeat?.bounds_duration
+                                              ?.value || 0}
+                                            {
+                                              field.dosageInstructions?.[0]
+                                                ?.timing?.repeat
+                                                ?.bounds_duration?.unit
+                                            }{" "}
+                                            ={" "}
+                                            <div className="text-gray-700 font-semibold text-sm">
+                                              {formatTotalUnits(
+                                                field.dosageInstructions,
+                                                t("units"),
+                                              )}
+                                            </div>
+                                          </div>
+                                        </div>
+                                      ) : (
+                                        <div
+                                          className="text-sm text-gray-500 cursor-pointer hover:text-gray-900"
+                                          onClick={() => {
+                                            setSelectedProduct(
+                                              productKnowledge,
+                                            );
+                                            setEditingItemIndex(index);
+                                            setIsAddMedicationSheetOpen(true);
+                                          }}
+                                        >
+                                          {(() => {
+                                            const currentDosageInstructions =
+                                              form.watch(
+                                                `items.${index}.dosageInstructions`,
+                                              )?.[0];
+
+                                            if (
+                                              currentDosageInstructions
+                                                ?.dose_and_rate?.dose_quantity
+                                            ) {
+                                              return (
+                                                <div className="text-sm text-gray-700 font-medium flex items-center gap-1">
+                                                  {
+                                                    currentDosageInstructions
+                                                      .dose_and_rate
+                                                      .dose_quantity.value
+                                                  }{" "}
+                                                  {
+                                                    currentDosageInstructions
+                                                      .dose_and_rate
+                                                      .dose_quantity.unit
+                                                      ?.display
+                                                  }{" "}
+                                                  ×{" "}
+                                                  {
+                                                    currentDosageInstructions
+                                                      .timing?.code?.code
+                                                  }{" "}
+                                                  ×{" "}
+                                                  {currentDosageInstructions
+                                                    .timing?.repeat
+                                                    ?.bounds_duration?.value ||
+                                                    0}
+                                                  {
+                                                    currentDosageInstructions
+                                                      .timing?.repeat
+                                                      ?.bounds_duration?.unit
+                                                  }{" "}
+                                                  ={" "}
+                                                  <div className="text-gray-700 font-semibold text-sm">
+                                                    {formatTotalUnits(
+                                                      [
+                                                        currentDosageInstructions,
+                                                      ],
+                                                      t("units"),
+                                                    )}
+                                                  </div>
+                                                </div>
+                                              );
+                                            }
+
+                                            return t(
+                                              "click_to_add_dosage_instructions",
+                                            );
+                                          })()}
+                                        </div>
+                                      )}
+                                    </div>
+                                    {field.medication && (
+                                      <Button
+                                        variant="outline"
+                                        size="sm"
+                                        className="border-gray-400 border text-gray-950 hover:bg-gray-50"
+                                        type="button"
+                                        onClick={() => {
+                                          setSubstitutingItemIndex(index);
+                                          setOriginalProductForSubstitution(
+                                            productKnowledge,
+                                          );
+                                          setIsSubstitutionSheetOpen(true);
+                                        }}
+                                      >
+                                        <Shuffle className="size-5" />
+                                        {t("substitute")}
+                                      </Button>
+                                    )}
+                                  </div>
+                                </TableCell>
+                                <TableCell className={tableCellClass}>
+                                  {productKnowledgeInventoriesMap[
+                                    effectiveProductKnowledge.id
+                                  ]?.length ? (
+                                    <div className="space-y-2">
                                       <Popover>
                                         <PopoverTrigger asChild>
                                           <Button
-                                            variant="ghost"
-                                            size="sm"
-                                            className="p-1 h-6 w-6 rounded-full hover:bg-blue-100"
+                                            variant="outline"
+                                            className="w-auto min-w-40 justify-between h-auto min-h-[40px] p-2 border-gray-300 border"
+                                            type="button"
                                           >
-                                            <Info className="h-4 w-4" />
-                                            <span className="sr-only">
-                                              {t("substitution_details")}
-                                            </span>
+                                            <div className="flex flex-col items-start gap-1 w-full">
+                                              {(() => {
+                                                const selectedLots = form
+                                                  .watch(`items.${index}.lots`)
+                                                  .filter(
+                                                    (lot) =>
+                                                      lot.selectedInventoryId,
+                                                  );
+
+                                                if (selectedLots.length === 0) {
+                                                  return (
+                                                    <span className="text-gray-500">
+                                                      {t("select_stock")}
+                                                    </span>
+                                                  );
+                                                }
+
+                                                return selectedLots.map(
+                                                  (lot) => {
+                                                    const selectedInventory =
+                                                      productKnowledgeInventoriesMap[
+                                                        effectiveProductKnowledge
+                                                          .id
+                                                      ]?.find(
+                                                        (inv) =>
+                                                          inv.id ===
+                                                          lot.selectedInventoryId,
+                                                      );
+
+                                                    return (
+                                                      <div
+                                                        key={
+                                                          lot.selectedInventoryId
+                                                        }
+                                                        className="flex items-center gap-2 w-full bg-gray-50 px-2 border-gray-200 border-1 text-gray-950"
+                                                      >
+                                                        <span className="font-medium text-sm">
+                                                          {"Lot #" +
+                                                            selectedInventory
+                                                              ?.product.batch
+                                                              ?.lot_number}
+                                                        </span>
+                                                        <Badge
+                                                          variant={
+                                                            selectedInventory?.status ===
+                                                              "active" &&
+                                                            selectedInventory?.net_content >
+                                                              0
+                                                              ? "primary"
+                                                              : "destructive"
+                                                          }
+                                                        >
+                                                          {
+                                                            selectedInventory?.net_content
+                                                          }{" "}
+                                                          {t("units")}
+                                                        </Badge>
+                                                      </div>
+                                                    );
+                                                  },
+                                                );
+                                              })()}
+                                            </div>
+                                            <ChevronDownIcon className="ml-2 h-4 w-4 shrink-0" />
                                           </Button>
                                         </PopoverTrigger>
-                                        <PopoverContent
-                                          className="p-4 w-auto"
-                                          align="start"
-                                          side="bottom"
-                                        >
-                                          <div className="space-y-3">
-                                            <div className="font-semibold text-sm text-gray-950 underline">
-                                              {t("substitution_details")} :
-                                            </div>
-                                            <div className="space-y-3 text-sm max-w-md">
-                                              <div>
-                                                <div className="flex items-center gap-1 mb-1">
-                                                  <span className="font-medium text-gray-600">
-                                                    {t("original_medication")}:
-                                                  </span>
-                                                  <div className="text-gray-950 font-medium">
-                                                    {productKnowledge.name}
+                                        <PopoverContent className="w-auto p-0">
+                                          <div className="max-h-60 overflow-auto">
+                                            {productKnowledgeInventoriesMap[
+                                              effectiveProductKnowledge.id
+                                            ]?.length ? (
+                                              productKnowledgeInventoriesMap[
+                                                effectiveProductKnowledge.id
+                                              ]?.map((inv) => {
+                                                const currentLots = form.watch(
+                                                  `items.${index}.lots`,
+                                                );
+                                                const isSelected =
+                                                  currentLots.some(
+                                                    (lot) =>
+                                                      lot.selectedInventoryId ===
+                                                      inv.id,
+                                                  );
+
+                                                return (
+                                                  <div
+                                                    key={inv.id}
+                                                    className="flex items-center space-x-2 cursor-pointer p-2 hover:bg-accent"
+                                                    onClick={() => {
+                                                      const lots =
+                                                        form.getValues(
+                                                          `items.${index}.lots`,
+                                                        );
+
+                                                      if (isSelected) {
+                                                        form.setValue(
+                                                          `items.${index}.lots`,
+                                                          lots.filter(
+                                                            (lot) =>
+                                                              lot.selectedInventoryId !==
+                                                              inv.id,
+                                                          ),
+                                                        );
+                                                      } else {
+                                                        const medication =
+                                                          form.getValues(
+                                                            `items.${index}.medication`,
+                                                          );
+                                                        const initialQuantity =
+                                                          medication
+                                                            ? computeInitialQuantity(
+                                                                medication,
+                                                              )
+                                                            : 0;
+
+                                                        form.setValue(
+                                                          `items.${index}.lots`,
+                                                          [
+                                                            ...lots,
+                                                            {
+                                                              selectedInventoryId:
+                                                                inv.id,
+                                                              quantity:
+                                                                initialQuantity,
+                                                            },
+                                                          ],
+                                                        );
+                                                      }
+                                                    }}
+                                                  >
+                                                    <Checkbox
+                                                      checked={isSelected}
+                                                      className="mr-2"
+                                                    />
+                                                    <div className="flex-1 flex items-center justify-between">
+                                                      <span>
+                                                        {"Lot #" +
+                                                          inv.product.batch
+                                                            ?.lot_number}
+                                                      </span>
+                                                      <Badge
+                                                        variant={
+                                                          inv.status ===
+                                                            "active" &&
+                                                          inv.net_content > 0
+                                                            ? "primary"
+                                                            : "destructive"
+                                                        }
+                                                        className="ml-2"
+                                                      >
+                                                        {inv.net_content}{" "}
+                                                        {t("units")}
+                                                      </Badge>
+                                                    </div>
                                                   </div>
-                                                </div>
+                                                );
+                                              })
+                                            ) : (
+                                              <div className="p-4 text-center text-gray-500">
+                                                {t("no_lots_found")}
                                               </div>
-                                              <div>
-                                                <div className="flex items-center gap-1 mb-1">
-                                                  <span className="font-medium text-gray-600">
-                                                    {t("substituted_with")}:
-                                                  </span>
-                                                  <div className="text-gray-950 font-medium">
-                                                    {
-                                                      effectiveProductKnowledge.name
-                                                    }
-                                                  </div>
-                                                </div>
-                                              </div>
-                                              <div>
-                                                <div className="flex items-center gap-1">
-                                                  <span className="font-medium text-gray-600">
-                                                    {t("substitution_type")}:
-                                                  </span>
-                                                  <div className="text-gray-950 font-medium">
-                                                    {getSubstitutionTypeDisplay(
-                                                      t,
-                                                      substitution.type,
-                                                    )}{" "}
-                                                    ({substitution.type})
-                                                  </div>
-                                                </div>
-                                                <div className="text-gray-700 text-xs italic leading-relaxed">
-                                                  {getSubstitutionTypeDescription(
-                                                    t,
-                                                    substitution.type,
-                                                  )}
-                                                </div>
-                                              </div>
-                                              <div>
-                                                <div className="flex items-center gap-1">
-                                                  <span className="font-medium text-gray-600">
-                                                    {t("substitution_reason")}:
-                                                  </span>
-                                                  <div className="text-gray-950 font-medium">
-                                                    {getSubstitutionReasonDisplay(
-                                                      t,
-                                                      substitution.reason,
-                                                    )}{" "}
-                                                    ({substitution.reason})
-                                                  </div>
-                                                </div>
-                                                <div className="text-gray-700 text-xs italic leading-relaxed">
-                                                  {getSubstitutionReasonDescription(
-                                                    t,
-                                                    substitution.reason,
-                                                  )}
-                                                </div>
-                                              </div>
-                                            </div>
+                                            )}
                                           </div>
                                         </PopoverContent>
                                       </Popover>
-                                    )}
-                                    {substitution && (
-                                      <Badge variant="orange">
-                                        {t("substituted")}
-                                      </Badge>
-                                    )}
-                                    {field.medication?.dispense_status ===
-                                      MedicationRequestDispenseStatus.partial && (
-                                      <Badge variant="yellow">
-                                        {t("partially_billed")}
-                                        <Tooltip>
-                                          <TooltipTrigger asChild>
-                                            <Button
-                                              variant="outline"
-                                              size="icon"
-                                              className="p-0 h-auto text-yellow-900 underline font-normal rounded-md w-6"
-                                              type="button"
-                                              onClick={() => {
-                                                setViewingDispensedMedicationId(
-                                                  field.medication.id,
-                                                );
-                                              }}
-                                            >
-                                              <Eye className="size-5" />
-                                            </Button>
-                                          </TooltipTrigger>
-                                          <TooltipContent>
-                                            {t("view_dispensed")}
-                                          </TooltipContent>
-                                        </Tooltip>
-                                      </Badge>
-                                    )}
-                                  </div>
-                                  {substitution && (
-                                    <div className="text-gray-500 font-normal italic line-through text-sm">
-                                      {productKnowledge.name}
                                     </div>
+                                  ) : (
+                                    <Badge variant="destructive">
+                                      {t("no_stock")}
+                                    </Badge>
                                   )}
-                                </div>
-                              </div>
-                              {field.medication ? (
-                                <div>
-                                  <div className="text-sm text-gray-700 font-medium flex items-center gap-1">
-                                    {/* Existing medication - show read-only dosage instructions */}
-                                    {
-                                      field.dosageInstructions?.[0]
-                                        ?.dose_and_rate?.dose_quantity?.value
-                                    }{" "}
-                                    {
-                                      field.dosageInstructions?.[0]
-                                        ?.dose_and_rate?.dose_quantity?.unit
-                                        ?.display
-                                    }{" "}
-                                    ×{" "}
-                                    {
-                                      field.dosageInstructions?.[0]?.timing
-                                        ?.code?.code
-                                    }{" "}
-                                    ×{" "}
-                                    {field.dosageInstructions?.[0]?.timing
-                                      ?.repeat?.bounds_duration?.value || 0}
-                                    {
-                                      field.dosageInstructions?.[0]?.timing
-                                        ?.repeat?.bounds_duration?.unit
-                                    }{" "}
-                                    ={" "}
-                                    <div className="text-gray-700 font-semibold text-sm">
-                                      {formatTotalUnits(
-                                        field.dosageInstructions,
-                                        t("units"),
-                                      )}
-                                    </div>
-                                  </div>
-                                </div>
-                              ) : (
-                                <div
-                                  className="text-sm text-gray-500 cursor-pointer hover:text-gray-900"
-                                  onClick={() => {
-                                    setSelectedProduct(productKnowledge);
-                                    setEditingItemIndex(index);
-                                    setIsAddMedicationSheetOpen(true);
-                                  }}
-                                >
-                                  {(() => {
-                                    const currentDosageInstructions =
-                                      form.watch(
-                                        `items.${index}.dosageInstructions`,
-                                      )?.[0];
-
-                                    if (
-                                      currentDosageInstructions?.dose_and_rate
-                                        ?.dose_quantity
-                                    ) {
-                                      return (
-                                        <div className="text-sm text-gray-700 font-medium flex items-center gap-1">
-                                          {
-                                            currentDosageInstructions
-                                              .dose_and_rate.dose_quantity.value
-                                          }{" "}
-                                          {
-                                            currentDosageInstructions
-                                              .dose_and_rate.dose_quantity.unit
-                                              ?.display
-                                          }{" "}
-                                          ×{" "}
-                                          {
-                                            currentDosageInstructions.timing
-                                              ?.code?.code
-                                          }{" "}
-                                          ×{" "}
-                                          {currentDosageInstructions.timing
-                                            ?.repeat?.bounds_duration?.value ||
-                                            0}
-                                          {
-                                            currentDosageInstructions.timing
-                                              ?.repeat?.bounds_duration?.unit
-                                          }{" "}
-                                          ={" "}
-                                          <div className="text-gray-700 font-semibold text-sm">
-                                            {formatTotalUnits(
-                                              [currentDosageInstructions],
-                                              t("units"),
-                                            )}
-                                          </div>
-                                        </div>
-                                      );
-                                    }
-
-                                    return t(
-                                      "click_to_add_dosage_instructions",
-                                    );
-                                  })()}
-                                </div>
-                              )}
-                            </div>
-                            {field.medication && (
-                              <Button
-                                variant="outline"
-                                size="sm"
-                                className="border-gray-400 border text-gray-950 hover:bg-gray-50"
-                                type="button"
-                                onClick={() => {
-                                  setSubstitutingItemIndex(index);
-                                  setOriginalProductForSubstitution(
-                                    productKnowledge,
-                                  );
-                                  setIsSubstitutionSheetOpen(true);
-                                }}
-                              >
-                                <Shuffle className="size-5" />
-                                {t("substitute")}
-                              </Button>
-                            )}
-                          </div>
-                        </TableCell>
-                        <TableCell className={tableCellClass}>
-                          {productKnowledgeInventoriesMap[
-                            effectiveProductKnowledge.id
-                          ]?.length ? (
-                            <div className="space-y-2">
-                              <Popover>
-                                <PopoverTrigger asChild>
-                                  <Button
-                                    variant="outline"
-                                    className="w-auto min-w-40 justify-between h-auto min-h-[40px] p-2 border-gray-300 border"
-                                    type="button"
-                                  >
-                                    <div className="flex flex-col items-start gap-1 w-full">
-                                      {(() => {
-                                        const selectedLots = form
+                                </TableCell>
+                                <TableCell className={tableCellClass}>
+                                  <div className="space-y-2">
+                                    {form
+                                      .watch(`items.${index}.lots`)
+                                      .filter((lot) => lot.selectedInventoryId)
+                                      .map((lot) => {
+                                        const actualLotIndex = form
                                           .watch(`items.${index}.lots`)
-                                          .filter(
-                                            (lot) => lot.selectedInventoryId,
+                                          .findIndex(
+                                            (l) =>
+                                              l.selectedInventoryId ===
+                                              lot.selectedInventoryId,
                                           );
-
-                                        if (selectedLots.length === 0) {
-                                          return (
-                                            <span className="text-gray-500">
-                                              {t("select_stock")}
-                                            </span>
-                                          );
-                                        }
-
-                                        return selectedLots.map((lot) => {
-                                          const selectedInventory =
-                                            productKnowledgeInventoriesMap[
-                                              effectiveProductKnowledge.id
-                                            ]?.find(
-                                              (inv) =>
-                                                inv.id ===
-                                                lot.selectedInventoryId,
-                                            );
-
-                                          return (
-                                            <div
-                                              key={lot.selectedInventoryId}
-                                              className="flex items-center gap-2 w-full bg-gray-50 px-2 border-gray-200 border-1 text-gray-950"
-                                            >
-                                              <span className="font-medium text-sm">
-                                                {"Lot #" +
-                                                  selectedInventory?.product
-                                                    .batch?.lot_number}
-                                              </span>
-                                              <Badge
-                                                variant={
-                                                  selectedInventory?.status ===
-                                                    "active" &&
-                                                  selectedInventory?.net_content >
-                                                    0
-                                                    ? "primary"
-                                                    : "destructive"
-                                                }
-                                              >
-                                                {selectedInventory?.net_content}{" "}
-                                                {t("units")}
-                                              </Badge>
-                                            </div>
-                                          );
-                                        });
-                                      })()}
-                                    </div>
-                                    <ChevronDownIcon className="ml-2 h-4 w-4 shrink-0" />
-                                  </Button>
-                                </PopoverTrigger>
-                                <PopoverContent className="w-auto p-0">
-                                  <div className="max-h-60 overflow-auto">
-                                    {productKnowledgeInventoriesMap[
-                                      effectiveProductKnowledge.id
-                                    ]?.length ? (
-                                      productKnowledgeInventoriesMap[
-                                        effectiveProductKnowledge.id
-                                      ]?.map((inv) => {
-                                        const currentLots = form.watch(
-                                          `items.${index}.lots`,
-                                        );
-                                        const isSelected = currentLots.some(
-                                          (lot) =>
-                                            lot.selectedInventoryId === inv.id,
-                                        );
 
                                         return (
                                           <div
-                                            key={inv.id}
-                                            className="flex items-center space-x-2 cursor-pointer p-2 hover:bg-accent"
-                                            onClick={() => {
-                                              const lots = form.getValues(
-                                                `items.${index}.lots`,
-                                              );
-
-                                              if (isSelected) {
-                                                form.setValue(
-                                                  `items.${index}.lots`,
-                                                  lots.filter(
-                                                    (lot) =>
-                                                      lot.selectedInventoryId !==
-                                                      inv.id,
-                                                  ),
-                                                );
-                                              } else {
-                                                const medication =
-                                                  form.getValues(
-                                                    `items.${index}.medication`,
-                                                  );
-                                                const initialQuantity =
-                                                  medication
-                                                    ? computeInitialQuantity(
-                                                        medication,
-                                                      )
-                                                    : 0;
-
-                                                form.setValue(
-                                                  `items.${index}.lots`,
-                                                  [
-                                                    ...lots,
-                                                    {
-                                                      selectedInventoryId:
-                                                        inv.id,
-                                                      quantity: initialQuantity,
-                                                    },
-                                                  ],
-                                                );
-                                              }
-                                            }}
+                                            key={lot.selectedInventoryId}
+                                            className="flex items-center gap-2"
                                           >
-                                            <Checkbox
-                                              checked={isSelected}
-                                              className="mr-2"
+                                            <FormField
+                                              control={form.control}
+                                              name={`items.${index}.lots.${actualLotIndex}.quantity`}
+                                              render={({
+                                                field: formField,
+                                              }) => (
+                                                <FormItem>
+                                                  <FormControl>
+                                                    <Input
+                                                      type="number"
+                                                      min={0}
+                                                      {...formField}
+                                                      onChange={(e) => {
+                                                        formField.onChange(
+                                                          parseInt(
+                                                            e.target.value,
+                                                          ) || 0,
+                                                        );
+                                                      }}
+                                                      className="border-gray-300 border rounded-none w-24"
+                                                      placeholder="0"
+                                                    />
+                                                  </FormControl>
+                                                  <FormMessage />
+                                                </FormItem>
+                                              )}
                                             />
-                                            <div className="flex-1 flex items-center justify-between">
-                                              <span>
-                                                {"Lot #" +
-                                                  inv.product.batch?.lot_number}
-                                              </span>
-                                              <Badge
-                                                variant={
-                                                  inv.status === "active" &&
-                                                  inv.net_content > 0
-                                                    ? "primary"
-                                                    : "destructive"
-                                                }
-                                                className="ml-2"
-                                              >
-                                                {inv.net_content} {t("units")}
-                                              </Badge>
-                                            </div>
                                           </div>
                                         );
-                                      })
-                                    ) : (
-                                      <div className="p-4 text-center text-gray-500">
-                                        {t("no_lots_found")}
+                                      })}
+                                    {form
+                                      .watch(`items.${index}.lots`)
+                                      .filter((lot) => lot.selectedInventoryId)
+                                      .length === 0 && (
+                                      <div className="text-sm text-gray-500 py-2">
+                                        {t("select_lots_first")}
                                       </div>
                                     )}
                                   </div>
-                                </PopoverContent>
-                              </Popover>
-                            </div>
-                          ) : (
-                            <Badge variant="destructive">{t("no_stock")}</Badge>
-                          )}
-                        </TableCell>
-                        <TableCell className={tableCellClass}>
-                          <div className="space-y-2">
-                            {form
-                              .watch(`items.${index}.lots`)
-                              .filter((lot) => lot.selectedInventoryId)
-                              .map((lot) => {
-                                const actualLotIndex = form
-                                  .watch(`items.${index}.lots`)
-                                  .findIndex(
-                                    (l) =>
-                                      l.selectedInventoryId ===
-                                      lot.selectedInventoryId,
-                                  );
+                                </TableCell>
+                                <TableCell className={tableCellClass}>
+                                  <FormField
+                                    control={form.control}
+                                    name={`items.${index}.daysSupply`}
+                                    render={({ field: formField }) => (
+                                      <FormItem>
+                                        <FormControl>
+                                          <Input
+                                            type="number"
+                                            min={1}
+                                            {...formField}
+                                            onChange={(e) => {
+                                              formField.onChange(
+                                                parseInt(e.target.value) || 0,
+                                              );
+                                            }}
+                                            className="border-gray-300 border rounded-none w-24"
+                                          />
+                                        </FormControl>
+                                        <FormMessage />
+                                      </FormItem>
+                                    )}
+                                  />
+                                </TableCell>
+                                <TableCell className={tableCellClass}>
+                                  {form
+                                    .watch(`items.${index}.lots`)
+                                    .filter((lot) => lot.selectedInventoryId)
+                                    .map((lot) => {
+                                      const selectedInventory =
+                                        productKnowledgeInventoriesMap[
+                                          effectiveProductKnowledge.id
+                                        ]?.find(
+                                          (inv) =>
+                                            inv.id === lot.selectedInventoryId,
+                                        );
 
-                                return (
-                                  <div
-                                    key={lot.selectedInventoryId}
-                                    className="flex items-center gap-2"
-                                  >
+                                      return (
+                                        <div
+                                          key={lot.selectedInventoryId}
+                                          className="py-2.5 text-gray-950 font-normal text-base"
+                                        >
+                                          {selectedInventory?.product
+                                            .expiration_date
+                                            ? formatDate(
+                                                selectedInventory?.product
+                                                  .expiration_date,
+                                                "MM/yyyy",
+                                              )
+                                            : "-"}
+                                        </div>
+                                      );
+                                    })}
+                                  {form
+                                    .watch(`items.${index}.lots`)
+                                    .filter((lot) => lot.selectedInventoryId)
+                                    .length === 0 && (
+                                    <div className="text-sm text-gray-500 py-2">
+                                      -
+                                    </div>
+                                  )}
+                                </TableCell>
+                                <TableCell className={tableCellClass}>
+                                  {form
+                                    .watch(`items.${index}.lots`)
+                                    .filter((lot) => lot.selectedInventoryId)
+                                    .map((lot) => {
+                                      const selectedInventory =
+                                        productKnowledgeInventoriesMap[
+                                          effectiveProductKnowledge.id
+                                        ]?.find(
+                                          (inv) =>
+                                            inv.id === lot.selectedInventoryId,
+                                        );
+                                      const prices =
+                                        calculatePrices(selectedInventory);
+
+                                      return (
+                                        <div
+                                          key={lot.selectedInventoryId}
+                                          className="py-2.5 text-gray-950 font-normal text-base"
+                                        >
+                                          <MonetaryDisplay
+                                            amount={prices.basePrice}
+                                          />
+                                        </div>
+                                      );
+                                    })}
+                                  {form
+                                    .watch(`items.${index}.lots`)
+                                    .filter((lot) => lot.selectedInventoryId)
+                                    .length === 0 && (
+                                    <div className="text-sm py-2">-</div>
+                                  )}
+                                </TableCell>
+                                <TableCell className={tableCellClass}>
+                                  {form
+                                    .watch(`items.${index}.lots`)
+                                    .filter((lot) => lot.selectedInventoryId)
+                                    .map((lot) => {
+                                      const selectedInventory =
+                                        productKnowledgeInventoriesMap[
+                                          effectiveProductKnowledge.id
+                                        ]?.find(
+                                          (inv) =>
+                                            inv.id === lot.selectedInventoryId,
+                                        );
+
+                                      return selectedInventory ? (
+                                        <div
+                                          key={lot.selectedInventoryId}
+                                          className="py-2.5 text-gray-950 font-normal text-base"
+                                        >
+                                          {selectedInventory.product.charge_item_definition.price_components
+                                            .filter(
+                                              (c) =>
+                                                c.monetary_component_type ===
+                                                MonetaryComponentType.discount,
+                                            )
+                                            .map((component) =>
+                                              component.factor
+                                                ? `${component.factor}%`
+                                                : "--",
+                                            )}
+                                        </div>
+                                      ) : (
+                                        <div
+                                          key={lot.selectedInventoryId}
+                                          className="py-2.5"
+                                        >
+                                          --
+                                        </div>
+                                      );
+                                    })}
+                                  {form
+                                    .watch(`items.${index}.lots`)
+                                    .filter((lot) => lot.selectedInventoryId)
+                                    .length === 0 && (
+                                    <div className="text-sm text-gray-500 py-2">
+                                      -
+                                    </div>
+                                  )}
+                                </TableCell>
+                                <TableCell className={tableCellClass}>
+                                  {field.medication ? (
                                     <FormField
                                       control={form.control}
-                                      name={`items.${index}.lots.${actualLotIndex}.quantity`}
+                                      name={`items.${index}.isFullyDispensed`}
                                       render={({ field: formField }) => (
                                         <FormItem>
                                           <FormControl>
-                                            <Input
-                                              type="number"
-                                              min={0}
-                                              {...formField}
-                                              onChange={(e) => {
-                                                formField.onChange(
-                                                  parseInt(e.target.value) || 0,
-                                                );
-                                              }}
-                                              className="border-gray-300 border rounded-none w-24"
-                                              placeholder="0"
+                                            <Switch
+                                              className="data-[state=checked]:bg-primary-600"
+                                              checked={formField.value}
+                                              onCheckedChange={
+                                                formField.onChange
+                                              }
                                             />
                                           </FormControl>
-                                          <FormMessage />
                                         </FormItem>
                                       )}
                                     />
-                                  </div>
-                                );
-                              })}
-                            {form
-                              .watch(`items.${index}.lots`)
-                              .filter((lot) => lot.selectedInventoryId)
-                              .length === 0 && (
-                              <div className="text-sm text-gray-500 py-2">
-                                {t("select_lots_first")}
-                              </div>
-                            )}
-                          </div>
-                        </TableCell>
-                        <TableCell className={tableCellClass}>
-                          <FormField
-                            control={form.control}
-                            name={`items.${index}.daysSupply`}
-                            render={({ field: formField }) => (
-                              <FormItem>
-                                <FormControl>
-                                  <Input
-                                    type="number"
-                                    min={1}
-                                    {...formField}
-                                    onChange={(e) => {
-                                      formField.onChange(
-                                        parseInt(e.target.value) || 0,
-                                      );
-                                    }}
-                                    className="border-gray-300 border rounded-none w-24"
-                                  />
-                                </FormControl>
-                                <FormMessage />
-                              </FormItem>
-                            )}
-                          />
-                        </TableCell>
-                        <TableCell className={tableCellClass}>
-                          {form
-                            .watch(`items.${index}.lots`)
-                            .filter((lot) => lot.selectedInventoryId)
-                            .map((lot) => {
-                              const selectedInventory =
-                                productKnowledgeInventoriesMap[
-                                  effectiveProductKnowledge.id
-                                ]?.find(
-                                  (inv) => inv.id === lot.selectedInventoryId,
-                                );
-
-                              return (
-                                <div
-                                  key={lot.selectedInventoryId}
-                                  className="py-2.5 text-gray-950 font-normal text-base"
+                                  ) : (
+                                    "-"
+                                  )}
+                                </TableCell>
+                                <TableCell
+                                  className={cn(tableCellClass, "rounded-r-lg")}
                                 >
-                                  {selectedInventory?.product.expiration_date
-                                    ? formatDate(
-                                        selectedInventory?.product
-                                          .expiration_date,
-                                        "MM/yyyy",
-                                      )
-                                    : "-"}
-                                </div>
-                              );
-                            })}
-                          {form
-                            .watch(`items.${index}.lots`)
-                            .filter((lot) => lot.selectedInventoryId).length ===
-                            0 && (
-                            <div className="text-sm text-gray-500 py-2">-</div>
-                          )}
-                        </TableCell>
-                        <TableCell className={tableCellClass}>
-                          {form
-                            .watch(`items.${index}.lots`)
-                            .filter((lot) => lot.selectedInventoryId)
-                            .map((lot) => {
-                              const selectedInventory =
-                                productKnowledgeInventoriesMap[
-                                  effectiveProductKnowledge.id
-                                ]?.find(
-                                  (inv) => inv.id === lot.selectedInventoryId,
-                                );
-                              const prices = calculatePrices(selectedInventory);
-
-                              return (
-                                <div
-                                  key={lot.selectedInventoryId}
-                                  className="py-2.5 text-gray-950 font-normal text-base"
-                                >
-                                  <MonetaryDisplay amount={prices.basePrice} />
-                                </div>
-                              );
-                            })}
-                          {form
-                            .watch(`items.${index}.lots`)
-                            .filter((lot) => lot.selectedInventoryId).length ===
-                            0 && <div className="text-sm py-2">-</div>}
-                        </TableCell>
-                        <TableCell className={tableCellClass}>
-                          {form
-                            .watch(`items.${index}.lots`)
-                            .filter((lot) => lot.selectedInventoryId)
-                            .map((lot) => {
-                              const selectedInventory =
-                                productKnowledgeInventoriesMap[
-                                  effectiveProductKnowledge.id
-                                ]?.find(
-                                  (inv) => inv.id === lot.selectedInventoryId,
-                                );
-
-                              return selectedInventory ? (
-                                <div
-                                  key={lot.selectedInventoryId}
-                                  className="py-2.5 text-gray-950 font-normal text-base"
-                                >
-                                  {selectedInventory.product.charge_item_definition.price_components
-                                    .filter(
-                                      (c) =>
-                                        c.monetary_component_type ===
-                                        MonetaryComponentType.discount,
-                                    )
-                                    .map((component) =>
-                                      component.factor
-                                        ? `${component.factor}%`
-                                        : "--",
-                                    )}
-                                </div>
-                              ) : (
-                                <div
-                                  key={lot.selectedInventoryId}
-                                  className="py-2.5"
-                                >
-                                  --
-                                </div>
-                              );
-                            })}
-                          {form
-                            .watch(`items.${index}.lots`)
-                            .filter((lot) => lot.selectedInventoryId).length ===
-                            0 && (
-                            <div className="text-sm text-gray-500 py-2">-</div>
-                          )}
-                        </TableCell>
-                        <TableCell className={tableCellClass}>
-                          {field.medication ? (
-                            <FormField
-                              control={form.control}
-                              name={`items.${index}.isFullyDispensed`}
-                              render={({ field: formField }) => (
-                                <FormItem>
-                                  <FormControl>
-                                    <Switch
-                                      className="data-[state=checked]:bg-primary-600"
-                                      checked={formField.value}
-                                      onCheckedChange={formField.onChange}
-                                    />
-                                  </FormControl>
-                                </FormItem>
-                              )}
-                            />
-                          ) : (
-                            "-"
-                          )}
-                        </TableCell>
-                        <TableCell
-                          className={cn(tableCellClass, "rounded-r-lg")}
-                        >
-                          <DropdownMenu>
-                            <DropdownMenuTrigger asChild>
-                              <Button variant="outline" size="icon">
-                                <MoreVertical className="size-5" />
-                              </Button>
-                            </DropdownMenuTrigger>
-                            <DropdownMenuContent align="end">
-                              {field.medication?.dispense_status !==
-                              MedicationRequestDispenseStatus.partial ? (
-                                <Popover>
-                                  <PopoverTrigger asChild>
-                                    <div className="w-full">
+                                  <DropdownMenu>
+                                    <DropdownMenuTrigger asChild>
+                                      <Button variant="outline" size="icon">
+                                        <MoreVertical className="size-5" />
+                                      </Button>
+                                    </DropdownMenuTrigger>
+                                    <DropdownMenuContent align="end">
+                                      {field.medication?.dispense_status !==
+                                      MedicationRequestDispenseStatus.partial ? (
+                                        <Popover>
+                                          <PopoverTrigger asChild>
+                                            <div className="w-full">
+                                              <DropdownMenuItem
+                                                disabled
+                                                className="w-full"
+                                              >
+                                                {t("mark_as_already_given")}
+                                              </DropdownMenuItem>
+                                            </div>
+                                          </PopoverTrigger>
+                                          <PopoverContent>
+                                            {t(
+                                              "enabled_only_for_partially_dispensed",
+                                            )}
+                                          </PopoverContent>
+                                        </Popover>
+                                      ) : (
+                                        <DropdownMenuItem
+                                          onSelect={() => {
+                                            setMedicationToMarkComplete({
+                                              medication:
+                                                field.medication as MedicationRequestRead,
+                                              index,
+                                            });
+                                          }}
+                                        >
+                                          {t("mark_as_already_given")}
+                                        </DropdownMenuItem>
+                                      )}
                                       <DropdownMenuItem
-                                        disabled
-                                        className="w-full"
+                                        onSelect={() => {
+                                          setMedicationToRemove({
+                                            medication:
+                                              field.medication as MedicationRequestRead,
+                                            medicationName:
+                                              effectiveProductKnowledge.name,
+                                            index,
+                                            isAdded: !field.medication
+                                              ? true
+                                              : false,
+                                          });
+                                        }}
                                       >
-                                        {t("mark_as_already_given")}
+                                        {t("remove_medication")}
                                       </DropdownMenuItem>
-                                    </div>
-                                  </PopoverTrigger>
-                                  <PopoverContent>
-                                    {t("enabled_only_for_partially_dispensed")}
-                                  </PopoverContent>
-                                </Popover>
-                              ) : (
-                                <DropdownMenuItem
-                                  onSelect={() => {
-                                    setMedicationToMarkComplete({
-                                      medication:
-                                        field.medication as MedicationRequestRead,
-                                      index,
-                                    });
-                                  }}
-                                >
-                                  {t("mark_as_already_given")}
-                                </DropdownMenuItem>
-                              )}
-                              <DropdownMenuItem
-                                onSelect={() => {
-                                  setMedicationToRemove({
-                                    medication:
-                                      field.medication as MedicationRequestRead,
-                                    medicationName:
-                                      effectiveProductKnowledge.name,
-                                    index,
-                                    isAdded: !field.medication ? true : false,
-                                  });
-                                }}
-                              >
-                                {t("remove_medication")}
-                              </DropdownMenuItem>
-                            </DropdownMenuContent>
-                          </DropdownMenu>
-                        </TableCell>
-                      </TableRow>
-                    );
-                  })}
+                                    </DropdownMenuContent>
+                                  </DropdownMenu>
+                                </TableCell>
+                              </TableRow>
+                            );
+                          })}
+                        </React.Fragment>
+                      );
+                    });
+                  })()}
                   <TableRow className="bg-white rounded-lg shadow-sm">
                     <TableCell colSpan={12} className="p-0 rounded-lg">
                       {isSearchOpen ? (

@@ -3,6 +3,8 @@ import { useState } from "react";
 import { useTranslation } from "react-i18next";
 import { toast } from "sonner";
 
+import { groupItemsByTime } from "@/lib/time";
+
 import { Badge } from "@/components/ui/badge";
 import { Button } from "@/components/ui/button";
 import { Checkbox } from "@/components/ui/checkbox";
@@ -56,68 +58,6 @@ import {
 } from "@/types/emr/medicationDispense/medicationDispense";
 import { MEDICATION_DISPENSE_STATUS_COLORS } from "@/types/emr/medicationDispense/medicationDispense";
 import medicationDispenseApi from "@/types/emr/medicationDispense/medicationDispenseApi";
-
-interface GroupedMedications {
-  today: MedicationDispenseRead[];
-  yesterday: MedicationDispenseRead[];
-  thisWeek: MedicationDispenseRead[];
-  thisMonth: MedicationDispenseRead[];
-  thisYear: MedicationDispenseRead[];
-  older: MedicationDispenseRead[];
-}
-
-function groupMedicationsByTime(
-  medications: MedicationDispenseRead[],
-): GroupedMedications {
-  const now = new Date();
-  const today = new Date(now.getFullYear(), now.getMonth(), now.getDate());
-  const yesterday = new Date(today);
-  yesterday.setDate(yesterday.getDate() - 1);
-  const thisWeekStart = new Date(today);
-  thisWeekStart.setDate(thisWeekStart.getDate() - thisWeekStart.getDay());
-  const thisMonthStart = new Date(now.getFullYear(), now.getMonth(), 1);
-  const thisYearStart = new Date(now.getFullYear(), 0, 1);
-
-  const grouped: GroupedMedications = {
-    today: [],
-    yesterday: [],
-    thisWeek: [],
-    thisMonth: [],
-    thisYear: [],
-    older: [],
-  };
-
-  medications.forEach((medication) => {
-    const createdDate = new Date(medication.created_date);
-    const createdDateOnly = new Date(
-      createdDate.getFullYear(),
-      createdDate.getMonth(),
-      createdDate.getDate(),
-    );
-
-    if (createdDateOnly.getTime() === today.getTime()) {
-      grouped.today.push(medication);
-    } else if (createdDateOnly.getTime() === yesterday.getTime()) {
-      grouped.yesterday.push(medication);
-    } else if (createdDateOnly >= thisWeekStart && createdDateOnly < today) {
-      grouped.thisWeek.push(medication);
-    } else if (
-      createdDateOnly >= thisMonthStart &&
-      createdDateOnly < thisWeekStart
-    ) {
-      grouped.thisMonth.push(medication);
-    } else if (
-      createdDateOnly >= thisYearStart &&
-      createdDateOnly < thisMonthStart
-    ) {
-      grouped.thisYear.push(medication);
-    } else {
-      grouped.older.push(medication);
-    }
-  });
-
-  return grouped;
-}
 
 interface MedicationTableProps {
   medications: MedicationDispenseRead[];
@@ -414,7 +354,7 @@ export default function DispensedMedicationList({
   });
 
   // Group medications by time periods
-  const groupedMedications = groupMedicationsByTime(filteredMedications || []);
+  const groupedMedications = groupItemsByTime(filteredMedications || []);
 
   const billableItems =
     paymentFilter === "unpaid"

@@ -5,6 +5,8 @@ import { useState } from "react";
 import { Trans, useTranslation } from "react-i18next";
 import { toast } from "sonner";
 
+import { groupItemsByTime } from "@/lib/time";
+
 import CareIcon from "@/CAREUI/icons/CareIcon";
 
 import { Badge } from "@/components/ui/badge";
@@ -54,68 +56,6 @@ interface MedicationTableProps {
   medications: MedicationRequestRead[];
   setDispensedMedicationId?: (id: string) => void;
   setMedicationToMarkComplete?: (medication: MedicationRequestRead) => void;
-}
-
-interface GroupedMedications {
-  today: MedicationRequestRead[];
-  yesterday: MedicationRequestRead[];
-  thisWeek: MedicationRequestRead[];
-  thisMonth: MedicationRequestRead[];
-  thisYear: MedicationRequestRead[];
-  older: MedicationRequestRead[];
-}
-
-function groupMedicationsByTime(
-  medications: MedicationRequestRead[],
-): GroupedMedications {
-  const now = new Date();
-  const today = new Date(now.getFullYear(), now.getMonth(), now.getDate());
-  const yesterday = new Date(today);
-  yesterday.setDate(yesterday.getDate() - 1);
-  const thisWeekStart = new Date(today);
-  thisWeekStart.setDate(thisWeekStart.getDate() - thisWeekStart.getDay());
-  const thisMonthStart = new Date(now.getFullYear(), now.getMonth(), 1);
-  const thisYearStart = new Date(now.getFullYear(), 0, 1);
-
-  const grouped: GroupedMedications = {
-    today: [],
-    yesterday: [],
-    thisWeek: [],
-    thisMonth: [],
-    thisYear: [],
-    older: [],
-  };
-
-  medications.forEach((medication) => {
-    const createdDate = new Date(medication.created_date);
-    const createdDateOnly = new Date(
-      createdDate.getFullYear(),
-      createdDate.getMonth(),
-      createdDate.getDate(),
-    );
-
-    if (createdDateOnly.getTime() === today.getTime()) {
-      grouped.today.push(medication);
-    } else if (createdDateOnly.getTime() === yesterday.getTime()) {
-      grouped.yesterday.push(medication);
-    } else if (createdDateOnly >= thisWeekStart && createdDateOnly < today) {
-      grouped.thisWeek.push(medication);
-    } else if (
-      createdDateOnly >= thisMonthStart &&
-      createdDateOnly < thisWeekStart
-    ) {
-      grouped.thisMonth.push(medication);
-    } else if (
-      createdDateOnly >= thisYearStart &&
-      createdDateOnly < thisMonthStart
-    ) {
-      grouped.thisYear.push(medication);
-    } else {
-      grouped.older.push(medication);
-    }
-  });
-
-  return grouped;
 }
 
 function MedicationTable({
@@ -293,9 +233,7 @@ export default function MedicationDispenseList({
   const otherMedications = medications.filter((med) => !med.requested_product);
 
   // Group pharmacy medications by time periods
-  const groupedPharmacyMedications = groupMedicationsByTime(
-    medicationsWithProduct,
-  );
+  const groupedPharmacyMedications = groupItemsByTime(medicationsWithProduct);
 
   const { mutate: updateMedicationRequest } = useMutation({
     mutationFn: (medication: MedicationRequestRead) => {
