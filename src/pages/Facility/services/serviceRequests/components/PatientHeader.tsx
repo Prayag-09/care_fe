@@ -60,11 +60,21 @@ export function PatientHeader({
           <div className="w-12 h-1.5 bg-gray-300 rounded-full mx-auto mt-3 mb-2" />
           <div className="px-6 pb-6 pt-2 flex flex-col gap-4">
             <DialogTitle className="flex items-center gap-2 justify-center text-lg font-bold text-gray-900 mb-2">
-              {patient.name}
-              <CareIcon
-                icon="l-external-link-alt"
-                className="size-4 opacity-50"
-              />
+              <div
+                onClick={() => {
+                  const url = encounterId
+                    ? `/facility/${facilityId}/patient/${patient.id}/encounter/${encounterId}/updates`
+                    : `/facility/${facilityId}/patient/${patient.id}`;
+                  navigate(url);
+                }}
+                className="hover:underline cursor-pointer"
+              >
+                {patient.name}
+                <CareIcon
+                  icon="l-external-link-alt"
+                  className="ml-1 size-4 opacity-50"
+                />
+              </div>
             </DialogTitle>
             <div className="flex flex-col gap-3 divide-y divide-gray-100">
               <div className="flex items-center gap-3 py-2">
