@@ -34,6 +34,7 @@ import ValueSetSelect from "@/components/Questionnaire/ValueSetSelect";
 
 import mutate from "@/Utils/request/mutate";
 import query from "@/Utils/request/query";
+import { generateSlug } from "@/Utils/utils";
 import { ChargeItemDefinitionForm } from "@/pages/Facility/settings/chargeItemDefinitions/ChargeItemDefinitionForm";
 import ObservationDefinitionForm from "@/pages/Facility/settings/observationDefinition/ObservationDefinitionForm";
 import { CreateSpecimenDefinition } from "@/pages/Facility/settings/specimen-definitions/CreateSpecimenDefinition";
@@ -373,6 +374,20 @@ function ActivityDefinitionFormContent({
             diagnostic_report_codes: [],
           },
   });
+
+  // Watch title changes and update slug only when creating new activity definition
+  React.useEffect(() => {
+    if (isEditMode) return; // Skip if editing existing data
+
+    const subscription = form.watch((value, { name }) => {
+      if (name === "title") {
+        form.setValue("slug", generateSlug(value.title || ""), {
+          shouldValidate: true,
+        });
+      }
+    });
+    return () => subscription.unsubscribe();
+  }, [form, isEditMode]);
 
   const { mutate: createActivityDefinition, isPending: isCreating } =
     useMutation({

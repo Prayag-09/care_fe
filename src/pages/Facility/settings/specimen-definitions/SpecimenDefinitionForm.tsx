@@ -2,6 +2,7 @@ import { zodResolver } from "@hookform/resolvers/zod";
 import { t } from "i18next";
 import { PlusCircle, XCircle } from "lucide-react";
 import { navigate } from "raviger";
+import React from "react";
 import { useForm } from "react-hook-form";
 import { useTranslation } from "react-i18next";
 import * as z from "zod";
@@ -31,6 +32,7 @@ import { Textarea } from "@/components/ui/textarea";
 import ComboboxQuantityInput from "@/components/Common/ComboboxQuantityInput";
 import ValueSetSelect from "@/components/Questionnaire/ValueSetSelect";
 
+import { generateSlug } from "@/Utils/utils";
 import useCurrentFacility from "@/pages/Facility/utils/useCurrentFacility";
 import { Code, CodeSchema } from "@/types/base/code/code";
 import {
@@ -142,6 +144,19 @@ export function SpecimenDefinitionForm({
       },
     },
   });
+
+  React.useEffect(() => {
+    if (initialData) return;
+
+    const subscription = form.watch((value, { name }) => {
+      if (name === "title") {
+        form.setValue("slug", generateSlug(value.title || ""), {
+          shouldValidate: true,
+        });
+      }
+    });
+    return () => subscription.unsubscribe();
+  }, [form, initialData]);
 
   const handleTypeCollectedSelect = (code: Code) => {
     form.setValue("type_collected", code);

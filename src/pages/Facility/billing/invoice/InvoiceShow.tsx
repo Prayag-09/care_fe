@@ -9,7 +9,7 @@ import {
   MoreHorizontal,
   Wallet,
 } from "lucide-react";
-import { Link, useQueryParams } from "raviger";
+import { Link } from "raviger";
 import React, { useState } from "react";
 import { useTranslation } from "react-i18next";
 import { formatPhoneNumberIntl } from "react-phone-number-input";
@@ -56,6 +56,8 @@ import {
 
 import AddChargeItemSheet from "@/components/Billing/Invoice/AddChargeItemSheet";
 import { TableSkeleton } from "@/components/Common/SkeletonLoading";
+
+import useAppHistory from "@/hooks/useAppHistory";
 
 import dayjs from "@/Utils/dayjs";
 import mutate from "@/Utils/request/mutate";
@@ -120,6 +122,7 @@ export function InvoiceShow({
   const tableHeadClass = "border-r border-gray-200 font-semibold text-center";
   const tableCellClass =
     "border-r border-gray-200 font-medium text-gray-950 text-sm";
+  const { goBack } = useAppHistory();
 
   // Fetch facility data for available components
   const { data: facilityData } = useQuery({
@@ -272,11 +275,6 @@ export function InvoiceShow({
     invoice?.status !== InvoiceStatus.entered_in_error &&
     invoice?.status !== InvoiceStatus.cancelled;
 
-  const [{ sourceUrl }] = useQueryParams();
-  const backUrl = sourceUrl
-    ? `${sourceUrl}`
-    : `/facility/${facilityId}/billing/invoices`;
-
   if (isLoading) {
     return <TableSkeleton count={5} />;
   }
@@ -301,12 +299,13 @@ export function InvoiceShow({
     <div className="space-y-8">
       <div className="flex items-center justify-between">
         <div className="flex items-center gap-4">
-          <Button variant="outline" className="border-gray-400 gap-1" asChild>
-            {/* TODO: Redirect to the account that the invoice is for once the API is updated */}
-            <Link href={backUrl}>
-              <CareIcon icon="l-arrow-left" className="size-4" />
-              <span className="text-gray-950 font-medium">{t("back")}</span>
-            </Link>
+          <Button
+            variant="outline"
+            className="border-gray-400 gap-1"
+            onClick={() => goBack()}
+          >
+            <CareIcon icon="l-arrow-left" className="size-4" />
+            <span className="text-gray-950 font-medium">{t("back")}</span>
           </Button>
         </div>
         <div className="flex gap-2">

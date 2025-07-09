@@ -2,6 +2,7 @@ import { zodResolver } from "@hookform/resolvers/zod";
 import { useMutation, useQuery, useQueryClient } from "@tanstack/react-query";
 import { PlusCircle, X } from "lucide-react";
 import { navigate } from "raviger";
+import React from "react";
 import { useFieldArray, useForm } from "react-hook-form";
 import { useTranslation } from "react-i18next";
 import { toast } from "sonner";
@@ -32,6 +33,7 @@ import ValueSetSelect from "@/components/Questionnaire/ValueSetSelect";
 
 import mutate from "@/Utils/request/mutate";
 import query from "@/Utils/request/query";
+import { generateSlug } from "@/Utils/utils";
 import { Code } from "@/types/base/code/code";
 import { DOSAGE_UNITS_CODES } from "@/types/emr/medicationRequest/medicationRequest";
 import {
@@ -193,6 +195,19 @@ function ProductKnowledgeFormContent({
     resolver: zodResolver(formSchema),
     defaultValues: getDefaultValues(),
   });
+
+  React.useEffect(() => {
+    if (isEditMode) return;
+
+    const subscription = form.watch((value, { name }) => {
+      if (name === "name") {
+        form.setValue("slug", generateSlug(value.name || ""), {
+          shouldValidate: true,
+        });
+      }
+    });
+    return () => subscription.unsubscribe();
+  }, [form, isEditMode]);
 
   const namesArray = useFieldArray({
     control: form.control,
@@ -425,7 +440,7 @@ function ProductKnowledgeFormContent({
                       {t("alternative_names")}
                     </h2>
                     <p className="mt-0.5 text-sm text-gray-500">
-                      {t("Add alternative names for this product")}
+                      {t("add_product_alternative name")}
                     </p>
                   </div>
                   <Button

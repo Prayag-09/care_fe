@@ -1,6 +1,7 @@
 import { zodResolver } from "@hookform/resolvers/zod";
 import { useMutation, useQuery, useQueryClient } from "@tanstack/react-query";
 import { useEffect } from "react";
+import React from "react";
 import { useForm } from "react-hook-form";
 import { useTranslation } from "react-i18next";
 import { toast } from "sonner";
@@ -29,6 +30,7 @@ import { Textarea } from "@/components/ui/textarea";
 
 import mutate from "@/Utils/request/mutate";
 import query from "@/Utils/request/query";
+import { generateSlug } from "@/Utils/utils";
 import {
   TagCategory,
   TagConfigRequest,
@@ -96,6 +98,19 @@ export default function TagConfigForm({
     },
   });
 
+  React.useEffect(() => {
+    if (isEditing) return;
+
+    const subscription = form.watch((value, { name }) => {
+      if (name === "display") {
+        form.setValue("slug", generateSlug(value.display || ""), {
+          shouldValidate: true,
+        });
+      }
+    });
+    return () => subscription.unsubscribe();
+  }, [form, isEditing]);
+
   // Fetch existing config data when editing
   const { data: existingConfig, isLoading: isLoadingConfig } = useQuery({
     queryKey: ["tagConfig", configId, facilityId],
@@ -150,9 +165,6 @@ export default function TagConfigForm({
       }
       onSuccess?.();
     },
-    onError: (error: any) => {
-      toast.error(error?.message || t("failed_to_create_tag_config"));
-    },
   });
 
   const updateMutation = useMutation({
@@ -164,9 +176,6 @@ export default function TagConfigForm({
       toast.success(t("tag_config_updated_successfully"));
       queryClient.invalidateQueries({ queryKey: ["tagConfig"] });
       onSuccess?.();
-    },
-    onError: (error: any) => {
-      toast.error(error?.message || t("failed_to_update_tag_config"));
     },
   });
 
@@ -198,13 +207,13 @@ export default function TagConfigForm({
       <form onSubmit={form.handleSubmit(onSubmit)} className="space-y-6">
         <FormField
           control={form.control}
-          name="slug"
+          name="display"
           render={({ field }) => (
             <FormItem>
-              <FormLabel>{t("slug")}</FormLabel>
+              <FormLabel aria-required>{t("display_name")}</FormLabel>
               <FormControl>
                 <Input
-                  placeholder={t("enter_tag_slug")}
+                  placeholder={t("enter_display_name")}
                   {...field}
                   disabled={isLoading}
                 />
@@ -216,13 +225,13 @@ export default function TagConfigForm({
 
         <FormField
           control={form.control}
-          name="display"
+          name="slug"
           render={({ field }) => (
             <FormItem>
-              <FormLabel>{t("display_name")}</FormLabel>
+              <FormLabel aria-required>{t("slug")}</FormLabel>
               <FormControl>
                 <Input
-                  placeholder={t("enter_display_name")}
+                  placeholder={t("enter_tag_slug")}
                   {...field}
                   disabled={isLoading}
                 />
@@ -244,11 +253,11 @@ export default function TagConfigForm({
                 disabled={isLoading}
               >
                 <FormControl>
-                  <SelectTrigger>
+                  <SelectTrigger className="capitalize">
                     <SelectValue placeholder={t("select_category")} />
                   </SelectTrigger>
                 </FormControl>
-                <SelectContent>
+                <SelectContent className="capitalize">
                   {Object.values(TagCategory).map((category) => (
                     <SelectItem key={category} value={category}>
                       {t(category)}
