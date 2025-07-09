@@ -305,6 +305,13 @@ function AddItemForm({
     setCurrentEntry(entry);
   }, [entry, open]);
 
+  useEffect(() => {
+    if (currentEntry.supplied_item && currentEntry.supplied_item.id) {
+      setProductFormSubmit(null);
+      setIsProductCreationInProgress(false);
+    }
+  }, [currentEntry.supplied_item]);
+
   if (!currentEntry) return null;
 
   const handleSave = () => {
@@ -430,7 +437,7 @@ function AddItemForm({
               key={`${activeTab}-product-search`}
               facilityId={facilityId}
               value={currentEntry.supplied_item || undefined}
-              onChange={(product: ProductRead) => {
+              onChange={(product: ProductRead | null) => {
                 if (product && product.id) {
                   setCurrentEntry((prev) => ({
                     ...prev,
@@ -472,8 +479,10 @@ function AddItemForm({
             variant="primary"
             onClick={handleSave}
             disabled={
-              (!currentEntry.supply_request &&
-                !currentEntry._product_knowledge) ||
+              (currentEntry._is_additional
+                ? !currentEntry._product_knowledge
+                : !currentEntry.supply_request) ||
+              (!isProductCreationInProgress && !currentEntry.supplied_item) ||
               !currentEntry.supplied_item_quantity ||
               (isProductCreationInProgress && !productFormSubmit)
             }

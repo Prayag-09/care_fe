@@ -16,7 +16,7 @@ import productApi from "@/types/inventory/product/productApi";
 interface ProductSelectProps {
   facilityId: string;
   value?: ProductRead;
-  onChange: (value: ProductRead) => void;
+  onChange: (value: ProductRead | null) => void;
   disabled?: boolean;
   className?: string;
   onProductSubmit?: (submitFn: () => void) => void;
@@ -66,9 +66,9 @@ export function ProductSearch({
   useEffect(() => {
     if (value) {
       setSelectedProduct(value);
+      setIsCreatingProduct(false);
     } else {
       setSelectedProduct(undefined);
-      setIsCreatingProduct(false);
       hasSetSubmitFunction.current = false;
     }
   }, [value]);
@@ -122,6 +122,7 @@ export function ProductSearch({
           if (selectedId === "new") {
             setSelectedProduct(undefined);
             setIsCreatingProduct(true);
+            onChange(null);
             return;
           }
           const selectedProductObj = products?.results.find(
