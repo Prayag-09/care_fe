@@ -248,6 +248,42 @@ export function PaymentReconciliationSheet({
 
               <FormField
                 control={form.control}
+                name="reconciliation_type"
+                render={({ field }) => (
+                  <FormItem>
+                    <FormLabel>{t("payment_type")}</FormLabel>
+                    <Select
+                      onValueChange={field.onChange}
+                      defaultValue={field.value}
+                    >
+                      <FormControl>
+                        <SelectTrigger>
+                          <SelectValue
+                            placeholder={t("select_reconciliation_type")}
+                          />
+                        </SelectTrigger>
+                      </FormControl>
+                      <SelectContent>
+                        <SelectItem value={PaymentReconciliationType.payment}>
+                          {t("payment")}
+                        </SelectItem>
+                        <SelectItem
+                          value={PaymentReconciliationType.adjustment}
+                        >
+                          {t("adjustment")}
+                        </SelectItem>
+                        <SelectItem value={PaymentReconciliationType.advance}>
+                          {t("advance")}
+                        </SelectItem>
+                      </SelectContent>
+                    </Select>
+                    <FormMessage />
+                  </FormItem>
+                )}
+              />
+
+              <FormField
+                control={form.control}
                 name="amount"
                 render={({ field }) => (
                   <FormItem>
