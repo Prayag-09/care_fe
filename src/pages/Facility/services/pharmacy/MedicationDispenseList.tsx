@@ -31,7 +31,7 @@ import {
 
 import ConfirmActionDialog from "@/components/Common/ConfirmActionDialog";
 import { TableSkeleton } from "@/components/Common/SkeletonLoading";
-import { formatTotalUnits } from "@/components/Medicine/utils";
+import { formatDoseRange, formatTotalUnits } from "@/components/Medicine/utils";
 
 import useFilters from "@/hooks/useFilters";
 
@@ -121,7 +121,9 @@ function MedicationTable({
                   )}
                 </TableCell>
                 <TableCell className="text-gray-950 font-medium">
-                  {dosage ? `${dosage.value} ${dosage.unit.display}` : "-"}
+                  {dosage
+                    ? `${dosage.value} ${dosage.unit.display}`
+                    : formatDoseRange(instruction?.dose_and_rate?.dose_range)}
                 </TableCell>
                 <TableCell className="text-gray-950 font-medium">
                   {instruction?.as_needed_boolean
