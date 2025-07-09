@@ -424,7 +424,7 @@ export function AccountShow({
         <div className="flex gap-2">
           <Button
             variant="outline"
-            className="gap-2 border-gray-400 text-gray-950"
+            className="gap-2 border-gray-400 text-gray-950 hidden"
           >
             <CareIcon icon="l-eye" className="size-4" />
             {t("view_statement")}
