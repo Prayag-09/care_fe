@@ -85,6 +85,7 @@ function PriceComponentRow({
             <TableCell>
               {component.code && `${component.code.display} `}({label})
             </TableCell>
+            <TableCell></TableCell>
             <TableCell>
               <MonetaryDisplay {...component} />
             </TableCell>
@@ -213,198 +214,217 @@ export function ChargeItemsTable({
       {isLoading ? (
         <TableSkeleton count={3} />
       ) : (
-        <Table className="rounded-lg border shadow-sm w-full bg-white">
-          <TableHeader className="bg-gray-100">
-            <TableRow className="border-b">
-              <TableHead className="border-x p-3 text-gray-700 text-sm font-medium leading-5 w-[40px]"></TableHead>
-              <TableHead className="border-x p-3 text-gray-700 text-sm font-medium leading-5">
-                {t("item")}
-              </TableHead>
-              <TableHead className="border-x p-3 text-gray-700 text-sm font-medium leading-5">
-                {t("resource")}
-              </TableHead>
-              <TableHead className="border-x p-3 text-gray-700 text-sm font-medium leading-5">
-                {t("unit_price")}
-              </TableHead>
-              <TableHead className="border-x p-3 text-gray-700 text-sm font-medium leading-5">
-                {t("quantity")}
-              </TableHead>
-              <TableHead className="border-x p-3 text-gray-700 text-sm font-medium leading-5">
-                {t("total")}
-              </TableHead>
-              <TableHead className="border-x p-3 text-gray-700 text-sm font-medium leading-5 w-[120px]">
-                {t("status")}
-              </TableHead>
-              <TableHead className="border-x p-3 text-gray-700 text-sm font-medium leading-5 w-[60px]">
-                {t("actions")}
-              </TableHead>
-            </TableRow>
-          </TableHeader>
-          <TableBody className="bg-white">
-            {!chargeItems?.results?.length ? (
-              <TableRow>
-                <TableCell colSpan={7} className="text-center text-gray-500">
-                  {t("no_charge_items")}
-                </TableCell>
+        <div className="rounded-md overflow-x-auto border-2 border-white shadow-md">
+          <Table className="rounded-lg border shadow-sm w-full bg-white">
+            <TableHeader className="bg-gray-100">
+              <TableRow className="border-b">
+                <TableHead className="border-x p-3 text-gray-700 text-sm font-medium leading-5 w-[40px]"></TableHead>
+                <TableHead className="border-x p-3 text-gray-700 text-sm font-medium leading-5">
+                  {t("item")}
+                </TableHead>
+                <TableHead className="border-x p-3 text-gray-700 text-sm font-medium leading-5">
+                  {t("resource")}
+                </TableHead>
+                <TableHead className="border-x p-3 text-gray-700 text-sm font-medium leading-5">
+                  {t("unit_price")}
+                </TableHead>
+                <TableHead className="border-x p-3 text-gray-700 text-sm font-medium leading-5">
+                  {t("quantity")}
+                </TableHead>
+                <TableHead className="border-x p-3 text-gray-700 text-sm font-medium leading-5">
+                  {t("total")}
+                </TableHead>
+                <TableHead className="border-x p-3 text-gray-700 text-sm font-medium leading-5 w-[120px]">
+                  {t("status")}
+                </TableHead>
+                <TableHead className="border-x p-3 text-gray-700 text-sm font-medium leading-5 w-[60px]">
+                  {t("actions")}
+                </TableHead>
               </TableRow>
-            ) : (
-              chargeItems.results.flatMap((item) => {
-                const isExpanded = expandedItems[item.id] || false;
-                const baseComponent = getBaseComponent(item);
-                const baseAmount = baseComponent?.amount || 0;
+            </TableHeader>
+            <TableBody className="bg-white">
+              {!chargeItems?.results?.length ? (
+                <TableRow>
+                  <TableCell colSpan={7} className="text-center text-gray-500">
+                    {t("no_charge_items")}
+                  </TableCell>
+                </TableRow>
+              ) : (
+                chargeItems.results.flatMap((item) => {
+                  const isExpanded = expandedItems[item.id] || false;
+                  const baseComponent = getBaseComponent(item);
+                  const baseAmount = baseComponent?.amount || 0;
 
-                const mainRow = (
-                  <TableRow key={item.id} className="border-b hover:bg-gray-50">
-                    <TableCell className="border-x p-3 text-gray-950">
-                      <Button
-                        variant="ghost"
-                        size="icon"
-                        className="h-6 w-6"
-                        onClick={() => toggleItemExpand(item.id)}
-                      >
-                        {isExpanded ? (
-                          <ChevronUp className="h-4 w-4" />
-                        ) : (
-                          <ChevronDown className="h-4 w-4" />
+                  const mainRow = (
+                    <TableRow
+                      key={item.id}
+                      className="border-b hover:bg-gray-50"
+                    >
+                      <TableCell className="border-x p-3 text-gray-950">
+                        <Button
+                          variant="ghost"
+                          size="icon"
+                          className="h-6 w-6"
+                          onClick={() => toggleItemExpand(item.id)}
+                        >
+                          {isExpanded ? (
+                            <ChevronUp className="h-4 w-4" />
+                          ) : (
+                            <ChevronDown className="h-4 w-4" />
+                          )}
+                        </Button>
+                      </TableCell>
+                      <TableCell className="border-x p-3 text-gray-950 font-medium">
+                        {item.title}
+                        {item.description && (
+                          <p className="text-xs text-gray-500 whitespace-pre-wrap">
+                            {item.description}
+                          </p>
                         )}
-                      </Button>
-                    </TableCell>
-                    <TableCell className="border-x p-3 text-gray-950 font-medium">
-                      {item.title}
-                      {item.description && (
-                        <p className="text-xs text-gray-500 whitespace-pre-wrap">
-                          {item.description}
-                        </p>
-                      )}
-                    </TableCell>
-                    <TableCell className="border-x p-3 text-gray-950">
-                      {item.service_resource === "service_request" &&
-                        item.service_resource_id && (
-                          <Link
-                            href={`/facility/${facilityId}/services_requests/${item.service_resource_id}`}
-                            className="flex items-center gap-0.5 underline text-gray-600"
-                          >
-                            {t("service_request")}
-                            <ExternalLinkIcon className="size-3" />
-                          </Link>
-                        )}
-                    </TableCell>
-                    <TableCell className="border-x p-3 text-gray-950">
-                      <MonetaryDisplay amount={baseAmount} />
-                    </TableCell>
-                    <TableCell className="border-x p-3 text-gray-950">
-                      {item.quantity}
-                    </TableCell>
-                    <TableCell className="border-x p-3 text-gray-950 font-medium">
-                      <MonetaryDisplay amount={item.total_price} />
-                    </TableCell>
-                    <TableCell className="border-x p-3 text-gray-950">
-                      <div className="flex items-center space-x-2">
-                        <Badge variant={CHARGE_ITEM_STATUS_COLORS[item.status]}>
-                          {t(item.status)}
-                        </Badge>
-                      </div>
-                    </TableCell>
-                    <TableCell className="border-x p-3 text-gray-950">
-                      <DropdownMenu>
-                        <DropdownMenuTrigger asChild>
-                          <Button
-                            variant="ghost"
-                            size="icon"
-                            className="h-8 w-8"
-                          >
-                            <MoreHorizontal className="h-4 w-4" />
-                          </Button>
-                        </DropdownMenuTrigger>
-                        <DropdownMenuContent align="end">
-                          <DropdownMenuLabel>{t("actions")}</DropdownMenuLabel>
-                          <DropdownMenuSeparator />
-                          <DropdownMenuItem asChild>
-                            <div
-                              className="flex items-center"
-                              onClick={() => {
-                                // This will trigger the item to be edited, but actual edit UI is rendered elsewhere
-                                document
-                                  .getElementById(`edit-charge-item-${item.id}`)
-                                  ?.click();
-                              }}
+                      </TableCell>
+                      <TableCell className="border-x p-3 text-gray-950">
+                        {item.service_resource === "service_request" &&
+                          item.service_resource_id && (
+                            <Link
+                              href={`/facility/${facilityId}/services_requests/${item.service_resource_id}`}
+                              className="flex items-center gap-0.5 underline text-gray-600"
                             >
-                              <PencilIcon className="mr-2 h-4 w-4" />
-                              <span>{t("edit")}</span>
-                            </div>
-                          </DropdownMenuItem>
-                        </DropdownMenuContent>
-                      </DropdownMenu>
-
-                      {/* Invisible trigger for the edit sheet */}
-                      <span className="hidden">
-                        <EditChargeItemSheet
-                          facilityId={facilityId}
-                          item={item}
-                          trigger={
+                              {t("service_request")}
+                              <ExternalLinkIcon className="size-3" />
+                            </Link>
+                          )}
+                      </TableCell>
+                      <TableCell className="border-x p-3 text-gray-950">
+                        <MonetaryDisplay amount={baseAmount} />
+                      </TableCell>
+                      <TableCell className="border-x p-3 text-gray-950">
+                        {item.quantity}
+                      </TableCell>
+                      <TableCell className="border-x p-3 text-gray-950 font-medium">
+                        <MonetaryDisplay amount={item.total_price} />
+                      </TableCell>
+                      <TableCell className="border-x p-3 text-gray-950">
+                        <div className="flex items-center space-x-2">
+                          <Badge
+                            variant={CHARGE_ITEM_STATUS_COLORS[item.status]}
+                          >
+                            {t(item.status)}
+                          </Badge>
+                        </div>
+                      </TableCell>
+                      <TableCell className="border-x p-3 text-gray-950">
+                        <DropdownMenu>
+                          <DropdownMenuTrigger asChild>
                             <Button
-                              id={`edit-charge-item-${item.id}`}
-                              className="hidden"
+                              variant="ghost"
+                              size="icon"
+                              className="h-8 w-8"
                             >
-                              Edit
+                              <MoreHorizontal className="h-4 w-4" />
                             </Button>
-                          }
-                        />
-                      </span>
-                    </TableCell>
-                  </TableRow>
-                );
+                          </DropdownMenuTrigger>
+                          <DropdownMenuContent align="end">
+                            <DropdownMenuLabel>
+                              {t("actions")}
+                            </DropdownMenuLabel>
+                            <DropdownMenuSeparator />
+                            <DropdownMenuItem asChild>
+                              <div
+                                className="flex items-center"
+                                onClick={() => {
+                                  // This will trigger the item to be edited, but actual edit UI is rendered elsewhere
+                                  document
+                                    .getElementById(
+                                      `edit-charge-item-${item.id}`,
+                                    )
+                                    ?.click();
+                                }}
+                              >
+                                <PencilIcon className="mr-2 h-4 w-4" />
+                                <span>{t("edit")}</span>
+                              </div>
+                            </DropdownMenuItem>
+                          </DropdownMenuContent>
+                        </DropdownMenu>
 
-                if (!isExpanded) return [mainRow];
+                        {/* Invisible trigger for the edit sheet */}
+                        <span className="hidden">
+                          <EditChargeItemSheet
+                            facilityId={facilityId}
+                            item={item}
+                            trigger={
+                              <Button
+                                id={`edit-charge-item-${item.id}`}
+                                className="hidden"
+                              >
+                                Edit
+                              </Button>
+                            }
+                          />
+                        </span>
+                      </TableCell>
+                    </TableRow>
+                  );
 
-                const detailRows = [
-                  <PriceComponentRow
-                    key={`${item.id}-discounts`}
-                    label={t("discounts")}
-                    components={getComponentsByType(
-                      item,
-                      MonetaryComponentType.discount,
-                    )}
-                    baseAmount={baseAmount}
-                    quantity={item.quantity}
-                  />,
-                  <PriceComponentRow
-                    key={`${item.id}-taxes`}
-                    label={t("taxes")}
-                    components={getComponentsByType(
-                      item,
-                      MonetaryComponentType.tax,
-                    )}
-                    baseAmount={baseAmount}
-                    quantity={item.quantity}
-                  />,
-                ];
+                  if (!isExpanded) return [mainRow];
 
-                // Add a summary row
-                const summaryRow = (
-                  <TableRow
-                    key={`${item.id}-summary`}
-                    className="bg-muted/30 font-medium border-b"
-                  >
-                    <TableCell className="border-x p-3 text-gray-950"></TableCell>
-                    <TableCell className="border-x p-3 text-gray-950">
-                      {t("total")}
-                    </TableCell>
-                    <TableCell className="border-x p-3 text-gray-950"></TableCell>
-                    <TableCell className="border-x p-3 text-gray-950"></TableCell>
-                    <TableCell className="border-x p-3 text-gray-950">
-                      <MonetaryDisplay amount={item.total_price} />
-                    </TableCell>
-                    <TableCell className="border-x p-3 text-gray-950"></TableCell>
-                    <TableCell className="border-x p-3 text-gray-950"></TableCell>
-                  </TableRow>
-                );
+                  const detailRows = [
+                    <PriceComponentRow
+                      key={`${item.id}-discounts`}
+                      label={t("discounts")}
+                      components={getComponentsByType(
+                        item,
+                        MonetaryComponentType.discount,
+                      )}
+                      baseAmount={baseAmount}
+                      quantity={item.quantity}
+                    />,
+                    <PriceComponentRow
+                      key={`${item.id}-taxes`}
+                      label={t("taxes")}
+                      components={getComponentsByType(
+                        item,
+                        MonetaryComponentType.tax,
+                      )}
+                      baseAmount={baseAmount}
+                      quantity={item.quantity}
+                    />,
+                  ];
 
-                return [mainRow, ...detailRows, summaryRow].filter(Boolean);
-              })
-            )}
-          </TableBody>
-        </Table>
+                  // Add a summary row
+                  const summaryRow = (
+                    <TableRow
+                      key={`${item.id}-summary`}
+                      className="bg-muted/30 font-medium border-b"
+                    >
+                      <TableCell></TableCell>
+                      <TableCell className="text-gray-950">
+                        {t("total")}
+                      </TableCell>
+                      <TableCell></TableCell>
+                      <TableCell></TableCell>
+                      <TableCell></TableCell>
+                      <TableCell className="p-3">
+                        <MonetaryDisplay amount={item.total_price} />
+                      </TableCell>
+                      <TableCell></TableCell>
+                    </TableRow>
+                  );
+
+                  const emptyRow = (
+                    <TableRow key={`${item.id}-empty`} className="bg-muted">
+                      <TableCell colSpan={7}></TableCell>
+                    </TableRow>
+                  );
+
+                  return [mainRow, ...detailRows, summaryRow, emptyRow].filter(
+                    Boolean,
+                  );
+                })
+              )}
+            </TableBody>
+          </Table>
+        </div>
       )}
       <Pagination totalCount={chargeItems?.count || 0} />
     </div>

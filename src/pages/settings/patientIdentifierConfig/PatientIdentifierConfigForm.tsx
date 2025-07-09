@@ -516,10 +516,7 @@ export default function PatientIdentifierConfigForm({
                 <FormItem>
                   <FormLabel>{t("status")}</FormLabel>
                   <FormControl>
-                    <Select
-                      onValueChange={field.onChange}
-                      defaultValue={field.value}
-                    >
+                    <Select onValueChange={field.onChange} value={field.value}>
                       <SelectTrigger>
                         <SelectValue placeholder={t("select_status")} />
                       </SelectTrigger>
