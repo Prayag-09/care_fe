@@ -23,6 +23,7 @@ import { TaxComponentSettings } from "@/pages/Facility/settings/billing/tax/tax-
 import useCurrentFacility from "@/pages/Facility/utils/useCurrentFacility";
 
 import { InformationalCodeSettings } from "./informational/InformationalCodeSettings";
+import { BillingSettings } from "./settings/BillingSettings";
 
 const routes = {
   "/discount_components": () => <DiscountComponentSettings />,
@@ -30,6 +31,7 @@ const routes = {
   "/tax_codes": () => <TaxCodeSettings />,
   "/tax_components": () => <TaxComponentSettings />,
   "/informational_codes": () => <InformationalCodeSettings />,
+  "/settings": () => <BillingSettings />,
   "*": () => <ErrorPage />,
 };
 
@@ -66,6 +68,15 @@ const sidebarNavItems = [
       {
         title: "Informational Codes",
         href: "/informational_codes",
+      },
+    ],
+  },
+  {
+    category: "Configuration",
+    items: [
+      {
+        title: "Settings",
+        href: "/settings",
       },
     ],
   },

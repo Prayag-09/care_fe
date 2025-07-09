@@ -22,6 +22,14 @@ export default {
     method: HttpMethod.GET,
     TRes: Type<FacilityData>(),
   },
+  patchInvoiceNumberExpression: {
+    path: "/api/v1/facility/{id}/set_invoice_expression/",
+    method: HttpMethod.POST,
+    TRes: Type<FacilityData>(),
+    TBody: Type<{
+      invoice_number_expression: string;
+    }>(),
+  },
   updateMonetaryComponents: {
     path: "/api/v1/facility/{facilityId}/set_monetary_codes/",
     method: HttpMethod.POST,

@@ -137,7 +137,7 @@ export default function SupplyRequestDetail({
   const deliveries = deliveriesResponse?.results || [];
 
   const { mutate: updateSupplyRequest } = useMutation({
-    mutationFn: mutate(supplyRequestApi.updateSupplyRequest, {
+    mutationFn: mutate(supplyRequestApi.updateSupplyRequestAsReceiver, {
       pathParams: { supplyRequestId: id },
     }),
     onSuccess: () => {

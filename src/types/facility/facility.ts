@@ -47,6 +47,7 @@ export interface FacilityData {
   instance_informational_codes: Code[];
   instance_tax_codes: Code[];
   instance_tax_monetary_components: MonetaryComponentRead[];
+  invoice_number_expression: string;
   discount_codes: Code[];
   discount_monetary_components: MonetaryComponentRead[];
   patient_instance_identifier_configs: PatientIdentifierConfig[];
