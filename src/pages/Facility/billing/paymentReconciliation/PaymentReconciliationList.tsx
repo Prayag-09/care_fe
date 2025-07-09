@@ -24,13 +24,13 @@ export function PaymentReconciliationList({
   const effectiveAccountId = accountId || urlAccountId;
 
   return (
-    <Page title={t("payment_reconciliations")}>
+    <Page title={t("payment_reconciliations")} hideTitleOnPage>
       <div className="container mx-auto">
         <div className="mb-4">
-          <div className="mb-6 flex items-center justify-between">
+          <div className="flex items-center justify-between">
             <div>
-              <h1 className="text-xl font-semibold">
-                {t("payment_reconciliation_management")}
+              <h1 className="text-2xl font-bold text-gray-700 mb-2">
+                {t("payment_reconciliations")}
               </h1>
               <p className="text-gray-600 text-sm">
                 {accountId

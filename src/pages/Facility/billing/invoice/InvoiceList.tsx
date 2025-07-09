@@ -14,12 +14,12 @@ export function InvoiceList({
   const { t } = useTranslation();
 
   return (
-    <Page title={t("invoices")}>
+    <Page title={t("invoices")} hideTitleOnPage>
       <div className="container mx-auto">
         <div className="mb-4">
-          <div className="mb-6 flex items-center justify-between">
+          <div className="mb-4 flex items-center justify-between">
             <div>
-              <h1 className="text-xl font-semibold">
+              <h1 className="text-2xl font-bold text-gray-700 mb-2">
                 {t("invoice_management")}
               </h1>
               <p className="text-gray-600 text-sm">

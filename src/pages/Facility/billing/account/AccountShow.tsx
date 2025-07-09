@@ -482,7 +482,7 @@ export function AccountShow({
           <InvoicesData facilityId={facilityId} accountId={accountId} />
         </TabsContent>
 
-        <TabsContent value="payments" className="mt-4">
+        <TabsContent value="payments">
           <PaymentsData facilityId={facilityId} accountId={accountId} />
         </TabsContent>
       </Tabs>
