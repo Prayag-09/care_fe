@@ -10,6 +10,7 @@ import { getFrequencyDisplay } from "@/components/Medicine/MedicationsTable";
 import { formatDosage, formatSig } from "@/components/Medicine/utils";
 
 import { formatName, formatPatientAge } from "@/Utils/utils";
+import useCurrentFacility from "@/pages/Facility/utils/useCurrentFacility";
 import { Encounter } from "@/types/emr/encounter/encounter";
 import {
   MedicationRequestRead,
@@ -47,6 +48,7 @@ export const PrescriptionPreview = ({
   patient,
 }: PrescriptionPreviewProps) => {
   const { t } = useTranslation();
+  const { facility } = useCurrentFacility();
 
   const medicationsWithProduct = medications.filter(
     (med) => med.requested_product,
@@ -94,7 +96,17 @@ export const PrescriptionPreview = ({
               <h1 className="text-3xl font-semibold">
                 {encounter?.facility?.name}
               </h1>
-              <h2 className="text-gray-500 uppercase text-sm tracking-wide mt-1 font-semibold">
+              {facility?.address && (
+                <div className="text-gray-500 whitespace-pre-wrap break-words text-sm">
+                  {facility.address}
+                  {facility.phone_number && (
+                    <p className="text-gray-500 text-sm">
+                      {facility.phone_number}
+                    </p>
+                  )}
+                </div>
+              )}
+              <h2 className="mt-2 text-gray-500 uppercase text-sm tracking-wide mt-1 font-semibold">
                 {t("medicine_prescription")}
               </h2>
             </div>
@@ -181,9 +193,7 @@ export const PrescriptionPreview = ({
           {medicationsWithoutProduct &&
             medicationsWithoutProduct.length > 0 && (
               <div className="mt-4">
-                <p className="text-base font-semibold mb-2">
-                  {t("external_prescriptions")}
-                </p>
+                <p className="text-base font-semibold mb-2">+</p>
                 <PrintTable
                   headers={[
                     { key: "medicine" },
