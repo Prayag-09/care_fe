@@ -21,7 +21,7 @@ export const INVOICE_STATUS_COLORS = {
 
 export interface InvoiceBase {
   id: string;
-  title: string;
+  number: string;
   status: InvoiceStatus;
   cancelled_reason?: (typeof INVOICE_CANCEL_REASONS)[number] | null;
   payment_terms?: string | null;
@@ -29,7 +29,7 @@ export interface InvoiceBase {
   issue_date?: string | null;
 }
 
-export interface InvoiceCreate extends Omit<InvoiceBase, "id"> {
+export interface InvoiceCreate extends Omit<InvoiceBase, "id" | "number"> {
   account: string;
   charge_items: string[];
 }

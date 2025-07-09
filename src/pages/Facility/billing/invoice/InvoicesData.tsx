@@ -178,7 +178,7 @@ export default function InvoicesData({
                 invoices.map((invoice) => (
                   <TableRow key={invoice.id}>
                     <TableCell>
-                      <div>{invoice.title}</div>
+                      <div>{invoice.number}</div>
                     </TableCell>
 
                     <TableCell>

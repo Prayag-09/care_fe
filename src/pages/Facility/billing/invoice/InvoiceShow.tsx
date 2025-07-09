@@ -237,7 +237,6 @@ export function InvoiceShow({
       setReasonDialogOpen(true);
     } else {
       const data: InvoiceCreate = {
-        title: invoice?.title || "",
         status,
         payment_terms: invoice?.payment_terms,
         note: invoice?.note,
@@ -258,7 +257,6 @@ export function InvoiceShow({
 
     if (selectedStatus === InvoiceStatus.balanced) {
       updateInvoice({
-        title: invoice?.title || "",
         status: selectedStatus,
         payment_terms: invoice?.payment_terms,
         note: invoice?.note,
@@ -353,7 +351,7 @@ export function InvoiceShow({
           <div className="flex flex-row justify-between items-center mb-4">
             <div className="flex flex-row items-center gap-2">
               <span className="font-semibold text-gray-950 text-base">
-                {t("invoice")}: {invoice.title || invoice.id}
+                {t("invoice")}: {invoice.number}
               </span>
               <Badge variant={INVOICE_STATUS_COLORS[invoice.status]}>
                 {t(invoice.status)}
@@ -437,7 +435,7 @@ export function InvoiceShow({
                     {t("tax_invoice")}
                   </div>
                   <div className="text-gray-600 text-sm font-medium">
-                    {invoice.title || invoice.id}
+                    {invoice.number}
                   </div>
                 </div>
               </CardTitle>

@@ -138,7 +138,7 @@ function generateFacilityLinks(
         },
         {
           name: t("billing"),
-          url: `${baseUrl}/settings/billing/discount-codes`,
+          url: `${baseUrl}/settings/billing/discount_codes`,
         },
         {
           name: t("charge_item_definitions"),
@@ -156,10 +156,10 @@ function generateFacilityLinks(
           name: t("product"),
           url: `${baseUrl}/settings/product`,
         },
-        {
-          name: t("patient_identifier_config"),
-          url: `${baseUrl}/settings/patient_identifier_config`,
-        },
+        // {
+        //   name: t("patient_identifier_config"),
+        //   url: `${baseUrl}/settings/patient_identifier_config`,
+        // },
         // {
         //   name: t("tag_config"),
         //   url: `${baseUrl}/settings/tag_config`,

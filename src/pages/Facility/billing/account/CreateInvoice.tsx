@@ -22,7 +22,6 @@ import {
   FormLabel,
   FormMessage,
 } from "@/components/ui/form";
-import { Input } from "@/components/ui/input";
 import { MonetaryDisplay } from "@/components/ui/monetary-display";
 import {
   Table,
@@ -55,7 +54,6 @@ import invoiceApi from "@/types/billing/invoice/invoiceApi";
 const ITEMS_PER_PAGE = 10;
 
 const formSchema = z.object({
-  title: z.string().min(1, "Title is required"),
   status: z.nativeEnum(InvoiceStatus),
   payment_terms: z.string().optional(),
   note: z.string().optional(),
@@ -145,7 +143,6 @@ export function CreateInvoicePage({
   const form = useForm<FormValues>({
     resolver: zodResolver(formSchema),
     defaultValues: {
-      title: "",
       status: InvoiceStatus.draft,
       payment_terms: "",
       note: "",
@@ -285,23 +282,6 @@ export function CreateInvoicePage({
       <Form {...form}>
         <form onSubmit={form.handleSubmit(onSubmit)} className="space-y-6">
           <div className="space-y-6">
-            <FormField
-              control={form.control}
-              name="title"
-              render={({ field }) => (
-                <FormItem>
-                  <FormLabel>{t("invoice title")}</FormLabel>
-                  <FormControl>
-                    <Input
-                      {...field}
-                      disabled={createMutation.isPending}
-                      placeholder={t("invoice_title_placeholder")}
-                    />
-                  </FormControl>
-                  <FormMessage />
-                </FormItem>
-              )}
-            />
             <div className="grid grid-cols-1 gap-6 lg:grid-cols-2">
               <FormField
                 control={form.control}
