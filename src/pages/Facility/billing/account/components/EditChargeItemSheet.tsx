@@ -11,7 +11,6 @@ import { Button } from "@/components/ui/button";
 import {
   Form,
   FormControl,
-  FormDescription,
   FormField,
   FormItem,
   FormLabel,
@@ -51,7 +50,7 @@ import {
 import chargeItemApi from "@/types/billing/chargeItem/chargeItemApi";
 
 const formSchema = z.object({
-  title: z.string().min(1, { message: "Title is required" }),
+  title: z.string(),
   description: z.string().optional(),
   status: z.nativeEnum(ChargeItemStatus),
   quantity: z.coerce
@@ -174,7 +173,7 @@ export function EditChargeItemSheet({
                       <FormItem>
                         <FormLabel>{t("title")}</FormLabel>
                         <FormControl>
-                          <Input {...field} />
+                          <Input {...field} disabled />
                         </FormControl>
                         <FormMessage />
                       </FormItem>
@@ -188,7 +187,11 @@ export function EditChargeItemSheet({
                       <FormItem>
                         <FormLabel>{t("description")}</FormLabel>
                         <FormControl>
-                          <Textarea {...field} value={field.value || ""} />
+                          <Textarea
+                            {...field}
+                            value={field.value || ""}
+                            disabled
+                          />
                         </FormControl>
                         <FormMessage />
                       </FormItem>
@@ -231,7 +234,14 @@ export function EditChargeItemSheet({
                         <FormItem>
                           <FormLabel>{t("quantity")}</FormLabel>
                           <FormControl>
-                            <Input type="number" min={1} {...field} />
+                            <Input
+                              type="number"
+                              min={1}
+                              {...field}
+                              disabled={
+                                item.status !== ChargeItemStatus.planned
+                              }
+                            />
                           </FormControl>
                           <FormMessage />
                         </FormItem>
@@ -380,11 +390,12 @@ export function EditChargeItemSheet({
                       <FormItem>
                         <FormLabel>{t("note")}</FormLabel>
                         <FormControl>
-                          <Textarea {...field} value={field.value || ""} />
+                          <Textarea
+                            {...field}
+                            value={field.value || ""}
+                            disabled
+                          />
                         </FormControl>
-                        <FormDescription>
-                          {t("note_description")}
-                        </FormDescription>
                         <FormMessage />
                       </FormItem>
                     )}
