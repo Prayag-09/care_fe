@@ -447,7 +447,11 @@ export default function ServiceRequestShow({
             {chargeItems &&
               chargeItems.results.length > 0 &&
               chargeItems.results.map((chargeItem) => (
-                <ChargeItemCard key={chargeItem.id} chargeItem={chargeItem} />
+                <ChargeItemCard
+                  key={chargeItem.id}
+                  chargeItem={chargeItem}
+                  serviceRequestId={serviceRequestId}
+                />
               ))}
           </div>
 

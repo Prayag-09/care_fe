@@ -1,5 +1,8 @@
 import { t } from "i18next";
-import { InfoIcon } from "lucide-react";
+import { ExternalLink, InfoIcon } from "lucide-react";
+import { navigate } from "raviger";
+
+import { cn } from "@/lib/utils";
 
 import { Badge } from "@/components/ui/badge";
 import { Card } from "@/components/ui/card";
@@ -11,17 +14,29 @@ import {
 
 import ChargeItemPriceDisplay from "@/components/Billing/ChargeItem/ChargeItemPriceDisplay";
 
+import useCurrentLocation from "@/pages/Facility/locations/utils/useCurrentLocation";
+import useCurrentFacility from "@/pages/Facility/utils/useCurrentFacility";
 import {
   CHARGE_ITEM_STATUS_COLORS,
   ChargeItemRead,
 } from "@/types/billing/chargeItem/chargeItem";
+import { InvoiceStatus } from "@/types/billing/invoice/invoice";
 
 interface ChargeItemCardProps {
   chargeItem: ChargeItemRead;
+  serviceRequestId: string;
 }
 
-export function ChargeItemCard({ chargeItem }: ChargeItemCardProps) {
-  const isPaid = !!chargeItem.paid_invoice;
+export function ChargeItemCard({
+  chargeItem,
+  serviceRequestId,
+}: ChargeItemCardProps) {
+  const isPaid = chargeItem.paid_invoice?.status === InvoiceStatus.balanced;
+  const { facilityId } = useCurrentFacility();
+  const { locationId } = useCurrentLocation();
+  const invoiceUrl = chargeItem.paid_invoice
+    ? `/facility/${facilityId}/billing/invoices/${chargeItem.paid_invoice.id}?sourceUrl=/facility/${facilityId}/locations/${locationId}/service_requests/${serviceRequestId}`
+    : null;
 
   return (
     <Card className="p-3 sm:p-4 space-y-3 sm:space-y-4">
@@ -62,9 +77,20 @@ export function ChargeItemCard({ chargeItem }: ChargeItemCardProps) {
           <div className="text-sm text-gray-600 sm:text-right">
             {t("payment_status")}:
           </div>
-          <Badge variant={isPaid ? "green" : "destructive"}>
-            {isPaid ? t("paid") : t("unpaid")}
-          </Badge>
+          <div
+            onClick={() => {
+              invoiceUrl && navigate(invoiceUrl);
+            }}
+            className={cn(
+              "inline-flex items-center cursor-pointer",
+              !invoiceUrl && "pointer-events-none",
+            )}
+          >
+            <Badge variant={isPaid ? "green" : "destructive"}>
+              {isPaid ? t("paid") : t("unpaid")}
+            </Badge>
+            {invoiceUrl && <ExternalLink className="size-4 ml-1" />}
+          </div>
         </div>
       </div>
     </Card>
