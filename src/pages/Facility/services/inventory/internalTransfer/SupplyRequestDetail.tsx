@@ -472,7 +472,9 @@ export default function SupplyRequestDetail({
                     </TableCell>
                     <TableCell className="font-medium text-gray-950">
                       {delivery.supplied_inventory_item?.product?.batch
-                        ?.lot_number || "-"}
+                        ?.lot_number ||
+                        delivery.supplied_item?.batch?.lot_number ||
+                        "-"}
                     </TableCell>
                     <TableCell className="font-medium text-gray-950">
                       {delivery.supplied_inventory_item?.product
@@ -483,7 +485,12 @@ export default function SupplyRequestDetail({
                             ),
                             "dd/MM/yyyy",
                           )
-                        : "-"}
+                        : delivery.supplied_item?.expiration_date
+                          ? formatDate(
+                              new Date(delivery.supplied_item.expiration_date),
+                              "dd/MM/yyyy",
+                            )
+                          : "-"}
                     </TableCell>
                     <TableCell>
                       {delivery.supplied_item_condition && (
