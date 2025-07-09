@@ -4233,6 +4233,7 @@
   "this_action_cannot_be_undone": "This action cannot be undone.",
   "this_action_is_irreversible": "This action is irreversible. Once a file is archived it cannot be unarchived.",
   "this_bed_is_currently_occupied": "This bed is currently occupied. Please choose another bed.",
+  "this_field_will_be_auto_generated": "This field will be auto-generated",
   "this_file_has_been_archived": "This file has been archived and cannot be unarchived.",
   "this_month": "This Month",
   "this_week": "This Week",
