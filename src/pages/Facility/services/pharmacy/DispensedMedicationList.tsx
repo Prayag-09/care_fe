@@ -281,6 +281,7 @@ export default function DispensedMedicationList({
     queryFn: query(medicationDispenseApi.list, {
       queryParams: {
         facility: facilityId,
+        location: locationId,
         limit: resultsPerPage,
         offset: ((qParams.page ?? 1) - 1) * resultsPerPage,
         status: status ?? qParams.status,
@@ -452,19 +453,21 @@ export default function DispensedMedicationList({
         </div>
       )}
 
-      <CreateInvoiceSheet
-        facilityId={facilityId}
-        accountId={account?.results[0].id || ""}
-        open={createInvoiceSheetOpen}
-        onOpenChange={setCreateInvoiceSheetOpen}
-        preSelectedChargeItems={billableChargeItems}
-        redirectInNewTab={false}
-        sourceUrl={`/facility/${facilityId}/locations/${locationId}/medication_dispense/patient/${patientId}/preparation`}
-        onSuccess={() => {
-          setCreateInvoiceSheetOpen(false);
-          setBillableChargeItems([]);
-        }}
-      />
+      {account && account.results.length > 0 && (
+        <CreateInvoiceSheet
+          facilityId={facilityId}
+          accountId={account.results[0].id}
+          open={createInvoiceSheetOpen}
+          onOpenChange={setCreateInvoiceSheetOpen}
+          preSelectedChargeItems={billableChargeItems}
+          redirectInNewTab={false}
+          sourceUrl={`/facility/${facilityId}/locations/${locationId}/medication_dispense/patient/${patientId}/preparation`}
+          onSuccess={() => {
+            setCreateInvoiceSheetOpen(false);
+            setBillableChargeItems([]);
+          }}
+        />
+      )}
     </div>
   );
 }
