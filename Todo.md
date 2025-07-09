@@ -33,6 +33,7 @@ x : Done
 - [BE] When a billing account of a patient is on hold, we should restrict users from creating any charge item to the patient, as per doc, but our platform will be creating a new wallet by ignoring the on-hold account (BE) - Vignesh
 - [BE] Allow only one active billing account for a patient at a time , Take a product suggestion before working on this
 - [BE] When an invoice is marked as 'entered in error' the transaction details should be removed from the balance summary (total amount due, net payable, etc.) - Jeevan/Vignesh
+- [ ] Settings - Billing - Active tab and subtab
 
 ## Labs
 
