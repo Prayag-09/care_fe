@@ -31,6 +31,11 @@ export interface SpecimenDiscardReason {
 
 export const SPECIMEN_DISCARD_REASONS: SpecimenDiscardReason[] = [
   {
+    status: SpecimenStatus.unavailable,
+    label: "Unavailable",
+    description: "The specimen is lost, destroyed, or consumed",
+  },
+  {
     status: SpecimenStatus.unsatisfactory,
     label: "Unsatisfactory",
     description: "The specimen is unusable due to quality issues",
