@@ -281,6 +281,7 @@ export default function DispensedMedicationList({
     queryFn: query(medicationDispenseApi.list, {
       queryParams: {
         facility: facilityId,
+        location: locationId,
         limit: resultsPerPage,
         offset: ((qParams.page ?? 1) - 1) * resultsPerPage,
         status: status ?? qParams.status,
@@ -451,10 +452,11 @@ export default function DispensedMedicationList({
           </div>
         </div>
       )}
-      {account?.results[0] && (
+
+      {account && account.results.length > 0 && (
         <CreateInvoiceSheet
           facilityId={facilityId}
-          accountId={account?.results[0].id}
+          accountId={account.results[0].id}
           open={createInvoiceSheetOpen}
           onOpenChange={setCreateInvoiceSheetOpen}
           preSelectedChargeItems={billableChargeItems}

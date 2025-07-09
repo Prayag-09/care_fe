@@ -48,12 +48,12 @@ x : Done
 - [ ] Disable save if no changes in all forms
 - [x] Specimen Def - URI validation failing - Not a bug
 - [x] Definitions - Add Delete button - Manyu
-- [-] Valueset - Wrap long text on mobile - Manyu
+- [x] Valueset - Wrap long text on mobile - Manyu
 - [x] Observation Def - validation for empty components - Manyu
 - [x] Observation Def - Preview mobile - status badge & button clash - Manyu
 - [ ] SR form - Improve
-- [-] SR - Scan existing specimen QR (Use Access identifier instead of uuid) - Yash
-- [-] SR Details page - Disable the collect specimen for completed SR - Yash
+- [x] SR - Scan existing specimen QR (Use Access identifier instead of uuid) - Yash
+- [x] SR Details page - Disable the collect specimen for completed SR - Yash
 - [x] Product Knowledge form - Validations - Yash
 - [x] SR Details page - Disable the process step once the report generation is done
 - [ ] Activity Definition - Add Healthcare Services
@@ -71,7 +71,7 @@ x : Done
 - [ ] Observation Interpretation
 - [ ] Spec for Ingredients, Nutrients, Drug_characteristic are incomplete in Product Knowledge
 - [ ] Find which location a product is in within a facility
-- [ ] Not able to mark a SR as closed - Showing error location not found
+- [x] Not able to mark a SR as closed - Showing error location not found
 - [ ] Roles access for Labs. Only users with lab role should have access to lab services
 - [ ] Encounter can be closed even if the SR is ACTIVE. But if encounter is closer SR cannot be marked as completed ( Showing error as encounter is already closed) - - [ ] Fix can be not allow top close encounter if SR is open
 - [x] Need sort by payment_datetime for Payment Reconciliation list - Aakash
@@ -79,6 +79,7 @@ x : Done
 - [x] Supply Request - Add supplier[] - Added supplier
 - [x] New service request should be shown first within the list - Aakash
 - [x] BE need to sort by internal id by default, all apis has jumping issue - Aakash
+- [ ] Add support to retrieve the specimen by accession identifier - Vignesh
 
 # Archived
 
