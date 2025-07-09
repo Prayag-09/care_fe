@@ -868,7 +868,7 @@ export default function MedicationBillForm({ patientId }: Props) {
           medication.dosage_instruction[0]?.timing?.repeat?.bounds_duration
             ?.unit || "",
         ),
-        isFullyDispensed: false,
+        isFullyDispensed: true,
         dosageInstructions: medication.dosage_instruction,
         lots: [
           {
@@ -1320,7 +1320,7 @@ export default function MedicationBillForm({ patientId }: Props) {
                       {t("discount")}
                     </TableHead>
                     <TableHead className={tableHeaderClass}>
-                      {t("all_dispensed")}?
+                      {t("all_given")}?
                     </TableHead>
                     <TableHead className={cn(tableHeaderClass, "rounded-r-lg")}>
                       {t("actions")}
@@ -2235,7 +2235,7 @@ export default function MedicationBillForm({ patientId }: Props) {
                 dosageInstructions[0]?.timing?.repeat?.bounds_duration?.unit ||
                   "",
               ),
-              isFullyDispensed: false,
+              isFullyDispensed: true,
               dosageInstructions,
               lots: [
                 {
