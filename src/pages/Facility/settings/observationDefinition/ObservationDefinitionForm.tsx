@@ -12,6 +12,7 @@ import { Button } from "@/components/ui/button";
 import {
   Form,
   FormControl,
+  FormDescription,
   FormField,
   FormItem,
   FormLabel,
@@ -305,8 +306,19 @@ function ObservationDefinitionFormContent({
                       <FormItem>
                         <FormLabel aria-required>{t("slug")}</FormLabel>
                         <FormControl>
-                          <Input {...field} />
+                          <Input
+                            {...field}
+                            onChange={(e) => {
+                              const sanitizedValue = e.target.value
+                                .toLowerCase()
+                                .replace(/[^a-z0-9-]/g, "");
+                              field.onChange(sanitizedValue);
+                            }}
+                          />
                         </FormControl>
+                        <FormDescription>
+                          {t("slug_format_message")}
+                        </FormDescription>
                         <FormMessage />
                       </FormItem>
                     )}

@@ -12,6 +12,7 @@ import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import {
   Form,
   FormControl,
+  FormDescription,
   FormField,
   FormItem,
   FormLabel,
@@ -277,8 +278,17 @@ export function SpecimenDefinitionForm({
                         <Input
                           placeholder={t("unique_identifier")}
                           {...field}
+                          onChange={(e) => {
+                            const sanitizedValue = e.target.value
+                              .toLowerCase()
+                              .replace(/[^a-z0-9-]/g, "");
+                            field.onChange(sanitizedValue);
+                          }}
                         />
                       </FormControl>
+                      <FormDescription>
+                        {t("slug_format_message")}
+                      </FormDescription>
                       <FormMessage />
                     </FormItem>
                   )}

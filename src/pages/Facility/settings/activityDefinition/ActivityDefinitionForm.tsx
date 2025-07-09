@@ -12,6 +12,7 @@ import { Button } from "@/components/ui/button";
 import {
   Form,
   FormControl,
+  FormDescription,
   FormField,
   FormItem,
   FormLabel,
@@ -513,9 +514,20 @@ function ActivityDefinitionFormContent({
                           {t("slug")} <span className="text-red-500">*</span>
                         </FormLabel>
                         <FormControl>
-                          <Input {...field} />
+                          <Input
+                            {...field}
+                            onChange={(e) => {
+                              const sanitizedValue = e.target.value
+                                .toLowerCase()
+                                .replace(/[^a-z0-9-]/g, "");
+                              field.onChange(sanitizedValue);
+                            }}
+                          />
                         </FormControl>
                         <FormMessage />
+                        <FormDescription>
+                          {t("slug_format_message")}
+                        </FormDescription>
                       </FormItem>
                     )}
                   />
