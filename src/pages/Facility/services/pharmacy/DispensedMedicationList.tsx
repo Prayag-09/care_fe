@@ -57,6 +57,68 @@ import {
 import { MEDICATION_DISPENSE_STATUS_COLORS } from "@/types/emr/medicationDispense/medicationDispense";
 import medicationDispenseApi from "@/types/emr/medicationDispense/medicationDispenseApi";
 
+interface GroupedMedications {
+  today: MedicationDispenseRead[];
+  yesterday: MedicationDispenseRead[];
+  thisWeek: MedicationDispenseRead[];
+  thisMonth: MedicationDispenseRead[];
+  thisYear: MedicationDispenseRead[];
+  older: MedicationDispenseRead[];
+}
+
+function groupMedicationsByTime(
+  medications: MedicationDispenseRead[],
+): GroupedMedications {
+  const now = new Date();
+  const today = new Date(now.getFullYear(), now.getMonth(), now.getDate());
+  const yesterday = new Date(today);
+  yesterday.setDate(yesterday.getDate() - 1);
+  const thisWeekStart = new Date(today);
+  thisWeekStart.setDate(thisWeekStart.getDate() - thisWeekStart.getDay());
+  const thisMonthStart = new Date(now.getFullYear(), now.getMonth(), 1);
+  const thisYearStart = new Date(now.getFullYear(), 0, 1);
+
+  const grouped: GroupedMedications = {
+    today: [],
+    yesterday: [],
+    thisWeek: [],
+    thisMonth: [],
+    thisYear: [],
+    older: [],
+  };
+
+  medications.forEach((medication) => {
+    const createdDate = new Date(medication.created_date);
+    const createdDateOnly = new Date(
+      createdDate.getFullYear(),
+      createdDate.getMonth(),
+      createdDate.getDate(),
+    );
+
+    if (createdDateOnly.getTime() === today.getTime()) {
+      grouped.today.push(medication);
+    } else if (createdDateOnly.getTime() === yesterday.getTime()) {
+      grouped.yesterday.push(medication);
+    } else if (createdDateOnly >= thisWeekStart && createdDateOnly < today) {
+      grouped.thisWeek.push(medication);
+    } else if (
+      createdDateOnly >= thisMonthStart &&
+      createdDateOnly < thisWeekStart
+    ) {
+      grouped.thisMonth.push(medication);
+    } else if (
+      createdDateOnly >= thisYearStart &&
+      createdDateOnly < thisMonthStart
+    ) {
+      grouped.thisYear.push(medication);
+    } else {
+      grouped.older.push(medication);
+    }
+  });
+
+  return grouped;
+}
+
 interface MedicationTableProps {
   medications: MedicationDispenseRead[];
   selectedMedications: string[];
@@ -106,7 +168,10 @@ function MedicationTable({
             {showCheckbox && (
               <TableHead className="w-[50px] pl-4">
                 <Checkbox
-                  checked={selectedMedications.length === medications.length}
+                  checked={
+                    selectedMedications.length === medications.length &&
+                    medications.length > 0
+                  }
                   onCheckedChange={onSelectAll}
                   className="mb-2 checked:mb-0"
                 />
@@ -285,6 +350,7 @@ export default function DispensedMedicationList({
         offset: ((qParams.page ?? 1) - 1) * resultsPerPage,
         status: status ?? qParams.status,
         patient: patientId,
+        ordering: "-created_date",
       },
     }),
   });
@@ -347,6 +413,9 @@ export default function DispensedMedicationList({
     return true;
   });
 
+  // Group medications by time periods
+  const groupedMedications = groupMedicationsByTime(filteredMedications || []);
+
   const billableItems =
     paymentFilter === "unpaid"
       ? filteredMedications
@@ -357,10 +426,11 @@ export default function DispensedMedicationList({
       : [];
 
   const handleSelectAll = () => {
-    if (selectedMedications.length === filteredMedications?.length) {
+    const allMedicationIds = filteredMedications?.map((med) => med.id) || [];
+    if (selectedMedications.length === allMedicationIds.length) {
       setSelectedMedications([]);
     } else {
-      setSelectedMedications(filteredMedications?.map((med) => med.id) || []);
+      setSelectedMedications(allMedicationIds);
     }
   };
 
@@ -432,18 +502,126 @@ export default function DispensedMedicationList({
         />
       ) : (
         <div className="space-y-8">
-          <div>
-            <MedicationTable
-              medications={filteredMedications}
-              selectedMedications={selectedMedications}
-              onSelectionChange={handleSelectionChange}
-              onSelectAll={handleSelectAll}
-              showCheckbox={
-                paymentFilter !== "unpaid" &&
-                (status === MedicationDispenseStatus.preparation ||
-                  status === MedicationDispenseStatus.in_progress)
-              }
-            />
+          <div className="space-y-6">
+            {/* Today */}
+            {groupedMedications.today.length > 0 && (
+              <div className="space-y-2">
+                <h3 className="text-base font-medium text-gray-800">
+                  {t("today")}
+                </h3>
+                <MedicationTable
+                  medications={groupedMedications.today}
+                  selectedMedications={selectedMedications}
+                  onSelectionChange={handleSelectionChange}
+                  onSelectAll={handleSelectAll}
+                  showCheckbox={
+                    paymentFilter !== "unpaid" &&
+                    (status === MedicationDispenseStatus.preparation ||
+                      status === MedicationDispenseStatus.in_progress)
+                  }
+                />
+              </div>
+            )}
+
+            {/* Yesterday */}
+            {groupedMedications.yesterday.length > 0 && (
+              <div className="space-y-2">
+                <h3 className="text-base font-medium text-gray-800">
+                  {t("yesterday")}
+                </h3>
+                <MedicationTable
+                  medications={groupedMedications.yesterday}
+                  selectedMedications={selectedMedications}
+                  onSelectionChange={handleSelectionChange}
+                  onSelectAll={handleSelectAll}
+                  showCheckbox={
+                    paymentFilter !== "unpaid" &&
+                    (status === MedicationDispenseStatus.preparation ||
+                      status === MedicationDispenseStatus.in_progress)
+                  }
+                />
+              </div>
+            )}
+
+            {/* This Week */}
+            {groupedMedications.thisWeek.length > 0 && (
+              <div className="space-y-2">
+                <h3 className="text-base font-medium text-gray-800">
+                  {t("this_week")}
+                </h3>
+                <MedicationTable
+                  medications={groupedMedications.thisWeek}
+                  selectedMedications={selectedMedications}
+                  onSelectionChange={handleSelectionChange}
+                  onSelectAll={handleSelectAll}
+                  showCheckbox={
+                    paymentFilter !== "unpaid" &&
+                    (status === MedicationDispenseStatus.preparation ||
+                      status === MedicationDispenseStatus.in_progress)
+                  }
+                />
+              </div>
+            )}
+
+            {/* This Month */}
+            {groupedMedications.thisMonth.length > 0 && (
+              <div className="space-y-2">
+                <h3 className="text-base font-medium text-gray-800">
+                  {t("this_month")}
+                </h3>
+                <MedicationTable
+                  medications={groupedMedications.thisMonth}
+                  selectedMedications={selectedMedications}
+                  onSelectionChange={handleSelectionChange}
+                  onSelectAll={handleSelectAll}
+                  showCheckbox={
+                    paymentFilter !== "unpaid" &&
+                    (status === MedicationDispenseStatus.preparation ||
+                      status === MedicationDispenseStatus.in_progress)
+                  }
+                />
+              </div>
+            )}
+
+            {/* This Year */}
+            {groupedMedications.thisYear.length > 0 && (
+              <div className="space-y-2">
+                <h3 className="text-base font-medium text-gray-800">
+                  {t("this_year")}
+                </h3>
+                <MedicationTable
+                  medications={groupedMedications.thisYear}
+                  selectedMedications={selectedMedications}
+                  onSelectionChange={handleSelectionChange}
+                  onSelectAll={handleSelectAll}
+                  showCheckbox={
+                    paymentFilter !== "unpaid" &&
+                    (status === MedicationDispenseStatus.preparation ||
+                      status === MedicationDispenseStatus.in_progress)
+                  }
+                />
+              </div>
+            )}
+
+            {/* Older */}
+            {groupedMedications.older.length > 0 && (
+              <div className="space-y-2">
+                <h3 className="text-base font-medium text-gray-800">
+                  {t("older")}
+                </h3>
+                <MedicationTable
+                  medications={groupedMedications.older}
+                  selectedMedications={selectedMedications}
+                  onSelectionChange={handleSelectionChange}
+                  onSelectAll={handleSelectAll}
+                  showCheckbox={
+                    paymentFilter !== "unpaid" &&
+                    (status === MedicationDispenseStatus.preparation ||
+                      status === MedicationDispenseStatus.in_progress)
+                  }
+                />
+              </div>
+            )}
           </div>
 
           <div className="mt-4">
