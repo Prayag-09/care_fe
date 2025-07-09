@@ -155,16 +155,16 @@ export default function RolesIndex() {
             >
               <SheetTrigger asChild>
                 <Button onClick={handleAdd}>
-                  <CareIcon icon="l-plus" className="mr-2" />
-                  {t("add_role")}
+                  <CareIcon icon="l-plus" />
+                  {t("add") + " " + t("role")}
                 </Button>
               </SheetTrigger>
               <SheetContent className="overflow-y-auto">
                 <SheetHeader>
                   <SheetTitle>
                     {selectedRole && selectedRole.id
-                      ? t("edit_role")
-                      : t("add_role")}
+                      ? t("edit") + " " + t("role")
+                      : t("add") + " " + t("role")}
                   </SheetTitle>
                 </SheetHeader>
                 <div className="mt-6 pb-6">
@@ -185,7 +185,7 @@ export default function RolesIndex() {
                   <CareIcon icon="l-search" className="size-5" />
                 </span>
                 <Input
-                  placeholder={t("search_roles")}
+                  placeholder={t("search") + " " + t("roles")}
                   value={qParams.search || ""}
                   onChange={(e) =>
                     updateQuery({ search: e.target.value || undefined })
