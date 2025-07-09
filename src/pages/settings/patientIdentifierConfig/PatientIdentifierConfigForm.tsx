@@ -141,15 +141,29 @@ export default function PatientIdentifierConfigForm({
   });
 
   function onSubmit(values: z.infer<typeof formSchema>) {
+    const newValues = {
+      ...values,
+      config: {
+        ...values.config,
+        default_value:
+          serialMode === "auto" ? values.config.default_value : undefined,
+      },
+    };
     if (config) {
-      updateConfig(values as PatientIdentifierConfigUpdate);
+      updateConfig(newValues as PatientIdentifierConfigUpdate);
     } else {
-      createConfig(values as PatientIdentifierConfigCreate);
+      createConfig(newValues as PatientIdentifierConfigCreate);
     }
   }
 
   // Add state for serial number mode
   const [serialMode, setSerialMode] = useState<"user" | "auto">("user");
+
+  useEffect(() => {
+    if (config?.config.default_value) {
+      setSerialMode("auto");
+    }
+  }, [config]);
 
   return (
     <Form {...form}>
