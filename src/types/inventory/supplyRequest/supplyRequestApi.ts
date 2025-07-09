@@ -36,4 +36,10 @@ export default {
     TRes: Type<SupplyRequestBase>(),
     TBody: Type<SupplyRequestCreate>(),
   },
+  updateSupplyRequestAsReceiver: {
+    path: "/api/v1/supply_request/{supplyRequestId}/update_as_receiver/",
+    method: HttpMethod.PUT,
+    TRes: Type<SupplyRequestBase>(),
+    TBody: Type<SupplyRequestCreate>(),
+  },
 } as const;
