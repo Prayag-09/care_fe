@@ -3,6 +3,7 @@ import { useMutation, useQuery } from "@tanstack/react-query";
 import { CheckIcon, Loader2 } from "lucide-react";
 import { navigate } from "raviger";
 import { useMemo } from "react";
+import React from "react";
 import { FieldErrors, useForm } from "react-hook-form";
 import { useTranslation } from "react-i18next";
 import * as z from "zod";
@@ -309,6 +310,18 @@ export function ChargeItemDefinitionForm({
     },
   });
 
+  React.useEffect(() => {
+    if (isUpdate) return;
+
+    const subscription = form.watch((value, { name }) => {
+      if (name === "title") {
+        form.setValue("slug", generateSlug(value.title || ""));
+      }
+    });
+
+    return () => subscription.unsubscribe();
+  }, [form, isUpdate]);
+
   // Get current form values
   const priceComponents = form.watch("price_components");
   const basePrice = form.watch("price_components.0.amount");
@@ -475,19 +488,7 @@ export function ChargeItemDefinitionForm({
                   <FormItem>
                     <FormLabel aria-required>{t("title")}</FormLabel>
                     <FormControl>
-                      <Input
-                        {...field}
-                        placeholder={t("title")}
-                        onChange={(e) => {
-                          const currentSlug = form.getValues("slug");
-                          const currentTitle = form.getValues("title");
-                          field.onChange(e);
-                          const updatedTitle = e.target.value;
-                          if (generateSlug(currentTitle) === currentSlug) {
-                            form.setValue("slug", generateSlug(updatedTitle));
-                          }
-                        }}
-                      />
+                      <Input {...field} placeholder={t("title")} />
                     </FormControl>
                     <FormMessage />
                   </FormItem>

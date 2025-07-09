@@ -56,6 +56,68 @@ interface MedicationTableProps {
   setMedicationToMarkComplete?: (medication: MedicationRequestRead) => void;
 }
 
+interface GroupedMedications {
+  today: MedicationRequestRead[];
+  yesterday: MedicationRequestRead[];
+  thisWeek: MedicationRequestRead[];
+  thisMonth: MedicationRequestRead[];
+  thisYear: MedicationRequestRead[];
+  older: MedicationRequestRead[];
+}
+
+function groupMedicationsByTime(
+  medications: MedicationRequestRead[],
+): GroupedMedications {
+  const now = new Date();
+  const today = new Date(now.getFullYear(), now.getMonth(), now.getDate());
+  const yesterday = new Date(today);
+  yesterday.setDate(yesterday.getDate() - 1);
+  const thisWeekStart = new Date(today);
+  thisWeekStart.setDate(thisWeekStart.getDate() - thisWeekStart.getDay());
+  const thisMonthStart = new Date(now.getFullYear(), now.getMonth(), 1);
+  const thisYearStart = new Date(now.getFullYear(), 0, 1);
+
+  const grouped: GroupedMedications = {
+    today: [],
+    yesterday: [],
+    thisWeek: [],
+    thisMonth: [],
+    thisYear: [],
+    older: [],
+  };
+
+  medications.forEach((medication) => {
+    const createdDate = new Date(medication.created_date);
+    const createdDateOnly = new Date(
+      createdDate.getFullYear(),
+      createdDate.getMonth(),
+      createdDate.getDate(),
+    );
+
+    if (createdDateOnly.getTime() === today.getTime()) {
+      grouped.today.push(medication);
+    } else if (createdDateOnly.getTime() === yesterday.getTime()) {
+      grouped.yesterday.push(medication);
+    } else if (createdDateOnly >= thisWeekStart && createdDateOnly < today) {
+      grouped.thisWeek.push(medication);
+    } else if (
+      createdDateOnly >= thisMonthStart &&
+      createdDateOnly < thisWeekStart
+    ) {
+      grouped.thisMonth.push(medication);
+    } else if (
+      createdDateOnly >= thisYearStart &&
+      createdDateOnly < thisMonthStart
+    ) {
+      grouped.thisYear.push(medication);
+    } else {
+      grouped.older.push(medication);
+    }
+  });
+
+  return grouped;
+}
+
 function MedicationTable({
   medications,
   setDispensedMedicationId,
@@ -219,6 +281,7 @@ export default function MedicationDispenseList({
         priority: qParams.priority,
         dispense_status: partial ? "partial" : undefined,
         dispense_status_isnull: !partial ? true : undefined,
+        ordering: "-created_date",
       },
     }),
   });
@@ -228,6 +291,11 @@ export default function MedicationDispenseList({
     (med) => med.requested_product,
   );
   const otherMedications = medications.filter((med) => !med.requested_product);
+
+  // Group pharmacy medications by time periods
+  const groupedPharmacyMedications = groupMedicationsByTime(
+    medicationsWithProduct,
+  );
 
   const { mutate: updateMedicationRequest } = useMutation({
     mutationFn: (medication: MedicationRequestRead) => {
@@ -327,24 +395,125 @@ export default function MedicationDispenseList({
         <div className="space-y-8">
           {medicationsWithProduct.length > 0 && (
             <div className="space-y-2">
-              <h2 className="text-lg font-semibold text-gray-900">
+              <h2 className="text-xl font-semibold text-gray-900">
                 {t("pharmacy_medications")}
               </h2>
-              <MedicationTable
-                medications={medicationsWithProduct}
-                setDispensedMedicationId={
-                  partial ? setDispensedMedicationId : undefined
-                }
-                setMedicationToMarkComplete={
-                  partial ? setMedicationToMarkComplete : undefined
-                }
-              />
+
+              <div className="space-y-6">
+                {/* Today */}
+                {groupedPharmacyMedications.today.length > 0 && (
+                  <div className="space-y-2">
+                    <h3 className="text-lg font-medium text-gray-800">
+                      {t("today")}
+                    </h3>
+                    <MedicationTable
+                      medications={groupedPharmacyMedications.today}
+                      setDispensedMedicationId={
+                        partial ? setDispensedMedicationId : undefined
+                      }
+                      setMedicationToMarkComplete={
+                        partial ? setMedicationToMarkComplete : undefined
+                      }
+                    />
+                  </div>
+                )}
+
+                {/* Yesterday */}
+                {groupedPharmacyMedications.yesterday.length > 0 && (
+                  <div className="space-y-2">
+                    <h3 className="text-lg font-medium text-gray-800">
+                      {t("yesterday")}
+                    </h3>
+                    <MedicationTable
+                      medications={groupedPharmacyMedications.yesterday}
+                      setDispensedMedicationId={
+                        partial ? setDispensedMedicationId : undefined
+                      }
+                      setMedicationToMarkComplete={
+                        partial ? setMedicationToMarkComplete : undefined
+                      }
+                    />
+                  </div>
+                )}
+
+                {/* This Week */}
+                {groupedPharmacyMedications.thisWeek.length > 0 && (
+                  <div className="space-y-2">
+                    <h3 className="text-lg font-medium text-gray-800">
+                      {t("this_week")}
+                    </h3>
+                    <MedicationTable
+                      medications={groupedPharmacyMedications.thisWeek}
+                      setDispensedMedicationId={
+                        partial ? setDispensedMedicationId : undefined
+                      }
+                      setMedicationToMarkComplete={
+                        partial ? setMedicationToMarkComplete : undefined
+                      }
+                    />
+                  </div>
+                )}
+
+                {/* This Month */}
+                {groupedPharmacyMedications.thisMonth.length > 0 && (
+                  <div className="space-y-2">
+                    <h3 className="text-lg font-medium text-gray-800">
+                      {t("this_month")}
+                    </h3>
+                    <MedicationTable
+                      medications={groupedPharmacyMedications.thisMonth}
+                      setDispensedMedicationId={
+                        partial ? setDispensedMedicationId : undefined
+                      }
+                      setMedicationToMarkComplete={
+                        partial ? setMedicationToMarkComplete : undefined
+                      }
+                    />
+                  </div>
+                )}
+
+                {/* This Year */}
+                {groupedPharmacyMedications.thisYear.length > 0 && (
+                  <div className="space-y-2">
+                    <h3 className="text-lg font-medium text-gray-800">
+                      {t("this_year")}
+                    </h3>
+                    <MedicationTable
+                      medications={groupedPharmacyMedications.thisYear}
+                      setDispensedMedicationId={
+                        partial ? setDispensedMedicationId : undefined
+                      }
+                      setMedicationToMarkComplete={
+                        partial ? setMedicationToMarkComplete : undefined
+                      }
+                    />
+                  </div>
+                )}
+
+                {/* Older */}
+                {groupedPharmacyMedications.older.length > 0 && (
+                  <div className="space-y-2">
+                    <h3 className="text-lg font-medium text-gray-800">
+                      {t("older")}
+                    </h3>
+                    <MedicationTable
+                      medications={groupedPharmacyMedications.older}
+                      setDispensedMedicationId={
+                        partial ? setDispensedMedicationId : undefined
+                      }
+                      setMedicationToMarkComplete={
+                        partial ? setMedicationToMarkComplete : undefined
+                      }
+                    />
+                  </div>
+                )}
+              </div>
             </div>
           )}
 
           {!partial && otherMedications.length > 0 && (
             <div className="space-y-2">
-              <h2 className="text-lg font-semibold text-gray-900">
+              <h2 className="text-xl font-semibold text-gray-900">
                 {t("other_medications")}
               </h2>
               <MedicationTable medications={otherMedications} />

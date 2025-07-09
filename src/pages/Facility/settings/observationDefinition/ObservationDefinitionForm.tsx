@@ -2,6 +2,7 @@ import { zodResolver } from "@hookform/resolvers/zod";
 import { useMutation, useQuery, useQueryClient } from "@tanstack/react-query";
 import { PlusCircle, X } from "lucide-react";
 import { navigate } from "raviger";
+import React from "react";
 import { useForm } from "react-hook-form";
 import { useTranslation } from "react-i18next";
 import { toast } from "sonner";
@@ -32,6 +33,7 @@ import ValueSetSelect from "@/components/Questionnaire/ValueSetSelect";
 
 import mutate from "@/Utils/request/mutate";
 import query from "@/Utils/request/query";
+import { generateSlug } from "@/Utils/utils";
 import {
   OBSERVATION_DEFINITION_CATEGORY,
   OBSERVATION_DEFINITION_STATUS,
@@ -194,6 +196,19 @@ function ObservationDefinitionFormContent({
             permitted_unit: null,
           },
   });
+
+  React.useEffect(() => {
+    if (isEditMode) return;
+
+    const subscription = form.watch((value, { name }) => {
+      if (name === "title") {
+        form.setValue("slug", generateSlug(value.title || ""), {
+          shouldValidate: true,
+        });
+      }
+    });
+    return () => subscription.unsubscribe();
+  }, [form, isEditMode]);
 
   const { mutate: createObservationDefinition, isPending: isCreating } =
     useMutation({
