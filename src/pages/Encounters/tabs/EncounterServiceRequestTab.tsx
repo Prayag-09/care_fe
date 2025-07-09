@@ -43,7 +43,7 @@ export const EncounterServiceRequestTab = ({
 
   const { data, isLoading } = useQuery({
     queryKey: ["serviceRequests", facilityId, encounter.id, qParams],
-    queryFn: query(serviceRequestApi.listServiceRequest, {
+    queryFn: query.debounced(serviceRequestApi.listServiceRequest, {
       pathParams: { facilityId },
       queryParams: {
         encounter: encounter.id,
