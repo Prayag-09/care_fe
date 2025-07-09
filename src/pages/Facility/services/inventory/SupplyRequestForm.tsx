@@ -495,8 +495,7 @@ export default function SupplyRequestForm({
                     )}
                   />
                 </div>
-
-                {!isExternalMode && (
+                <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
                   <FormField
                     control={form.control}
                     name="reason"
@@ -531,7 +530,36 @@ export default function SupplyRequestForm({
                       </FormItem>
                     )}
                   />
-                )}
+                  <FormField
+                    control={form.control}
+                    name="intent"
+                    render={({ field }) => (
+                      <FormItem>
+                        <FormLabel>{t("intent")}</FormLabel>
+                        <Select
+                          onValueChange={field.onChange}
+                          defaultValue={field.value}
+                        >
+                          <FormControl>
+                            <SelectTrigger>
+                              <SelectValue placeholder={t("select_intent")} />
+                            </SelectTrigger>
+                          </FormControl>
+                          <SelectContent>
+                            {Object.values(SupplyRequestIntent).map(
+                              (intent) => (
+                                <SelectItem key={intent} value={intent}>
+                                  {t(intent)}
+                                </SelectItem>
+                              ),
+                            )}
+                          </SelectContent>
+                        </Select>
+                        <FormMessage />
+                      </FormItem>
+                    )}
+                  />
+                </div>
               </CardContent>
             </Card>
 
