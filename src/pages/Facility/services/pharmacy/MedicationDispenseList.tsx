@@ -395,7 +395,7 @@ export default function MedicationDispenseList({
         <div className="space-y-8">
           {medicationsWithProduct.length > 0 && (
             <div className="space-y-2">
-              <h2 className="text-xl font-semibold text-gray-900">
+              <h2 className="text-lg font-semibold text-gray-900">
                 {t("pharmacy_medications")}
               </h2>
 
@@ -403,7 +403,7 @@ export default function MedicationDispenseList({
                 {/* Today */}
                 {groupedPharmacyMedications.today.length > 0 && (
                   <div className="space-y-2">
-                    <h3 className="text-lg font-medium text-gray-800">
+                    <h3 className="text-base font-medium text-gray-800">
                       {t("today")}
                     </h3>
                     <MedicationTable
@@ -421,7 +421,7 @@ export default function MedicationDispenseList({
                 {/* Yesterday */}
                 {groupedPharmacyMedications.yesterday.length > 0 && (
                   <div className="space-y-2">
-                    <h3 className="text-lg font-medium text-gray-800">
+                    <h3 className="text-base font-medium text-gray-800">
                       {t("yesterday")}
                     </h3>
                     <MedicationTable
@@ -439,7 +439,7 @@ export default function MedicationDispenseList({
                 {/* This Week */}
                 {groupedPharmacyMedications.thisWeek.length > 0 && (
                   <div className="space-y-2">
-                    <h3 className="text-lg font-medium text-gray-800">
+                    <h3 className="text-base font-medium text-gray-800">
                       {t("this_week")}
                     </h3>
                     <MedicationTable
@@ -457,7 +457,7 @@ export default function MedicationDispenseList({
                 {/* This Month */}
                 {groupedPharmacyMedications.thisMonth.length > 0 && (
                   <div className="space-y-2">
-                    <h3 className="text-lg font-medium text-gray-800">
+                    <h3 className="text-base font-medium text-gray-800">
                       {t("this_month")}
                     </h3>
                     <MedicationTable
@@ -475,7 +475,7 @@ export default function MedicationDispenseList({
                 {/* This Year */}
                 {groupedPharmacyMedications.thisYear.length > 0 && (
                   <div className="space-y-2">
-                    <h3 className="text-lg font-medium text-gray-800">
+                    <h3 className="text-base font-medium text-gray-800">
                       {t("this_year")}
                     </h3>
                     <MedicationTable
@@ -493,7 +493,7 @@ export default function MedicationDispenseList({
                 {/* Older */}
                 {groupedPharmacyMedications.older.length > 0 && (
                   <div className="space-y-2">
-                    <h3 className="text-lg font-medium text-gray-800">
+                    <h3 className="text-base font-medium text-gray-800">
                       {t("older")}
                     </h3>
                     <MedicationTable
@@ -513,7 +513,7 @@ export default function MedicationDispenseList({
 
           {!partial && otherMedications.length > 0 && (
             <div className="space-y-2">
-              <h2 className="text-xl font-semibold text-gray-900">
+              <h2 className="text-lg font-semibold text-gray-900">
                 {t("other_medications")}
               </h2>
               <MedicationTable medications={otherMedications} />
