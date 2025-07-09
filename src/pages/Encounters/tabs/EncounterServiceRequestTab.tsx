@@ -19,6 +19,7 @@ import useFilters from "@/hooks/useFilters";
 
 import query from "@/Utils/request/query";
 import { EncounterTabProps } from "@/pages/Encounters/EncounterShow";
+import { inactiveEncounterStatus } from "@/types/emr/encounter/encounter";
 import { Priority, Status } from "@/types/emr/serviceRequest/serviceRequest";
 import serviceRequestApi from "@/types/emr/serviceRequest/serviceRequestApi";
 
@@ -121,15 +122,17 @@ export const EncounterServiceRequestTab = ({
             />
           </div>
 
-          <Button variant="primary">
-            <Link
-              href={`/facility/${facilityId}/patient/${encounter.patient.id}/encounter/${encounter.id}/questionnaire/service_request`}
-              className="flex items-center"
-            >
-              <PlusIcon className="size-5 mr-1" />
-              {t("create_service_request")}
-            </Link>
-          </Button>
+          {!inactiveEncounterStatus.includes(encounter.status) && (
+            <Button variant="primary">
+              <Link
+                href={`/facility/${facilityId}/patient/${encounter.patient.id}/encounter/${encounter.id}/questionnaire/service_request`}
+                className="flex items-center"
+              >
+                <PlusIcon className="size-5 mr-1" />
+                {t("create_service_request")}
+              </Link>
+            </Button>
+          )}
         </div>
       </div>
 
