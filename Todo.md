@@ -59,9 +59,6 @@ x : Done
 - [ ] Activity Definition - Add Healthcare Services
 - [ ] SR Create - Add Healthcare Services during create
 - [ ] SR Update - Allow all status updates
-- [-] Discuss with Amjith regarding handling the consumed and lost/destroyed via unavailable status - Yash
-- [-] Fix the empty state in print all QR sheet - Yash
-- [-] Fix the translations in Product Knowledge Form - Yash
 
 ## Back End
 
