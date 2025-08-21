@@ -10,6 +10,7 @@ import {
 import { Time } from "@/Utils/types";
 import {
   Appointment,
+  AvailabilitySlotType,
   ScheduleAvailability,
   ScheduleException,
 } from "@/types/scheduling/schedule";
@@ -51,7 +52,9 @@ type VirtualSlot = {
 };
 
 export function computeAppointmentSlots(
-  availability: ScheduleAvailability & { slot_type: "appointment" },
+  availability: ScheduleAvailability & {
+    slot_type: AvailabilitySlotType.Appointment;
+  },
   exceptions: ScheduleException[],
   referenceDate: Date = new Date(),
 ) {

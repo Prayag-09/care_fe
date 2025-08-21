@@ -10,6 +10,7 @@ import {
   AvailabilityHeatmapRequest,
   AvailabilityHeatmapResponse,
   GetSlotsForDayResponse,
+  SchedulableResourceType,
   ScheduleAvailability,
   ScheduleAvailabilityCreateRequest,
   ScheduleException,
@@ -104,7 +105,11 @@ export default {
       path: "/api/v1/facility/{facilityId}/slots/get_slots_for_day/",
       method: HttpMethod.POST,
       TRes: Type<GetSlotsForDayResponse>(),
-      TBody: Type<{ user: string; day: string }>(),
+      TBody: Type<{
+        resource_type: SchedulableResourceType;
+        resource_id: string;
+        day: string;
+      }>(),
     },
     availabilityStats: {
       path: "/api/v1/facility/{facilityId}/slots/availability_stats/",
