@@ -48,7 +48,10 @@ import {
   getSlotsPerSession,
   getTokenDuration,
 } from "@/pages/Scheduling/utils";
-import { ScheduleAvailabilityCreateRequest } from "@/types/scheduling/schedule";
+import {
+  SchedulableResourceType,
+  ScheduleAvailabilityCreateRequest,
+} from "@/types/scheduling/schedule";
 import scheduleApis from "@/types/scheduling/scheduleApi";
 
 interface Props {
@@ -197,7 +200,8 @@ export default function CreateScheduleTemplateSheet({
       valid_from: dateQueryString(values.valid_from),
       valid_to: dateQueryString(values.valid_to),
       name: values.name,
-      user: userId,
+      resource_type: SchedulableResourceType.Practitioner,
+      resource_id: userId,
       availabilities: values.availabilities.map(
         (availability) =>
           ({

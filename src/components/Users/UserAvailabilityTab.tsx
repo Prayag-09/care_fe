@@ -51,6 +51,7 @@ import {
 } from "@/pages/Scheduling/utils";
 import {
   AvailabilityDateTime,
+  SchedulableResourceType,
   ScheduleException,
   ScheduleTemplate,
 } from "@/types/scheduling/schedule";
@@ -84,7 +85,8 @@ export default function UserAvailabilityTab({
     queryFn: query(scheduleApis.templates.list, {
       pathParams: { facilityId },
       queryParams: {
-        user: user.id,
+        resource_type: SchedulableResourceType.Practitioner,
+        resource_id: user.id,
         valid_from: format(startOfMonth(month), "yyyy-MM-dd'T'HH:mm"),
         valid_to: format(endOfMonth(month), "yyyy-MM-dd'T'HH:mm"),
       },
@@ -100,7 +102,8 @@ export default function UserAvailabilityTab({
     queryFn: query(scheduleApis.exceptions.list, {
       pathParams: { facilityId },
       queryParams: {
-        user: user.id,
+        resource_type: SchedulableResourceType.Practitioner,
+        resource_id: user.id,
         valid_from: format(startOfMonth(month), "yyyy-MM-dd"),
         valid_to: format(endOfMonth(month), "yyyy-MM-dd"),
       },
