@@ -11,6 +11,11 @@ import { UserReadMinimal } from "@/types/user/user";
 
 export type ScheduleSlotType = "appointment" | "open" | "closed";
 
+export type SchedulableResourceType =
+  | "practitioner"
+  | "location"
+  | "healthcare_service";
+
 export interface AvailabilityDateTime {
   day_of_week: DayOfWeek;
   start_time: Time;
