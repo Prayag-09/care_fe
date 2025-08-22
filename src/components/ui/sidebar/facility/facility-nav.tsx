@@ -155,6 +155,10 @@ function generateFacilityLinks(
           name: t("product"),
           url: `${baseUrl}/settings/product`,
         },
+        {
+          name: t("token_category"),
+          url: `${baseUrl}/settings/token_category`,
+        },
         // {
         //   name: t("patient_identifier_config"),
         //   url: `${baseUrl}/settings/patient_identifier_config`,

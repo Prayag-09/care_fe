@@ -16,13 +16,13 @@ export interface TokenGenerate extends Omit<Token, "id"> {
   patient?: string;
   category: string;
   note: string;
-  sub_queue: string;
+  sub_queue?: string;
 }
 
 export interface TokenUpdate extends Token {
   note: string;
   status: TokenStatus;
-  sub_queue: string;
+  sub_queue?: string;
 }
 
 export interface TokenRead extends Token {
