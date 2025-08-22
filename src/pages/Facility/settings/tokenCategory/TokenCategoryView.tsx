@@ -1,4 +1,4 @@
-import { useQuery } from "@tanstack/react-query";
+import { useMutation, useQuery, useQueryClient } from "@tanstack/react-query";
 import { navigate } from "raviger";
 import { useTranslation } from "react-i18next";
 
@@ -11,6 +11,7 @@ import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 
 import Page from "@/components/Common/Page";
 
+import mutate from "@/Utils/request/mutate";
 import query from "@/Utils/request/query";
 import { SCHEDULABLE_RESOURCE_TYPE_COLORS } from "@/types/scheduling/schedule";
 import tokenCategoryApi from "@/types/tokens/tokenCategory/tokenCategoryApi";
@@ -49,6 +50,7 @@ export default function TokenCategoryView({
   tokenCategoryId,
 }: Props) {
   const { t } = useTranslation();
+  const queryClient = useQueryClient();
 
   const {
     data: tokenCategory,
@@ -63,6 +65,29 @@ export default function TokenCategoryView({
       },
     }),
   });
+
+  const { mutate: setDefault, isPending: isSettingDefault } = useMutation({
+    mutationFn: mutate(tokenCategoryApi.setDefault, {
+      pathParams: {
+        facility_id: facilityId,
+        id: tokenCategoryId,
+      },
+    }),
+    onSuccess: () => {
+      // Invalidate and refetch the token category data
+      queryClient.invalidateQueries({
+        queryKey: ["tokenCategory", tokenCategoryId],
+      });
+      // Also invalidate the list to refresh any default indicators
+      queryClient.invalidateQueries({
+        queryKey: ["tokenCategories"],
+      });
+    },
+  });
+
+  const handleSetDefault = () => {
+    setDefault({});
+  };
 
   if (isLoading) {
     return (
@@ -132,17 +157,32 @@ export default function TokenCategoryView({
               </p>
             )}
           </div>
-          <Button
-            variant="outline"
-            onClick={() =>
-              navigate(
-                `/facility/${facilityId}/settings/token_category/${tokenCategory.id}/edit`,
-              )
-            }
-          >
-            <CareIcon icon="l-pen" className="mr-2 size-4" />
-            {t("edit")}
-          </Button>
+
+          <div className="flex gap-2">
+            {!tokenCategory.default && (
+              <Button
+                variant="outline"
+                onClick={handleSetDefault}
+                disabled={isSettingDefault}
+              >
+                <CareIcon icon="l-star" className="mr-2 size-4" />
+                {isSettingDefault
+                  ? t("setting_as_default")
+                  : t("set_as_default")}
+              </Button>
+            )}
+            <Button
+              variant="outline"
+              onClick={() =>
+                navigate(
+                  `/facility/${facilityId}/settings/token_category/${tokenCategory.id}/edit`,
+                )
+              }
+            >
+              <CareIcon icon="l-pen" className="mr-2 size-4" />
+              {t("edit")}
+            </Button>
+          </div>
         </div>
 
         <Card>

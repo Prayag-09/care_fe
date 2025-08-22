@@ -7,6 +7,7 @@ import { EncounterRead } from "@/types/emr/encounter/encounter";
 import { PatientRead } from "@/types/emr/patient/patient";
 import { TagConfig } from "@/types/emr/tagConfig/tagConfig";
 import { FacilityBareMinimum } from "@/types/facility/facility";
+import { TokenRead } from "@/types/tokens/token/token";
 import { UserReadMinimal } from "@/types/user/user";
 
 export type ScheduleSlotType = "appointment" | "open" | "closed";
@@ -184,6 +185,7 @@ export interface Appointment {
   user: UserReadMinimal;
   booked_by: UserReadMinimal | null; // This is null if the appointment was booked by the patient itself.
   facility: FacilityBareMinimum;
+  token: TokenRead;
 }
 
 export interface AppointmentRead extends Appointment {

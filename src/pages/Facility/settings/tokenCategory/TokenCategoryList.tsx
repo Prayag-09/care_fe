@@ -214,6 +214,9 @@ export default function TokenCategoryList({
                       <TableRow key={tokenCategory.id} className="divide-x">
                         <TableCell className="font-medium">
                           {tokenCategory.name}
+                          {tokenCategory.default && (
+                            <Badge className="ml-2">{t("default")}</Badge>
+                          )}
                         </TableCell>
                         <TableCell>
                           <Badge

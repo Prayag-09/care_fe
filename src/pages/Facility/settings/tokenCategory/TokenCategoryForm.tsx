@@ -185,6 +185,8 @@ export function TokenCategoryFormContent({
     if (isEditMode && tokenCategoryId) {
       const updatePayload: TokenCategoryUpdate = {
         name: data.name,
+        resource_type: data.resource_type,
+        shorthand: data.shorthand,
       };
       updateTokenCategory(updatePayload);
     } else {
@@ -231,61 +233,55 @@ export function TokenCategoryFormContent({
               )}
             />
 
-            {!isEditMode && (
-              <FormField
-                control={form.control}
-                name="resource_type"
-                render={({ field }) => (
-                  <FormItem>
-                    <FormLabel aria-required>{t("resource_type")}</FormLabel>
-                    <Select
-                      onValueChange={field.onChange}
-                      defaultValue={field.value}
-                    >
-                      <FormControl>
-                        <SelectTrigger>
-                          <SelectValue
-                            placeholder={t("select_resource_type")}
-                          />
-                        </SelectTrigger>
-                      </FormControl>
-                      <SelectContent>
-                        {Object.keys(SCHEDULABLE_RESOURCE_TYPE_COLORS).map(
-                          (type) => (
-                            <SelectItem key={type} value={type}>
-                              {t(type)}
-                            </SelectItem>
-                          ),
-                        )}
-                      </SelectContent>
-                    </Select>
-                    <FormDescription>
-                      {t("resource_type_description")}
-                    </FormDescription>
-                    <FormMessage />
-                  </FormItem>
-                )}
-              />
-            )}
-
-            {!isEditMode && (
-              <FormField
-                control={form.control}
-                name="shorthand"
-                render={({ field }) => (
-                  <FormItem>
-                    <FormLabel aria-required>{t("shorthand")}</FormLabel>
+            <FormField
+              control={form.control}
+              name="resource_type"
+              render={({ field }) => (
+                <FormItem>
+                  <FormLabel aria-required>{t("resource_type")}</FormLabel>
+                  <Select
+                    onValueChange={field.onChange}
+                    defaultValue={field.value}
+                  >
                     <FormControl>
-                      <Input placeholder={t("enter_shorthand")} {...field} />
+                      <SelectTrigger>
+                        <SelectValue placeholder={t("select_resource_type")} />
+                      </SelectTrigger>
                     </FormControl>
-                    <FormDescription>
-                      {t("shorthand_description")}
-                    </FormDescription>
-                    <FormMessage />
-                  </FormItem>
-                )}
-              />
-            )}
+                    <SelectContent>
+                      {Object.keys(SCHEDULABLE_RESOURCE_TYPE_COLORS).map(
+                        (type) => (
+                          <SelectItem key={type} value={type}>
+                            {t(type)}
+                          </SelectItem>
+                        ),
+                      )}
+                    </SelectContent>
+                  </Select>
+                  <FormDescription>
+                    {t("resource_type_description")}
+                  </FormDescription>
+                  <FormMessage />
+                </FormItem>
+              )}
+            />
+
+            <FormField
+              control={form.control}
+              name="shorthand"
+              render={({ field }) => (
+                <FormItem>
+                  <FormLabel aria-required>{t("shorthand")}</FormLabel>
+                  <FormControl>
+                    <Input placeholder={t("enter_shorthand")} {...field} />
+                  </FormControl>
+                  <FormDescription>
+                    {t("shorthand_description")}
+                  </FormDescription>
+                  <FormMessage />
+                </FormItem>
+              )}
+            />
           </div>
         </div>
 

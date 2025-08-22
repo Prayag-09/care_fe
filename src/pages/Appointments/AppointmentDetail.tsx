@@ -75,6 +75,7 @@ import {
 import { usePermissions } from "@/context/PermissionContext";
 import { AppointmentTokenCard } from "@/pages/Appointments/components/AppointmentTokenCard";
 import { PractitionerSelector } from "@/pages/Appointments/components/PractitionerSelector";
+import { TokenGenerationSheet } from "@/pages/Appointments/components/TokenGenerationSheet";
 import useCurrentFacility from "@/pages/Facility/utils/useCurrentFacility";
 import {
   ENCOUNTER_CLASSES_COLORS,
@@ -574,7 +575,25 @@ const AppointmentDetails = ({
           </div>
         </CardContent>
       </Card>
-
+      <TokenGenerationSheet
+        facilityId={facility.id}
+        appointmentId={appointment.id}
+        trigger={
+          <Button
+            variant="outline"
+            size="lg"
+            className="w-full justify-start h-12"
+          >
+            <PlusCircledIcon className="size-4 mr-3" />
+            {t("generate_token")}
+          </Button>
+        }
+        onSuccess={() => {
+          queryClient.invalidateQueries({
+            queryKey: ["appointment", appointment.id],
+          });
+        }}
+      />
       <Card>
         <CardHeader>
           <CardTitle>{t("practitioner_information")}</CardTitle>

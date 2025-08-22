@@ -15,7 +15,7 @@ export interface Token {
 export interface TokenGenerate extends Omit<Token, "id"> {
   patient?: string;
   category: string;
-  note: string;
+  note?: string;
   sub_queue?: string;
 }
 

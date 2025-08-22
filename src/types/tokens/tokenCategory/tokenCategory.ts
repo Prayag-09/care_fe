@@ -10,10 +10,14 @@ export interface TokenCategory {
 
 export type TokenCategoryCreate = Omit<TokenCategory, "id">;
 
-export type TokenCategoryRead = TokenCategory;
+export type TokenCategoryRead = TokenCategory & {
+  default: boolean;
+};
 
 export interface TokenCategoryUpdate {
   name: string;
+  resource_type: SchedulableResourceType;
+  shorthand: string;
 }
 
 export interface TokenCategoryRetrieveSpec extends TokenCategoryRead {
