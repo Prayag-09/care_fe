@@ -31,7 +31,10 @@ import { FormSkeleton } from "@/components/Common/SkeletonLoading";
 
 import mutate from "@/Utils/request/mutate";
 import query from "@/Utils/request/query";
-import { SCHEDULABLE_RESOURCE_TYPE_COLORS } from "@/types/scheduling/schedule";
+import {
+  SCHEDULABLE_RESOURCE_TYPE_COLORS,
+  SchedulableResourceType,
+} from "@/types/scheduling/schedule";
 import {
   TokenCategoryCreate,
   TokenCategoryRead,
@@ -41,7 +44,7 @@ import tokenCategoryApi from "@/types/tokens/tokenCategory/tokenCategoryApi";
 
 const formSchema = z.object({
   name: z.string().min(1, "Name is required"),
-  resource_type: z.enum(["practitioner", "location", "healthcare_service"]),
+  resource_type: z.nativeEnum(SchedulableResourceType),
   shorthand: z.string().min(1, "Shorthand is required"),
 });
 
@@ -146,7 +149,7 @@ export function TokenCategoryFormContent({
           }
         : {
             name: "",
-            resource_type: "practitioner" as const,
+            resource_type: SchedulableResourceType.Practitioner,
             shorthand: "",
           },
   });

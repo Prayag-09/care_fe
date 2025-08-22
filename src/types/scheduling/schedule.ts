@@ -22,11 +22,6 @@ export enum SchedulableResourceType {
   HealthcareService = "healthcare_service",
 }
 
-export type SchedulableResourceType =
-  | "practitioner"
-  | "location"
-  | "healthcare_service";
-
 export const SCHEDULABLE_RESOURCE_TYPE_COLORS = {
   practitioner: "blue",
   location: "green",
