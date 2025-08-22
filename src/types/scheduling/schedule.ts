@@ -10,7 +10,17 @@ import { FacilityBareMinimum } from "@/types/facility/facility";
 import { TokenRead } from "@/types/tokens/token/token";
 import { UserReadMinimal } from "@/types/user/user";
 
-export type ScheduleSlotType = "appointment" | "open" | "closed";
+export enum AvailabilitySlotType {
+  Appointment = "appointment",
+  Open = "open",
+  Closed = "closed",
+}
+
+export enum SchedulableResourceType {
+  Practitioner = "practitioner",
+  Location = "location",
+  HealthcareService = "healthcare_service",
+}
 
 export type SchedulableResourceType =
   | "practitioner"
@@ -45,23 +55,24 @@ type ScheduleAvailabilityBase = {
   availability: AvailabilityDateTime[];
 } & (
   | {
-      slot_type: "appointment";
+      slot_type: AvailabilitySlotType.Appointment;
       slot_size_in_minutes: number;
       tokens_per_slot: number;
     }
   | {
-      slot_type: "open" | "closed";
+      slot_type: AvailabilitySlotType.Open | AvailabilitySlotType.Closed;
       slot_size_in_minutes: null;
       tokens_per_slot: null;
     }
 );
 
 export interface ScheduleTemplateCreateRequest {
-  user: string;
   name: string;
   valid_from: string; // datetime
   valid_to: string; // datetime
   availabilities: ScheduleAvailabilityBase[];
+  resource_type: SchedulableResourceType;
+  resource_id: string;
 }
 
 export interface ScheduleTemplateUpdateRequest {
@@ -86,7 +97,8 @@ export interface ScheduleException {
 }
 
 export interface ScheduleExceptionCreateRequest {
-  user: string; // user's id
+  resource_type: SchedulableResourceType;
+  resource_id: string;
   reason: string;
   valid_from: string;
   valid_to: string;
@@ -112,7 +124,8 @@ export interface GetSlotsForDayResponse {
 export interface AvailabilityHeatmapRequest {
   from_date: string;
   to_date: string;
-  user: string;
+  resource_type: SchedulableResourceType;
+  resource_id: string;
 }
 
 export interface AvailabilityHeatmapResponse {

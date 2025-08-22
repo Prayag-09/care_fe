@@ -104,6 +104,7 @@ import {
   Appointment,
   AppointmentRead,
   AppointmentStatus,
+  SchedulableResourceType,
   TokenSlot,
 } from "@/types/scheduling/schedule";
 import scheduleApis from "@/types/scheduling/scheduleApi";
@@ -399,7 +400,8 @@ export default function AppointmentsPage() {
       body: {
         // voluntarily coalesce to empty string since we know query would be
         // enabled only if practitioner and date_from are present
-        user: practitioners?.map((p) => p.id).join(",") ?? "",
+        resource_type: SchedulableResourceType.Practitioner,
+        resource_id: practitioners?.map((p) => p.id).join(",") ?? "",
         day: qParams.date_from ?? "",
       },
     }),
@@ -772,7 +774,8 @@ function AppointmentColumn(props: {
           tags: props.tags?.join(","),
           limit: 10,
           slot: props.slot,
-          user: props.practitioners ?? undefined,
+          resource_type: SchedulableResourceType.Practitioner,
+          resource_id: props.practitioners ?? undefined,
           date_after: props.date_from,
           date_before: props.date_to,
           ordering: "token_slot__start_datetime",

@@ -35,6 +35,7 @@ import mutate from "@/Utils/request/mutate";
 import { Time } from "@/Utils/types";
 import { dateQueryString } from "@/Utils/utils";
 import { useIsUserSchedulableResource } from "@/pages/Scheduling/useIsUserSchedulableResource";
+import { SchedulableResourceType } from "@/types/scheduling/schedule";
 import scheduleApis from "@/types/scheduling/scheduleApi";
 
 interface Props {
@@ -181,7 +182,8 @@ export default function CreateScheduleExceptionSheet({
       valid_to: dateQueryString(data.valid_to),
       start_time: data.start_time,
       end_time: data.end_time,
-      user: userId,
+      resource_type: SchedulableResourceType.Practitioner,
+      resource_id: userId,
     });
   }
 
