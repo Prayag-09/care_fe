@@ -58,6 +58,12 @@ export interface LocationWrite extends LocationBase {
   mode: LocationMode;
 }
 
+export interface LocationImport extends LocationBase {
+  id?: string;
+  mode: LocationMode;
+  children: LocationImport[];
+}
+
 export const LocationFormOptions = [
   "si",
   "bu",
