@@ -193,7 +193,7 @@ export interface Appointment {
   user: UserReadMinimal;
   booked_by: UserReadMinimal | null; // This is null if the appointment was booked by the patient itself.
   facility: FacilityBareMinimum;
-  token: TokenRead;
+  token: TokenRead | null;
 }
 
 export interface AppointmentRead extends Appointment {

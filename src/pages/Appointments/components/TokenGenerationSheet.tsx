@@ -88,10 +88,6 @@ export function TokenGenerationSheet({
         queryKey: ["appointment", appointmentId],
       });
     },
-    onError: (error) => {
-      toast.error(t("failed_to_generate_token"));
-      console.error("Token generation failed:", error);
-    },
   });
 
   const handleGenerateToken = () => {

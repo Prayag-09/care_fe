@@ -9,7 +9,6 @@ import {
 
 import { Time } from "@/Utils/types";
 import {
-  Appointment,
   AvailabilitySlotType,
   ScheduleAvailability,
   ScheduleException,
@@ -150,20 +149,6 @@ export const filterAvailabilitiesByDayOfWeek = (
   return availabilities.filter(({ availability }) =>
     availability.some((a) => a.day_of_week === dayOfWeek),
   );
-};
-
-/**
- * TODO: Remove this once we have token number generation system.
- * This is a temporary function to generate a fake token number for an appointment.
- */
-export const getFakeTokenNumber = (appointment: Appointment) => {
-  // Convert UUID to a number by summing char codes
-  const hash = appointment.id
-    .split("")
-    .reduce((acc, char) => acc + char.charCodeAt(0), 0);
-
-  // Get a number between 10-99
-  return (hash % 90) + 10;
 };
 
 export const calculateSlotDuration = (

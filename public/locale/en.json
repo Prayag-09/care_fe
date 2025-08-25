@@ -4578,6 +4578,7 @@
   "token_category_updated_successfully": "Token category updated successfully.",
   "token_generated_successfully": "Token generated successfully",
   "token_no": "Token No.",
+  "token_number_not_generated": "Token number not generated",
   "tokens_left": "{{ count }} left",
   "tomorrow": "Tomorrow",
   "top": "Top",

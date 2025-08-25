@@ -96,7 +96,6 @@ import {
   groupSlotsByAvailability,
 } from "@/pages/Appointments/utils";
 import useCurrentFacility from "@/pages/Facility/utils/useCurrentFacility";
-import { getFakeTokenNumber } from "@/pages/Scheduling/utils";
 import { TagConfig, TagResource } from "@/types/emr/tagConfig/tagConfig";
 import useTagConfigs from "@/types/emr/tagConfig/useTagConfig";
 import {
@@ -976,9 +975,8 @@ function AppointmentCard({
           </div>
           <div className="bg-gray-100 px-2 py-1 rounded-l-none rounded-r-md ml-px text-center">
             <p className="text-[10px] uppercase">{t("token")}</p>
-            {/* TODO: replace this with token number once that's ready... */}
             <p className="font-bold text-2xl uppercase">
-              {getFakeTokenNumber(appointment)}
+              {appointment.token?.number ?? "--"}
             </p>
           </div>
         </div>
@@ -1173,9 +1171,8 @@ function AppointmentRowItem({ appointment }: { appointment: Appointment }) {
       <TableCell className="py-6 group-hover:bg-gray-100 bg-white">
         {t(appointment.status)}
       </TableCell>
-      {/* TODO: replace this with token number once that's ready... */}
       <TableCell className="py-6 group-hover:bg-gray-100 bg-white rounded-r-lg">
-        {getFakeTokenNumber(appointment)}
+        {appointment.token?.number ?? "--"}
       </TableCell>
     </>
   );
