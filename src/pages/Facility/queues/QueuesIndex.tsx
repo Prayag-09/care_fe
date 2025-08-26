@@ -29,6 +29,8 @@ import { TokenQueueRead } from "@/types/tokens/tokenQueue/tokenQueue";
 import tokenQueueApi from "@/types/tokens/tokenQueue/tokenQueueApi";
 import { UserReadMinimal } from "@/types/user/user";
 
+import CreateQueueSheet from "./CreateQueueSheet";
+
 interface QueueCardProps {
   queue: TokenQueueRead;
   facilityId: string;
@@ -154,12 +156,14 @@ export default function QueuesIndex({
                 {t("manage_token_queues_for_facility")}
               </p>
             </div>
-            <Button asChild>
-              <Link href={`/facility/${facilityId}/queues/create`}>
-                <Plus className="size-4 mr-2" />
-                {t("create_queue")}
-              </Link>
-            </Button>
+            <CreateQueueSheet
+              facilityId={facilityId}
+              resourceType={resourceType}
+              resourceId={effectiveResourceId}
+              onSuccess={() => {
+                // Refresh the queues list
+              }}
+            />
           </div>
         </div>
 
@@ -213,12 +217,17 @@ export default function QueuesIndex({
             title={t("no_queues_found")}
             description={t("no_queues_found_description")}
             action={
-              <Button asChild>
-                <Link href={`/facility/${facilityId}/queues/create`}>
-                  <Plus className="size-4 mr-2" />
-                  {t("create_first_queue")}
-                </Link>
-              </Button>
+              <CreateQueueSheet
+                facilityId={facilityId}
+                resourceType={resourceType}
+                resourceId={effectiveResourceId}
+                trigger={
+                  <Button>
+                    <Plus className="size-4 mr-2" />
+                    {t("create_first_queue")}
+                  </Button>
+                }
+              />
             }
           />
         ) : (
