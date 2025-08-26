@@ -27,13 +27,19 @@ fs.writeFileSync(
 const isPreCommit = process.env.PRE_COMMIT === "true";
 const DEFAULT = true;
 
-const dynamicRules = (ruleset) => {
+const dynamicRules = (ruleset, logKey) => {
   const appliedRule = Object.entries(ruleset).find(([rule, condition]) => {
     return condition === true;
   });
   if (appliedRule) {
     const [rule] = appliedRule;
+    if (logKey) {
+      console.log(`${logKey} rule set to ${rule}`);
+    }
     return rule;
+  }
+  if (logKey) {
+    console.log(`${logKey} rule off`);
   }
   return "off";
 };
@@ -159,7 +165,10 @@ const config = [
     rules: {
       ...i18nextPlugin.configs.recommended.rules,
       "i18next/no-literal-string": [
-        "warn",
+        dynamicRules({
+          error: isPreCommit,
+          warn: DEFAULT,
+        },
         {
           mode: "jsx-only",
           "jsx-attributes": {
@@ -172,7 +181,10 @@ const config = [
         },
       ],
       "i18next-no-undefined-translation-keys/no-undefined-translation-keys": [
-        "error",
+        dynamicRules({
+          error: isPreCommit,
+          warn: DEFAULT,
+        }, "i18next-no-undefined-translation-keys"),
         {
           namespaceTranslationMappingFile: namespaceMappingPath,
           defaultNamespace: "default",
