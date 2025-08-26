@@ -184,7 +184,7 @@ const config = [
         dynamicRules({
           error: isPreCommit,
           warn: DEFAULT,
-        }, "i18next-no-undefined-translation-keys"),
+        }),
         {
           namespaceTranslationMappingFile: namespaceMappingPath,
           defaultNamespace: "default",
@@ -207,7 +207,5 @@ const config = [
   // Add prettier recommended config last
   eslintPluginPrettierRecommended,
 ];
-
-// console.log(config);
 
 export default config;
