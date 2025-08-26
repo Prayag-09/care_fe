@@ -19,6 +19,7 @@ import { FacilityNav } from "@/components/ui/sidebar/facility/facility-nav";
 import { FacilitySwitcher } from "@/components/ui/sidebar/facility/facility-switcher";
 import { LocationNav } from "@/components/ui/sidebar/facility/location/location-nav";
 import { LocationSwitcher } from "@/components/ui/sidebar/facility/location/location-switcher";
+import { ServiceNav } from "@/components/ui/sidebar/facility/service/service-nav";
 import {
   FacilityNavUser,
   PatientNavUser,
@@ -53,11 +54,16 @@ export function AppSidebar({
   const { facilityId } = useRouteParams("/facility/:facilityId");
   const { locationId } = useRouteParams("/facility/:_/locations/:locationId");
   const { organizationId } = useRouteParams("/organization/:organizationId");
+  const { serviceId } = useRouteParams(
+    "/facility/:facilityId/services/:serviceId",
+  );
 
   const facilitySidebar =
     !!facilityId && !locationId && sidebarFor === SidebarFor.FACILITY;
   const facilityLocationSidebar =
     !!facilityId && !!locationId && sidebarFor === SidebarFor.FACILITY;
+  const facilityServiceSidebar =
+    !!facilityId && !!serviceId && sidebarFor === SidebarFor.FACILITY;
 
   const patientSidebar = sidebarFor === SidebarFor.PATIENT;
   const adminSidebar = sidebarFor === SidebarFor.ADMIN;
@@ -137,8 +143,10 @@ export function AppSidebar({
 
       <SidebarContent>
         {facilityLocationSidebar && <LocationNav />}
+        {facilityServiceSidebar && <ServiceNav />}
         {facilitySidebar &&
           !facilityLocationSidebar &&
+          !facilityServiceSidebar &&
           !selectedOrganization && (
             <FacilityNav selectedFacility={selectedFacility} />
           )}
