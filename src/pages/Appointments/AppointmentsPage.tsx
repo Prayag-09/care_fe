@@ -774,7 +774,7 @@ function AppointmentColumn(props: {
           limit: 10,
           slot: props.slot,
           resource_type: SchedulableResourceType.Practitioner,
-          resource_id: props.practitioners ?? undefined,
+          resource_ids: props.practitioners ?? undefined,
           date_after: props.date_from,
           date_before: props.date_to,
           ordering: "token_slot__start_datetime",
