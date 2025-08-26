@@ -46,6 +46,12 @@ function generateFacilityLinks(
       visibility: permissions.canViewAppointments,
     },
     {
+      name: t("queues"),
+      url: `${baseUrl}/queues`,
+      icon: <CareIcon icon="d-calendar" />,
+      visibility: permissions.canViewAppointments,
+    },
+    {
       name: t("patients"),
       url: `${baseUrl}/patients`,
       icon: <CareIcon icon="d-patient" />,
