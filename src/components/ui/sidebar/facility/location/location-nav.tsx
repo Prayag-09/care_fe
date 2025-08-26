@@ -85,6 +85,11 @@ export function LocationNav() {
           url: `${baseUrl}/schedule`,
           icon: <CalendarIcon />,
         },
+        {
+          name: t("queues"),
+          url: `${baseUrl}/queues`,
+          icon: <CalendarIcon />,
+        },
       ]}
     />
   );

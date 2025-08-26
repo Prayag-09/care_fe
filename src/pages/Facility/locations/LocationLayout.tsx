@@ -4,6 +4,7 @@ import ErrorPage from "@/components/ErrorPages/DefaultErrorPage";
 
 import { ScheduleHome } from "@/components/Schedule/ScheduleHome";
 import BedsList from "@/pages/Facility/locations/BedsList";
+import QueuesIndex from "@/pages/Facility/queues/QueuesIndex";
 import { InventoryList } from "@/pages/Facility/services/inventory/InventoryList";
 import { ReceiveStock } from "@/pages/Facility/services/inventory/ReceiveStock";
 import SupplyRequestForm from "@/pages/Facility/services/inventory/SupplyRequestForm";
@@ -238,6 +239,15 @@ const getRoutes = (facilityId: string, locationId: string) => ({
   // Schedule
   "/schedule": () => (
     <ScheduleHome
+      facilityId={facilityId}
+      resourceType={SchedulableResourceType.Location}
+      resourceId={locationId}
+    />
+  ),
+
+  // Queues
+  "/queues": () => (
+    <QueuesIndex
       facilityId={facilityId}
       resourceType={SchedulableResourceType.Location}
       resourceId={locationId}
