@@ -1,12 +1,11 @@
 import { useQuery } from "@tanstack/react-query";
-import { Plus } from "lucide-react";
-import { Link } from "raviger";
+import { Calendar, Edit, MapPin, Plus } from "lucide-react";
 import { useEffect } from "react";
 import { useTranslation } from "react-i18next";
 
 import { Badge } from "@/components/ui/badge";
 import { Button } from "@/components/ui/button";
-import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
+import { Card, CardContent } from "@/components/ui/card";
 import { DatePicker } from "@/components/ui/date-picker";
 import { EmptyState } from "@/components/ui/empty-state";
 import {
@@ -28,10 +27,13 @@ import { SchedulableResourceType } from "@/types/scheduling/schedule";
 import scheduleApi from "@/types/scheduling/scheduleApi";
 import { TokenQueueRead } from "@/types/tokens/tokenQueue/tokenQueue";
 import tokenQueueApi from "@/types/tokens/tokenQueue/tokenQueueApi";
+import { TokenSubQueueRead } from "@/types/tokens/tokenSubQueue/tokenSubQueue";
+import tokenSubQueueApi from "@/types/tokens/tokenSubQueue/tokenSubQueueApi";
 import { UserReadMinimal } from "@/types/user/user";
 
 import { dateQueryString } from "@/Utils/utils";
 import QueueFormSheet from "./QueueFormSheet";
+import SubQueueFormSheet from "./SubQueueFormSheet";
 
 interface QueueCardProps {
   queue: TokenQueueRead;
@@ -49,50 +51,98 @@ function QueueCard({
   const { t } = useTranslation();
 
   return (
-    <Card className="hover:shadow-md transition-shadow">
-      <CardHeader className="pb-3">
-        <div className="flex items-start justify-between">
-          <div className="flex-1 min-w-0">
-            <CardTitle className="text-lg font-semibold truncate">
-              {queue.name}
-            </CardTitle>
-            <p className="text-sm text-gray-600 mt-1">
-              {new Date(queue.date).toLocaleDateString()}
-            </p>
+    <Card className="hover:shadow-md transition-all duration-200 border-gray-200 shadow-none">
+      <CardContent className="p-4">
+        <div className="flex items-center justify-between">
+          <div className="flex items-center gap-3 flex-1">
+            <div className="flex-1 min-w-0">
+              <div className="flex items-center gap-2">
+                <h3 className="font-semibold text-gray-900 truncate">
+                  {queue.name}
+                </h3>
+                {queue.set_is_primary && (
+                  <Badge variant="primary" className="text-xs">
+                    {t("primary")}
+                  </Badge>
+                )}
+              </div>
+              <p className="text-sm text-gray-600 mt-1">
+                {new Date(queue.date).toLocaleDateString()}
+              </p>
+            </div>
           </div>
           <div className="flex items-center gap-2">
-            {queue.set_is_primary && (
-              <Badge
-                variant="primary"
-                className="bg-primary text-primary-foreground"
-              >
-                {t("primary")}
-              </Badge>
-            )}
-            {queue.system_generated && (
-              <Badge variant="secondary">{t("system_generated")}</Badge>
-            )}
+            <Badge
+              variant="green"
+              className="bg-green-50 text-green-700 border-green-200"
+            >
+              {t("active")}
+            </Badge>
+            <QueueFormSheet
+              facilityId={facilityId}
+              resourceType={resourceType}
+              resourceId={resourceId}
+              queueId={queue.id}
+              trigger={
+                <Button variant="ghost" size="sm" className="h-8 w-8 p-0">
+                  <span className="sr-only">{t("edit")}</span>
+                  <Edit className="h-4 w-4" />
+                </Button>
+              }
+            />
           </div>
         </div>
-      </CardHeader>
-      <CardContent className="pt-0">
-        <div className="flex justify-end gap-2">
-          <QueueFormSheet
-            facilityId={facilityId}
-            resourceType={resourceType}
-            resourceId={resourceId}
-            queueId={queue.id}
-            trigger={
-              <Button variant="outline" size="sm">
-                {t("edit")}
-              </Button>
-            }
-          />
-          <Button variant="outline" size="sm" asChild>
-            <Link href={`/facility/${facilityId}/queues/${queue.id}`}>
-              {t("view_details")}
-            </Link>
-          </Button>
+      </CardContent>
+    </Card>
+  );
+}
+
+interface SubQueueCardProps {
+  subQueue: TokenSubQueueRead;
+  facilityId: string;
+  resourceType: SchedulableResourceType;
+  resourceId: string;
+}
+
+function SubQueueCard({
+  subQueue,
+  facilityId,
+  resourceType,
+  resourceId,
+}: SubQueueCardProps) {
+  const { t } = useTranslation();
+
+  return (
+    <Card className="hover:shadow-md transition-all duration-200 border-gray-200 shadow-none">
+      <CardContent className="p-4">
+        <div className="flex items-center justify-between">
+          <div className="flex items-center gap-3 flex-1">
+            <div className="flex-1 min-w-0">
+              <h3 className="font-semibold text-gray-900 truncate">
+                {subQueue.name}
+              </h3>
+            </div>
+          </div>
+          <div className="flex items-center gap-2">
+            <Badge
+              variant="green"
+              className="bg-green-50 text-green-700 border-green-200"
+            >
+              {t("active")}
+            </Badge>
+            <SubQueueFormSheet
+              facilityId={facilityId}
+              resourceType={resourceType}
+              resourceId={resourceId}
+              subQueueId={subQueue.id}
+              trigger={
+                <Button variant="ghost" size="sm" className="h-8 w-8 p-0">
+                  <span className="sr-only">{t("edit")}</span>
+                  <Edit className="h-4 w-4" />
+                </Button>
+              }
+            />
+          </div>
         </div>
       </CardContent>
     </Card>
@@ -138,10 +188,9 @@ export default function QueuesIndex({
   useEffect(() => {
     if (!qParams.date) {
       const today = new Date();
-
       updateQuery({ date: dateQueryString(today) });
     }
-  }, [qParams.date]); // Only run when date changes
+  }, [qParams.date, updateQuery]);
 
   // Handle date filter
   const handleDateChange = (date: Date | undefined) => {
@@ -157,7 +206,8 @@ export default function QueuesIndex({
     updateQuery({ resource_id: selectedResourceId });
   };
 
-  const { data: response, isLoading } = useQuery({
+  // Fetch queues
+  const { data: queuesResponse, isLoading: queuesLoading } = useQuery({
     queryKey: ["tokenQueues", facilityId, effectiveResourceId, qParams],
     queryFn: query(tokenQueueApi.list, {
       pathParams: { facility_id: facilityId },
@@ -172,34 +222,33 @@ export default function QueuesIndex({
     }),
   });
 
-  const queues = response?.results || [];
+  // Fetch sub-queues (service points)
+  const { data: subQueuesResponse, isLoading: subQueuesLoading } = useQuery({
+    queryKey: ["tokenSubQueues", facilityId, effectiveResourceId],
+    queryFn: query(tokenSubQueueApi.list, {
+      pathParams: { facility_id: facilityId },
+      queryParams: {
+        resource_type: resourceType,
+        resource_id: effectiveResourceId,
+      },
+    }),
+  });
+
+  const queues = queuesResponse?.results || [];
+  const subQueues = subQueuesResponse?.results || [];
+
+  // Get the selected date for dynamic title
+  const selectedDate = qParams.date ? new Date(qParams.date) : new Date();
+  const isToday = selectedDate.toDateString() === new Date().toDateString();
+  const queueTitle = isToday
+    ? t("todays_queues")
+    : t("queues_for_date", { date: selectedDate.toLocaleDateString() });
 
   return (
     <Page title={t("token_queues")} hideTitleOnPage>
-      <div className="container mx-auto">
-        <div className="mb-6">
-          <div className="flex items-center justify-between">
-            <div>
-              <h1 className="text-2xl font-bold text-gray-900">
-                {t("token_queues")}
-              </h1>
-              <p className="mt-1 text-sm text-gray-600">
-                {t("manage_token_queues_for_facility")}
-              </p>
-            </div>
-            <QueueFormSheet
-              facilityId={facilityId}
-              resourceType={resourceType}
-              resourceId={effectiveResourceId}
-              onSuccess={() => {
-                // Refresh the queues list
-              }}
-            />
-          </div>
-        </div>
-
+      <div className="container mx-auto px-4 py-6">
         {/* Filters Section */}
-        <div className="mb-6 flex flex-wrap gap-4 items-end">
+        <div className="mb-8 flex flex-wrap gap-4 items-end bg-white p-4 rounded-lg border border-gray-200">
           {/* Date Filter */}
           <div className="flex flex-col gap-2">
             <label className="text-sm font-medium text-gray-700">
@@ -236,49 +285,148 @@ export default function QueuesIndex({
           )}
         </div>
 
-        {isLoading ? (
-          <div className="space-y-4">
-            <CardListSkeleton count={4} />
-          </div>
-        ) : queues.length === 0 ? (
-          <EmptyState
-            icon="l-folder-open"
-            title={t("no_queues_found")}
-            description={t("no_queues_found_description")}
-            action={
+        {/* Main Content - Two Column Layout */}
+        <div className="grid grid-cols-1 xl:grid-cols-2 gap-8">
+          {/* Queues Section */}
+          <div className="bg-white rounded-lg border border-gray-200 p-6">
+            <div className="flex items-center justify-between mb-6">
+              <div className="flex items-center gap-3">
+                <div className="p-2 bg-purple-100 rounded-lg">
+                  <Calendar className="h-5 w-5 text-purple-600" />
+                </div>
+                <div>
+                  <h2 className="text-xl font-bold text-gray-900">
+                    {queueTitle}
+                  </h2>
+                  <p className="text-sm text-gray-600">
+                    {queues.length} {t("queues_active_today")}
+                  </p>
+                </div>
+              </div>
               <QueueFormSheet
                 facilityId={facilityId}
                 resourceType={resourceType}
                 resourceId={effectiveResourceId}
                 trigger={
-                  <Button>
-                    <Plus className="size-4 mr-2" />
-                    {t("create_first_queue")}
+                  <Button size="sm">
+                    <Plus className="h-4 w-4 mr-2" />
+                    {t("create_queue")}
                   </Button>
                 }
               />
-            }
-          />
-        ) : (
-          <>
-            <div className="grid gap-4 md:grid-cols-2 lg:grid-cols-3">
-              {queues.map((queue) => (
-                <QueueCard
-                  key={queue.id}
-                  queue={queue}
-                  facilityId={facilityId}
-                  resourceType={resourceType}
-                  resourceId={effectiveResourceId}
-                />
-              ))}
             </div>
 
-            {response && response.count > resultsPerPage && (
-              <div className="mt-6 flex justify-center">
-                <Pagination totalCount={response.count} />
+            {queuesLoading ? (
+              <div className="space-y-3">
+                <CardListSkeleton count={3} />
+              </div>
+            ) : queues.length === 0 ? (
+              <EmptyState
+                icon="l-folder-open"
+                title={t("no_queues_found")}
+                description={t("no_queues_found_description")}
+                action={
+                  <QueueFormSheet
+                    facilityId={facilityId}
+                    resourceType={resourceType}
+                    resourceId={effectiveResourceId}
+                    trigger={
+                      <Button>
+                        <Plus className="h-4 w-4 mr-2" />
+                        {t("create_first_queue")}
+                      </Button>
+                    }
+                  />
+                }
+              />
+            ) : (
+              <div className="space-y-3">
+                {queues.map((queue) => (
+                  <QueueCard
+                    key={queue.id}
+                    queue={queue}
+                    facilityId={facilityId}
+                    resourceType={resourceType}
+                    resourceId={effectiveResourceId}
+                  />
+                ))}
               </div>
             )}
-          </>
+          </div>
+
+          {/* Service Points Section */}
+          <div className="bg-white rounded-lg border border-gray-200 p-6">
+            <div className="flex items-center justify-between mb-6">
+              <div className="flex items-center gap-3">
+                <div className="p-2 bg-green-100 rounded-lg">
+                  <MapPin className="h-5 w-5 text-green-600" />
+                </div>
+                <div>
+                  <h2 className="text-xl font-bold text-gray-900">
+                    {t("service_points")}
+                  </h2>
+                  <p className="text-sm text-gray-600">
+                    {subQueues.length} {t("service_points_available")}
+                  </p>
+                </div>
+              </div>
+              <SubQueueFormSheet
+                facilityId={facilityId}
+                resourceType={resourceType}
+                resourceId={effectiveResourceId}
+                trigger={
+                  <Button size="sm">
+                    <Plus className="h-4 w-4 mr-2" />
+                    {t("add_point")}
+                  </Button>
+                }
+              />
+            </div>
+
+            {subQueuesLoading ? (
+              <div className="space-y-3">
+                <CardListSkeleton count={4} />
+              </div>
+            ) : subQueues.length === 0 ? (
+              <EmptyState
+                icon="l-map-pin"
+                title={t("no_service_points_found")}
+                description={t("no_service_points_found_description")}
+                action={
+                  <SubQueueFormSheet
+                    facilityId={facilityId}
+                    resourceType={resourceType}
+                    resourceId={effectiveResourceId}
+                    trigger={
+                      <Button>
+                        <Plus className="h-4 w-4 mr-2" />
+                        {t("add_first_service_point")}
+                      </Button>
+                    }
+                  />
+                }
+              />
+            ) : (
+              <div className="space-y-3">
+                {subQueues.map((subQueue) => (
+                  <SubQueueCard
+                    key={subQueue.id}
+                    subQueue={subQueue}
+                    facilityId={facilityId}
+                    resourceType={resourceType}
+                    resourceId={effectiveResourceId}
+                  />
+                ))}
+              </div>
+            )}
+          </div>
+        </div>
+
+        {/* Pagination for queues */}
+        {queuesResponse && queuesResponse.count > resultsPerPage && (
+          <div className="mt-8 flex justify-center">
+            <Pagination totalCount={queuesResponse.count} />
+          </div>
         )}
       </div>
     </Page>
