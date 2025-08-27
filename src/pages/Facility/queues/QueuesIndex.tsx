@@ -1,6 +1,7 @@
 import { useQuery } from "@tanstack/react-query";
 import { Plus } from "lucide-react";
 import { Link } from "raviger";
+import { useEffect } from "react";
 import { useTranslation } from "react-i18next";
 
 import { Badge } from "@/components/ui/badge";
@@ -29,14 +30,22 @@ import { TokenQueueRead } from "@/types/tokens/tokenQueue/tokenQueue";
 import tokenQueueApi from "@/types/tokens/tokenQueue/tokenQueueApi";
 import { UserReadMinimal } from "@/types/user/user";
 
-import CreateQueueSheet from "./CreateQueueSheet";
+import { dateQueryString } from "@/Utils/utils";
+import QueueFormSheet from "./QueueFormSheet";
 
 interface QueueCardProps {
   queue: TokenQueueRead;
   facilityId: string;
+  resourceType: SchedulableResourceType;
+  resourceId: string;
 }
 
-function QueueCard({ queue, facilityId }: QueueCardProps) {
+function QueueCard({
+  queue,
+  facilityId,
+  resourceType,
+  resourceId,
+}: QueueCardProps) {
   const { t } = useTranslation();
 
   return (
@@ -67,7 +76,21 @@ function QueueCard({ queue, facilityId }: QueueCardProps) {
         </div>
       </CardHeader>
       <CardContent className="pt-0">
-        <div className="flex justify-end">
+        <div className="flex justify-end gap-2">
+          <QueueFormSheet
+            facilityId={facilityId}
+            resourceType={resourceType}
+            resourceId={resourceId}
+            queueId={queue.id}
+            trigger={
+              <Button variant="outline" size="sm">
+                {t("edit")}
+              </Button>
+            }
+            onSuccess={() => {
+              // Refresh the queues list
+            }}
+          />
           <Button variant="outline" size="sm" asChild>
             <Link href={`/facility/${facilityId}/queues/${queue.id}`}>
               {t("view_details")}
@@ -114,11 +137,22 @@ export default function QueuesIndex({
 
   const availableUsers = availableUsersData?.users || [];
 
+  // Set default date to today if no date is specified
+  useEffect(() => {
+    if (!qParams.valid_from) {
+      const today = new Date();
+
+      updateQuery({ valid_from: dateQueryString(today) });
+    }
+  }, [qParams.valid_from]); // Only run when valid_from changes
+
   // Handle date filter
   const handleDateChange = (date: Date | undefined) => {
-    updateQuery({
-      valid_from: date ? date.toISOString().split("T")[0] : undefined,
-    });
+    if (date) {
+      updateQuery({ valid_from: dateQueryString(date) });
+    } else {
+      updateQuery({ valid_from: undefined });
+    }
   };
 
   // Handle resource selection
@@ -156,7 +190,7 @@ export default function QueuesIndex({
                 {t("manage_token_queues_for_facility")}
               </p>
             </div>
-            <CreateQueueSheet
+            <QueueFormSheet
               facilityId={facilityId}
               resourceType={resourceType}
               resourceId={effectiveResourceId}
@@ -217,7 +251,7 @@ export default function QueuesIndex({
             title={t("no_queues_found")}
             description={t("no_queues_found_description")}
             action={
-              <CreateQueueSheet
+              <QueueFormSheet
                 facilityId={facilityId}
                 resourceType={resourceType}
                 resourceId={effectiveResourceId}
@@ -238,6 +272,8 @@ export default function QueuesIndex({
                   key={queue.id}
                   queue={queue}
                   facilityId={facilityId}
+                  resourceType={resourceType}
+                  resourceId={effectiveResourceId}
                 />
               ))}
             </div>
