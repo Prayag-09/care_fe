@@ -87,9 +87,6 @@ function QueueCard({
                 {t("edit")}
               </Button>
             }
-            onSuccess={() => {
-              // Refresh the queues list
-            }}
           />
           <Button variant="outline" size="sm" asChild>
             <Link href={`/facility/${facilityId}/queues/${queue.id}`}>
@@ -139,19 +136,19 @@ export default function QueuesIndex({
 
   // Set default date to today if no date is specified
   useEffect(() => {
-    if (!qParams.valid_from) {
+    if (!qParams.date) {
       const today = new Date();
 
-      updateQuery({ valid_from: dateQueryString(today) });
+      updateQuery({ date: dateQueryString(today) });
     }
-  }, [qParams.valid_from]); // Only run when valid_from changes
+  }, [qParams.date]); // Only run when date changes
 
   // Handle date filter
   const handleDateChange = (date: Date | undefined) => {
     if (date) {
-      updateQuery({ valid_from: dateQueryString(date) });
+      updateQuery({ date: dateQueryString(date) });
     } else {
-      updateQuery({ valid_from: undefined });
+      updateQuery({ date: undefined });
     }
   };
 
@@ -167,7 +164,7 @@ export default function QueuesIndex({
       queryParams: {
         resource_type: resourceType,
         resource_id: effectiveResourceId,
-        valid_from: qParams.valid_from,
+        date: qParams.date,
         limit: resultsPerPage,
         offset: ((qParams.page ?? 1) - 1) * resultsPerPage,
         ordering: "-created_date",
@@ -206,12 +203,10 @@ export default function QueuesIndex({
           {/* Date Filter */}
           <div className="flex flex-col gap-2">
             <label className="text-sm font-medium text-gray-700">
-              {t("valid_from")}
+              {t("date")}
             </label>
             <DatePicker
-              date={
-                qParams.valid_from ? new Date(qParams.valid_from) : undefined
-              }
+              date={qParams.date ? new Date(qParams.date) : undefined}
               onChange={handleDateChange}
             />
           </div>
