@@ -31,6 +31,7 @@ import { PatientNav } from "@/components/ui/sidebar/patient-nav";
 import { AuthUserModel, UserFacilityModel } from "@/components/Users/models";
 
 import { useRouteParams } from "@/hooks/useRouteParams";
+import { ServiceSwitcher } from "./facility/service/service-switcher";
 
 interface AppSidebarProps extends React.ComponentProps<typeof Sidebar> {
   user?: AuthUserModel;
@@ -59,11 +60,20 @@ export function AppSidebar({
   );
 
   const facilitySidebar =
-    !!facilityId && !locationId && sidebarFor === SidebarFor.FACILITY;
+    !!facilityId &&
+    !locationId &&
+    !serviceId &&
+    sidebarFor === SidebarFor.FACILITY;
   const facilityLocationSidebar =
-    !!facilityId && !!locationId && sidebarFor === SidebarFor.FACILITY;
+    !!facilityId &&
+    !!locationId &&
+    !serviceId &&
+    sidebarFor === SidebarFor.FACILITY;
   const facilityServiceSidebar =
-    !!facilityId && !!serviceId && sidebarFor === SidebarFor.FACILITY;
+    !!facilityId &&
+    !!serviceId &&
+    !locationId &&
+    sidebarFor === SidebarFor.FACILITY;
 
   const patientSidebar = sidebarFor === SidebarFor.PATIENT;
   const adminSidebar = sidebarFor === SidebarFor.ADMIN;
@@ -117,28 +127,32 @@ export function AppSidebar({
           />
         )}
         {locationId && <LocationSwitcher />}
-        {!locationId && !selectedFacility && !selectedOrganization && (
-          <SidebarMenu>
-            <SidebarMenuItem>
-              <SidebarMenuButton
-                asChild
-                size="lg"
-                className="data-[state=open]:bg-sidebar-accent data-[state=open]:text-sidebar-accent-foreground hover:bg-white mt-2"
-              >
-                <Link href="/">
-                  <div className="flex aspect-square size-8 items-center justify-center rounded-lg bg-primary text-sidebar-primary-foreground">
-                    <DashboardIcon className="size-4" />
-                  </div>
-                  <div className="grid flex-1 text-left text-sm leading-tight text-gray-900">
-                    <span className="truncate font-semibold">
-                      {t("view_dashboard")}
-                    </span>
-                  </div>
-                </Link>
-              </SidebarMenuButton>
-            </SidebarMenuItem>
-          </SidebarMenu>
-        )}
+        {serviceId && <ServiceSwitcher />}
+        {!locationId &&
+          !serviceId &&
+          !selectedFacility &&
+          !selectedOrganization && (
+            <SidebarMenu>
+              <SidebarMenuItem>
+                <SidebarMenuButton
+                  asChild
+                  size="lg"
+                  className="data-[state=open]:bg-sidebar-accent data-[state=open]:text-sidebar-accent-foreground hover:bg-white mt-2"
+                >
+                  <Link href="/">
+                    <div className="flex aspect-square size-8 items-center justify-center rounded-lg bg-primary text-sidebar-primary-foreground">
+                      <DashboardIcon className="size-4" />
+                    </div>
+                    <div className="grid flex-1 text-left text-sm leading-tight text-gray-900">
+                      <span className="truncate font-semibold">
+                        {t("view_dashboard")}
+                      </span>
+                    </div>
+                  </Link>
+                </SidebarMenuButton>
+              </SidebarMenuItem>
+            </SidebarMenu>
+          )}
       </SidebarHeader>
 
       <SidebarContent>
