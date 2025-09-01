@@ -95,7 +95,8 @@ export const VitalsList = ({
     queryKey: [
       "infinite-observations",
       patientId,
-      filteredVitalCodes.map((c) => c.code).join(","),
+      encounterId,
+      filteredVitalCodes.map((c) => c.code),
     ],
     queryFn: async ({ pageParam = 0 }) => {
       const response = await query(patientApi.listObservations, {
