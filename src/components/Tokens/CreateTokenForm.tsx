@@ -8,7 +8,6 @@ import { Trans, useTranslation } from "react-i18next";
 import { toast } from "sonner";
 import * as z from "zod";
 
-import Autocomplete from "@/components/ui/autocomplete";
 import { Button } from "@/components/ui/button";
 import {
   Form,
@@ -41,16 +40,14 @@ import { HealthcareServiceSelector } from "@/pages/Facility/services/HealthcareS
 
 import mutate from "@/Utils/request/mutate";
 import query from "@/Utils/request/query";
-import { Label } from "@/components/ui/label";
 import { cn } from "@/lib/utils";
 import { HealthcareServiceReadSpec } from "@/types/healthcareService/healthcareService";
 import { LocationList } from "@/types/location/location";
 import { SchedulableResourceType } from "@/types/scheduling/schedule";
-import { TokenGenerate, TokenRead } from "@/types/tokens/token/token";
-import tokenApi from "@/types/tokens/token/tokenApi";
+import { TokenGenerateWithQueue, TokenRead } from "@/types/tokens/token/token";
 import { TokenCategoryRead } from "@/types/tokens/tokenCategory/tokenCategory";
 import tokenCategoryApi from "@/types/tokens/tokenCategory/tokenCategoryApi";
-import { TokenQueueRead } from "@/types/tokens/tokenQueue/tokenQueue";
+
 import tokenQueueApi from "@/types/tokens/tokenQueue/tokenQueueApi";
 import { UserReadMinimal } from "@/types/user/user";
 
@@ -75,7 +72,7 @@ export default function CreateTokenForm({
   const [currentStep, setCurrentStep] = useState<1 | 2>(1);
   const [selectedResourceType, setSelectedResourceType] =
     useState<SchedulableResourceType>(SchedulableResourceType.Practitioner);
-  const [selectedResourceId, setSelectedResourceId] = useState<string>("");
+
   const [selectedUser, setSelectedUser] = useState<UserReadMinimal | null>(
     null,
   );
@@ -84,13 +81,13 @@ export default function CreateTokenForm({
   );
   const [selectedService, setSelectedService] =
     useState<HealthcareServiceReadSpec | null>(null);
-  const [queueSearchQuery, setQueueSearchQuery] = useState("");
+
   const queryClient = useQueryClient();
   const { t } = useTranslation();
 
   const tokenFormSchema = z.object({
-    queueId: z.string().min(1, {
-      message: t("queue_is_required"),
+    resourceId: z.string().min(1, {
+      message: t("resource_id_is_required"),
     }),
     categoryId: z.string().min(1, {
       message: t("category_is_required"),
@@ -101,35 +98,13 @@ export default function CreateTokenForm({
   const form = useForm({
     resolver: zodResolver(tokenFormSchema),
     defaultValues: {
-      queueId: "",
+      resourceId: "",
       categoryId: "",
       note: "",
     },
   });
 
-  // Fetch available token queues with search
-  const { data: queuesResponse, isLoading: isLoadingQueues } = useQuery({
-    queryKey: [
-      "tokenQueues",
-      facilityId,
-      selectedResourceType,
-      selectedResourceId,
-      queueSearchQuery,
-    ],
-    queryFn: query.debounced(tokenQueueApi.list, {
-      pathParams: { facility_id: facilityId },
-      queryParams: {
-        resource_type: selectedResourceType,
-        resource_id: selectedResourceId,
-        name: queueSearchQuery || undefined,
-      },
-    }),
-    enabled:
-      isOpen &&
-      currentStep === 2 &&
-      !!selectedResourceType &&
-      !!selectedResourceId,
-  });
+  // Queue selection is no longer needed - backend auto-handles queue selection
 
   // Fetch available token categories
   const { data: categoriesResponse, isLoading: isLoadingCategories } = useQuery(
@@ -144,41 +119,37 @@ export default function CreateTokenForm({
 
   // HealthcareServiceSelector handles its own data fetching
 
-  const queues = queuesResponse?.results || [];
   const categories = categoriesResponse?.results || [];
 
   const { mutate: createToken, isPending } = useMutation({
-    mutationFn: (data: { queueId: string; tokenData: TokenGenerate }) =>
-      mutate(tokenApi.create, {
-        pathParams: { facility_id: facilityId, queue_id: data.queueId },
-      })(data.tokenData),
-    onSuccess: (data: TokenRead, variables) => {
+    mutationFn: mutate(tokenQueueApi.generateToken, {
+      pathParams: { facility_id: facilityId },
+    }),
+    onSuccess: (data: TokenRead) => {
       toast.success(t("token_created"));
       setIsOpen(false);
       form.reset();
       queryClient.invalidateQueries({
-        queryKey: ["tokens", facilityId, variables.queueId],
+        queryKey: ["tokens", facilityId],
       });
       onSuccess?.();
       if (!disableRedirectOnSuccess) {
-        navigate(
-          `/facility/${facilityId}/token/queue/${variables.queueId}/token/${data.id}`,
-        );
+        navigate(`/facility/${facilityId}/tokens/${data.id}`);
       }
     },
   });
 
   function onSubmit(data: z.infer<typeof tokenFormSchema>) {
-    const tokenRequest: TokenGenerate = {
+    const tokenRequest: TokenGenerateWithQueue = {
       patient: patientId,
       category: data.categoryId,
       note: data.note,
+      resource_type: selectedResourceType,
+      resource_id: data.resourceId,
+      date: new Date().toISOString().split("T")[0], // Today's date
     };
 
-    createToken({
-      queueId: data.queueId,
-      tokenData: tokenRequest,
-    });
+    createToken(tokenRequest);
   }
 
   const handleOpenChange = (open: boolean) => {
@@ -187,11 +158,9 @@ export default function CreateTokenForm({
       // Reset all state when closing
       setCurrentStep(1);
       setSelectedResourceType(SchedulableResourceType.Practitioner);
-      setSelectedResourceId("");
       setSelectedUser(null);
       setSelectedLocation(null);
       setSelectedService(null);
-      setQueueSearchQuery("");
       form.reset();
     }
   };
@@ -206,14 +175,12 @@ export default function CreateTokenForm({
     if (currentStep === 2) {
       setCurrentStep(1);
       // Reset form fields and resource selection from step 2
-      form.setValue("queueId", "");
+      form.setValue("resourceId", "");
       form.setValue("categoryId", "");
       form.setValue("note", "");
-      setSelectedResourceId("");
       setSelectedUser(null);
       setSelectedLocation(null);
       setSelectedService(null);
-      setQueueSearchQuery("");
     }
   };
 
@@ -289,53 +256,67 @@ export default function CreateTokenForm({
             ) : (
               <div className="space-y-5">
                 {/* Resource Selection */}
-                <div>
-                  <Label className="text-sm font-medium text-gray-900 mb-2">
-                    {selectedResourceType ===
-                      SchedulableResourceType.Practitioner && t("practitioner")}
-                    {selectedResourceType ===
-                      SchedulableResourceType.Location && t("location")}
-                    {selectedResourceType ===
-                      SchedulableResourceType.HealthcareService &&
-                      t("healthcare_service")}{" "}
-                  </Label>
+                <FormField
+                  control={form.control}
+                  name="resourceId"
+                  render={({ field }) => (
+                    <FormItem>
+                      <FormLabel>
+                        {selectedResourceType ===
+                          SchedulableResourceType.Practitioner &&
+                          t("practitioner")}
+                        {selectedResourceType ===
+                          SchedulableResourceType.Location && t("location")}
+                        {selectedResourceType ===
+                          SchedulableResourceType.HealthcareService &&
+                          t("healthcare_service")}
+                      </FormLabel>
+                      <FormControl>
+                        <div>
+                          {selectedResourceType ===
+                            SchedulableResourceType.Practitioner && (
+                            <PractitionerSelector
+                              facilityId={facilityId}
+                              selected={selectedUser}
+                              onSelect={(user) => {
+                                setSelectedUser(user);
+                                const resourceId = user?.id || "";
+                                field.onChange(resourceId);
+                              }}
+                            />
+                          )}
 
-                  {selectedResourceType ===
-                    SchedulableResourceType.Practitioner && (
-                    <PractitionerSelector
-                      facilityId={facilityId}
-                      selected={selectedUser}
-                      onSelect={(user) => {
-                        setSelectedUser(user);
-                        setSelectedResourceId(user?.id || "");
-                      }}
-                    />
-                  )}
+                          {selectedResourceType ===
+                            SchedulableResourceType.Location && (
+                            <LocationSearch
+                              facilityId={facilityId}
+                              onSelect={(location) => {
+                                setSelectedLocation(location);
+                                const resourceId = location.id;
+                                field.onChange(resourceId);
+                              }}
+                              value={selectedLocation}
+                            />
+                          )}
 
-                  {selectedResourceType ===
-                    SchedulableResourceType.Location && (
-                    <LocationSearch
-                      facilityId={facilityId}
-                      onSelect={(location) => {
-                        setSelectedLocation(location);
-                        setSelectedResourceId(location.id);
-                      }}
-                      value={selectedLocation}
-                    />
+                          {selectedResourceType ===
+                            SchedulableResourceType.HealthcareService && (
+                            <HealthcareServiceSelector
+                              facilityId={facilityId}
+                              selected={selectedService}
+                              onSelect={(service) => {
+                                setSelectedService(service);
+                                const resourceId = service?.id || "";
+                                field.onChange(resourceId);
+                              }}
+                            />
+                          )}
+                        </div>
+                      </FormControl>
+                      <FormMessage />
+                    </FormItem>
                   )}
-
-                  {selectedResourceType ===
-                    SchedulableResourceType.HealthcareService && (
-                    <HealthcareServiceSelector
-                      facilityId={facilityId}
-                      selected={selectedService}
-                      onSelect={(service) => {
-                        setSelectedService(service);
-                        setSelectedResourceId(service?.id || "");
-                      }}
-                    />
-                  )}
-                </div>
+                />
 
                 {/* Token Category Selection */}
                 <FormField
@@ -380,35 +361,6 @@ export default function CreateTokenForm({
                           ))}
                         </SelectContent>
                       </Select>
-                      <FormMessage />
-                    </FormItem>
-                  )}
-                />
-
-                {/* Token Queue Selection */}
-                <FormField
-                  control={form.control}
-                  name="queueId"
-                  render={({ field }) => (
-                    <FormItem>
-                      <FormLabel>{t("queue")}</FormLabel>
-                      <FormControl>
-                        <Autocomplete
-                          value={field.value}
-                          onChange={field.onChange}
-                          onSearch={setQueueSearchQuery}
-                          placeholder={t("select_token_queue")}
-                          inputPlaceholder={t("search_token_queues")}
-                          noOptionsMessage={t("no_queues_found")}
-                          isLoading={isLoadingQueues}
-                          options={queues.map((queue: TokenQueueRead) => ({
-                            value: queue.id,
-                            label: `${queue.name}${
-                              queue.set_is_primary ? ` (${t("primary")})` : ""
-                            }`,
-                          }))}
-                        />
-                      </FormControl>
                       <FormMessage />
                     </FormItem>
                   )}
@@ -463,8 +415,7 @@ export default function CreateTokenForm({
                     type="submit"
                     disabled={
                       isPending ||
-                      !selectedResourceId ||
-                      !form.watch("queueId") ||
+                      !form.watch("resourceId") ||
                       !form.watch("categoryId")
                     }
                   >

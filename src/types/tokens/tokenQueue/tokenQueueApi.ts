@@ -1,5 +1,6 @@
 import { HttpMethod, Type } from "@/Utils/request/api";
 import { PaginatedResponse } from "@/Utils/request/types";
+import { TokenGenerateWithQueue, TokenRead } from "@/types/tokens/token/token";
 
 import {
   TokenQueueCreate,
@@ -35,5 +36,11 @@ export default {
     path: "/api/v1/facility/{facility_id}/token/queue/{id}/set_primary/",
     method: HttpMethod.POST,
     TRes: Type<TokenQueueRead>(),
+  },
+  generateToken: {
+    path: "/api/v1/facility/{facility_id}/token/queue/generate_token/",
+    method: HttpMethod.POST,
+    TRes: Type<TokenRead>(),
+    TBody: Type<TokenGenerateWithQueue>(),
   },
 } as const;

@@ -3810,6 +3810,7 @@
   "resource_approving_facility": "Resource approving facility",
   "resource_created_successfully": "Request created successfully",
   "resource_details": "Resource details",
+  "resource_id_is_required": "Resource is required",
   "resource_origin_facility": "Origin Facility",
   "resource_request": "Request",
   "resource_request_basic_info_description": "Provide the basic details about the resource request including the facility and urgency.",

@@ -1,4 +1,5 @@
 import { PatientRead } from "@/types/emr/patient/patient";
+import { SchedulableResourceType } from "@/types/scheduling/schedule";
 import { TokenCategoryRead } from "@/types/tokens/tokenCategory/tokenCategory";
 import { TokenSubQueueRead } from "@/types/tokens/tokenSubQueue/tokenSubQueue";
 
@@ -17,6 +18,12 @@ export interface TokenGenerate extends Omit<Token, "id"> {
   category: string;
   note?: string;
   sub_queue?: string;
+}
+
+export interface TokenGenerateWithQueue extends TokenGenerate {
+  resource_type: SchedulableResourceType;
+  resource_id: string;
+  date: string;
 }
 
 export interface TokenUpdate extends Token {
