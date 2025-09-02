@@ -28,13 +28,14 @@ import { OrgNav } from "@/components/ui/sidebar/org-nav";
 import { OrganizationSwitcher } from "@/components/ui/sidebar/organization-switcher";
 import { PatientNav } from "@/components/ui/sidebar/patient-nav";
 
-import { AuthUserModel, UserFacilityModel } from "@/components/Users/models";
-
 import { useRouteParams } from "@/hooks/useRouteParams";
 import { ServiceSwitcher } from "./facility/service/service-switcher";
 
+import { FacilityBareMinimum } from "@/types/facility/facility";
+import { CurrentUserRead } from "@/types/user/user";
+
 interface AppSidebarProps extends React.ComponentProps<typeof Sidebar> {
-  user?: AuthUserModel;
+  user?: CurrentUserRead;
   facilitySidebar?: boolean;
   sidebarFor?: SidebarFor;
 }
@@ -80,7 +81,7 @@ export function AppSidebar({
 
   const { isMobile, setOpenMobile } = useSidebar();
   const [selectedFacility, setSelectedFacility] =
-    React.useState<UserFacilityModel | null>(null);
+    React.useState<FacilityBareMinimum | null>(null);
 
   const selectedOrganization = React.useMemo(() => {
     if (!user?.organizations || !organizationId) return undefined;
