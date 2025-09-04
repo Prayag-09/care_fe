@@ -13,6 +13,7 @@ import { IncomingDeliveries } from "@/pages/Facility/services/inventory/external
 import { PurchaseOrders } from "@/pages/Facility/services/inventory/externalSupply/PurchaseOrders";
 import PurchaseOrdersBySupplier from "@/pages/Facility/services/inventory/externalSupply/PurchaseOrdersBySupplier";
 import ReceiveItem from "@/pages/Facility/services/inventory/internalTransfer/ReceiveItem";
+import SupplyDeliveryCreate from "@/pages/Facility/services/inventory/internalTransfer/SupplyDeliveryCreate";
 import SupplyRequestDetail from "@/pages/Facility/services/inventory/internalTransfer/SupplyRequestDetail";
 import SupplyRequestDispatch from "@/pages/Facility/services/inventory/internalTransfer/SupplyRequestDispatch";
 import ToDispatch from "@/pages/Facility/services/inventory/internalTransfer/ToDispatch";
@@ -97,6 +98,16 @@ const getRoutes = (facilityId: string, locationId: string) => ({
     <ToDispatch facilityId={facilityId} locationId={locationId} />
   ),
 
+  "/internal_transfers/create_delivery": () => (
+    <SupplyDeliveryCreate facilityId={facilityId} locationId={locationId} />
+  ),
+  "/internal_transfers/to_dispatch/delivery/:id": ({ id }: { id: string }) => (
+    <SupplyRequestDispatch
+      facilityId={facilityId}
+      locationId={locationId}
+      supplyDeliveryId={id}
+    />
+  ),
   "/internal_transfers/to_dispatch/:id": ({ id }: { id: string }) => (
     <SupplyRequestDispatch
       facilityId={facilityId}

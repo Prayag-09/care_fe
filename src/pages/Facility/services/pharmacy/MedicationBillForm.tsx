@@ -227,7 +227,6 @@ const AddMedicationSheet = ({
       as_needed_for: undefined,
     });
   const [showDosageDialog, setShowDosageDialog] = useState(false);
-  const unitDisabled = !!selectedProduct?.definitional?.dosage_form;
 
   // Update local state when the sheet opens or when editing a different item
   useEffect(() => {
@@ -235,13 +234,13 @@ const AddMedicationSheet = ({
       setLocalDosageInstruction(existingDosageInstructions);
     } else if (open) {
       resetForm();
-      if (selectedProduct?.definitional?.dosage_form) {
+      if (selectedProduct?.base_unit) {
         handleUpdateDosageInstruction({
           dose_and_rate: {
             type: "ordered",
             dose_quantity: {
               value: 0,
-              unit: selectedProduct.definitional.dosage_form,
+              unit: selectedProduct.base_unit,
             },
           },
         });
@@ -390,7 +389,6 @@ const AddMedicationSheet = ({
                                         });
                                       }
                                     }}
-                                    unitDisabled={unitDisabled}
                                   />
                                 </div>
                                 <Button
@@ -426,7 +424,6 @@ const AddMedicationSheet = ({
                                   });
                                   setShowDosageDialog(false);
                                 }}
-                                unitDisabled={unitDisabled}
                               />
                             </PopoverContent>
                           </Popover>
@@ -1784,7 +1781,12 @@ export default function MedicationBillForm({ patientId }: Props) {
                                                           {
                                                             selectedInventory?.net_content
                                                           }{" "}
-                                                          {t("units")}
+                                                          {
+                                                            selectedInventory
+                                                              ?.product
+                                                              .product_knowledge
+                                                              .base_unit.display
+                                                          }
                                                         </Badge>
                                                         {selectedInventory
                                                           ?.location.id !==
@@ -1890,7 +1892,11 @@ export default function MedicationBillForm({ patientId }: Props) {
                                                         className="ml-2"
                                                       >
                                                         {inv.net_content}{" "}
-                                                        {t("units")}
+                                                        {
+                                                          inv.product
+                                                            ?.product_knowledge
+                                                            .base_unit.display
+                                                        }
                                                       </Badge>
                                                       {inv?.location.id !==
                                                         locationId && (
@@ -2597,13 +2603,11 @@ interface DosageDialogProps {
   onChange?: (
     value?: MedicationRequestDosageInstruction["dose_and_rate"],
   ) => void;
-  unitDisabled?: boolean;
 }
 
 const DosageDialog: React.FC<DosageDialogProps> = ({
   dosageRange,
   onChange,
-  unitDisabled,
 }) => {
   const { t } = useTranslation();
 
@@ -2628,7 +2632,6 @@ const DosageDialog: React.FC<DosageDialogProps> = ({
               }));
             }
           }}
-          unitDisabled={unitDisabled}
         />
       </div>
       <div>
@@ -2647,7 +2650,6 @@ const DosageDialog: React.FC<DosageDialogProps> = ({
               }));
             }
           }}
-          unitDisabled={unitDisabled}
         />
       </div>
       <div className="flex justify-end gap-2">
