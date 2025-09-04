@@ -140,7 +140,7 @@ function MedicationTable({
             const frequency = instruction?.timing?.code;
             const dosage = instruction?.dose_and_rate?.dose_quantity;
             const isPaid =
-              medication.charge_item.paid_invoice?.status ===
+              medication.charge_item?.paid_invoice?.status ===
               InvoiceStatus.balanced;
             const shouldShowCheckbox = showCheckbox;
 
@@ -179,7 +179,7 @@ function MedicationTable({
                     : frequency?.display || "-"}
                 </TableCell>
                 <TableCell className="text-gray-950 font-medium">
-                  {medication.charge_item.quantity || "-"}
+                  {medication.quantity || "-"}
                 </TableCell>
                 <TableCell className="text-gray-950 font-medium">
                   {medication.item.location.name || "-"}
@@ -363,12 +363,12 @@ export default function DispensedMedicationList({
 
   const filteredMedications = response?.results?.filter((med) => {
     if (paymentFilter === "paid")
-      return med.charge_item.paid_invoice?.status === InvoiceStatus.balanced;
+      return med.charge_item?.paid_invoice?.status === InvoiceStatus.balanced;
     if (paymentFilter === "unpaid")
       return (
-        !med.charge_item.paid_invoice ||
-        med.charge_item.paid_invoice?.status === InvoiceStatus.issued ||
-        med.charge_item.paid_invoice?.status === InvoiceStatus.draft
+        !med.charge_item?.paid_invoice ||
+        med.charge_item?.paid_invoice?.status === InvoiceStatus.issued ||
+        med.charge_item?.paid_invoice?.status === InvoiceStatus.draft
       );
     return true;
   });
@@ -380,7 +380,7 @@ export default function DispensedMedicationList({
     paymentFilter === "unpaid"
       ? filteredMedications
           ?.filter((med) => {
-            return med.charge_item.status === ChargeItemStatus.billable;
+            return med.charge_item?.status === ChargeItemStatus.billable;
           })
           .map((med) => med.charge_item)
       : [];

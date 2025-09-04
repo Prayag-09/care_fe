@@ -192,6 +192,7 @@ export interface MedicationDispenseRead extends MedicationDispenseBase {
   charge_item: ChargeItemRead;
   created_date: string;
   location: LocationList;
+  quantity: number;
 }
 
 export interface MedicationDispenseSummary {

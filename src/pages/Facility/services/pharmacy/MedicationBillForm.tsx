@@ -160,6 +160,15 @@ function convertDurationToDays(value: number, unit: string): number {
   }
 }
 
+enum TimeGroup {
+  Today = "today",
+  Yesterday = "yesterday",
+  ThisWeek = "thisWeek",
+  ThisMonth = "thisMonth",
+  ThisYear = "thisYear",
+  Older = "older",
+}
+
 const formSchema = z.object({
   items: z.array(
     z.object({
@@ -863,12 +872,12 @@ export default function MedicationBillForm({ patientId }: Props) {
 
     // Process medications in order: today, yesterday, this week, this month, this year, older
     const orderedGroups = [
-      { key: "today", medications: groupedMedications.today },
-      { key: "yesterday", medications: groupedMedications.yesterday },
-      { key: "thisWeek", medications: groupedMedications.thisWeek },
-      { key: "thisMonth", medications: groupedMedications.thisMonth },
-      { key: "thisYear", medications: groupedMedications.thisYear },
-      { key: "older", medications: groupedMedications.older },
+      { key: TimeGroup.Today, medications: groupedMedications.today },
+      { key: TimeGroup.Yesterday, medications: groupedMedications.yesterday },
+      { key: TimeGroup.ThisWeek, medications: groupedMedications.thisWeek },
+      { key: TimeGroup.ThisMonth, medications: groupedMedications.thisMonth },
+      { key: TimeGroup.ThisYear, medications: groupedMedications.thisYear },
+      { key: TimeGroup.Older, medications: groupedMedications.older },
     ];
 
     orderedGroups.forEach(({ key, medications: groupMedications }) => {
@@ -984,8 +993,14 @@ export default function MedicationBillForm({ patientId }: Props) {
       const chargeItems = extractChargeItemsFromBatchResponse(
         response as unknown as ChargeItemBatchResponse,
       );
-      setExtractedChargeItems(chargeItems);
-      setIsInvoiceSheetOpen(true);
+      if (chargeItems.length === 0) {
+        navigate(
+          `/facility/${facilityId}/locations/${locationId}/medication_dispense/patient/${patientId}/preparation?payment_status=unpaid`,
+        );
+      } else {
+        setIsInvoiceSheetOpen(true);
+        setExtractedChargeItems(chargeItems);
+      }
     },
     onError: (error) => {
       try {
@@ -1021,10 +1036,10 @@ export default function MedicationBillForm({ patientId }: Props) {
       };
 
     const priceComponents =
-      inventory.product.charge_item_definition.price_components;
+      inventory.product.charge_item_definition?.price_components;
 
     // Get base price
-    const baseComponent = priceComponents.find(
+    const baseComponent = priceComponents?.find(
       (component) =>
         component.monetary_component_type === MonetaryComponentType.base,
     );
@@ -1369,12 +1384,12 @@ export default function MedicationBillForm({ patientId }: Props) {
                     );
 
                     const orderedGroups = [
-                      { key: "today", label: t("today") },
-                      { key: "yesterday", label: t("yesterday") },
-                      { key: "thisWeek", label: t("this_week") },
-                      { key: "thisMonth", label: t("this_month") },
-                      { key: "thisYear", label: t("this_year") },
-                      { key: "older", label: t("older") },
+                      { key: TimeGroup.Today, label: t("today") },
+                      { key: TimeGroup.Yesterday, label: t("yesterday") },
+                      { key: TimeGroup.ThisWeek, label: t("this_week") },
+                      { key: TimeGroup.ThisMonth, label: t("this_month") },
+                      { key: TimeGroup.ThisYear, label: t("this_year") },
+                      { key: TimeGroup.Older, label: t("older") },
                     ];
 
                     return orderedGroups.map(({ key, label }) => {
@@ -2095,7 +2110,7 @@ export default function MedicationBillForm({ patientId }: Props) {
                                           key={lot.selectedInventoryId}
                                           className="py-2.5 text-gray-950 font-normal text-base"
                                         >
-                                          {selectedInventory.product.charge_item_definition.price_components
+                                          {selectedInventory.product.charge_item_definition?.price_components
                                             .filter(
                                               (c) =>
                                                 c.monetary_component_type ===
