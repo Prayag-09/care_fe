@@ -5,6 +5,7 @@ import ErrorPage from "@/components/ErrorPages/DefaultErrorPage";
 import { ScheduleHome } from "@/components/Schedule/ScheduleHome";
 import AppointmentsPage from "@/pages/Appointments/AppointmentsPage";
 import BedsList from "@/pages/Facility/locations/BedsList";
+import { ManageQueuePage } from "@/pages/Facility/queues/ManageQueue";
 import QueuesIndex from "@/pages/Facility/queues/QueuesIndex";
 import { InventoryList } from "@/pages/Facility/services/inventory/InventoryList";
 import { ReceiveStock } from "@/pages/Facility/services/inventory/ReceiveStock";
@@ -271,6 +272,25 @@ const getRoutes = (facilityId: string, locationId: string) => ({
       facilityId={facilityId}
       resourceType={SchedulableResourceType.Location}
       resourceId={locationId}
+    />
+  ),
+  "/queues/:queueId/ongoing": ({ queueId }: { queueId: string }) => (
+    <ManageQueuePage
+      facilityId={facilityId}
+      resourceType={SchedulableResourceType.Location}
+      resourceId={locationId}
+      queueId={queueId}
+      tab="ongoing"
+    />
+  ),
+
+  "/queues/:queueId/completed": ({ queueId }: { queueId: string }) => (
+    <ManageQueuePage
+      facilityId={facilityId}
+      resourceType={SchedulableResourceType.Location}
+      resourceId={locationId}
+      queueId={queueId}
+      tab="completed"
     />
   ),
 

@@ -83,7 +83,11 @@ function QueueCard({
             <TooltipComponent content={t("operate")} side="bottom">
               <Button asChild variant="ghost" size="sm">
                 <Link
-                  href={`/facility/${facilityId}/queues/${queue.id}/${resourceType}/${resourceId}/ongoing`}
+                  href={
+                    resourceType === SchedulableResourceType.Practitioner
+                      ? `/facility/${facilityId}/queues/${queue.id}/${resourceType}/${resourceId}/ongoing`
+                      : `/queues/${queue.id}/ongoing`
+                  }
                 >
                   <EyeIcon className="size-4" />
                 </Link>
