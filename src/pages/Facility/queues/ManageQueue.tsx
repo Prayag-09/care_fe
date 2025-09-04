@@ -75,6 +75,8 @@ export function ManageQueuePage({
                 <ManageQueueOngoingTab
                   facilityId={facilityId}
                   queueId={queueId}
+                  resourceType={resourceType}
+                  resourceId={resourceId}
                   subQueues={subQueues.results} // TODO: switch this to active subQueues
                 />
               ),
