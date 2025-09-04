@@ -28,7 +28,7 @@ import {
 
 import { SchedulableResourceType } from "@/types/scheduling/schedule";
 import {
-  TokenSubQueueCreate,
+  TokenSubQueueStatus,
   TokenSubQueueUpdate,
 } from "@/types/tokens/tokenSubQueue/tokenSubQueue";
 import tokenSubQueueApi from "@/types/tokens/tokenSubQueue/tokenSubQueueApi";
@@ -118,9 +118,6 @@ export default function SubQueueFormSheet({
         queryKey: ["tokenSubQueues", facilityId],
       });
     },
-    onError: (error) => {
-      toast.error(error?.message || t("failed_to_create_service_point"));
-    },
   });
 
   const { mutate: updateSubQueue, isPending: isUpdating } = useMutation({
@@ -154,7 +151,8 @@ export default function SubQueueFormSheet({
         ...data,
         resource_type: resourceType,
         resource_id: resourceId,
-      } as TokenSubQueueCreate);
+        status: TokenSubQueueStatus.ACTIVE,
+      });
     }
   };
 
