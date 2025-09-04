@@ -1,5 +1,5 @@
 import { useQuery } from "@tanstack/react-query";
-import { Calendar, Edit, MapPin, Plus } from "lucide-react";
+import { Calendar, Edit, EyeIcon, MapPin, Plus } from "lucide-react";
 import { useEffect } from "react";
 import { useTranslation } from "react-i18next";
 
@@ -32,6 +32,8 @@ import tokenSubQueueApi from "@/types/tokens/tokenSubQueue/tokenSubQueueApi";
 import { UserReadMinimal } from "@/types/user/user";
 
 import { dateQueryString } from "@/Utils/utils";
+import { TooltipComponent } from "@/components/ui/tooltip";
+import { Link } from "raviger";
 import QueueFormSheet from "./QueueFormSheet";
 import SubQueueFormSheet from "./SubQueueFormSheet";
 
@@ -78,13 +80,22 @@ function QueueCard({
             >
               {t("active")}
             </Badge>
+            <TooltipComponent content={t("operate")} side="bottom">
+              <Button asChild variant="ghost" size="sm">
+                <Link
+                  href={`/facility/${facilityId}/queues/${queue.id}/${resourceType}/${resourceId}/ongoing`}
+                >
+                  <EyeIcon className="size-4" />
+                </Link>
+              </Button>
+            </TooltipComponent>
             <QueueFormSheet
               facilityId={facilityId}
               resourceType={resourceType}
               resourceId={resourceId}
               queueId={queue.id}
               trigger={
-                <Button variant="ghost" size="sm" className="h-8 w-8 p-0">
+                <Button variant="ghost" size="sm">
                   <span className="sr-only">{t("edit")}</span>
                   <Edit className="h-4 w-4" />
                 </Button>

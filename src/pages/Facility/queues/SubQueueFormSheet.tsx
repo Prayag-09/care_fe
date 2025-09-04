@@ -195,6 +195,7 @@ export default function SubQueueFormSheet({
                       <Input
                         placeholder={t("enter_service_point_name")}
                         {...field}
+                        autoFocus
                       />
                     </FormControl>
                     <FormMessage />

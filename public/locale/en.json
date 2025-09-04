@@ -5086,5 +5086,12 @@
   "you_have_unsaved_changes_what_would_you_like_to_do": "You have unsaved changes. What would you like to do?",
   "you_need_at_least_a_location_to_create_an_assest": "You need at least a location to create an assest.",
   "zoom_in": "Zoom In",
-  "zoom_out": "Zoom Out"
+  "zoom_out": "Zoom Out",
+  "operate": "Operate",
+  "finished": "Finished",
+  "waiting": "Waiting",
+  "called": "Called",
+  "in_service": "In Service",
+  "no_patient_is_being_called": "No patient is being called",
+  "call_next_patient": "Call Next Patient"
 }

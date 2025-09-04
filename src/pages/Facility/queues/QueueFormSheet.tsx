@@ -224,7 +224,11 @@ export default function QueueFormSheet({
                   <FormItem>
                     <FormLabel>{t("queue_name")}</FormLabel>
                     <FormControl>
-                      <Input placeholder={t("enter_queue_name")} {...field} />
+                      <Input
+                        placeholder={t("enter_queue_name")}
+                        {...field}
+                        autoFocus
+                      />
                     </FormControl>
                     <FormMessage />
                   </FormItem>

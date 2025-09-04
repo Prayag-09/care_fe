@@ -11,6 +11,9 @@ export default {
     path: "/api/v1/facility/{facility_id}/token/queue/{queue_id}/token/",
     method: HttpMethod.GET,
     TRes: Type<PaginatedResponse<TokenRead>>(),
+    defaultQueryParams: {
+      ordering: "number",
+    },
   },
   get: {
     path: "/api/v1/facility/{facility_id}/token/queue/{queue_id}/token/{id}/",

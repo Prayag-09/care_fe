@@ -3,7 +3,7 @@ import { SchedulableResourceType } from "@/types/scheduling/schedule";
 import { TokenCategoryRead } from "@/types/tokens/tokenCategory/tokenCategory";
 import { TokenSubQueueRead } from "@/types/tokens/tokenSubQueue/tokenSubQueue";
 
-enum TokenStatus {
+export enum TokenStatus {
   CREATED = "created",
   IN_PROGRESS = "in_progress",
   COMPLETED = "completed",
