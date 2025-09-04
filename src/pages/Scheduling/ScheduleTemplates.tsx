@@ -126,7 +126,9 @@ const ScheduleTemplateItem = ({
       },
     }),
     onSuccess: () => {
-      queryClient.invalidateQueries({ queryKey: ["scheduleTemplates"] });
+      queryClient.invalidateQueries({
+        queryKey: ["schedule", facilityId, { resourceType, resourceId }],
+      });
       toast.success(t("charge_item_definition_updated_successfully"));
     },
   });

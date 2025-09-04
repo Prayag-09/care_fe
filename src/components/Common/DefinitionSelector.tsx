@@ -85,6 +85,7 @@ export default function DefinitionSelector({
             onSearch("");
           }
         }
+        setSelectedItem(undefined);
       }}
     >
       <SheetTrigger asChild>
@@ -96,9 +97,9 @@ export default function DefinitionSelector({
 
       <SheetContent
         side="right"
-        className="flex h-full w-full flex-col p-0 md:max-w-[400px]"
+        className="flex h-full w-full flex-col p-0 md:max-w-[400px] gap-0 "
       >
-        <div className="flex flex-col gap-4 border-b p-4">
+        <div className="flex flex-col gap-2 border-b px-4 py-2">
           <div>
             <SheetTitle className="text-lg font-semibold">{title}</SheetTitle>
             {description && (
@@ -108,7 +109,7 @@ export default function DefinitionSelector({
             )}
           </div>
 
-          <div className="flex flex-col gap-2">
+          <div className="flex flex-col gap-1">
             {value && (
               <div className="flex flex-col gap-1">
                 <span className="text-gray-500">{t("current")}</span>
