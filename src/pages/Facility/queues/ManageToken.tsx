@@ -100,8 +100,8 @@ function getStatusText(status: TokenStatus, t: (key: string) => string) {
       return t("created");
     case TokenStatus.IN_PROGRESS:
       return t("in_service");
-    case TokenStatus.COMPLETED:
-      return t("completed");
+    case TokenStatus.FULFILLED:
+      return t("fulfilled");
     default:
       return status;
   }
