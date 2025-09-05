@@ -30,10 +30,12 @@ import {
 import {
   Check,
   DoorOpenIcon,
+  ExternalLink,
   Megaphone,
   MoreHorizontal,
   X,
 } from "lucide-react";
+import { Link } from "raviger";
 import { useEffect, useState } from "react";
 import { useTranslation } from "react-i18next";
 import { useInView } from "react-intersection-observer";
@@ -159,6 +161,7 @@ function SubQueueColumn({
                 ref={index === tokens.length - 1 ? ref : undefined}
               >
                 <TokenCard
+                  facilityId={facilityId}
                   token={token}
                   options={
                     <InServiceTokenOptions
@@ -237,6 +240,7 @@ function WaitingTokensColumn({
               ref={index === tokens.length - 1 ? ref : undefined}
             >
               <TokenCard
+                facilityId={facilityId}
                 token={token}
                 options={
                   <WaitingTokenOptions
@@ -593,9 +597,11 @@ function InServiceTokenOptions({
 }
 
 function TokenCard({
+  facilityId,
   token,
   options,
 }: {
+  facilityId: string;
   token: TokenRead | null;
   options?: React.ReactNode;
 }) {
@@ -603,9 +609,15 @@ function TokenCard({
     <div className="flex gap-3 items-center justify-between p-3 bg-white rounded-lg shadow">
       <div className="flex flex-col">
         {token ? (
-          <span className="font-semibold">
-            {token.patient ? token.patient.name : renderTokenNumber(token)}
-          </span>
+          <Link
+            href={`/facility/${facilityId}/queues/${token.queue.id}/tokens/${token.id}`}
+            className="font-semibold hover:underline transition-colors"
+          >
+            <span className="font-semibold flex items-center gap-1">
+              {token.patient ? token.patient.name : renderTokenNumber(token)}
+              <ExternalLink className="size-4" />
+            </span>
+          </Link>
         ) : (
           <Skeleton className="h-4 w-36 my-2" />
         )}
@@ -630,7 +642,7 @@ function TokenCard({
 
 function TokenCardSkeleton({ count = 5 }: { count?: number }) {
   return Array.from({ length: count }, (_, index) => (
-    <TokenCard key={index} token={null} />
+    <TokenCard key={index} token={null} facilityId={""} />
   ));
 }
 
