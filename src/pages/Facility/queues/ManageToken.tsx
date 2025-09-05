@@ -160,7 +160,7 @@ export default function ManageToken({
   }
 
   return (
-    <Page title={`Called: ${tokenDisplayNumber}`} hideTitleOnPage={true}>
+    <Page title={`Token: ${renderTokenNumber(token)}`} hideTitleOnPage={true}>
       <div className="container mx-auto max-w-6xl space-y-6">
         {/* Top Bar */}
         <div className="flex items-center justify-between">
