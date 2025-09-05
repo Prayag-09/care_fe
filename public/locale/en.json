@@ -1069,6 +1069,8 @@
   "comments": "Comments",
   "communication__sent_to_hcx": "Sent communication to HCX",
   "complete": "Complete",
+  "complete_token": "Complete Token",
+  "complete_token_confirmation": "Are you sure you want to complete the token {{tokenNumber}} for {{patientName}}? This will mark the consultation as finished.",
   "complete_bed_stay": "Complete Bed Stay",
   "complete_blood_count_rbc_wbc_platelets": "Complete Blood Count (RBC + WBC + Platelets)",
   "complete_delivery": "Complete Delivery",

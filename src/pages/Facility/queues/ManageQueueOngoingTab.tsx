@@ -1,5 +1,6 @@
 import ConfirmActionDialog from "@/components/Common/ConfirmActionDialog";
 import { Badge } from "@/components/ui/badge";
+import { Button } from "@/components/ui/button";
 import {
   DropdownMenu,
   DropdownMenuContent,
@@ -23,7 +24,13 @@ import {
   useQuery,
   useQueryClient,
 } from "@tanstack/react-query";
-import { DoorOpenIcon, Megaphone, MoreHorizontal, X } from "lucide-react";
+import {
+  Check,
+  DoorOpenIcon,
+  Megaphone,
+  MoreHorizontal,
+  X,
+} from "lucide-react";
 import { useEffect, useState } from "react";
 import { useTranslation } from "react-i18next";
 import { useInView } from "react-intersection-observer";
@@ -145,7 +152,16 @@ function SubQueueColumn({
                 key={token.id}
                 ref={index === tokens.length - 1 ? ref : undefined}
               >
-                <TokenCard token={token} />
+                <TokenCard
+                  token={token}
+                  options={
+                    <InServiceTokenOptions
+                      token={token}
+                      facilityId={facilityId}
+                      queueId={queueId}
+                    />
+                  }
+                />
               </div>
             ))
           : emptyState}
@@ -218,7 +234,7 @@ function WaitingTokensColumn({
               <TokenCard
                 token={token}
                 options={
-                  <TokenOptionsDropdown
+                  <WaitingTokenOptions
                     token={token}
                     facilityId={facilityId}
                     queueId={queueId}
@@ -345,7 +361,73 @@ function InServiceTokensColumn({
   );
 }
 
-function TokenOptionsDropdown({
+function TokenCancelConfirmDialog({
+  open,
+  onOpenChange,
+  token,
+  onConfirm,
+  isLoading,
+}: {
+  open: boolean;
+  onOpenChange: (open: boolean) => void;
+  token: TokenRead;
+  onConfirm: () => void;
+  isLoading: boolean;
+}) {
+  const { t } = useTranslation();
+
+  return (
+    <ConfirmActionDialog
+      open={open}
+      onOpenChange={onOpenChange}
+      title={t("cancel_token")}
+      description={t("cancel_token_confirmation", {
+        patientName: token.patient.name,
+        tokenNumber: `${token.category.shorthand}-${token.number.toString().padStart(3, "0")}`,
+      })}
+      onConfirm={onConfirm}
+      cancelText={t("cancel")}
+      confirmText={t("cancel_token")}
+      variant="destructive"
+      disabled={isLoading}
+    />
+  );
+}
+
+function TokenCompleteConfirmDialog({
+  open,
+  onOpenChange,
+  token,
+  onConfirm,
+  isLoading,
+}: {
+  open: boolean;
+  onOpenChange: (open: boolean) => void;
+  token: TokenRead;
+  onConfirm: () => void;
+  isLoading: boolean;
+}) {
+  const { t } = useTranslation();
+
+  return (
+    <ConfirmActionDialog
+      open={open}
+      onOpenChange={onOpenChange}
+      title={t("complete_token")}
+      description={t("complete_token_confirmation", {
+        patientName: token.patient.name,
+        tokenNumber: `${token.category.shorthand}-${token.number.toString().padStart(3, "0")}`,
+      })}
+      onConfirm={onConfirm}
+      cancelText={t("cancel")}
+      confirmText={t("complete_token")}
+      variant="primary"
+      disabled={isLoading}
+    />
+  );
+}
+
+function WaitingTokenOptions({
   token,
   facilityId,
   queueId,
@@ -415,19 +497,133 @@ function TokenOptionsDropdown({
         </DropdownMenuContent>
       </DropdownMenu>
 
-      <ConfirmActionDialog
+      <TokenCancelConfirmDialog
         open={showCancelDialog}
         onOpenChange={setShowCancelDialog}
-        title={t("cancel_token")}
-        description={t("cancel_token_confirmation", {
-          patientName: token.patient.name,
-          tokenNumber: `${token.category.shorthand}-${token.number.toString().padStart(3, "0")}`,
-        })}
+        token={token}
         onConfirm={handleCancelToken}
-        cancelText={t("cancel")}
-        confirmText={t("cancel_token")}
-        variant="destructive"
-        disabled={isUpdating}
+        isLoading={isUpdating}
+      />
+    </>
+  );
+}
+
+function InServiceTokenOptions({
+  token,
+  facilityId,
+  queueId,
+}: {
+  token: TokenRead;
+  facilityId: string;
+  queueId: string;
+}) {
+  const { t } = useTranslation();
+  const queryClient = useQueryClient();
+  const [showCancelDialog, setShowCancelDialog] = useState(false);
+  const [showCompleteDialog, setShowCompleteDialog] = useState(false);
+
+  const { mutate: updateToken, isPending: isUpdating } = useMutation({
+    mutationFn: mutate(tokenApi.update, {
+      pathParams: {
+        facility_id: facilityId,
+        queue_id: queueId,
+        id: token.id,
+      },
+    }),
+    onSuccess: () => {
+      queryClient.invalidateQueries({
+        queryKey: [
+          "infinite-tokens",
+          facilityId,
+          queueId,
+          { sub_queue: token.sub_queue.id, status: TokenStatus.IN_PROGRESS },
+        ],
+      });
+      queryClient.invalidateQueries({
+        queryKey: [
+          "infinite-tokens",
+          facilityId,
+          queueId,
+          { status: TokenStatus.COMPLETED },
+        ],
+      });
+      queryClient.invalidateQueries({
+        queryKey: [
+          "infinite-tokens",
+          facilityId,
+          queueId,
+          { status: TokenStatus.CANCELLED },
+        ],
+      });
+      setShowCancelDialog(false);
+      setShowCompleteDialog(false);
+    },
+  });
+
+  const handleCancelToken = () => {
+    updateToken({
+      status: TokenStatus.CANCELLED,
+      note: token.note,
+    });
+  };
+
+  const handleCompleteToken = () => {
+    updateToken({
+      status: TokenStatus.COMPLETED,
+      note: token.note,
+      sub_queue: undefined,
+    });
+  };
+
+  return (
+    <>
+      <div className="flex items-center gap-1">
+        {/* Complete button */}
+        <Button
+          variant="outline_primary"
+          size="icon"
+          onClick={() => setShowCompleteDialog(true)}
+          disabled={isUpdating}
+          title={t("complete_token")}
+        >
+          <Check />
+        </Button>
+
+        {/* Dropdown menu */}
+        <DropdownMenu>
+          <DropdownMenuTrigger
+            disabled={isUpdating}
+            className="p-2 hover:bg-gray-100 rounded-md transition-colors"
+          >
+            <MoreHorizontal className="size-4" />
+          </DropdownMenuTrigger>
+          <DropdownMenuContent align="end">
+            <DropdownMenuItem
+              variant="destructive"
+              onClick={() => setShowCancelDialog(true)}
+              disabled={isUpdating}
+            >
+              <X className="size-4 text-danger-500" />
+              {t("cancel_token")}
+            </DropdownMenuItem>
+          </DropdownMenuContent>
+        </DropdownMenu>
+      </div>
+
+      <TokenCancelConfirmDialog
+        open={showCancelDialog}
+        onOpenChange={setShowCancelDialog}
+        token={token}
+        onConfirm={handleCancelToken}
+        isLoading={isUpdating}
+      />
+
+      <TokenCompleteConfirmDialog
+        open={showCompleteDialog}
+        onOpenChange={setShowCompleteDialog}
+        token={token}
+        onConfirm={handleCompleteToken}
+        isLoading={isUpdating}
       />
     </>
   );
