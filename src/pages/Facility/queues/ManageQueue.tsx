@@ -20,6 +20,7 @@ import {
 } from "@/components/ui/dropdown-menu";
 import { NavTabs } from "@/components/ui/nav-tabs";
 import { ManageQueueOngoingTab } from "@/pages/Facility/queues/ManageQueueOngoingTab";
+import QueueFormSheet from "@/pages/Facility/queues/QueueFormSheet";
 import { SchedulableResourceType } from "@/types/scheduling/schedule";
 import tokenQueueApi from "@/types/tokens/tokenQueue/tokenQueueApi";
 import { TokenSubQueueRead } from "@/types/tokens/tokenSubQueue/tokenSubQueue";
@@ -113,10 +114,18 @@ export function ManageQueuePage({
                     </DropdownMenuItem>
                   }
                 />
-                <DropdownMenuItem>
-                  <Edit3 className="mr-2 size-4" />
-                  {t("edit_queue_name")}
-                </DropdownMenuItem>
+                <QueueFormSheet
+                  facilityId={facilityId}
+                  resourceType={resourceType}
+                  resourceId={resourceId}
+                  queueId={queueId}
+                  trigger={
+                    <DropdownMenuItem onSelect={(e) => e.preventDefault()}>
+                      <Edit3 className="mr-2 size-4" />
+                      {t("edit_queue_name")}
+                    </DropdownMenuItem>
+                  }
+                />
                 <DropdownMenuSeparator />
                 <DropdownMenuItem className="text-red-600">
                   <PowerOffIcon className="mr-2 size-4 text-red-600" />
