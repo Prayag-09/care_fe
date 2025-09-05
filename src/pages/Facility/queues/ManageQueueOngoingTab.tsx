@@ -96,12 +96,14 @@ function SubQueueColumn({
   subQueue,
   status,
   emptyState,
+  options,
 }: {
   facilityId: string;
   queueId: string;
   subQueue: TokenSubQueueRead;
   status: TokenStatus;
   emptyState: React.ReactNode;
+  options?: React.ReactNode;
 }) {
   const { ref, inView } = useInView();
 
@@ -142,8 +144,9 @@ function SubQueueColumn({
 
   return (
     <div className="flex flex-col p-1 rounded-lg bg-gray-200">
-      <div className="p-1">
+      <div className="flex items-center justify-between p-1">
         <span className="text-sm font-medium">{subQueue.name}</span>
+        {options}
       </div>
       <div className="flex flex-col gap-3">
         {tokens.length > 0
@@ -244,7 +247,12 @@ function WaitingTokensColumn({
             </div>
           ))
         ) : (
-          <TokenCardSkeleton count={5} />
+          <div className="flex flex-col gap-2 items-center justify-center bg-gray-100 rounded-lg py-10 border border-gray-100">
+            <DoorOpenIcon className="size-6 text-gray-700" />
+            <span className="text-sm font-semibold text-gray-700">
+              {t("no_patient_is_waiting")}
+            </span>
+          </div>
         )}
         {isFetchingNextPage && <TokenCardSkeleton count={5} />}
       </div>
@@ -263,44 +271,6 @@ function InServiceTokensColumn({
   subQueues: TokenSubQueueRead[];
 }) {
   const { t } = useTranslation();
-  const queryClient = useQueryClient();
-
-  const { data: tokenCategories } = useQuery({
-    queryKey: ["tokenCategories", facilityId, resourceType],
-    queryFn: query(tokenCategoryApi.list, {
-      pathParams: { facility_id: facilityId },
-      queryParams: {
-        resource_type: resourceType,
-      },
-    }),
-  });
-
-  const {
-    mutate: setNextTokenToSubQueue,
-    isPending: isSettingNextTokenToSubQueue,
-  } = useMutation({
-    mutationFn: mutate(tokenQueueApi.setNextTokenToSubQueue, {
-      pathParams: { facility_id: facilityId, id: queueId },
-    }),
-    onSuccess: () => {
-      queryClient.invalidateQueries({
-        queryKey: [
-          "infinite-tokens",
-          facilityId,
-          queueId,
-          { status: TokenStatus.IN_PROGRESS },
-        ],
-      });
-      queryClient.invalidateQueries({
-        queryKey: [
-          "infinite-tokens",
-          facilityId,
-          queueId,
-          { status: TokenStatus.CREATED },
-        ],
-      });
-    },
-  });
 
   return (
     <QueueColumn
@@ -325,34 +295,25 @@ function InServiceTokensColumn({
                 <span className="text-sm font-semibold text-gray-700">
                   {t("no_patient_is_being_called")}
                 </span>
-                {tokenCategories && (
-                  <SelectActionButton
-                    options={[
-                      {
-                        value: null,
-                        label: t("call_next_patient"),
-                        icon: Megaphone,
-                      },
-                      ...tokenCategories.results.map((category) => ({
-                        value: category.id,
-                        label: `${t("call_next_patient")} (${category.name})`,
-                        icon: Megaphone,
-                      })),
-                    ]}
-                    onAction={(categoryId) =>
-                      setNextTokenToSubQueue({
-                        sub_queue: subQueue.id,
-                        category: categoryId ?? undefined,
-                      })
-                    }
-                    persistKey={`call-next-patient-pref-category-${subQueue.id}`}
-                    disabled={isSettingNextTokenToSubQueue}
-                    loading={isSettingNextTokenToSubQueue}
-                    variant="outline"
-                    size="lg"
-                  />
-                )}
+                <CallNextPatientButton
+                  subQueueId={subQueue.id}
+                  facilityId={facilityId}
+                  queueId={queueId}
+                  resourceType={resourceType}
+                  variant="outline"
+                  size="lg"
+                />
               </div>
+            }
+            options={
+              <CallNextPatientButton
+                subQueueId={subQueue.id}
+                facilityId={facilityId}
+                queueId={queueId}
+                resourceType={resourceType}
+                variant="secondary"
+                size="xs"
+              />
             }
           />
         ))}
@@ -678,4 +639,91 @@ function TokenCardSkeleton({ count = 5 }: { count?: number }) {
   return Array.from({ length: count }, (_, index) => (
     <TokenCard key={index} token={null} />
   ));
+}
+
+function CallNextPatientButton({
+  subQueueId,
+  facilityId,
+  queueId,
+  resourceType,
+  ...props
+}: {
+  subQueueId: string;
+  facilityId: string;
+  resourceType: SchedulableResourceType;
+  queueId: string;
+} & Omit<
+  React.ComponentProps<typeof SelectActionButton>,
+  "options" | "onAction" | "persistKey"
+>) {
+  const { t } = useTranslation();
+  const queryClient = useQueryClient();
+
+  const { data: tokenCategories } = useQuery({
+    queryKey: ["tokenCategories", facilityId, resourceType],
+    queryFn: query(tokenCategoryApi.list, {
+      pathParams: { facility_id: facilityId },
+      queryParams: {
+        resource_type: resourceType,
+      },
+    }),
+  });
+
+  const {
+    mutate: setNextTokenToSubQueue,
+    isPending: isSettingNextTokenToSubQueue,
+  } = useMutation({
+    mutationFn: mutate(tokenQueueApi.setNextTokenToSubQueue, {
+      pathParams: { facility_id: facilityId, id: queueId },
+    }),
+    onSuccess: () => {
+      queryClient.invalidateQueries({
+        queryKey: [
+          "infinite-tokens",
+          facilityId,
+          queueId,
+          { status: TokenStatus.IN_PROGRESS },
+        ],
+      });
+      queryClient.invalidateQueries({
+        queryKey: [
+          "infinite-tokens",
+          facilityId,
+          queueId,
+          { status: TokenStatus.CREATED },
+        ],
+      });
+    },
+  });
+
+  if (!tokenCategories) {
+    return null;
+  }
+
+  return (
+    <SelectActionButton
+      {...props}
+      options={[
+        {
+          value: null,
+          label: t("call_next_patient"),
+          icon: Megaphone,
+        },
+        ...tokenCategories.results.map((category) => ({
+          value: category.id,
+          label: `${t("call_next_patient")} (${category.name})`,
+          icon: Megaphone,
+        })),
+      ]}
+      onAction={(categoryId) =>
+        setNextTokenToSubQueue({
+          sub_queue: subQueueId,
+          category: categoryId ?? undefined,
+        })
+      }
+      persistKey={`call-next-patient-pref-category-${subQueueId}`}
+      disabled={isSettingNextTokenToSubQueue}
+      loading={isSettingNextTokenToSubQueue}
+    />
+  );
 }
