@@ -105,7 +105,7 @@ export default function QueueFormSheet({
       form.reset({
         name: queue.name,
         date: new Date(queue.date),
-        set_is_primary: queue.set_is_primary,
+        set_is_primary: queue.is_primary,
       });
     }
   }, [queue, isEditMode, form]);

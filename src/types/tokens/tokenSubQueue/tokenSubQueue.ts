@@ -20,4 +20,5 @@ export type TokenSubQueueRead = TokenSubQueue;
 
 export interface TokenSubQueueUpdate {
   name: string;
+  status: TokenSubQueueStatus;
 }
