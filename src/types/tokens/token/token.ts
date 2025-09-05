@@ -5,9 +5,11 @@ import { TokenQueueRead } from "@/types/tokens/tokenQueue/tokenQueue";
 import { TokenSubQueueRead } from "@/types/tokens/tokenSubQueue/tokenSubQueue";
 
 export enum TokenStatus {
+  UNFULFILLED = "UNFULFILLED",
   CREATED = "CREATED",
   IN_PROGRESS = "IN_PROGRESS",
   COMPLETED = "COMPLETED",
+  FULFILLED = "FULFILLED",
   CANCELLED = "CANCELLED",
   ENTERED_IN_ERROR = "ENTERED_IN_ERROR",
 }
