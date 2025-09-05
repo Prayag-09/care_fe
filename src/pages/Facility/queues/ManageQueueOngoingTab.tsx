@@ -301,49 +301,54 @@ function InServiceTokensColumn({
       }
     >
       <div className="flex flex-col gap-4">
-        {subQueues.map((subQueue) => (
-          <SubQueueColumn
-            key={subQueue.id}
-            resourceType={resourceType}
-            subQueue={subQueue}
-            facilityId={facilityId}
-            queueId={queueId}
-            status={TokenStatus.IN_PROGRESS}
-            emptyState={
-              <div className="flex flex-col gap-2 items-center justify-center bg-gray-100 rounded-lg py-3 border border-gray-100">
-                <DoorOpenIcon className="size-6 text-gray-700" />
-                <span className="text-sm font-semibold text-gray-700">
-                  {t("no_patient_is_being_called")}
-                </span>
-                <CallNextPatientButton
-                  subQueueId={subQueue.id}
+        {subQueues.map((subQueue, index) => (
+          <>
+            {index > 0 && (
+              <hr className="h-px w-full border border-gray-300 border-dashed" />
+            )}
+            <SubQueueColumn
+              key={subQueue.id}
+              resourceType={resourceType}
+              subQueue={subQueue}
+              facilityId={facilityId}
+              queueId={queueId}
+              status={TokenStatus.IN_PROGRESS}
+              emptyState={
+                <div className="flex flex-col gap-2 items-center justify-center bg-gray-100 rounded-lg py-3 border border-gray-100">
+                  <DoorOpenIcon className="size-6 text-gray-700" />
+                  <span className="text-sm font-semibold text-gray-700">
+                    {t("no_patient_is_being_called")}
+                  </span>
+                  <CallNextPatientButton
+                    subQueueId={subQueue.id}
+                    facilityId={facilityId}
+                    resourceType={resourceType}
+                    queueId={queueId}
+                    variant="outline"
+                    size="lg"
+                  >
+                    <Megaphone />
+                    {t("call_next_patient")}
+                  </CallNextPatientButton>
+                </div>
+              }
+              options={
+                <InServiceColumnOptions
                   facilityId={facilityId}
                   resourceType={resourceType}
                   queueId={queueId}
-                  variant="outline"
-                  size="lg"
-                >
-                  <Megaphone />
-                  {t("call_next_patient")}
-                </CallNextPatientButton>
-              </div>
-            }
-            options={
-              <InServiceColumnOptions
-                facilityId={facilityId}
-                resourceType={resourceType}
-                queueId={queueId}
-                subQueueId={subQueue.id}
-              />
-            }
-            tokenOptions={(token) => (
-              <InServiceTokenOptions
-                token={token}
-                facilityId={facilityId}
-                queueId={queueId}
-              />
-            )}
-          />
+                  subQueueId={subQueue.id}
+                />
+              }
+              tokenOptions={(token) => (
+                <InServiceTokenOptions
+                  token={token}
+                  facilityId={facilityId}
+                  queueId={queueId}
+                />
+              )}
+            />
+          </>
         ))}
       </div>
     </QueueColumn>
