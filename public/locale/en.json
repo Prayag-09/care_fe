@@ -1071,6 +1071,9 @@
   "comments": "Comments",
   "communication__sent_to_hcx": "Sent communication to HCX",
   "complete": "Complete",
+  "complete_all": "Complete all",
+  "complete_all_tokens": "Complete all tokens",
+  "complete_all_tokens_confirmation": "Are you sure you want to mark all tokens in this sub-queue as completed? This action cannot be undone.",
   "complete_bed_stay": "Complete Bed Stay",
   "complete_blood_count_rbc_wbc_platelets": "Complete Blood Count (RBC + WBC + Platelets)",
   "complete_delivery": "Complete Delivery",
@@ -3030,6 +3033,8 @@
   "no_test_results_recorded": "No test results have been recorded yet. Click 'Create Report' to add test results",
   "no_tests_taken": "No tests taken",
   "no_text": "No text added",
+  "no_tokens_found": "No tokens available",
+  "no_tokens_found_description": "There are currently no tokens to display. Try adjusting your search filters or check back later.",
   "no_treating_physicians_available": "This facility does not have any home facility doctors. Please contact your admin.",
   "no_update_available": "No update available",
   "no_updates_found": "No updates found",
@@ -5121,8 +5126,5 @@
   "you_have_unsaved_changes_what_would_you_like_to_do": "You have unsaved changes. What would you like to do?",
   "you_need_at_least_a_location_to_create_an_assest": "You need at least a location to create an assest.",
   "zoom_in": "Zoom In",
-  "zoom_out": "Zoom Out",
-  "complete_all": "Complete all",
-  "complete_all_tokens_confirmation": "Are you sure you want to mark all tokens in this sub-queue as completed? This action cannot be undone.",
-  "complete_all_tokens": "Complete all tokens"
+  "zoom_out": "Zoom Out"
 }
