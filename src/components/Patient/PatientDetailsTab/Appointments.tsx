@@ -27,6 +27,7 @@ import { getPermissions } from "@/common/Permissions";
 import query from "@/Utils/request/query";
 import { formatDateTime, formatName } from "@/Utils/utils";
 import { usePermissions } from "@/context/PermissionContext";
+import useFilters from "@/hooks/useFilters";
 import { APPOINTMENT_STATUS_COLORS } from "@/types/scheduling/schedule";
 import scheduleApis from "@/types/scheduling/scheduleApi";
 
@@ -41,14 +42,19 @@ export const Appointments = (props: PatientProps) => {
   );
   const { goBack } = useAppHistory();
 
+  const { qParams, Pagination, resultsPerPage } = useFilters({
+    disableCache: true,
+  });
+
   const { data, isLoading } = useQuery({
-    queryKey: ["patient-appointments", patientId],
+    queryKey: ["patient-appointments", patientId, qParams],
     queryFn: query(scheduleApis.appointments.getAppointments, {
       pathParams: { patientId },
       queryParams: {
         facilityId: facilityId,
         patient: patientId,
-        limit: 100,
+        limit: resultsPerPage,
+        offset: ((qParams.page ?? 1) - 1) * resultsPerPage,
         ordering: "-token_slot__start_datetime",
       },
     }),
@@ -156,6 +162,9 @@ export const Appointments = (props: PatientProps) => {
             )}
           </TableBody>
         </Table>
+        {/* add pagination */}
+
+        <Pagination totalCount={data?.count ?? 0} />
       </div>
     </div>
   );
