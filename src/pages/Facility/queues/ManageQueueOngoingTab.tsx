@@ -1,5 +1,10 @@
 import { Badge } from "@/components/ui/badge";
-import { Button } from "@/components/ui/button";
+import {
+  DropdownMenu,
+  DropdownMenuContent,
+  DropdownMenuItem,
+  DropdownMenuTrigger,
+} from "@/components/ui/dropdown-menu";
 import { SelectActionButton } from "@/components/ui/select-action-button";
 import { Skeleton } from "@/components/ui/skeleton";
 import { SchedulableResourceType } from "@/types/scheduling/schedule";
@@ -11,14 +16,13 @@ import { TokenSubQueueRead } from "@/types/tokens/tokenSubQueue/tokenSubQueue";
 import mutate from "@/Utils/request/mutate";
 import query from "@/Utils/request/query";
 import { formatPatientAge } from "@/Utils/utils";
-import { DotsHorizontalIcon } from "@radix-ui/react-icons";
 import {
   useInfiniteQuery,
   useMutation,
   useQuery,
   useQueryClient,
 } from "@tanstack/react-query";
-import { DoorOpenIcon, Megaphone } from "lucide-react";
+import { DoorOpenIcon, Megaphone, MoreHorizontal, X } from "lucide-react";
 import { useEffect } from "react";
 import { useTranslation } from "react-i18next";
 import { useInView } from "react-intersection-observer";
@@ -210,7 +214,16 @@ function WaitingTokensColumn({
               key={token.id}
               ref={index === tokens.length - 1 ? ref : undefined}
             >
-              <TokenCard token={token} />
+              <TokenCard
+                token={token}
+                options={
+                  <TokenOptionsDropdown
+                    token={token}
+                    facilityId={facilityId}
+                    queueId={queueId}
+                  />
+                }
+              />
             </div>
           ))
         ) : (
@@ -331,7 +344,82 @@ function InServiceTokensColumn({
   );
 }
 
-function TokenCard({ token }: { token: TokenRead | null }) {
+function TokenOptionsDropdown({
+  token,
+  facilityId,
+  queueId,
+}: {
+  token: TokenRead;
+  facilityId: string;
+  queueId: string;
+}) {
+  const { t } = useTranslation();
+  const queryClient = useQueryClient();
+
+  const { mutate: updateToken, isPending: isUpdating } = useMutation({
+    mutationFn: mutate(tokenApi.update, {
+      pathParams: {
+        facility_id: facilityId,
+        queue_id: queueId,
+        id: token.id,
+      },
+    }),
+    onSuccess: () => {
+      queryClient.invalidateQueries({
+        queryKey: [
+          "infinite-tokens",
+          facilityId,
+          queueId,
+          { status: TokenStatus.CREATED },
+        ],
+      });
+      queryClient.invalidateQueries({
+        queryKey: [
+          "infinite-tokens",
+          facilityId,
+          queueId,
+          { status: TokenStatus.CANCELLED },
+        ],
+      });
+    },
+  });
+
+  const handleCancelToken = () => {
+    updateToken({
+      status: TokenStatus.CANCELLED,
+      note: token.note,
+    });
+  };
+
+  return (
+    <DropdownMenu>
+      <DropdownMenuTrigger
+        disabled={isUpdating}
+        className="p-2 hover:bg-gray-100 rounded-md transition-colors"
+      >
+        <MoreHorizontal className="size-4" />
+      </DropdownMenuTrigger>
+      <DropdownMenuContent align="end">
+        <DropdownMenuItem
+          variant="destructive"
+          onClick={handleCancelToken}
+          disabled={isUpdating}
+        >
+          <X className="size-4 text-danger-500" />
+          {t("cancel_token")}
+        </DropdownMenuItem>
+      </DropdownMenuContent>
+    </DropdownMenu>
+  );
+}
+
+function TokenCard({
+  token,
+  options,
+}: {
+  token: TokenRead | null;
+  options?: React.ReactNode;
+}) {
   const { t } = useTranslation();
 
   return (
@@ -364,9 +452,7 @@ function TokenCard({ token }: { token: TokenRead | null }) {
         ) : (
           <Skeleton className="h-12 w-20" />
         )}
-        <Button variant="ghost" size="icon" disabled={!token}>
-          <DotsHorizontalIcon />
-        </Button>
+        {options}
       </div>
     </div>
   );

@@ -4,9 +4,11 @@ import { TokenCategoryRead } from "@/types/tokens/tokenCategory/tokenCategory";
 import { TokenSubQueueRead } from "@/types/tokens/tokenSubQueue/tokenSubQueue";
 
 export enum TokenStatus {
-  CREATED = "created",
-  IN_PROGRESS = "in_progress",
-  COMPLETED = "completed",
+  CREATED = "CREATED",
+  IN_PROGRESS = "IN_PROGRESS",
+  COMPLETED = "COMPLETED",
+  CANCELLED = "CANCELLED",
+  ENTERED_IN_ERROR = "ENTERED_IN_ERROR",
 }
 
 export interface Token {
@@ -26,7 +28,7 @@ export interface TokenGenerateWithQueue extends TokenGenerate {
   date: string;
 }
 
-export interface TokenUpdate extends Token {
+export interface TokenUpdate extends Omit<Token, "id"> {
   note: string;
   status: TokenStatus;
   sub_queue?: string;
