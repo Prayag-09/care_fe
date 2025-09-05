@@ -878,6 +878,7 @@
   "cancel_request": "Cancel Request",
   "cancel_this_request": "cancel this request",
   "cancel_token": "Cancel Token",
+  "cancel_token_confirmation": "Are you sure you want to cancel the token {{tokenNumber}} for {{patientName}}? This action cannot be undone.",
   "cancelled": "Cancelled",
   "cannot_add_conclusion_without_results": "Cannot add conclusion without results",
   "cannot_close_account_with_pending_items": "You cannot close an account with pending charge items.",

@@ -1,3 +1,4 @@
+import ConfirmActionDialog from "@/components/Common/ConfirmActionDialog";
 import { Badge } from "@/components/ui/badge";
 import {
   DropdownMenu,
@@ -23,7 +24,7 @@ import {
   useQueryClient,
 } from "@tanstack/react-query";
 import { DoorOpenIcon, Megaphone, MoreHorizontal, X } from "lucide-react";
-import { useEffect } from "react";
+import { useEffect, useState } from "react";
 import { useTranslation } from "react-i18next";
 import { useInView } from "react-intersection-observer";
 
@@ -355,6 +356,7 @@ function TokenOptionsDropdown({
 }) {
   const { t } = useTranslation();
   const queryClient = useQueryClient();
+  const [showCancelDialog, setShowCancelDialog] = useState(false);
 
   const { mutate: updateToken, isPending: isUpdating } = useMutation({
     mutationFn: mutate(tokenApi.update, {
@@ -381,6 +383,7 @@ function TokenOptionsDropdown({
           { status: TokenStatus.CANCELLED },
         ],
       });
+      setShowCancelDialog(false);
     },
   });
 
@@ -392,24 +395,41 @@ function TokenOptionsDropdown({
   };
 
   return (
-    <DropdownMenu>
-      <DropdownMenuTrigger
-        disabled={isUpdating}
-        className="p-2 hover:bg-gray-100 rounded-md transition-colors"
-      >
-        <MoreHorizontal className="size-4" />
-      </DropdownMenuTrigger>
-      <DropdownMenuContent align="end">
-        <DropdownMenuItem
-          variant="destructive"
-          onClick={handleCancelToken}
+    <>
+      <DropdownMenu>
+        <DropdownMenuTrigger
           disabled={isUpdating}
+          className="p-2 hover:bg-gray-100 rounded-md transition-colors"
         >
-          <X className="size-4 text-danger-500" />
-          {t("cancel_token")}
-        </DropdownMenuItem>
-      </DropdownMenuContent>
-    </DropdownMenu>
+          <MoreHorizontal className="size-4" />
+        </DropdownMenuTrigger>
+        <DropdownMenuContent align="end">
+          <DropdownMenuItem
+            variant="destructive"
+            onClick={() => setShowCancelDialog(true)}
+            disabled={isUpdating}
+          >
+            <X className="size-4 text-danger-500" />
+            {t("cancel_token")}
+          </DropdownMenuItem>
+        </DropdownMenuContent>
+      </DropdownMenu>
+
+      <ConfirmActionDialog
+        open={showCancelDialog}
+        onOpenChange={setShowCancelDialog}
+        title={t("cancel_token")}
+        description={t("cancel_token_confirmation", {
+          patientName: token.patient.name,
+          tokenNumber: `${token.category.shorthand}-${token.number.toString().padStart(3, "0")}`,
+        })}
+        onConfirm={handleCancelToken}
+        cancelText={t("cancel")}
+        confirmText={t("cancel_token")}
+        variant="destructive"
+        disabled={isUpdating}
+      />
+    </>
   );
 }
 
