@@ -5,10 +5,13 @@ import {
   DropdownMenu,
   DropdownMenuContent,
   DropdownMenuItem,
+  DropdownMenuSub,
+  DropdownMenuSubContent,
+  DropdownMenuSubTrigger,
   DropdownMenuTrigger,
 } from "@/components/ui/dropdown-menu";
-import { SelectActionButton } from "@/components/ui/select-action-button";
 import { Skeleton } from "@/components/ui/skeleton";
+import { usePreferredServicePointCategory } from "@/pages/Facility/queues/usePreferredServicePointCategory";
 import { SchedulableResourceType } from "@/types/scheduling/schedule";
 import {
   renderTokenNumber,
@@ -33,6 +36,7 @@ import {
   ExternalLink,
   Megaphone,
   MoreHorizontal,
+  SettingsIcon,
   X,
 } from "lucide-react";
 import { Link } from "raviger";
@@ -99,18 +103,28 @@ function SubQueueColumn({
   facilityId,
   queueId,
   subQueue,
+  resourceType,
   status,
   emptyState,
   options,
+  tokenOptions,
 }: {
   facilityId: string;
   queueId: string;
   subQueue: TokenSubQueueRead;
+  resourceType: SchedulableResourceType;
   status: TokenStatus;
   emptyState: React.ReactNode;
   options?: React.ReactNode;
+  tokenOptions?: (token: TokenRead) => React.ReactNode;
 }) {
+  const { t } = useTranslation();
   const { ref, inView } = useInView();
+  const { preferredServicePointCategory } = usePreferredServicePointCategory({
+    facilityId,
+    subQueueId: subQueue.id,
+    resourceType,
+  });
 
   const { data, fetchNextPage, hasNextPage, isFetchingNextPage } =
     useInfiniteQuery({
@@ -149,8 +163,13 @@ function SubQueueColumn({
 
   return (
     <div className="flex flex-col p-1 rounded-lg bg-gray-200">
-      <div className="flex items-center justify-between p-1">
-        <span className="text-sm font-medium">{subQueue.name}</span>
+      <div className="flex items-center justify-between p-1 pb-2">
+        <div className="flex flex-col">
+          <span className="text-sm font-medium">{subQueue.name}</span>
+          <span className="text-xs">
+            {t("category")}: {preferredServicePointCategory?.name ?? t("all")}
+          </span>
+        </div>
         {options}
       </div>
       <div className="flex flex-col gap-3">
@@ -163,13 +182,7 @@ function SubQueueColumn({
                 <TokenCard
                   facilityId={facilityId}
                   token={token}
-                  options={
-                    <InServiceTokenOptions
-                      token={token}
-                      facilityId={facilityId}
-                      queueId={queueId}
-                    />
-                  }
+                  options={tokenOptions?.(token)}
                 />
               </div>
             ))
@@ -291,6 +304,7 @@ function InServiceTokensColumn({
         {subQueues.map((subQueue) => (
           <SubQueueColumn
             key={subQueue.id}
+            resourceType={resourceType}
             subQueue={subQueue}
             facilityId={facilityId}
             queueId={queueId}
@@ -304,27 +318,116 @@ function InServiceTokensColumn({
                 <CallNextPatientButton
                   subQueueId={subQueue.id}
                   facilityId={facilityId}
-                  queueId={queueId}
                   resourceType={resourceType}
+                  queueId={queueId}
                   variant="outline"
                   size="lg"
-                />
+                >
+                  <Megaphone />
+                  {t("call_next_patient")}
+                </CallNextPatientButton>
               </div>
             }
             options={
-              <CallNextPatientButton
-                subQueueId={subQueue.id}
+              <InServiceColumnOptions
                 facilityId={facilityId}
-                queueId={queueId}
                 resourceType={resourceType}
-                variant="secondary"
-                size="xs"
+                queueId={queueId}
+                subQueueId={subQueue.id}
               />
             }
+            tokenOptions={(token) => (
+              <InServiceTokenOptions
+                token={token}
+                facilityId={facilityId}
+                queueId={queueId}
+              />
+            )}
           />
         ))}
       </div>
     </QueueColumn>
+  );
+}
+
+function InServiceColumnOptions({
+  facilityId,
+  resourceType,
+  queueId,
+  subQueueId,
+}: {
+  facilityId: string;
+  resourceType: SchedulableResourceType;
+  queueId: string;
+  subQueueId: string;
+}) {
+  const { t } = useTranslation();
+
+  const { preferredServicePointCategory, setPreferredServicePointCategory } =
+    usePreferredServicePointCategory({ facilityId, subQueueId, resourceType });
+
+  const { data: tokenCategories } = useQuery({
+    queryKey: ["tokenCategories", facilityId, resourceType],
+    queryFn: query(tokenCategoryApi.list, {
+      pathParams: { facility_id: facilityId },
+      queryParams: {
+        resource_type: resourceType,
+      },
+    }),
+  });
+
+  return (
+    <div className="flex gap-1">
+      <CallNextPatientButton
+        subQueueId={subQueueId}
+        facilityId={facilityId}
+        resourceType={resourceType}
+        queueId={queueId}
+        variant="ghost"
+        size="icon"
+      >
+        <Megaphone />
+      </CallNextPatientButton>
+
+      <DropdownMenu>
+        <DropdownMenuTrigger asChild>
+          <Button variant="ghost" size="icon">
+            <SettingsIcon />
+          </Button>
+        </DropdownMenuTrigger>
+        <DropdownMenuContent align="end" className="min-w-[200px]">
+          <DropdownMenuSub>
+            <DropdownMenuSubTrigger>{t("category")}</DropdownMenuSubTrigger>
+            <DropdownMenuSubContent>
+              <DropdownMenuItem
+                onClick={() => setPreferredServicePointCategory(null)}
+                className={
+                  !preferredServicePointCategory?.id
+                    ? "bg-gray-100 dark:bg-gray-800"
+                    : ""
+                }
+              >
+                {t("all")}
+              </DropdownMenuItem>
+              {tokenCategories?.results.map((category) => (
+                <DropdownMenuItem
+                  key={category.id}
+                  onClick={() => setPreferredServicePointCategory(category.id)}
+                  className={
+                    preferredServicePointCategory?.id === category.id
+                      ? "bg-gray-100 dark:bg-gray-800"
+                      : ""
+                  }
+                >
+                  {category.name}
+                </DropdownMenuItem>
+              ))}
+            </DropdownMenuSubContent>
+          </DropdownMenuSub>
+          {/* <DropdownMenuItem>Transfer all</DropdownMenuItem> */}
+        </DropdownMenuContent>
+      </DropdownMenu>
+    </div>
   );
 }
 
@@ -657,22 +760,14 @@ function CallNextPatientButton({
   facilityId: string;
   resourceType: SchedulableResourceType;
   queueId: string;
-} & Omit<
-  React.ComponentProps<typeof SelectActionButton>,
-  "options" | "onAction" | "persistKey"
->) {
-  const { t } = useTranslation();
-  const queryClient = useQueryClient();
-
-  const { data: tokenCategories } = useQuery({
-    queryKey: ["tokenCategories", facilityId, resourceType],
-    queryFn: query(tokenCategoryApi.list, {
-      pathParams: { facility_id: facilityId },
-      queryParams: {
-        resource_type: resourceType,
-      },
-    }),
+} & React.ComponentProps<typeof Button>) {
+  const { preferredServicePointCategory } = usePreferredServicePointCategory({
+    facilityId,
+    subQueueId,
+    resourceType,
   });
+
+  const queryClient = useQueryClient();
 
   const {
     mutate: setNextTokenToSubQueue,
@@ -701,34 +796,16 @@ function CallNextPatientButton({
     },
   });
 
-  if (!tokenCategories) {
-    return null;
-  }
-
   return (
-    <SelectActionButton
+    <Button
       {...props}
-      options={[
-        {
-          value: null,
-          label: t("call_next_patient"),
-          icon: Megaphone,
-        },
-        ...tokenCategories.results.map((category) => ({
-          value: category.id,
-          label: `${t("call_next_patient")} (${category.name})`,
-          icon: Megaphone,
-        })),
-      ]}
-      onAction={(categoryId) =>
+      disabled={isSettingNextTokenToSubQueue}
+      onClick={() => {
         setNextTokenToSubQueue({
           sub_queue: subQueueId,
-          category: categoryId ?? undefined,
-        })
-      }
-      persistKey={`call-next-patient-pref-category-${subQueueId}`}
-      disabled={isSettingNextTokenToSubQueue}
-      loading={isSettingNextTokenToSubQueue}
+          category: preferredServicePointCategory?.id,
+        });
+      }}
     />
   );
 }
