@@ -1,6 +1,7 @@
 import { PatientRead } from "@/types/emr/patient/patient";
 import { SchedulableResourceType } from "@/types/scheduling/schedule";
 import { TokenCategoryRead } from "@/types/tokens/tokenCategory/tokenCategory";
+import { TokenQueueRead } from "@/types/tokens/tokenQueue/tokenQueue";
 import { TokenSubQueueRead } from "@/types/tokens/tokenSubQueue/tokenSubQueue";
 
 export enum TokenStatus {
@@ -34,9 +35,14 @@ export interface TokenUpdate extends Token {
 
 export interface TokenRead extends Token {
   category: TokenCategoryRead;
-  sub_queue: TokenSubQueueRead;
+  sub_queue?: TokenSubQueueRead;
   note: string;
-  patient: PatientRead;
+  patient?: PatientRead;
   number: number;
   status: TokenStatus;
+  queue: TokenQueueRead;
+}
+
+export function renderTokenNumber(token: TokenRead) {
+  return `${token.category.shorthand}-${token.number.toString().padStart(3, "0")}`;
 }

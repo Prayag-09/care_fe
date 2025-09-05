@@ -3,14 +3,17 @@ import { Button } from "@/components/ui/button";
 import { SelectActionButton } from "@/components/ui/select-action-button";
 import { Skeleton } from "@/components/ui/skeleton";
 import { SchedulableResourceType } from "@/types/scheduling/schedule";
-import { TokenRead, TokenStatus } from "@/types/tokens/token/token";
+import {
+  renderTokenNumber,
+  TokenRead,
+  TokenStatus,
+} from "@/types/tokens/token/token";
 import tokenApi from "@/types/tokens/token/tokenApi";
 import tokenCategoryApi from "@/types/tokens/tokenCategory/tokenCategoryApi";
 import tokenQueueApi from "@/types/tokens/tokenQueue/tokenQueueApi";
 import { TokenSubQueueRead } from "@/types/tokens/tokenSubQueue/tokenSubQueue";
 import mutate from "@/Utils/request/mutate";
 import query from "@/Utils/request/query";
-import { formatPatientAge } from "@/Utils/utils";
 import { DotsHorizontalIcon } from "@radix-ui/react-icons";
 import {
   useInfiniteQuery,
@@ -157,7 +160,6 @@ function WaitingTokensColumn({
   facilityId: string;
   queueId: string;
 }) {
-  const { t } = useTranslation();
   const { ref, inView } = useInView();
 
   const { data, fetchNextPage, hasNextPage, isFetchingNextPage } =
@@ -193,7 +195,7 @@ function WaitingTokensColumn({
   }, [inView, hasNextPage, fetchNextPage]);
 
   const tokens = data?.pages.flatMap((page) => page.results) ?? [];
-
+  const { t } = useTranslation();
   return (
     <QueueColumn
       title={t("waiting")}
@@ -332,33 +334,22 @@ function InServiceTokensColumn({
 }
 
 function TokenCard({ token }: { token: TokenRead | null }) {
-  const { t } = useTranslation();
-
   return (
     <div className="flex gap-3 items-center justify-between p-3 bg-white rounded-lg shadow">
       <div className="flex flex-col">
         {token ? (
-          <span className="font-semibold">{token.patient.name}</span>
+          <span className="font-semibold">
+            {token.patient ? token.patient.name : renderTokenNumber(token)}
+          </span>
         ) : (
           <Skeleton className="h-4 w-36 my-2" />
         )}
-        {token ? (
-          <span className="text-sm text-gray-700">
-            {formatPatientAge(token.patient, true)},{" "}
-            {t(`GENDER__${token.patient.gender}`)}
-          </span>
-        ) : (
-          <Skeleton className="h-4 w-24" />
-        )}
-        {/* <div className="flex items-center gap-1.5"></div> */}
-        {/* TODO: do we show tags here? or something else? */}
       </div>
       <div className="flex items-center gap-3">
         {token ? (
           <div className="min-h-14 p-2 bg-gray-100 border border-gray-200 rounded-lg flex items-center justify-center">
             <span className="text-lg font-bold">
-              {token.category.shorthand}-
-              {token.number.toString().padStart(3, "0")}
+              {renderTokenNumber(token)}
             </span>
           </div>
         ) : (
