@@ -1,10 +1,11 @@
-import { useQuery } from "@tanstack/react-query";
+import { useQuery, useQueryClient } from "@tanstack/react-query";
 import {
   ChevronDown,
   ChevronUp,
   ExternalLinkIcon,
   MoreHorizontal,
   PencilIcon,
+  PlusIcon,
 } from "lucide-react";
 import { Link } from "raviger";
 import { useState } from "react";
@@ -56,6 +57,7 @@ import {
 } from "@/types/billing/chargeItem/chargeItem";
 import chargeItemApi from "@/types/billing/chargeItem/chargeItemApi";
 
+import AddChargeItemsBillingSheet from "./AddChargeItemsBillingSheet";
 import EditChargeItemSheet from "./EditChargeItemSheet";
 
 interface PriceComponentRowProps {
@@ -100,9 +102,11 @@ export function ChargeItemsTable({
   patientId,
 }: ChargeItemsTableProps) {
   const { t } = useTranslation();
+  const queryClient = useQueryClient();
   const [expandedItems, setExpandedItems] = useState<Record<string, boolean>>(
     {},
   );
+  const [isAddChargeItemsOpen, setIsAddChargeItemsOpen] = useState(false);
   const { qParams, updateQuery, Pagination, resultsPerPage } = useFilters({
     limit: 15,
     disableCache: true,
@@ -123,6 +127,12 @@ export function ChargeItemsTable({
   }) as {
     data: { results: ChargeItemRead[]; count: number } | undefined;
     isLoading: boolean;
+  };
+
+  const handleChargeItemsAdded = () => {
+    queryClient.invalidateQueries({
+      queryKey: ["chargeItems", qParams, accountId],
+    });
   };
 
   const toggleItemExpand = (itemId: string) => {
@@ -163,7 +173,7 @@ export function ChargeItemsTable({
 
   return (
     <div>
-      <div className="mb-4">
+      <div className="mb-4 flex flex-col sm:flex-row justify-between items-center gap-2">
         {/* Desktop Tabs */}
         <Tabs
           value={qParams.charge_item_status ?? "all"}
@@ -204,6 +214,15 @@ export function ChargeItemsTable({
             ))}
           </SelectContent>
         </Select>
+
+        <Button
+          variant="outline"
+          onClick={() => setIsAddChargeItemsOpen(true)}
+          className="w-full sm:w-auto"
+        >
+          <PlusIcon className="size-4 mr-2" />
+          {t("add_charge_items")}
+        </Button>
       </div>
       {isLoading ? (
         <TableSkeleton count={3} />
@@ -433,6 +452,14 @@ export function ChargeItemsTable({
         </div>
       )}
       <Pagination totalCount={chargeItems?.count || 0} />
+
+      <AddChargeItemsBillingSheet
+        open={isAddChargeItemsOpen}
+        onOpenChange={setIsAddChargeItemsOpen}
+        facilityId={facilityId}
+        patientId={patientId}
+        onChargeItemsAdded={handleChargeItemsAdded}
+      />
     </div>
   );
 }
