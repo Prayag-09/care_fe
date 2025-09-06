@@ -44,8 +44,8 @@ export interface ScheduleTemplate {
   created_by: UserReadMinimal;
   updated_by: UserReadMinimal;
   charge_item_definition: ChargeItemDefinitionRead;
-  re_visit_charge_item_definition: ChargeItemDefinitionRead;
-  re_visit_allowed_days: number;
+  revisit_charge_item_definition: ChargeItemDefinitionRead;
+  revisit_allowed_days: number;
 }
 
 type ScheduleAvailabilityBase = {

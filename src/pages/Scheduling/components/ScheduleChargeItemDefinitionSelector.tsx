@@ -1,4 +1,4 @@
-import { useQuery } from "@tanstack/react-query";
+import { useQuery, useQueryClient } from "@tanstack/react-query";
 import { WalletMinimal } from "lucide-react";
 import { useTranslation } from "react-i18next";
 
@@ -18,13 +18,14 @@ import {
 import { ChargeItemDefinitionForm } from "@/pages/Facility/settings/chargeItemDefinitions/ChargeItemDefinitionForm";
 import { ChargeItemDefinitionStatus } from "@/types/billing/chargeItemDefinition/chargeItemDefinition";
 import chargeItemDefinitionApi from "@/types/billing/chargeItemDefinition/chargeItemDefinitionApi";
+import { ScheduleTemplate } from "@/types/scheduling/schedule";
 import query from "@/Utils/request/query";
 import { mergeAutocompleteOptions } from "@/Utils/utils";
 import { useState } from "react";
 
 interface ScheduleChargeItemDefinitionSelectorProps {
   facilityId: string;
-  value?: string;
+  scheduleTemplate: ScheduleTemplate;
   onChange: (value: {
     charge_item_definition: string;
     re_visit_allowed_days: number;
@@ -34,43 +35,83 @@ interface ScheduleChargeItemDefinitionSelectorProps {
 
 export default function ScheduleChargeItemDefinitionSelector({
   facilityId,
-  value,
+  scheduleTemplate,
   onChange,
 }: ScheduleChargeItemDefinitionSelectorProps) {
   const { t } = useTranslation();
   const [isOpen, setIsOpen] = useState(false);
   const [isCreateSheetOpen, setIsCreateSheetOpen] = useState(false);
-  const [search, setSearch] = useState("");
-  const [selectedCid, setSelectedCid] = useState(value);
-  const [reVisitDays, setReVisitDays] = useState(0);
-  const [reVisitCid, setReVisitCid] = useState<string>();
-  const [_reVisitSearch, setReVisitSearch] = useState("");
+  const [consulationSearch, setSearch] = useState("");
+  const queryClient = useQueryClient();
+  const [selectedCid, setSelectedCid] = useState(
+    scheduleTemplate.charge_item_definition?.id,
+  );
+  const [reVisitDays, setReVisitDays] = useState(
+    scheduleTemplate.revisit_allowed_days,
+  );
+  const [reVisitCid, setReVisitCid] = useState<string>(
+    scheduleTemplate.revisit_charge_item_definition?.id,
+  );
+  const [reVisitSearch, setReVisitSearch] = useState("");
 
-  const { data: chargeItemDefinitions, isLoading } = useQuery({
-    queryKey: ["chargeItemDefinitions", facilityId, search],
+  const {
+    data: consultationChargeItemDefinitions,
+    isLoading: isConsultationLoading,
+  } = useQuery({
+    queryKey: ["chargeItemDefinitions", facilityId, consulationSearch],
     queryFn: query.debounced(chargeItemDefinitionApi.listChargeItemDefinition, {
       pathParams: { facilityId },
       queryParams: {
         limit: 100,
-        title: search,
+        title: consulationSearch,
         status: ChargeItemDefinitionStatus.active,
       },
     }),
   });
 
+  const { data: revisitChargeItemDefinitions, isLoading: isRevisitLoading } =
+    useQuery({
+      queryKey: ["chargeItemDefinitions", facilityId, reVisitSearch],
+      queryFn: query.debounced(
+        chargeItemDefinitionApi.listChargeItemDefinition,
+        {
+          pathParams: { facilityId },
+          queryParams: {
+            limit: 100,
+            title: reVisitSearch,
+            status: ChargeItemDefinitionStatus.active,
+          },
+        },
+      ),
+    });
+
   const handleSubmit = () => {
-    if (selectedCid) {
-      onChange({
-        charge_item_definition: selectedCid,
-        re_visit_allowed_days: reVisitDays,
-        re_visit_charge_item_definition: reVisitCid,
+    onChange({
+      charge_item_definition: selectedCid,
+      re_visit_allowed_days: reVisitDays,
+      re_visit_charge_item_definition: reVisitCid,
+    });
+    setIsOpen(false);
+  };
+  const handleSheetOpenChange = (open: boolean) => {
+    setIsOpen(open);
+    if (!open) {
+      setSearch("");
+      setReVisitSearch("");
+      setSelectedCid(scheduleTemplate.charge_item_definition?.id);
+      setReVisitCid(scheduleTemplate.revisit_charge_item_definition?.id);
+      setReVisitDays(scheduleTemplate.revisit_allowed_days);
+      queryClient.invalidateQueries({
+        queryKey: ["chargeItemDefinitions", facilityId, consulationSearch],
       });
-      setIsOpen(false);
+      queryClient.invalidateQueries({
+        queryKey: ["chargeItemDefinitions", facilityId, reVisitSearch],
+      });
     }
   };
 
   return (
-    <Sheet open={isOpen} onOpenChange={setIsOpen}>
+    <Sheet open={isOpen} onOpenChange={handleSheetOpenChange}>
       <SheetTrigger asChild>
         <Button variant="outline" size="icon" className="h-8 w-full gap-2">
           <WalletMinimal className="size-4" />
@@ -96,17 +137,17 @@ export default function ScheduleChargeItemDefinitionSelector({
                 <div className="mt-2 flex gap-2 flex-row">
                   <Autocomplete
                     options={mergeAutocompleteOptions(
-                      chargeItemDefinitions?.results.map((cid) => ({
+                      consultationChargeItemDefinitions?.results.map((cid) => ({
                         label: cid.title,
                         value: cid.id,
                       })) || [],
-                      value
+                      selectedCid
                         ? {
                             label:
-                              chargeItemDefinitions?.results.find(
-                                (cid) => cid.id === value,
+                              consultationChargeItemDefinitions?.results.find(
+                                (cid) => cid.id === selectedCid,
                               )?.title || "",
-                            value: value,
+                            value: selectedCid,
                           }
                         : undefined,
                     )}
@@ -114,7 +155,7 @@ export default function ScheduleChargeItemDefinitionSelector({
                     onChange={setSelectedCid}
                     onSearch={setSearch}
                     placeholder={t("select_charge_item_definition")}
-                    isLoading={isLoading}
+                    isLoading={isConsultationLoading}
                     noOptionsMessage={t("no_charge_item_definitions_found")}
                   />
                   <Sheet
@@ -170,14 +211,14 @@ export default function ScheduleChargeItemDefinitionSelector({
                 <div className="mt-2 flex gap-2 flex-row">
                   <Autocomplete
                     options={mergeAutocompleteOptions(
-                      chargeItemDefinitions?.results.map((cid) => ({
+                      revisitChargeItemDefinitions?.results.map((cid) => ({
                         label: cid.title,
                         value: cid.id,
                       })) || [],
                       reVisitCid
                         ? {
                             label:
-                              chargeItemDefinitions?.results.find(
+                              revisitChargeItemDefinitions?.results.find(
                                 (cid) => cid.id === reVisitCid,
                               )?.title || "",
                             value: reVisitCid,
@@ -188,7 +229,7 @@ export default function ScheduleChargeItemDefinitionSelector({
                     onChange={setReVisitCid}
                     onSearch={setReVisitSearch}
                     placeholder={t("select_charge_item_definition")}
-                    isLoading={isLoading}
+                    isLoading={isRevisitLoading}
                     noOptionsMessage={t("no_charge_item_definitions_found")}
                   />
                   <Sheet
@@ -236,7 +277,7 @@ export default function ScheduleChargeItemDefinitionSelector({
             </Button>
             <Button
               onClick={handleSubmit}
-              disabled={!selectedCid}
+              disabled={!selectedCid || !reVisitDays}
               className="w-full sm:w-auto"
             >
               {t("save")}

@@ -10,8 +10,8 @@ import CareIcon from "@/CAREUI/icons/CareIcon";
 
 import { Button } from "@/components/ui/button";
 
-import ScheduleChargeItemDefinitionSelector from "@/components/Common/ChargeItemDefinitionSelector";
 import Loading from "@/components/Common/Loading";
+import ScheduleChargeItemDefinitionSelector from "@/pages/Scheduling/components/ScheduleChargeItemDefinitionSelector";
 
 import mutate from "@/Utils/request/mutate";
 import query from "@/Utils/request/query";
@@ -141,7 +141,7 @@ const ScheduleTemplateItem = ({
           {canCreateChargeItemDefinition && (
             <ScheduleChargeItemDefinitionSelector
               facilityId={facilityId}
-              value={template.charge_item_definition?.id}
+              scheduleTemplate={template}
               onChange={(value) =>
                 setChargeItemDefinition({
                   charge_item_definition: value.charge_item_definition,
