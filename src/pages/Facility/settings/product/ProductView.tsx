@@ -88,7 +88,9 @@ export default function ProductView({ facilityId, productId }: Props) {
         <div className="flex items-center justify-between">
           <div>
             <div className="flex items-center gap-3">
-              <h1 className="text-2xl font-bold">Product ID: {product.id}</h1>
+              <h1 className="text-2xl font-bold">
+                {t("product")}: {product.id}
+              </h1>
               <Badge variant={PRODUCT_STATUS_COLORS[product.status]}>
                 {t(product.status)}
               </Badge>
@@ -172,7 +174,7 @@ export default function ProductView({ facilityId, productId }: Props) {
                   size="sm"
                   onClick={() =>
                     navigate(
-                      `/facility/${facilityId}/settings/product_knowledge/${product.product_knowledge.id}`,
+                      `/facility/${facilityId}/settings/product_knowledge/${product.product_knowledge.slug}`,
                     )
                   }
                 >

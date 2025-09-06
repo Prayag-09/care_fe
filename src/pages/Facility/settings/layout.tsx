@@ -152,11 +152,11 @@ const getRoutes = (facilityId: string) => ({
   "/product_knowledge/new": () => (
     <ProductKnowledgeForm facilityId={facilityId} />
   ),
-  "/product_knowledge/:id": ({ id }: { id: string }) => (
-    <ProductKnowledgeView facilityId={facilityId} productKnowledgeId={id} />
+  "/product_knowledge/:slug": ({ slug }: { slug: string }) => (
+    <ProductKnowledgeView facilityId={facilityId} slug={slug} />
   ),
-  "/product_knowledge/:id/edit": ({ id }: { id: string }) => (
-    <ProductKnowledgeForm facilityId={facilityId} productKnowledgeId={id} />
+  "/product_knowledge/:slug/edit": ({ slug }: { slug: string }) => (
+    <ProductKnowledgeForm facilityId={facilityId} slug={slug} />
   ),
   "/product": () => <ProductList facilityId={facilityId} />,
   "/product/new": () => <ProductForm facilityId={facilityId} />,

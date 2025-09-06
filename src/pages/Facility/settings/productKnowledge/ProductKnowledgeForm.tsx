@@ -99,21 +99,21 @@ const formSchema = z.object({
 
 export default function ProductKnowledgeForm({
   facilityId,
-  productKnowledgeId,
+  slug,
   onSuccess,
 }: {
   facilityId: string;
-  productKnowledgeId?: string;
+  slug?: string;
   onSuccess?: () => void;
 }) {
   const { t } = useTranslation();
 
-  const isEditMode = Boolean(productKnowledgeId);
+  const isEditMode = Boolean(slug);
 
   const { data: existingData, isFetching } = useQuery({
-    queryKey: ["productKnowledge", productKnowledgeId],
+    queryKey: ["productKnowledge", slug],
     queryFn: query(productKnowledgeApi.retrieveProductKnowledge, {
-      pathParams: { productKnowledgeId: productKnowledgeId! },
+      pathParams: { slug: slug! },
       queryParams: {
         facility: facilityId,
       },
@@ -139,7 +139,7 @@ export default function ProductKnowledgeForm({
   return (
     <ProductKnowledgeFormContent
       facilityId={facilityId}
-      productKnowledgeId={productKnowledgeId}
+      slug={slug}
       existingData={existingData}
       onSuccess={onSuccess}
     />
@@ -148,19 +148,19 @@ export default function ProductKnowledgeForm({
 
 function ProductKnowledgeFormContent({
   facilityId,
-  productKnowledgeId,
+  slug,
   existingData,
   onSuccess = () =>
     navigate(`/facility/${facilityId}/settings/product_knowledge`),
 }: {
   facilityId: string;
-  productKnowledgeId?: string;
+  slug?: string;
   existingData?: ProductKnowledgeBase;
   onSuccess?: () => void;
 }) {
   const { t } = useTranslation();
   const queryClient = useQueryClient();
-  const isEditMode = Boolean(productKnowledgeId);
+  const isEditMode = Boolean(slug);
 
   // Create default storage guidelines and units
   const defaultUnitCode: Code = {
@@ -249,7 +249,7 @@ function ProductKnowledgeFormContent({
     {
       mutationFn: mutate(productKnowledgeApi.updateProductKnowledge, {
         pathParams: {
-          productKnowledgeId: productKnowledgeId || "",
+          slug: slug || "",
         },
         queryParams: {
           facility: facilityId,
@@ -258,7 +258,7 @@ function ProductKnowledgeFormContent({
       onSuccess: () => {
         queryClient.invalidateQueries({ queryKey: ["productKnowledge"] });
         queryClient.invalidateQueries({
-          queryKey: ["productKnowledge", productKnowledgeId],
+          queryKey: ["productKnowledge", slug],
         });
         toast.success(t("product_knowledge_updated_successfully"));
         navigate(`/facility/${facilityId}/settings/product_knowledge`);
@@ -283,10 +283,10 @@ function ProductKnowledgeFormContent({
         : undefined,
     };
 
-    if (isEditMode && productKnowledgeId) {
+    if (isEditMode && slug) {
       const updatePayload = {
         ...formattedData,
-        id: productKnowledgeId,
+        slug: slug,
         facility: facilityId,
       };
       updateProductKnowledge(updatePayload as ProductKnowledgeUpdate);
