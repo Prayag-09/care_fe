@@ -113,7 +113,7 @@ export function ChargeItemsTable({
   });
 
   const { data: chargeItems, isLoading } = useQuery({
-    queryKey: ["chargeItems", qParams, accountId],
+    queryKey: ["chargeItems", accountId, qParams],
     queryFn: query(chargeItemApi.listChargeItem, {
       pathParams: { facilityId },
       queryParams: {
@@ -131,7 +131,7 @@ export function ChargeItemsTable({
 
   const handleChargeItemsAdded = () => {
     queryClient.invalidateQueries({
-      queryKey: ["chargeItems", qParams, accountId],
+      queryKey: ["chargeItems", accountId, qParams],
     });
   };
 
@@ -381,6 +381,7 @@ export function ChargeItemsTable({
                           <EditChargeItemSheet
                             facilityId={facilityId}
                             item={item}
+                            accountId={accountId}
                             trigger={
                               <Button
                                 id={`edit-charge-item-${item.id}`}

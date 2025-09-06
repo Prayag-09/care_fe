@@ -1,5 +1,5 @@
 import { zodResolver } from "@hookform/resolvers/zod";
-import { useMutation, useQueryClient } from "@tanstack/react-query";
+import { useMutation } from "@tanstack/react-query";
 import { useForm } from "react-hook-form";
 import { useTranslation } from "react-i18next";
 import { toast } from "sonner";
@@ -41,6 +41,7 @@ interface EditInvoiceTableProps {
   facilityId: string;
   chargeItems: ChargeItemRead[];
   onClose: () => void;
+  onSuccess: () => void;
 }
 
 const chargeItemSchema = z.object({
@@ -81,9 +82,9 @@ export function EditInvoiceTable({
   facilityId,
   chargeItems,
   onClose,
+  onSuccess,
 }: EditInvoiceTableProps) {
   const { t } = useTranslation();
-  const queryClient = useQueryClient();
 
   const form = useForm<FormValues>({
     resolver: zodResolver(formSchema),
@@ -122,7 +123,8 @@ export function EditInvoiceTable({
     }),
     onSuccess: () => {
       toast.success("Invoice updated successfully");
-      queryClient.invalidateQueries({ queryKey: ["invoice"] });
+
+      onSuccess();
       onClose();
     },
     onError: () => {

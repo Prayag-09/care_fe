@@ -1127,6 +1127,9 @@ export function InvoiceShow({
         }}
         facilityId={facilityId}
         chargeItems={selectedChargeItems}
+        onSuccess={() => {
+          queryClient.invalidateQueries({ queryKey: ["invoice", invoiceId] });
+        }}
       />
 
       {sourceUrl && (

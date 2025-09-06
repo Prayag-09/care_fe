@@ -13,6 +13,7 @@ interface EditInvoiceDialogProps {
   onOpenChange: (open: boolean) => void;
   facilityId: string;
   chargeItems: ChargeItemRead[];
+  onSuccess: () => void;
 }
 
 export function EditInvoiceDialog({
@@ -20,6 +21,7 @@ export function EditInvoiceDialog({
   onOpenChange,
   facilityId,
   chargeItems,
+  onSuccess,
 }: EditInvoiceDialogProps) {
   const { t } = useTranslation();
   return (
@@ -32,6 +34,7 @@ export function EditInvoiceDialog({
           facilityId={facilityId}
           chargeItems={chargeItems}
           onClose={() => onOpenChange(false)}
+          onSuccess={onSuccess}
         />
       </DialogContent>
     </Dialog>
