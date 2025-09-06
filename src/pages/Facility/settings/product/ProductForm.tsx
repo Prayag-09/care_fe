@@ -190,6 +190,9 @@ export function ProductFormContent({
       pathParams: {
         productKnowledgeId: productKnowledgeId!,
       },
+      queryParams: {
+        facility: facilityId,
+      },
     }),
     enabled: !!productKnowledgeId && enabled,
   });

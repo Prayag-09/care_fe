@@ -57,6 +57,9 @@ export default function ProductKnowledgeView({
     queryKey: ["productKnowledge", productKnowledgeId],
     queryFn: query(productKnowledgeApi.retrieveProductKnowledge, {
       pathParams: { productKnowledgeId },
+      queryParams: {
+        facility: facilityId,
+      },
     }),
   });
 

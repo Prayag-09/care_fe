@@ -114,6 +114,9 @@ export default function ProductKnowledgeForm({
     queryKey: ["productKnowledge", productKnowledgeId],
     queryFn: query(productKnowledgeApi.retrieveProductKnowledge, {
       pathParams: { productKnowledgeId: productKnowledgeId! },
+      queryParams: {
+        facility: facilityId,
+      },
     }),
     enabled: isEditMode,
   });
@@ -247,6 +250,9 @@ function ProductKnowledgeFormContent({
       mutationFn: mutate(productKnowledgeApi.updateProductKnowledge, {
         pathParams: {
           productKnowledgeId: productKnowledgeId || "",
+        },
+        queryParams: {
+          facility: facilityId,
         },
       }),
       onSuccess: () => {
