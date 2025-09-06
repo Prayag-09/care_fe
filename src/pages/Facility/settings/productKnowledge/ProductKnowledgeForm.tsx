@@ -255,13 +255,15 @@ function ProductKnowledgeFormContent({
           facility: facilityId,
         },
       }),
-      onSuccess: () => {
+      onSuccess: (productKnowledge: ProductKnowledgeBase) => {
         queryClient.invalidateQueries({ queryKey: ["productKnowledge"] });
         queryClient.invalidateQueries({
           queryKey: ["productKnowledge", slug],
         });
         toast.success(t("product_knowledge_updated_successfully"));
-        navigate(`/facility/${facilityId}/settings/product_knowledge`);
+        navigate(
+          `/facility/${facilityId}/settings/product_knowledge/${productKnowledge.slug}`,
+        );
       },
     },
   );
@@ -286,7 +288,6 @@ function ProductKnowledgeFormContent({
     if (isEditMode && slug) {
       const updatePayload = {
         ...formattedData,
-        slug: slug,
         facility: facilityId,
       };
       updateProductKnowledge(updatePayload as ProductKnowledgeUpdate);

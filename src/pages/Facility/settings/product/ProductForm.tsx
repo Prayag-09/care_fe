@@ -492,7 +492,7 @@ export function ProductFormContent({
                               setCreateCidOpen(false);
                               form.setValue(
                                 "charge_item_definition",
-                                chargeItemDefinition.id,
+                                chargeItemDefinition.slug,
                               );
                             }}
                             onCancel={() => setCreateCidOpen(false)}

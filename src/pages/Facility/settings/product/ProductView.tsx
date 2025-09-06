@@ -200,10 +200,10 @@ export default function ProductView({ facilityId, productId }: Props) {
                   <div className="space-y-2">
                     <h3 className="font-medium">
                       {product.charge_item_definition.title ||
-                        product.charge_item_definition.id}
+                        product.charge_item_definition.slug}
                     </h3>
                     <p className="text-sm text-gray-500">
-                      {product.charge_item_definition.id}
+                      {product.charge_item_definition.slug}
                     </p>
                   </div>
                   <Button
@@ -211,7 +211,7 @@ export default function ProductView({ facilityId, productId }: Props) {
                     size="sm"
                     onClick={() =>
                       navigate(
-                        `/facility/${facilityId}/settings/charge_item_definitions/${product.charge_item_definition.id}`,
+                        `/facility/${facilityId}/settings/charge_item_definitions/${product.charge_item_definition.slug}`,
                       )
                     }
                   >
