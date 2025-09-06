@@ -371,17 +371,19 @@ export function InvoiceShow({
               </Badge>
             </div>
             <div className="flex flex-row gap-2">
-              <Button
-                variant="outline"
-                className="border-gray-400 gap-1"
-                onClick={() => {
-                  setIsEditDialogOpen(true);
-                  setSelectedChargeItems(invoice.charge_items);
-                }}
-              >
-                <CareIcon icon="l-edit" className="size-4" />
-                {t("edit_items")}
-              </Button>
+              {invoice.status === InvoiceStatus.draft && (
+                <Button
+                  variant="outline"
+                  className="border-gray-400 gap-1"
+                  onClick={() => {
+                    setIsEditDialogOpen(true);
+                    setSelectedChargeItems(invoice.charge_items);
+                  }}
+                >
+                  <CareIcon icon="l-edit" className="size-4" />
+                  {t("edit_items")}
+                </Button>
+              )}
               <Button
                 variant="outline"
                 asChild
