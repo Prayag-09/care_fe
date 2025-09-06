@@ -110,6 +110,9 @@ export function InvoiceShow({
   const { t } = useTranslation();
   const [isPaymentSheetOpen, setIsPaymentSheetOpen] = useState(false);
   const [isEditDialogOpen, setIsEditDialogOpen] = useState(false);
+  const [selectedChargeItems, setSelectedChargeItems] = useState<
+    ChargeItemRead[]
+  >([]);
   const [chargeItemToRemove, setChargeItemToRemove] = useState<string | null>(
     null,
   );
@@ -371,7 +374,10 @@ export function InvoiceShow({
               <Button
                 variant="outline"
                 className="border-gray-400 gap-1"
-                onClick={() => setIsEditDialogOpen(true)}
+                onClick={() => {
+                  setIsEditDialogOpen(true);
+                  setSelectedChargeItems(invoice.charge_items);
+                }}
               >
                 <CareIcon icon="l-edit" className="size-4" />
                 {t("edit_items")}
@@ -699,6 +705,19 @@ export function InvoiceShow({
                                       {t("actions")}
                                     </DropdownMenuLabel>
                                     <DropdownMenuSeparator />
+                                    <DropdownMenuItem
+                                      onClick={() => {
+                                        setIsEditDialogOpen(true);
+                                        // Pass only this item to edit
+                                        setSelectedChargeItems([item]);
+                                      }}
+                                    >
+                                      <CareIcon
+                                        icon="l-edit"
+                                        className="mr-2 size-4"
+                                      />
+                                      <span>{t("edit")}</span>
+                                    </DropdownMenuItem>
                                     <DropdownMenuItem
                                       onClick={() =>
                                         setChargeItemToRemove(item.id)
@@ -1098,9 +1117,14 @@ export function InvoiceShow({
 
       <EditInvoiceDialog
         open={isEditDialogOpen}
-        onOpenChange={setIsEditDialogOpen}
+        onOpenChange={(open) => {
+          setIsEditDialogOpen(open);
+          if (!open) {
+            setSelectedChargeItems([]);
+          }
+        }}
         facilityId={facilityId}
-        chargeItems={invoice.charge_items}
+        chargeItems={selectedChargeItems}
       />
 
       {sourceUrl && (

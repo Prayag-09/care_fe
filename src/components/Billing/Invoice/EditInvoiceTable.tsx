@@ -176,53 +176,92 @@ export function EditInvoiceTable({
   };
 
   return (
-    <div className="w-full">
-      <Form {...form}>
-        <form onSubmit={form.handleSubmit(onSubmit)} className="space-y-4">
-          <div className="rounded-t-sm border border-gray-300 overflow-x-auto">
-            <Table className="w-full">
-              <TableHeader>
-                <TableRow className="border-b border-gray-200">
-                  <TableHead className="border-r border-gray-200 font-semibold text-center sticky left-0 bg-white w-12">
-                    #
-                  </TableHead>
-                  <TableHead className="border-r border-gray-200 font-semibold text-center sticky left-8 bg-white min-w-[200px]">
-                    {t("item")}
-                  </TableHead>
-                  <TableHead className="border-r border-gray-200 font-semibold text-center min-w-[150px]">
-                    {t("unit_price")} ({getCurrencySymbol()})
-                  </TableHead>
-                  <TableHead className="border-r border-gray-200 font-semibold text-center min-w-[100px]">
-                    {t("quantity")}
-                  </TableHead>
-                  <TableHead className="border-r border-gray-200 font-semibold text-center min-w-[200px]">
-                    {t("discount")}
-                  </TableHead>
-                </TableRow>
-              </TableHeader>
-              <TableBody>
-                {form.watch("items").map((item, index) => (
-                  <TableRow key={item.id} className="border-b border-gray-200">
-                    <TableCell className="border-r border-gray-200 font-medium text-gray-950 text-sm text-center sticky left-0 bg-white w-12">
-                      {index + 1}
-                    </TableCell>
-                    <TableCell className="border-r border-gray-200 font-medium text-gray-950 text-sm sticky left-8 bg-white min-w-[200px]">
-                      {item.title}
-                    </TableCell>
-                    <TableCell className="border-r border-gray-200 font-medium text-gray-950 text-sm min-w-[150px]">
+    <Form {...form}>
+      <form onSubmit={form.handleSubmit(onSubmit)} className="space-y-4">
+        <div className="rounded-t-sm border border-gray-300 overflow-x-auto">
+          <Table>
+            <TableHeader>
+              <TableRow className="border-b border-gray-200">
+                <TableHead className="border-r border-gray-200 font-semibold text-center sticky left-0 bg-white w-12">
+                  #
+                </TableHead>
+                <TableHead className="border-r border-gray-200 font-semibold text-center sticky left-8 bg-white min-w-[200px]">
+                  {t("item")}
+                </TableHead>
+                <TableHead className="border-r border-gray-200 font-semibold text-center min-w-[150px]">
+                  {t("unit_price")} ({getCurrencySymbol()})
+                </TableHead>
+                <TableHead className="border-r border-gray-200 font-semibold text-center min-w-[100px]">
+                  {t("quantity")}
+                </TableHead>
+                <TableHead className="border-r border-gray-200 font-semibold text-center min-w-[200px]">
+                  {t("discount")}
+                </TableHead>
+              </TableRow>
+            </TableHeader>
+            <TableBody>
+              {form.watch("items").map((item, index) => (
+                <TableRow key={item.id} className="border-b border-gray-200">
+                  <TableCell className="border-r border-gray-200 font-medium text-gray-950 text-sm text-center sticky left-0 bg-white w-12">
+                    {index + 1}
+                  </TableCell>
+                  <TableCell className="border-r border-gray-200 font-medium text-gray-950 text-sm sticky left-8 bg-white min-w-[200px]">
+                    {item.title}
+                  </TableCell>
+                  <TableCell className="border-r border-gray-200 font-medium text-gray-950 text-sm min-w-[150px]">
+                    <FormField
+                      control={form.control}
+                      name={`items.${index}.baseAmount`}
+                      render={({ field }) => (
+                        <FormItem>
+                          <FormControl>
+                            <MonetaryAmountInput
+                              {...field}
+                              value={field.value ?? "0"}
+                              onChange={(e) => {
+                                field.onChange(e.target.value);
+                                handleBaseAmountChange(index, e.target.value);
+                              }}
+                              placeholder="0.00"
+                            />
+                          </FormControl>
+                          <FormMessage />
+                        </FormItem>
+                      )}
+                    />
+                  </TableCell>
+                  <TableCell className="border-r border-gray-200 font-medium text-gray-950 text-sm min-w-[100px]">
+                    <FormField
+                      control={form.control}
+                      name={`items.${index}.quantity`}
+                      render={({ field }) => (
+                        <FormItem>
+                          <FormControl>
+                            <Input
+                              type="number"
+                              {...field}
+                              min="0"
+                              step="1"
+                              className="text-right"
+                            />
+                          </FormControl>
+                          <FormMessage />
+                        </FormItem>
+                      )}
+                    />
+                  </TableCell>
+                  <TableCell className="border-r border-gray-200 font-medium text-gray-950 text-sm min-w-[200px]">
+                    <div className="flex items-center gap-2">
                       <FormField
                         control={form.control}
-                        name={`items.${index}.baseAmount`}
+                        name={`items.${index}.discountValue`}
                         render={({ field }) => (
-                          <FormItem>
+                          <FormItem className="flex-1">
                             <FormControl>
                               <MonetaryAmountInput
                                 {...field}
                                 value={field.value ?? "0"}
-                                onChange={(e) => {
-                                  field.onChange(e.target.value);
-                                  handleBaseAmountChange(index, e.target.value);
-                                }}
+                                onChange={(e) => field.onChange(e.target.value)}
                                 placeholder="0.00"
                               />
                             </FormControl>
@@ -230,88 +269,45 @@ export function EditInvoiceTable({
                           </FormItem>
                         )}
                       />
-                    </TableCell>
-                    <TableCell className="border-r border-gray-200 font-medium text-gray-950 text-sm min-w-[100px]">
                       <FormField
                         control={form.control}
-                        name={`items.${index}.quantity`}
+                        name={`items.${index}.discountType`}
                         render={({ field }) => (
                           <FormItem>
-                            <FormControl>
-                              <Input
-                                type="number"
-                                {...field}
-                                min="0"
-                                step="1"
-                                className="text-right"
-                              />
-                            </FormControl>
-                            <FormMessage />
+                            <div className="flex items-center gap-2">
+                              <span className="text-sm text-gray-500">
+                                {getCurrencySymbol()}
+                              </span>
+                              <FormControl>
+                                <Switch
+                                  checked={field.value === "percentage"}
+                                  onCheckedChange={(checked) => {
+                                    handleDiscountTypeToggle(index, checked);
+                                  }}
+                                />
+                              </FormControl>
+                              <span className="text-sm text-gray-500">%</span>
+                            </div>
                           </FormItem>
                         )}
                       />
-                    </TableCell>
-                    <TableCell className="border-r border-gray-200 font-medium text-gray-950 text-sm min-w-[200px]">
-                      <div className="flex items-center gap-2">
-                        <FormField
-                          control={form.control}
-                          name={`items.${index}.discountValue`}
-                          render={({ field }) => (
-                            <FormItem className="flex-1">
-                              <FormControl>
-                                <MonetaryAmountInput
-                                  {...field}
-                                  value={field.value ?? "0"}
-                                  onChange={(e) =>
-                                    field.onChange(e.target.value)
-                                  }
-                                  placeholder="0.00"
-                                />
-                              </FormControl>
-                              <FormMessage />
-                            </FormItem>
-                          )}
-                        />
-                        <FormField
-                          control={form.control}
-                          name={`items.${index}.discountType`}
-                          render={({ field }) => (
-                            <FormItem>
-                              <div className="flex items-center gap-2">
-                                <span className="text-sm text-gray-500">
-                                  {getCurrencySymbol()}
-                                </span>
-                                <FormControl>
-                                  <Switch
-                                    checked={field.value === "percentage"}
-                                    onCheckedChange={(checked) => {
-                                      handleDiscountTypeToggle(index, checked);
-                                    }}
-                                  />
-                                </FormControl>
-                                <span className="text-sm text-gray-500">%</span>
-                              </div>
-                            </FormItem>
-                          )}
-                        />
-                      </div>
-                    </TableCell>
-                  </TableRow>
-                ))}
-              </TableBody>
-            </Table>
-          </div>
+                    </div>
+                  </TableCell>
+                </TableRow>
+              ))}
+            </TableBody>
+          </Table>
+        </div>
 
-          <div className="flex justify-end gap-2">
-            <Button type="button" variant="outline" onClick={onClose}>
-              {t("cancel")}
-            </Button>
-            <Button type="submit" disabled={isPending}>
-              {isPending ? t("saving") : t("save")}
-            </Button>
-          </div>
-        </form>
-      </Form>
-    </div>
+        <div className="flex justify-end gap-2">
+          <Button type="button" variant="outline" onClick={onClose}>
+            {t("cancel")}
+          </Button>
+          <Button type="submit" disabled={isPending}>
+            {isPending ? t("saving") : t("save")}
+          </Button>
+        </div>
+      </form>
+    </Form>
   );
 }
