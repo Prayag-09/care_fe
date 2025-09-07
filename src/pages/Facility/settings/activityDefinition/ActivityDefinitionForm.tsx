@@ -30,6 +30,7 @@ import { Textarea } from "@/components/ui/textarea";
 
 import Page from "@/components/Common/Page";
 import RequirementsSelector from "@/components/Common/RequirementsSelector";
+import { ResourceCategoryPicker } from "@/components/Common/ResourceCategoryPicker";
 import LocationMultiSelect from "@/components/Location/LocationMultiSelect";
 import ValueSetSelect from "@/components/Questionnaire/ValueSetSelect";
 
@@ -39,6 +40,7 @@ import { generateSlug } from "@/Utils/utils";
 import { ChargeItemDefinitionForm } from "@/pages/Facility/settings/chargeItemDefinitions/ChargeItemDefinitionForm";
 import ObservationDefinitionForm from "@/pages/Facility/settings/observationDefinition/ObservationDefinitionForm";
 import { CreateSpecimenDefinition } from "@/pages/Facility/settings/specimen-definitions/CreateSpecimenDefinition";
+import { ResourceCategoryResourceType } from "@/types/base/resourceCategory/resourceCategory";
 import chargeItemDefinitionApi from "@/types/billing/chargeItemDefinition/chargeItemDefinitionApi";
 import {
   type ActivityDefinitionCreateSpec,
@@ -151,14 +153,17 @@ const formSchema = z.object({
     )
     .default([]),
   locations: z.array(z.string()).default([]),
+  resource_category: z.string(),
 });
 
 export default function ActivityDefinitionForm({
   facilityId,
   activityDefinitionId,
+  categorySlug,
 }: {
   facilityId: string;
   activityDefinitionId?: string;
+  categorySlug?: string;
 }) {
   const { t } = useTranslation();
 
@@ -199,6 +204,7 @@ export default function ActivityDefinitionForm({
       facilityId={facilityId}
       activityDefinitionId={activityDefinitionId}
       existingData={existingData}
+      categorySlug={categorySlug}
     />
   );
 }
@@ -207,10 +213,12 @@ function ActivityDefinitionFormContent({
   facilityId,
   activityDefinitionId,
   existingData,
+  categorySlug,
 }: {
   facilityId: string;
   activityDefinitionId?: string;
   existingData?: ActivityDefinitionReadSpec;
+  categorySlug?: string;
 }) {
   const { t } = useTranslation();
   const queryClient = useQueryClient();
@@ -363,6 +371,7 @@ function ActivityDefinitionFormContent({
                 ],
               })) || [],
             locations: existingData.locations?.map((l) => l.id) || [],
+            resource_category: existingData.resource_category?.slug || "",
           }
         : {
             status: Status.active,
@@ -373,6 +382,7 @@ function ActivityDefinitionFormContent({
             derived_from_uri: null,
             body_site: null,
             diagnostic_report_codes: [],
+            resource_category: categorySlug || "",
           },
   });
 
@@ -621,6 +631,32 @@ function ActivityDefinitionFormContent({
                             ))}
                           </SelectContent>
                         </Select>
+                        <FormMessage />
+                      </FormItem>
+                    )}
+                  />
+
+                  <FormField
+                    control={form.control}
+                    name="resource_category"
+                    render={({ field }) => (
+                      <FormItem className="flex flex-col">
+                        <FormLabel>
+                          {t("resource_category")}{" "}
+                          <span className="text-red-500">*</span>
+                        </FormLabel>
+                        <FormControl>
+                          <ResourceCategoryPicker
+                            facilityId={facilityId}
+                            resourceType={
+                              ResourceCategoryResourceType.activity_definition
+                            }
+                            value={field.value}
+                            onValueChange={field.onChange}
+                            placeholder={t("select_resource_category")}
+                            className="w-full"
+                          />
+                        </FormControl>
                         <FormMessage />
                       </FormItem>
                     )}

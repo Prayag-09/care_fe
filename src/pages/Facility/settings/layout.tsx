@@ -108,6 +108,26 @@ const getRoutes = (facilityId: string) => ({
   "/activity_definitions": () => (
     <ActivityDefinitionList facilityId={facilityId} />
   ),
+  "/activity_definitions/categories/:categorySlug": ({
+    categorySlug,
+  }: {
+    categorySlug: string;
+  }) => (
+    <ActivityDefinitionList
+      facilityId={facilityId}
+      categorySlug={categorySlug}
+    />
+  ),
+  "/activity_definitions/categories/:categorySlug/new": ({
+    categorySlug,
+  }: {
+    categorySlug: string;
+  }) => (
+    <ActivityDefinitionForm
+      facilityId={facilityId}
+      categorySlug={categorySlug}
+    />
+  ),
   "/activity_definitions/new": () => (
     <ActivityDefinitionForm facilityId={facilityId} />
   ),

@@ -1,4 +1,5 @@
 import { Code } from "@/types/base/code/code";
+import { ResourceCategoryRead } from "@/types/base/resourceCategory/resourceCategory";
 import { ChargeItemDefinitionRead } from "@/types/billing/chargeItemDefinition/chargeItemDefinition";
 import { ObservationDefinitionReadSpec } from "@/types/emr/observationDefinition/observationDefinition";
 import { SpecimenDefinitionRead } from "@/types/emr/specimenDefinition/specimenDefinition";
@@ -51,15 +52,17 @@ export interface ActivityDefinitionCreateSpec
   charge_item_definitions: string[];
   observation_result_requirements: string[];
   locations: string[];
+  resource_category: string;
 }
 
 export interface ActivityDefinitionUpdateSpec
-  extends BaseActivityDefinitionSpec {
+  extends Omit<BaseActivityDefinitionSpec, "resource_category"> {
   facility: string;
   specimen_requirements: string[];
   charge_item_definitions: string[];
   observation_result_requirements: string[];
   locations: string[];
+  resource_category: string;
 }
 
 export interface ActivityDefinitionReadSpec extends BaseActivityDefinitionSpec {
@@ -68,4 +71,5 @@ export interface ActivityDefinitionReadSpec extends BaseActivityDefinitionSpec {
   charge_item_definitions: ChargeItemDefinitionRead[];
   observation_result_requirements: ObservationDefinitionReadSpec[];
   locations: LocationList[];
+  resource_category: ResourceCategoryRead;
 }
