@@ -34,6 +34,7 @@ import {
 import { Textarea } from "@/components/ui/textarea";
 
 import Loading from "@/components/Common/Loading";
+import { ResourceCategoryPicker } from "@/components/Common/ResourceCategoryPicker";
 
 import mutate from "@/Utils/request/mutate";
 import query from "@/Utils/request/query";
@@ -43,6 +44,7 @@ import {
   MonetaryComponentRead,
   MonetaryComponentType,
 } from "@/types/base/monetaryComponent/monetaryComponent";
+import { ResourceCategoryResourceType } from "@/types/base/resourceCategory/resourceCategory";
 import { MRP_CODE } from "@/types/billing/chargeItem/chargeItem";
 import {
   ChargeItemDefinitionCreate,
@@ -261,6 +263,7 @@ export function ChargeItemDefinitionForm({
     description: z.string().optional(),
     purpose: z.string().optional(),
     derived_from_uri: z.string().url().optional(),
+    category: z.string(),
     price_components: z.array(priceComponentSchema).refine(
       (components) => {
         // Ensure there is exactly one base price component and it's the first one
@@ -294,6 +297,7 @@ export function ChargeItemDefinitionForm({
       description: initialData?.description,
       purpose: initialData?.purpose,
       derived_from_uri: initialData?.derived_from_uri,
+      category: categorySlug,
       price_components: initialData?.price_components.map(
         mapPriceComponent,
       ) || [
@@ -344,8 +348,7 @@ export function ChargeItemDefinitionForm({
   const onSubmit = (values: z.infer<typeof formSchema>) => {
     const submissionData: ChargeItemDefinitionCreate = {
       ...values,
-      // Todo: Add category slug picker
-      category: categorySlug || "",
+      category: values.category,
     };
     upsert(submissionData);
   };
@@ -508,6 +511,29 @@ export function ChargeItemDefinitionForm({
                     <p className="text-sm text-gray-500 mt-1">
                       {t("slug_format_message")}
                     </p>
+                    <FormMessage />
+                  </FormItem>
+                )}
+              />
+
+              <FormField
+                control={form.control}
+                name="category"
+                render={({ field }) => (
+                  <FormItem>
+                    <FormLabel aria-required>{t("category")}</FormLabel>
+                    <FormControl>
+                      <ResourceCategoryPicker
+                        facilityId={facilityId}
+                        resourceType={
+                          ResourceCategoryResourceType.charge_item_definition
+                        }
+                        value={field.value}
+                        onValueChange={field.onChange}
+                        placeholder={t("select_category")}
+                        className="w-full"
+                      />
+                    </FormControl>
                     <FormMessage />
                   </FormItem>
                 )}
