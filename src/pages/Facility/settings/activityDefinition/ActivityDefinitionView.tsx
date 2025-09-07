@@ -30,7 +30,7 @@ import activityDefinitionApi from "@/types/emr/activityDefinition/activityDefini
 
 interface Props {
   facilityId: string;
-  activityDefinitionId: string;
+  activityDefinitionSlug: string;
 }
 
 function CodeDisplay({ code }: { code: Code | null }) {
@@ -46,7 +46,7 @@ function CodeDisplay({ code }: { code: Code | null }) {
 
 export default function ActivityDefinitionView({
   facilityId,
-  activityDefinitionId,
+  activityDefinitionSlug,
 }: Props) {
   const { t } = useTranslation();
   const queryClient = useQueryClient();
@@ -57,22 +57,22 @@ export default function ActivityDefinitionView({
     isLoading,
     isError,
   } = useQuery({
-    queryKey: ["activityDefinition", activityDefinitionId],
+    queryKey: ["activityDefinition", activityDefinitionSlug],
     queryFn: query(activityDefinitionApi.retrieveActivityDefinition, {
-      pathParams: { activityDefinitionId, facilityId },
+      pathParams: { activityDefinitionSlug, facilityId },
     }),
   });
 
   const { mutate: updateActivityDefinition, isPending: isDeleting } =
     useMutation({
       mutationFn: mutate(activityDefinitionApi.updateActivityDefinition, {
-        pathParams: { activityDefinitionId, facilityId },
+        pathParams: { activityDefinitionSlug, facilityId },
       }),
       onSuccess: () => {
         toast.success(t("definition_deleted_successfully"));
         queryClient.invalidateQueries({ queryKey: ["activityDefinition"] });
         queryClient.invalidateQueries({
-          queryKey: ["activityDefinition", activityDefinitionId],
+          queryKey: ["activityDefinition", activityDefinitionSlug],
         });
         navigate(`/facility/${facilityId}/settings/activity_definitions`);
       },
@@ -83,10 +83,10 @@ export default function ActivityDefinitionView({
     updateActivityDefinition({
       ...definition,
       specimen_requirements:
-        definition.specimen_requirements.map((specimen) => specimen.id) || [],
+        definition.specimen_requirements.map((specimen) => specimen.slug) || [],
       observation_result_requirements:
         definition.observation_result_requirements.map(
-          (observation) => observation.id,
+          (observation) => observation.slug,
         ) || [],
       charge_item_definitions:
         definition.charge_item_definitions.map(

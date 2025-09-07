@@ -13,7 +13,7 @@ export default {
     TRes: Type<PaginatedResponse<ActivityDefinitionReadSpec>>(),
   },
   retrieveActivityDefinition: {
-    path: "/api/v1/facility/{facilityId}/activity_definition/{activityDefinitionId}/",
+    path: "/api/v1/facility/{facilityId}/activity_definition/{activityDefinitionSlug}/",
     method: HttpMethod.GET,
     TRes: Type<ActivityDefinitionReadSpec>(),
   },
@@ -23,7 +23,7 @@ export default {
     TRes: Type<ActivityDefinitionCreateSpec>(),
   },
   updateActivityDefinition: {
-    path: "/api/v1/facility/{facilityId}/activity_definition/{activityDefinitionId}/",
+    path: "/api/v1/facility/{facilityId}/activity_definition/{activityDefinitionSlug}/",
     method: HttpMethod.PUT,
     TRes: Type<ActivityDefinitionCreateSpec>(),
   },

@@ -158,22 +158,22 @@ const formSchema = z.object({
 
 export default function ActivityDefinitionForm({
   facilityId,
-  activityDefinitionId,
+  activityDefinitionSlug,
   categorySlug,
 }: {
   facilityId: string;
-  activityDefinitionId?: string;
+  activityDefinitionSlug?: string;
   categorySlug?: string;
 }) {
   const { t } = useTranslation();
 
-  const isEditMode = Boolean(activityDefinitionId);
+  const isEditMode = Boolean(activityDefinitionSlug);
 
   const { data: existingData, isFetching } = useQuery({
-    queryKey: ["activityDefinition", activityDefinitionId],
+    queryKey: ["activityDefinition", activityDefinitionSlug],
     queryFn: query(activityDefinitionApi.retrieveActivityDefinition, {
       pathParams: {
-        activityDefinitionId: activityDefinitionId!,
+        activityDefinitionSlug: activityDefinitionSlug!,
         facilityId,
       },
     }),
@@ -202,7 +202,7 @@ export default function ActivityDefinitionForm({
   return (
     <ActivityDefinitionFormContent
       facilityId={facilityId}
-      activityDefinitionId={activityDefinitionId}
+      activityDefinitionSlug={activityDefinitionSlug}
       existingData={existingData}
       categorySlug={categorySlug}
     />
@@ -211,18 +211,18 @@ export default function ActivityDefinitionForm({
 
 function ActivityDefinitionFormContent({
   facilityId,
-  activityDefinitionId,
+  activityDefinitionSlug,
   existingData,
   categorySlug,
 }: {
   facilityId: string;
-  activityDefinitionId?: string;
+  activityDefinitionSlug?: string;
   existingData?: ActivityDefinitionReadSpec;
   categorySlug?: string;
 }) {
   const { t } = useTranslation();
   const queryClient = useQueryClient();
-  const isEditMode = Boolean(activityDefinitionId);
+  const isEditMode = Boolean(activityDefinitionSlug);
   const [specimenSearch, setSpecimenSearch] = React.useState("");
   const [observationSearch, setObservationSearch] = React.useState("");
   const [chargeItemSearch, setChargeItemSearch] = React.useState("");
@@ -410,7 +410,7 @@ function ActivityDefinitionFormContent({
       onSuccess: () => {
         queryClient.invalidateQueries({ queryKey: ["activityDefinitions"] });
         queryClient.invalidateQueries({
-          queryKey: ["activityDefinition", activityDefinitionId],
+          queryKey: ["activityDefinition", activityDefinitionSlug],
         });
         toast.success(t("activity_definition_created_successfully"));
         navigate(`/facility/${facilityId}/settings/activity_definitions`);
@@ -421,20 +421,20 @@ function ActivityDefinitionFormContent({
     useMutation({
       mutationFn: mutate(activityDefinitionApi.updateActivityDefinition, {
         pathParams: {
-          activityDefinitionId: activityDefinitionId || "",
+          activityDefinitionSlug: activityDefinitionSlug || "",
           facilityId,
         },
       }),
       onSuccess: () => {
         queryClient.invalidateQueries({
           queryKey: [
-            ["activityDefinition", activityDefinitionId],
+            ["activityDefinition", activityDefinitionSlug],
             ["activityDefinitions"],
           ],
         });
         toast.success(t("activity_definition_updated_successfully"));
         navigate(
-          `/facility/${facilityId}/settings/activity_definitions/${activityDefinitionId}`,
+          `/facility/${facilityId}/settings/activity_definitions/${activityDefinitionSlug}`,
         );
       },
     });
@@ -455,7 +455,7 @@ function ActivityDefinitionFormContent({
       ),
     };
 
-    if (isEditMode && activityDefinitionId) {
+    if (isEditMode && activityDefinitionSlug) {
       updateActivityDefinition(
         transformedData as unknown as ActivityDefinitionUpdateSpec,
       );

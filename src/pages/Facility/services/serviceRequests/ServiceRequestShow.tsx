@@ -234,22 +234,22 @@ export default function ServiceRequestShow({
     enabled: !!request?.encounter.patient.id,
   });
 
-  const activityDefinitionId = request?.activity_definition?.id;
+  const activityDefinitionSlug = request?.activity_definition?.id;
 
   const { data: activityDefinition, isLoading: isLoadingActivityDefinition } =
     useQuery({
-      queryKey: ["activityDefinition", activityDefinitionId],
+      queryKey: ["activityDefinition", activityDefinitionSlug],
       queryFn: query(activityDefinitionApi.retrieveActivityDefinition, {
         pathParams: {
           facilityId: facilityId,
-          activityDefinitionId: activityDefinitionId || "",
+          activityDefinitionSlug: activityDefinitionSlug || "",
         },
       }),
-      enabled: !!activityDefinitionId,
+      enabled: !!activityDefinitionSlug,
     });
   if (
     isLoadingRequest ||
-    (!!activityDefinitionId && isLoadingActivityDefinition)
+    (!!activityDefinitionSlug && isLoadingActivityDefinition)
   ) {
     return (
       <div className="p-4 max-w-6xl mx-auto space-y-4">

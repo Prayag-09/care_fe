@@ -147,11 +147,25 @@ const getRoutes = (facilityId: string) => ({
   "/activity_definitions/new": () => (
     <ActivityDefinitionForm facilityId={facilityId} />
   ),
-  "/activity_definitions/:id": ({ id }: { id: string }) => (
-    <ActivityDefinitionView facilityId={facilityId} activityDefinitionId={id} />
+  "/activity_definitions/:activityDefinitionSlug": ({
+    activityDefinitionSlug,
+  }: {
+    activityDefinitionSlug: string;
+  }) => (
+    <ActivityDefinitionView
+      facilityId={facilityId}
+      activityDefinitionSlug={activityDefinitionSlug}
+    />
   ),
-  "/activity_definitions/:id/edit": ({ id }: { id: string }) => (
-    <ActivityDefinitionForm facilityId={facilityId} activityDefinitionId={id} />
+  "/activity_definitions/:activityDefinitionSlug/edit": ({
+    activityDefinitionSlug,
+  }: {
+    activityDefinitionSlug: string;
+  }) => (
+    <ActivityDefinitionForm
+      facilityId={facilityId}
+      activityDefinitionSlug={activityDefinitionSlug}
+    />
   ),
   "/healthcare_services": () => (
     <HealthcareServiceList facilityId={facilityId} />

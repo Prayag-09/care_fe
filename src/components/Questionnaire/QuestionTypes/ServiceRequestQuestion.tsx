@@ -499,7 +499,7 @@ export function ServiceRequestQuestion({
     queryFn: query(activityDefinitionApi.retrieveActivityDefinition, {
       pathParams: {
         facilityId: facilityId,
-        activityDefinitionId: selectedActivityDefinition || "",
+        activityDefinitionSlug: selectedActivityDefinition || "",
       },
     }),
     enabled: !!selectedActivityDefinition,
@@ -508,7 +508,7 @@ export function ServiceRequestQuestion({
   useEffect(() => {
     if (selectedActivityDefinition && selectedActivityDefinitionData) {
       const selectedAD = activityDefinitions?.results.find(
-        (ad) => ad.id === selectedActivityDefinition,
+        (ad) => ad.slug === selectedActivityDefinition,
       );
       if (!selectedAD) return;
 
@@ -661,7 +661,7 @@ export function ServiceRequestQuestion({
     () =>
       activityDefinitions?.results.map((ad) => ({
         label: ad.title,
-        value: ad.id,
+        value: ad.slug,
       })) || [],
     [activityDefinitions?.results],
   );
@@ -680,8 +680,8 @@ export function ServiceRequestQuestion({
     }
   }, [questionnaireResponse.values, serviceRequests]);
 
-  const handleActivityDefinitionSelect = (activityDefinitionId: string) => {
-    setSelectedActivityDefinition(activityDefinitionId);
+  const handleActivityDefinitionSelect = (activityDefinitionSlug: string) => {
+    setSelectedActivityDefinition(activityDefinitionSlug);
   };
 
   return (
