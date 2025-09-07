@@ -1,9 +1,9 @@
 import { navigate } from "raviger";
 import { useTranslation } from "react-i18next";
 
-import { ChargeItemList } from "@/components/Billing/ChargeItemDefanitionList";
 import Page from "@/components/Common/Page";
 import { ResourceCategoryList } from "@/components/Common/ResourceCategoryList";
+import { ChargeItemList } from "@/pages/Facility/settings/chargeItemDefinitions/ChargeItemDefanitionListComponent";
 import { ResourceCategoryResourceType } from "@/types/base/resourceCategory/resourceCategory";
 
 interface ChargeItemDefinitionsListProps {
