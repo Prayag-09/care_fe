@@ -75,16 +75,24 @@ const getRoutes = (facilityId: string) => ({
   "/specimen_definitions/new": () => (
     <CreateSpecimenDefinition facilityId={facilityId} />
   ),
-  "/specimen_definitions/:id": ({ id }: { id: string }) => (
+  "/specimen_definitions/:specimenSlug": ({
+    specimenSlug,
+  }: {
+    specimenSlug: string;
+  }) => (
     <SpecimenDefinitionDetail
       facilityId={facilityId}
-      specimenDefinitionId={id}
+      specimenSlug={specimenSlug}
     />
   ),
-  "/specimen_definitions/:id/edit": ({ id }: { id: string }) => (
+  "/specimen_definitions/:specimenSlug/edit": ({
+    specimenSlug,
+  }: {
+    specimenSlug: string;
+  }) => (
     <UpdateSpecimenDefinition
       facilityId={facilityId}
-      specimenDefinitionId={id}
+      specimenSlug={specimenSlug}
     />
   ),
   "/observation_definitions": () => (
