@@ -150,8 +150,19 @@ const getRoutes = (facilityId: string) => ({
     <UpdateChargeItemDefinition facilityId={facilityId} slug={slug} />
   ),
   "/product_knowledge": () => <ProductKnowledgeList facilityId={facilityId} />,
-  "/product_knowledge/new": () => (
-    <ProductKnowledgeForm facilityId={facilityId} />
+  "/product_knowledge/categories/:categorySlug": ({
+    categorySlug,
+  }: {
+    categorySlug: string;
+  }) => (
+    <ProductKnowledgeList facilityId={facilityId} categorySlug={categorySlug} />
+  ),
+  "/product_knowledge/categories/:categorySlug/new": ({
+    categorySlug,
+  }: {
+    categorySlug: string;
+  }) => (
+    <ProductKnowledgeForm facilityId={facilityId} categorySlug={categorySlug} />
   ),
   "/product_knowledge/:slug": ({ slug }: { slug: string }) => (
     <ProductKnowledgeView facilityId={facilityId} slug={slug} />

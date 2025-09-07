@@ -100,14 +100,16 @@ const formSchema = z.object({
 export default function ProductKnowledgeForm({
   facilityId,
   slug,
+  categorySlug,
   onSuccess,
 }: {
   facilityId: string;
   slug?: string;
+  categorySlug?: string;
   onSuccess?: () => void;
 }) {
   const { t } = useTranslation();
-
+  console.log(categorySlug);
   const isEditMode = Boolean(slug);
 
   const { data: existingData, isFetching } = useQuery({
