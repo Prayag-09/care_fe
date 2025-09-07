@@ -225,6 +225,9 @@ function ObservationDefinitionFormContent({
     useMutation({
       mutationFn: mutate(observationDefinitionApi.updateObservationDefinition, {
         pathParams: { observationSlug: observationSlug || "" },
+        queryParams: {
+          facility: facilityId,
+        },
       }),
       onSuccess: (observationDefinition: ObservationDefinitionReadSpec) => {
         queryClient.invalidateQueries({ queryKey: ["observationDefinitions"] });

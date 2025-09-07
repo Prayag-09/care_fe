@@ -20,11 +20,13 @@ export default {
   createActivityDefinition: {
     path: "/api/v1/facility/{facilityId}/activity_definition/",
     method: HttpMethod.POST,
-    TRes: Type<ActivityDefinitionCreateSpec>(),
+    TBody: Type<ActivityDefinitionCreateSpec>(),
+    TRes: Type<ActivityDefinitionReadSpec>(),
   },
   updateActivityDefinition: {
     path: "/api/v1/facility/{facilityId}/activity_definition/{activityDefinitionSlug}/",
     method: HttpMethod.PUT,
-    TRes: Type<ActivityDefinitionCreateSpec>(),
+    TBody: Type<ActivityDefinitionCreateSpec>(),
+    TRes: Type<ActivityDefinitionReadSpec>(),
   },
 } as const;

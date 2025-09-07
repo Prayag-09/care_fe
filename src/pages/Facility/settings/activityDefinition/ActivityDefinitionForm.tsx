@@ -425,7 +425,7 @@ function ActivityDefinitionFormContent({
           facilityId,
         },
       }),
-      onSuccess: () => {
+      onSuccess: (activityDefinition: ActivityDefinitionReadSpec) => {
         queryClient.invalidateQueries({
           queryKey: [
             ["activityDefinition", activityDefinitionSlug],
@@ -434,7 +434,7 @@ function ActivityDefinitionFormContent({
         });
         toast.success(t("activity_definition_updated_successfully"));
         navigate(
-          `/facility/${facilityId}/settings/activity_definitions/${activityDefinitionSlug}`,
+          `/facility/${facilityId}/settings/activity_definitions/${activityDefinition.slug}`,
         );
       },
     });

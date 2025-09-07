@@ -60,6 +60,9 @@ export default function ObservationDefinitionView({
     queryKey: ["observationDefinitions", observationSlug],
     queryFn: query(observationDefinitionApi.retrieveObservationDefinition, {
       pathParams: { observationSlug },
+      queryParams: {
+        facility: facilityId,
+      },
     }),
   });
 
@@ -67,6 +70,9 @@ export default function ObservationDefinitionView({
     useMutation({
       mutationFn: mutate(observationDefinitionApi.updateObservationDefinition, {
         pathParams: { observationSlug },
+        queryParams: {
+          facility: facilityId,
+        },
       }),
       onSuccess: () => {
         toast.success(t("definition_deleted_successfully"));
