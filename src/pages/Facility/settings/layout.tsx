@@ -133,8 +133,15 @@ const getRoutes = (facilityId: string) => ({
   "/charge_item_definitions": () => (
     <ChargeItemDefinitionsList facilityId={facilityId} />
   ),
-  "/charge_item_definitions/new": () => (
-    <CreateChargeItemDefinition facilityId={facilityId} />
+  "/charge_item_definitions/categories/:slug": ({ slug }: { slug: string }) => (
+    <ChargeItemDefinitionsList facilityId={facilityId} categorySlug={slug} />
+  ),
+  "/charge_item_definitions/categories/:slug/new": ({
+    slug,
+  }: {
+    slug: string;
+  }) => (
+    <CreateChargeItemDefinition facilityId={facilityId} categorySlug={slug} />
   ),
   "/charge_item_definitions/:slug": ({ slug }: { slug: string }) => (
     <ChargeItemDefinitionDetail facilityId={facilityId} slug={slug} />

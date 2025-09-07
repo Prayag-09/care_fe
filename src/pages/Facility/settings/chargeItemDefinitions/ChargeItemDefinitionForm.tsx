@@ -74,6 +74,7 @@ const priceComponentSchema = z.object({
 interface ChargeItemDefinitionFormProps {
   facilityId: string;
   initialData?: ChargeItemDefinitionRead;
+  categorySlug?: string;
   isUpdate?: boolean;
   onSuccess?: (chargeItemDefinition: ChargeItemDefinitionRead) => void;
   onCancel?: () => void;
@@ -222,8 +223,15 @@ export function ChargeItemDefinitionForm({
   facilityId,
   initialData,
   isUpdate = false,
+  categorySlug,
   onSuccess = () => {
-    navigate(`/facility/${facilityId}/settings/charge_item_definitions`);
+    if (categorySlug) {
+      navigate(
+        `/facility/${facilityId}/settings/charge_item_definitions/categories/${categorySlug}`,
+      );
+    } else {
+      navigate(`/facility/${facilityId}/settings/charge_item_definitions`);
+    }
   },
   onCancel = () => {
     navigate(`/facility/${facilityId}/settings/charge_item_definitions`);
@@ -336,6 +344,8 @@ export function ChargeItemDefinitionForm({
   const onSubmit = (values: z.infer<typeof formSchema>) => {
     const submissionData: ChargeItemDefinitionCreate = {
       ...values,
+      // Todo: Add category slug picker
+      category: categorySlug || "",
     };
     upsert(submissionData);
   };
