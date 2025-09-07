@@ -25,7 +25,10 @@ import { CardListWithHeaderSkeleton } from "@/components/Common/SkeletonLoading"
 import mutate from "@/Utils/request/mutate";
 import query from "@/Utils/request/query";
 import { Code } from "@/types/base/code/code";
-import { ACTIVITY_DEFINITION_STATUS_COLORS } from "@/types/emr/activityDefinition/activityDefinition";
+import {
+  ACTIVITY_DEFINITION_STATUS_COLORS,
+  Status,
+} from "@/types/emr/activityDefinition/activityDefinition";
 import activityDefinitionApi from "@/types/emr/activityDefinition/activityDefinitionApi";
 
 interface Props {
@@ -93,8 +96,10 @@ export default function ActivityDefinitionView({
           (chargeItemDefinition) => chargeItemDefinition.slug,
         ) || [],
       locations: definition.locations.map((location) => location.id) || [],
-      status: "retired",
+      status: Status.retired,
       diagnostic_report_codes: definition.diagnostic_report_codes || [],
+      facility: facilityId,
+      resource_category: definition.resource_category.slug,
     });
   };
 

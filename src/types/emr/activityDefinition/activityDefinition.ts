@@ -52,6 +52,7 @@ export interface ActivityDefinitionCreateSpec
   charge_item_definitions: string[];
   observation_result_requirements: string[];
   locations: string[];
+  // TODO: This should be renamed to category
   resource_category: string;
 }
 
