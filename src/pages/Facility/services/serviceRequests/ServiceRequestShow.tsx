@@ -266,11 +266,11 @@ export default function ServiceRequestShow({
   }
 
   function getExistingDraftSpecimen(
-    specimenDefinitionId: string,
+    specimenDefinitionSlug: string,
   ): SpecimenRead | undefined {
     const specimen = request?.specimens.find(
       (spec) =>
-        spec.specimen_definition?.id === specimenDefinitionId &&
+        spec.specimen_definition?.slug === specimenDefinitionSlug &&
         spec.status === SpecimenStatus.draft,
     );
 
@@ -602,7 +602,7 @@ export default function ServiceRequestShow({
                   onCancel={() => setSelectedSpecimenDefinition(null)}
                   facilityId={facilityId}
                   draftSpecimen={getExistingDraftSpecimen(
-                    selectedSpecimenDefinition.id,
+                    selectedSpecimenDefinition.slug,
                   )}
                   serviceRequestId={serviceRequestId}
                 />

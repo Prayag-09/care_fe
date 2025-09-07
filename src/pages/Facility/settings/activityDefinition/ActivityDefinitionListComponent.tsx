@@ -90,7 +90,7 @@ function ActivityDefinitionCard({
               size="sm"
               onClick={() =>
                 navigate(
-                  `/facility/${facilityId}/settings/activity_definitions/${definition.id}`,
+                  `/facility/${facilityId}/settings/activity_definitions/${definition.slug}`,
                 )
               }
             >
@@ -120,7 +120,7 @@ function ActivityDefinitionTableRow({
         className="font-medium cursor-pointer"
         onClick={() =>
           navigate(
-            `/facility/${facilityId}/settings/activity_definitions/${definition.id}`,
+            `/facility/${facilityId}/settings/activity_definitions/${definition.slug}`,
           )
         }
       >
@@ -168,7 +168,7 @@ function ActivityDefinitionTableRow({
                   size="sm"
                   onClick={() =>
                     navigate(
-                      `/facility/${facilityId}/settings/activity_definitions/${definition.id}`,
+                      `/facility/${facilityId}/settings/activity_definitions/${definition.slug}`,
                     )
                   }
                 >
@@ -344,7 +344,7 @@ export function ActivityDefinitionList({
                     <TableBody>
                       {activityDefinitions.map((definition) => (
                         <ActivityDefinitionTableRow
-                          key={definition.id}
+                          key={definition.slug}
                           definition={definition}
                           facilityId={facilityId}
                         />
@@ -360,7 +360,7 @@ export function ActivityDefinitionList({
               <div className="grid gap-3">
                 {activityDefinitions.map((definition) => (
                   <ActivityDefinitionCard
-                    key={definition.id}
+                    key={definition.slug}
                     definition={definition}
                     facilityId={facilityId}
                   />

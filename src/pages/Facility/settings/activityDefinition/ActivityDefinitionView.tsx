@@ -170,7 +170,7 @@ export default function ActivityDefinitionView({
               variant="outline"
               onClick={() =>
                 navigate(
-                  `/facility/${facilityId}/settings/activity_definitions/${definition.id}/edit`,
+                  `/facility/${facilityId}/settings/activity_definitions/${definition.slug}/edit`,
                 )
               }
             >

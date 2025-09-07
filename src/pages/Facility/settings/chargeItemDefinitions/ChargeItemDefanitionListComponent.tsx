@@ -315,7 +315,7 @@ export function ChargeItemList({
                     <TableBody>
                       {chargeItems.map((definition) => (
                         <ChargeItemTableRow
-                          key={definition.id}
+                          key={definition.slug}
                           definition={definition}
                           facilityId={facilityId}
                         />
@@ -331,7 +331,7 @@ export function ChargeItemList({
               <div className="grid gap-3">
                 {chargeItems.map((definition) => (
                   <ChargeItemCard
-                    key={definition.id}
+                    key={definition.slug}
                     definition={definition}
                     facilityId={facilityId}
                   />

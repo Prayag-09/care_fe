@@ -101,16 +101,24 @@ const getRoutes = (facilityId: string) => ({
   "/observation_definitions/new": () => (
     <ObservationDefinitionForm facilityId={facilityId} />
   ),
-  "/observation_definitions/:id/edit": ({ id }: { id: string }) => (
+  "/observation_definitions/:observationSlug/edit": ({
+    observationSlug,
+  }: {
+    observationSlug: string;
+  }) => (
     <ObservationDefinitionForm
       facilityId={facilityId}
-      observationDefinitionId={id}
+      observationSlug={observationSlug}
     />
   ),
-  "/observation_definitions/:id": ({ id }: { id: string }) => (
+  "/observation_definitions/:observationSlug": ({
+    observationSlug,
+  }: {
+    observationSlug: string;
+  }) => (
     <ObservationDefinitionView
       facilityId={facilityId}
-      observationDefinitionId={id}
+      observationSlug={observationSlug}
     />
   ),
   "/activity_definitions": () => (

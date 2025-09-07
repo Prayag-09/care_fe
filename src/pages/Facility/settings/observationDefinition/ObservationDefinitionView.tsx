@@ -30,7 +30,7 @@ import observationDefinitionApi from "@/types/emr/observationDefinition/observat
 
 interface Props {
   facilityId: string;
-  observationDefinitionId: string;
+  observationSlug: string;
 }
 
 function CodeDisplay({ code }: { code: Code | null }) {
@@ -46,7 +46,7 @@ function CodeDisplay({ code }: { code: Code | null }) {
 
 export default function ObservationDefinitionView({
   facilityId,
-  observationDefinitionId,
+  observationSlug,
 }: Props) {
   const { t } = useTranslation();
   const queryClient = useQueryClient();
@@ -57,16 +57,16 @@ export default function ObservationDefinitionView({
     isLoading,
     isError,
   } = useQuery({
-    queryKey: ["observationDefinitions", observationDefinitionId],
+    queryKey: ["observationDefinitions", observationSlug],
     queryFn: query(observationDefinitionApi.retrieveObservationDefinition, {
-      pathParams: { observationDefinitionId },
+      pathParams: { observationSlug },
     }),
   });
 
   const { mutate: updateObservationDefinition, isPending: isDeleting } =
     useMutation({
       mutationFn: mutate(observationDefinitionApi.updateObservationDefinition, {
-        pathParams: { observationDefinitionId },
+        pathParams: { observationSlug },
       }),
       onSuccess: () => {
         toast.success(t("definition_deleted_successfully"));
@@ -162,7 +162,7 @@ export default function ObservationDefinitionView({
               variant="outline"
               onClick={() =>
                 navigate(
-                  `/facility/${facilityId}/settings/observation_definitions/${definition.id}/edit`,
+                  `/facility/${facilityId}/settings/observation_definitions/${definition.slug}/edit`,
                 )
               }
             >
