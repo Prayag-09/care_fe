@@ -1,4 +1,5 @@
 import ErrorPage from "@/components/ErrorPages/DefaultErrorPage";
+import { ScheduleHome } from "@/components/Schedule/ScheduleHome";
 import AppointmentsPage from "@/pages/Appointments/AppointmentsPage";
 import { ManageQueuePage } from "@/pages/Facility/queues/ManageQueue";
 import QueuesIndex from "@/pages/Facility/queues/QueuesIndex";
@@ -14,6 +15,15 @@ interface ServiceLayoutProps {
 const getRoutes = (facilityId: string, serviceId: string) => ({
   "/locations": () => (
     <HealthcareServiceShow facilityId={facilityId} serviceId={serviceId} />
+  ),
+
+  // Schedule
+  "/schedule": () => (
+    <ScheduleHome
+      facilityId={facilityId}
+      resourceType={SchedulableResourceType.HealthcareService}
+      resourceId={serviceId}
+    />
   ),
 
   // Appointments
