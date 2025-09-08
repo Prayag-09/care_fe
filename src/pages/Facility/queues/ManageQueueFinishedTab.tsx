@@ -11,18 +11,21 @@ import {
   TokenCard,
   TokenCardSkeleton,
 } from "@/pages/Facility/queues/ManageQueueOngoingTab";
+import { getTokenQueueStatusCount } from "@/pages/Facility/queues/utils";
 import {
   renderTokenNumber,
   TokenRead,
   TokenStatus,
 } from "@/types/tokens/token/token";
 import tokenApi from "@/types/tokens/token/tokenApi";
+import tokenQueueApi from "@/types/tokens/tokenQueue/tokenQueueApi";
 import { TokenSubQueueRead } from "@/types/tokens/tokenSubQueue/tokenSubQueue";
 import mutate from "@/Utils/request/mutate";
 import query from "@/Utils/request/query";
 import {
   useInfiniteQuery,
   useMutation,
+  useQuery,
   useQueryClient,
 } from "@tanstack/react-query";
 import { DoorOpenIcon, MoreHorizontal, RotateCcw } from "lucide-react";
@@ -77,6 +80,13 @@ function FinishedTokensColumn({
   const { t } = useTranslation();
   const { ref, inView } = useInView();
 
+  const { data: summary } = useQuery({
+    queryKey: ["token-queue-summary", facilityId, queueId],
+    queryFn: query(tokenQueueApi.summary, {
+      pathParams: { facility_id: facilityId, id: queueId },
+    }),
+  });
+
   const { data, fetchNextPage, hasNextPage, isFetchingNextPage } =
     useInfiniteQuery({
       queryKey: [
@@ -116,9 +126,11 @@ function FinishedTokensColumn({
     <QueueColumn
       title={subQueue.name}
       count={
-        <Badge size="sm" variant="blue">
-          {data?.pages[0]?.count ?? 0}
-        </Badge>
+        summary && (
+          <Badge size="sm" variant="blue">
+            {getTokenQueueStatusCount(summary, ...INACTIVE_TOKEN_STATUSES)}
+          </Badge>
+        )
       }
     >
       <div className="flex flex-col gap-4">
@@ -193,6 +205,9 @@ function FinishedTokenOptions({
           queueId,
           { sub_queue: token.sub_queue?.id, status: INACTIVE_TOKEN_STATUSES },
         ],
+      });
+      queryClient.invalidateQueries({
+        queryKey: ["token-queue-summary", facilityId, queueId],
       });
       setShowMoveBackToInServiceDialog(false);
     },
