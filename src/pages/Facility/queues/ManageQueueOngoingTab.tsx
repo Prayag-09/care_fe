@@ -36,6 +36,7 @@ import {
   ExternalLink,
   Megaphone,
   MoreHorizontal,
+  RotateCcw,
   SettingsIcon,
   X,
 } from "lucide-react";
@@ -688,6 +689,14 @@ function InServiceTokenOptions({
           { status: TokenStatus.CANCELLED },
         ],
       });
+      queryClient.invalidateQueries({
+        queryKey: [
+          "infinite-tokens",
+          facilityId,
+          queueId,
+          { status: TokenStatus.CREATED },
+        ],
+      });
       setShowCancelDialog(false);
       setShowCompleteDialog(false);
     },
@@ -703,6 +712,14 @@ function InServiceTokenOptions({
   const handleCompleteToken = () => {
     updateToken({
       status: TokenStatus.FULFILLED,
+      note: token.note,
+      sub_queue: undefined,
+    });
+  };
+
+  const handleMoveBackToWaiting = () => {
+    updateToken({
+      status: TokenStatus.CREATED,
       note: token.note,
       sub_queue: undefined,
     });
@@ -731,6 +748,13 @@ function InServiceTokenOptions({
             <MoreHorizontal className="size-4" />
           </DropdownMenuTrigger>
           <DropdownMenuContent align="end">
+            <DropdownMenuItem
+              onClick={handleMoveBackToWaiting}
+              disabled={isUpdating}
+            >
+              <RotateCcw className="size-4" />
+              {t("move_back_to_waiting")}
+            </DropdownMenuItem>
             <DropdownMenuItem
               variant="destructive"
               onClick={() => setShowCancelDialog(true)}
