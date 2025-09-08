@@ -38,7 +38,7 @@ export interface BaseActivityDefinitionSpec {
   status: Status;
   description: string;
   usage: string;
-  category: Classification;
+  classification: Classification;
   kind: Kind;
   code: Code;
   body_site: Code | null;
@@ -52,18 +52,17 @@ export interface ActivityDefinitionCreateSpec
   charge_item_definitions: string[];
   observation_result_requirements: string[];
   locations: string[];
-  // TODO: This should be renamed to category
-  resource_category: string;
+  category: string;
 }
 
 export interface ActivityDefinitionUpdateSpec
-  extends Omit<BaseActivityDefinitionSpec, "resource_category"> {
+  extends Omit<BaseActivityDefinitionSpec, "category"> {
   facility: string;
   specimen_requirements: string[];
   charge_item_definitions: string[];
   observation_result_requirements: string[];
   locations: string[];
-  resource_category: string;
+  category: string;
 }
 
 export interface ActivityDefinitionReadSpec extends BaseActivityDefinitionSpec {
@@ -72,5 +71,5 @@ export interface ActivityDefinitionReadSpec extends BaseActivityDefinitionSpec {
   charge_item_definitions: ChargeItemDefinitionRead[];
   observation_result_requirements: ObservationDefinitionReadSpec[];
   locations: LocationList[];
-  resource_category: ResourceCategoryRead;
+  category: ResourceCategoryRead;
 }

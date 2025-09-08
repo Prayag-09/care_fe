@@ -99,7 +99,7 @@ export default function ActivityDefinitionView({
       status: Status.retired,
       diagnostic_report_codes: definition.diagnostic_report_codes || [],
       facility: facilityId,
-      resource_category: definition.resource_category.slug,
+      category: definition.category.slug,
     });
   };
 
@@ -213,7 +213,7 @@ export default function ActivityDefinitionView({
           <CardContent className="space-y-4">
             <div>
               <p className="text-sm text-gray-500">{t("category")}</p>
-              <p className="font-medium">{t(definition.category)}</p>
+              <p className="font-medium">{definition.category.title}</p>
             </div>
             <div>
               <p className="text-sm text-gray-500">{t("description")}</p>

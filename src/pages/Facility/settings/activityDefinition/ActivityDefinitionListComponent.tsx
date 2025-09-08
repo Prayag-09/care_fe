@@ -68,7 +68,7 @@ function ActivityDefinitionCard({
                   {t(definition.status)}
                 </Badge>
                 <Badge variant="outline" className="text-xs">
-                  {t(definition.category)}
+                  {t(definition.classification)}
                 </Badge>
               </div>
               <h3 className="font-medium text-gray-900 truncate">
@@ -140,7 +140,7 @@ function ActivityDefinitionTableRow({
       </TableCell>
       <TableCell>
         <Badge variant="outline" className="text-xs">
-          {t(definition.category)}
+          {t(definition.classification)}
         </Badge>
       </TableCell>
       <TableCell>
@@ -156,7 +156,7 @@ function ActivityDefinitionTableRow({
       </TableCell>
       <TableCell className="text-sm text-gray-500">
         {/* TODO: Add resource category title when it's available & Fix the same for product knowledge */}
-        {/* {definition.resource_category.title} */}
+        {/* {definition.category.title} */}
       </TableCell>
       <TableCell>
         <div className="flex items-center space-x-2">
@@ -224,7 +224,7 @@ export function ActivityDefinitionList({
         title: qParams.search,
         status: qParams.status,
         classification: qParams.classification,
-        resource_category: categorySlug,
+        category: categorySlug,
         ordering: "-created_date",
       },
     }),
@@ -329,12 +329,12 @@ export function ActivityDefinitionList({
                       <TableRow>
                         <TableHead className="w-[30%]">{t("title")}</TableHead>
                         <TableHead className="w-[15%]">
-                          {t("category")}
+                          {t("classification")}
                         </TableHead>
                         <TableHead className="w-[15%]">{t("status")}</TableHead>
                         <TableHead className="w-[15%]">{t("kind")}</TableHead>
                         <TableHead className="w-[15%]">
-                          {t("resource_category")}
+                          {t("category")}
                         </TableHead>
                         <TableHead className="w-[10%] text-right">
                           {t("actions")}

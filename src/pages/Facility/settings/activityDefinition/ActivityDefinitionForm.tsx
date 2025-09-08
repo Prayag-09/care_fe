@@ -63,7 +63,7 @@ const formSchema = z.object({
   usage: z.string().min(1, "Usage is required"),
   derived_from_uri: z.string().nullable(),
   status: z.nativeEnum(Status),
-  category: z.nativeEnum(Classification),
+  classification: z.nativeEnum(Classification),
   kind: z.nativeEnum(Kind),
   code: z.object({
     code: z.string().min(1, "Code is required"),
@@ -153,7 +153,7 @@ const formSchema = z.object({
     )
     .default([]),
   locations: z.array(z.string()).default([]),
-  resource_category: z.string(),
+  category: z.string(),
 });
 
 export default function ActivityDefinitionForm({
@@ -290,7 +290,7 @@ function ActivityDefinitionFormContent({
             usage: existingData.usage,
             derived_from_uri: existingData.derived_from_uri,
             status: existingData.status,
-            category: existingData.category,
+            classification: existingData.classification,
             kind: existingData.kind,
             code: existingData.code,
             body_site: existingData.body_site,
@@ -371,7 +371,7 @@ function ActivityDefinitionFormContent({
                 ],
               })) || [],
             locations: existingData.locations?.map((l) => l.id) || [],
-            resource_category: existingData.resource_category?.slug || "",
+            category: existingData.category?.slug || "",
           }
         : {
             status: Status.active,
@@ -382,7 +382,7 @@ function ActivityDefinitionFormContent({
             derived_from_uri: null,
             body_site: null,
             diagnostic_report_codes: [],
-            resource_category: categorySlug || "",
+            category: categorySlug || "",
           },
   });
 
@@ -607,7 +607,7 @@ function ActivityDefinitionFormContent({
 
                   <FormField
                     control={form.control}
-                    name="category"
+                    name="classification"
                     render={({ field }) => (
                       <FormItem className="flex flex-col">
                         <FormLabel>
@@ -638,7 +638,7 @@ function ActivityDefinitionFormContent({
 
                   <FormField
                     control={form.control}
-                    name="resource_category"
+                    name="category"
                     render={({ field }) => (
                       <FormItem className="flex flex-col">
                         <FormLabel>
