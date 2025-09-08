@@ -74,7 +74,7 @@ export function ManageQueueOngoingTab({
   );
 }
 
-function QueueColumn({
+export function QueueColumn({
   title,
   count,
   children,
@@ -786,7 +786,7 @@ function InServiceTokenOptions({
   );
 }
 
-function TokenCard({
+export function TokenCard({
   facilityId,
   token,
   options,
@@ -830,7 +830,7 @@ function TokenCard({
   );
 }
 
-function TokenCardSkeleton({ count = 5 }: { count?: number }) {
+export function TokenCardSkeleton({ count = 5 }: { count?: number }) {
   return Array.from({ length: count }, (_, index) => (
     <TokenCard key={index} token={null} facilityId={""} />
   ));
