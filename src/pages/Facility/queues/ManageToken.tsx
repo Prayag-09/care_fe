@@ -115,7 +115,7 @@ export default function ManageToken({
   tokenId,
 }: ManageTokenProps) {
   const { t } = useTranslation();
-  const { facility } = useCurrentFacility();
+  const { facility, isFacilityLoading } = useCurrentFacility();
 
   const {
     data: token,
@@ -132,7 +132,7 @@ export default function ManageToken({
     }),
   });
 
-  if (isLoading) {
+  if (isLoading || isFacilityLoading) {
     return (
       <Page title={t("loading")} hideTitleOnPage={true}>
         <LoadingSkeleton />
