@@ -4370,6 +4370,7 @@
   "serial_number_mode_auto": "Auto-generated",
   "serial_number_mode_help": "Choose how serial numbers are assigned for this identifier type.",
   "serial_number_mode_user": "User entered",
+  "service": "Service",
   "service_available_locations": "Locations where this service is available",
   "service_date": "Service Date",
   "service_date_min_date": "Service date must be set to today or a past date",
