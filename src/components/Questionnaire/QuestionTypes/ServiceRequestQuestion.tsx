@@ -518,7 +518,7 @@ export function ServiceRequestQuestion({
           status: Status.active,
           intent: Intent.order,
           priority: Priority.routine,
-          category: selectedAD.category,
+          category: selectedAD.classification,
           do_not_perform: false,
           note: null,
           code: selectedAD.code,
