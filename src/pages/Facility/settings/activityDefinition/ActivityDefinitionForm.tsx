@@ -46,7 +46,7 @@ import {
   type ActivityDefinitionCreateSpec,
   type ActivityDefinitionReadSpec,
   type ActivityDefinitionUpdateSpec,
-  Category,
+  Classification,
   Kind,
   Status,
 } from "@/types/emr/activityDefinition/activityDefinition";
@@ -63,7 +63,7 @@ const formSchema = z.object({
   usage: z.string().min(1, "Usage is required"),
   derived_from_uri: z.string().nullable(),
   status: z.nativeEnum(Status),
-  category: z.nativeEnum(Category),
+  category: z.nativeEnum(Classification),
   kind: z.nativeEnum(Kind),
   code: z.object({
     code: z.string().min(1, "Code is required"),
@@ -624,7 +624,7 @@ function ActivityDefinitionFormContent({
                             </SelectTrigger>
                           </FormControl>
                           <SelectContent>
-                            {Object.values(Category).map((category) => (
+                            {Object.values(Classification).map((category) => (
                               <SelectItem key={category} value={category}>
                                 {t(category)}
                               </SelectItem>

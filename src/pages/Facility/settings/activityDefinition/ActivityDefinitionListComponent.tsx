@@ -33,7 +33,7 @@ import useFilters from "@/hooks/useFilters";
 import {
   ACTIVITY_DEFINITION_STATUS_COLORS,
   ActivityDefinitionReadSpec,
-  Category,
+  Classification,
   Status,
 } from "@/types/emr/activityDefinition/activityDefinition";
 import activityDefinitionApi from "@/types/emr/activityDefinition/activityDefinitionApi";
@@ -223,7 +223,7 @@ export function ActivityDefinitionList({
         offset: ((qParams.page ?? 1) - 1) * resultsPerPage,
         title: qParams.search,
         status: qParams.status,
-        category: qParams.category,
+        classification: qParams.classification,
         resource_category: categorySlug,
         ordering: "-created_date",
       },
@@ -264,12 +264,12 @@ export function ActivityDefinitionList({
               />
             </div>
 
-            {/* Category Filter */}
+            {/* classification Filter */}
             <div className="w-full sm:w-auto">
               <FilterSelect
                 value={qParams.category || ""}
                 onValueChange={(value) => updateQuery({ category: value })}
-                options={Object.values(Category)}
+                options={Object.values(Classification)}
                 label={t("category")}
                 onClear={() => updateQuery({ category: undefined })}
               />

@@ -19,7 +19,7 @@ export const ACTIVITY_DEFINITION_STATUS_COLORS = {
   unknown: "outline",
 } as const satisfies Record<Status, string>;
 
-export enum Category {
+export enum Classification {
   laboratory = "laboratory",
   imaging = "imaging",
   surgical_procedure = "surgical_procedure",
@@ -38,7 +38,7 @@ export interface BaseActivityDefinitionSpec {
   status: Status;
   description: string;
   usage: string;
-  category: Category;
+  category: Classification;
   kind: Kind;
   code: Code;
   body_site: Code | null;
