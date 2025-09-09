@@ -34,6 +34,7 @@ import {
   Metrics,
 } from "@/types/base/condition/condition";
 import {
+  COLOR_OPTIONS,
   CustomValueSet,
   getRangeSummary,
   getValuesetSummary,
@@ -851,10 +852,24 @@ function InterpretationComponent({
       </div>
       <div className="flex flex-col gap-2 flex-1">
         <FormLabel className="text-sm">{t("color")}</FormLabel>
-        <Input
+        <Select
           value={interpretation.color}
-          onChange={(e) => handleColorChange(e.target.value)}
-        />
+          onValueChange={(value) => handleColorChange(value)}
+        >
+          <SelectTrigger>
+            <SelectValue placeholder="Select a color" />
+          </SelectTrigger>
+          <SelectContent>
+            {Object.entries(COLOR_OPTIONS).map(([key, value]) => (
+              <SelectItem key={key} value={value.hex}>
+                <div className="flex items-center gap-2">
+                  <div className={`w-4 h-4 rounded-full ${value.class}`} />
+                  {value.label}
+                </div>
+              </SelectItem>
+            ))}
+          </SelectContent>
+        </Select>
       </div>
     </div>
   );
