@@ -344,6 +344,7 @@
   "accept_all": "Accept All",
   "access_level": "Access Level",
   "account": "Account",
+  "other_charge_items": "Other Charge Items",
   "account_closed_failed": "Failed to close account",
   "account_closed_successfully": "Account closed successfully",
   "account_details": "Account Details",

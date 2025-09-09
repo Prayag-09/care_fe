@@ -8,7 +8,7 @@ import { FacilityAction, FacilityActionId } from "@/types/shortcuts";
 import { shortcutActionHandler } from "@/Utils/keyboardShortcutUtils";
 import { useKeyboardShortcuts } from "./useKeyboardShortcuts";
 
-export function useFacilityShortcuts() {
+export function useFacilityShortcuts(subContext?: string) {
   const navigate = useNavigate();
   const { facility } = useCurrentFacilitySilently();
   const { hasPermission } = usePermissions();
@@ -30,6 +30,120 @@ export function useFacilityShortcuts() {
       // To add new shortcuts: just add the ID to this array and add data-shortcut-id to the element
       { id: "patient-home", handler: shortcutActionHandler("patient-home") },
       { id: "print-token", handler: shortcutActionHandler("print-token") },
+      {
+        id: "edit-invoice-items",
+        handler: shortcutActionHandler("edit-invoice-items"),
+      },
+      {
+        id: "add-charge-item",
+        handler: shortcutActionHandler("add-charge-item"),
+      },
+      {
+        id: "other-charge-items",
+        handler: shortcutActionHandler("other-charge-items"),
+      },
+      {
+        id: "issue-invoice",
+        handler: shortcutActionHandler("issue-invoice"),
+      },
+      {
+        id: "mark-as-balanced",
+        handler: shortcutActionHandler("mark-as-balanced"),
+      },
+      {
+        id: "record-payment",
+        handler: shortcutActionHandler("record-payment"),
+      },
+      {
+        id: "submit-record-payment",
+        handler: shortcutActionHandler("submit-record-payment"),
+      },
+      {
+        id: "select-chargeItem-billing-sheet",
+        handler: shortcutActionHandler("select-chargeItem-billing-sheet"),
+      },
+      // Account show shortcuts
+      {
+        id: "settle-close-account",
+        handler: shortcutActionHandler("settle-close-account"),
+      },
+      {
+        id: "create-invoice",
+        handler: shortcutActionHandler("create-invoice"),
+      },
+      {
+        id: "record-payment-account",
+        handler: shortcutActionHandler("record-payment-account"),
+      },
+      {
+        id: "edit-account",
+        handler: shortcutActionHandler("edit-account"),
+      },
+      {
+        id: "view-statement",
+        handler: shortcutActionHandler("view-statement"),
+      },
+      {
+        id: "switch-to-invoices-tab",
+        handler: shortcutActionHandler("switch-to-invoices-tab"),
+      },
+      {
+        id: "switch-to-charge-items-tab",
+        handler: shortcutActionHandler("switch-to-charge-items-tab"),
+      },
+      {
+        id: "switch-to-payments-tab",
+        handler: shortcutActionHandler("switch-to-payments-tab"),
+      },
+      {
+        id: "switch-to-bed-associations-tab",
+        handler: shortcutActionHandler("switch-to-bed-associations-tab"),
+      },
+      {
+        id: "add-charge-items-create-invoice",
+        handler: shortcutActionHandler("add-charge-items-create-invoice"),
+      },
+      {
+        id: "submit-charge-items-billing-sheet",
+        handler: shortcutActionHandler("submit-charge-items-billing-sheet"),
+      },
+      {
+        id: "go-back",
+        handler: shortcutActionHandler("go-back"),
+      },
+      {
+        id: "view-invoice-payment",
+        handler: shortcutActionHandler("view-invoice-payment"),
+      },
+      {
+        id: "mark-payment-cancelled",
+        handler: shortcutActionHandler("mark-payment-cancelled"),
+      },
+      {
+        id: "mark-payment-error",
+        handler: shortcutActionHandler("mark-payment-error"),
+      },
+      {
+        id: "print-payment-receipt",
+        handler: shortcutActionHandler("print-payment-receipt"),
+      },
+      {
+        id: "edit-invoice-item",
+        handler: shortcutActionHandler("edit-invoice-item"),
+      },
+      {
+        id: "add-charge-items-table",
+        handler: shortcutActionHandler("add-charge-items-table"),
+      },
+      // Generic action handlers
+      {
+        id: "cancel-action",
+        handler: shortcutActionHandler("cancel-action"),
+      },
+      {
+        id: "submit-action",
+        handler: shortcutActionHandler("submit-action"),
+      },
     ];
   }, [navigate, facility?.id]);
 
@@ -82,6 +196,7 @@ export function useFacilityShortcuts() {
     ["facility"],
     { canCreate: true },
     handlers,
+    subContext,
   );
 
   return {

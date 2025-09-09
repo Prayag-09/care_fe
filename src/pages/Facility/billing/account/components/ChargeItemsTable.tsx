@@ -11,6 +11,9 @@ import { Link } from "raviger";
 import { useState } from "react";
 import { useTranslation } from "react-i18next";
 
+import { useFacilityShortcuts } from "@/hooks/useFacilityShortcuts";
+import { useShortcutDisplays } from "@/Utils/keyboardShortcutUtils";
+
 import { Badge } from "@/components/ui/badge";
 import { Button } from "@/components/ui/button";
 import {
@@ -43,7 +46,6 @@ import { TableSkeleton } from "@/components/Common/SkeletonLoading";
 
 import useFilters from "@/hooks/useFilters";
 
-import query from "@/Utils/request/query";
 import {
   MonetaryComponent,
   MonetaryComponentType,
@@ -56,6 +58,7 @@ import {
   MRP_CODE,
 } from "@/types/billing/chargeItem/chargeItem";
 import chargeItemApi from "@/types/billing/chargeItem/chargeItemApi";
+import query from "@/Utils/request/query";
 
 import AddChargeItemsBillingSheet from "./AddChargeItemsBillingSheet";
 import EditChargeItemSheet from "./EditChargeItemSheet";
@@ -107,6 +110,10 @@ export function ChargeItemsTable({
     {},
   );
   const [isAddChargeItemsOpen, setIsAddChargeItemsOpen] = useState(false);
+
+  // Register shortcuts for this table
+  useFacilityShortcuts("charge-items-table");
+  const getShortcutDisplay = useShortcutDisplays(["facility"]);
   const { qParams, updateQuery, Pagination, resultsPerPage } = useFilters({
     limit: 15,
     disableCache: true,
@@ -219,9 +226,13 @@ export function ChargeItemsTable({
           variant="outline"
           onClick={() => setIsAddChargeItemsOpen(true)}
           className="w-full sm:w-auto"
+          data-shortcut-id="add-charge-items-table"
         >
           <PlusIcon className="size-4 mr-2" />
           {t("add_charge_items")}
+          <div className="text-xs flex items-center justify-center size-6 rounded-md border border-gray-200 ml-2">
+            {getShortcutDisplay("add-charge-items-table")}
+          </div>
         </Button>
       </div>
       {isLoading ? (

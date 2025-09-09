@@ -44,6 +44,11 @@ export function formatKeyboardShortcut(key: string): string {
       .join(" + ");
   } else {
     // Single key (a -> A)
+    if (key === "arrowDown") {
+      return "↓";
+    } else if (key === "arrowLeft") {
+      return "←";
+    }
     return key.toUpperCase();
   }
 }
@@ -91,8 +96,21 @@ export function useShortcutDisplays(
   }, [contexts, dynamicResolver]);
 }
 
+// Debounce map to prevent multiple rapid clicks
+const clickDebounceMap = new Map<string, number>();
+
 export function shortcutActionHandler(shortcutId: string) {
   return () => {
+    const now = Date.now();
+    const lastClick = clickDebounceMap.get(shortcutId) || 0;
+
+    // Debounce clicks within 300ms
+    if (now - lastClick < 300) {
+      return;
+    }
+
+    clickDebounceMap.set(shortcutId, now);
+
     const element = document.querySelector(
       `[data-shortcut-id='${shortcutId}']`,
     ) as HTMLElement;

@@ -7,7 +7,7 @@ import {
 } from "@tanstack/react-query";
 import { ChevronDown, ChevronUp, PlusIcon } from "lucide-react";
 import { Link, navigate } from "raviger";
-import { useState } from "react";
+import { useEffect, useRef, useState } from "react";
 import { useForm } from "react-hook-form";
 import { useTranslation } from "react-i18next";
 import { toast } from "sonner";
@@ -37,11 +37,11 @@ import {
 } from "@/components/ui/table";
 import { Textarea } from "@/components/ui/textarea";
 
+import { useFacilityShortcuts } from "@/hooks/useFacilityShortcuts";
+import { useShortcutDisplays } from "@/Utils/keyboardShortcutUtils";
+
 import { TableSkeleton } from "@/components/Common/SkeletonLoading";
 
-import mutate from "@/Utils/request/mutate";
-import query from "@/Utils/request/query";
-import { PaginatedResponse } from "@/Utils/request/types";
 import {
   MonetaryComponent,
   MonetaryComponentType,
@@ -59,6 +59,9 @@ import {
   InvoiceStatus,
 } from "@/types/billing/invoice/invoice";
 import invoiceApi from "@/types/billing/invoice/invoiceApi";
+import mutate from "@/Utils/request/mutate";
+import query from "@/Utils/request/query";
+import { PaginatedResponse } from "@/Utils/request/types";
 
 import AddChargeItemsBillingSheet from "./components/AddChargeItemsBillingSheet";
 
@@ -144,6 +147,10 @@ export function CreateInvoicePage({
 }: CreateInvoicePageProps) {
   const { t } = useTranslation();
   const queryClient = useQueryClient();
+  const hasInitializedSelections = useRef(false);
+
+  useFacilityShortcuts("create-invoice");
+  const getShortcutDisplay = useShortcutDisplays(["facility"]);
   const [selectedRows, setSelectedRows] = useState<Record<string, boolean>>(
     () => {
       if (!preSelectedChargeItems) return {};
@@ -306,6 +313,22 @@ export function CreateInvoicePage({
     chargeItemsData?.pages.flatMap((page) => page.results) ??
     [];
 
+  useEffect(() => {
+    // Only auto-select on the very first load when we have data
+    if (chargeItems.length > 0 && !hasInitializedSelections.current) {
+      setSelectedRows(
+        chargeItems.reduce(
+          (acc, item) => {
+            acc[item.id] = true;
+            return acc;
+          },
+          {} as Record<string, boolean>,
+        ),
+      );
+      hasInitializedSelections.current = true;
+    }
+  }, [chargeItems]);
+
   return (
     <div className="container mx-auto md:px-4 pb-6">
       {showHeader && (
@@ -375,6 +398,9 @@ export function CreateInvoicePage({
                 >
                   <PlusIcon className="size-4 mr-2" />
                   {t("add_charge_items")}
+                  <div className="text-xs flex items-center justify-center size-5 rounded-md border border-gray-200 ml-2">
+                    {getShortcutDisplay("add-charge-items-create-invoice")}
+                  </div>
                 </Button>
               )}
             </div>
@@ -580,12 +606,16 @@ export function CreateInvoicePage({
           <div className="flex justify-end space-x-4">
             <Button
               type="button"
-              variant="link"
-              className="text-base font-semibold underline"
+              variant="ghost"
+              className="text-base font-semibold"
               onClick={() => window.history.back()}
               disabled={createMutation.isPending}
+              data-shortcut-id="cancel-action"
             >
-              {t("cancel")}
+              <span className="underline">{t("cancel")}</span>
+              <div className="text-xs flex items-center justify-center w-9 h-6 rounded-md border border-gray-200">
+                {getShortcutDisplay("cancel-action")}
+              </div>
             </Button>
             {showDispenseNowButton && (
               <Button
@@ -603,7 +633,8 @@ export function CreateInvoicePage({
             <Button
               type="submit"
               variant="primary_gradient"
-              disabled={createMutation.isPending}
+              disabled={createMutation.isPending || isAddChargeItemsOpen}
+              data-shortcut-id="submit-action"
             >
               {createMutation.isPending ? (
                 <div className="flex items-center gap-2">
@@ -616,10 +647,25 @@ export function CreateInvoicePage({
                   {t("create_invoice")}
                 </div>
               )}
+              <div className="text-xs flex items-center justify-center w-12 h-6 rounded-md border border-gray-200">
+                {getShortcutDisplay("submit-action")}
+              </div>
             </Button>
           </div>
         </form>
       </Form>
+
+      {/* Hidden button for add charge items shortcut */}
+      {!disableCreateChargeItems && (
+        <div className="hidden">
+          <Button
+            data-shortcut-id="add-charge-items-create-invoice"
+            onClick={() => setIsAddChargeItemsOpen(true)}
+          >
+            Add Charge Items
+          </Button>
+        </div>
+      )}
 
       {account?.patient && (
         <AddChargeItemsBillingSheet

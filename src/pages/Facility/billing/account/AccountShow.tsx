@@ -36,8 +36,10 @@ import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
 
 import { TableSkeleton } from "@/components/Common/SkeletonLoading";
 
+import { useShortcutDisplays } from "@/Utils/keyboardShortcutUtils";
 import mutate from "@/Utils/request/mutate";
 import query from "@/Utils/request/query";
+import { useFacilityShortcuts } from "@/hooks/useFacilityShortcuts";
 import PaymentReconciliationSheet from "@/pages/Facility/billing/PaymentReconciliationSheet";
 import InvoicesData from "@/pages/Facility/billing/invoice/InvoicesData";
 import PaymentsData from "@/pages/Facility/billing/paymentReconciliation/PaymentsData";
@@ -96,6 +98,9 @@ export function AccountShow({
     reason: AccountBillingStatus;
   }>({ sheetOpen: false, reason: AccountBillingStatus.closed_baddebt });
   const [{ encounterId }] = useQueryParams();
+
+  useFacilityShortcuts("account-show");
+  const getShortcutDisplay = useShortcutDisplays(["facility"]);
 
   const { data: account, isLoading } = useQuery({
     queryKey: ["account", accountId],
@@ -223,17 +228,26 @@ export function AccountShow({
               {account.status === AccountStatus.active &&
                 !isAccountBillingClosed && (
                   <Button
-                    variant="link"
-                    className="text-gray-950 underline gap-0"
+                    variant="ghost"
+                    className="text-gray-950 gap-1 flex flex-row items-center justify-between"
                     onClick={() =>
                       setCloseAccountStatus({
                         ...closeAccountStatus,
                         sheetOpen: true,
                       })
                     }
+                    data-shortcut-id={
+                      account.status === AccountStatus.active &&
+                      !isAccountBillingClosed
+                        ? "settle-close-account"
+                        : undefined
+                    }
                   >
                     <CareIcon icon="l-check" className="size-5" />
-                    {t("settle_close")}
+                    <span className="underline">{t("settle_close")}</span>
+                    <div className="text-xs flex items-center justify-center size-5 rounded-md border border-gray-200">
+                      {getShortcutDisplay("settle-close-account")}
+                    </div>
                   </Button>
                 )}
               {account.status === AccountStatus.active &&
@@ -247,9 +261,18 @@ export function AccountShow({
                           `/facility/${facilityId}/billing/account/${accountId}/invoices/create`,
                         )
                       }
+                      data-shortcut-id={
+                        account.status === AccountStatus.active &&
+                        !isAccountBillingClosed
+                          ? "create-invoice"
+                          : undefined
+                      }
                     >
                       <CareIcon icon="l-plus" className="mr-2 size-4" />
                       {t("create_invoice")}
+                      <div className="text-xs flex items-center justify-center size-5 rounded-md border border-gray-200">
+                        {getShortcutDisplay("create-invoice")}
+                      </div>
                     </Button>
 
                     <div className="flex gap-2">
@@ -261,9 +284,18 @@ export function AccountShow({
                             isCreditNote: false,
                           })
                         }
+                        data-shortcut-id={
+                          account.status === AccountStatus.active &&
+                          !isAccountBillingClosed
+                            ? "record-payment-account"
+                            : undefined
+                        }
                       >
                         <CareIcon icon="l-plus" className="size-4" />
                         {t("record_payment")}
+                        <div className="text-xs flex items-center justify-center size-5 rounded-md border border-gray-200">
+                          {getShortcutDisplay("record-payment-account")}
+                        </div>
                       </Button>
                       <DropdownMenu>
                         <DropdownMenuTrigger asChild>
@@ -317,6 +349,12 @@ export function AccountShow({
                                 sheetOpen: true,
                               })
                             }
+                            data-shortcut-id={
+                              account.status === AccountStatus.active &&
+                              !isAccountBillingClosed
+                                ? "settle-close-account"
+                                : undefined
+                            }
                           >
                             <CareIcon icon="l-check" className="mr-2 size-5" />
                             {t("settle_close")}
@@ -328,6 +366,12 @@ export function AccountShow({
                             `/facility/${facilityId}/billing/account/${accountId}/invoices/create`,
                           )
                         }
+                        data-shortcut-id={
+                          account.status === AccountStatus.active &&
+                          !isAccountBillingClosed
+                            ? "create-invoice"
+                            : undefined
+                        }
                       >
                         <CareIcon icon="l-plus" className="mr-2 size-4" />
                         {t("create_invoice")}
@@ -338,6 +382,12 @@ export function AccountShow({
                             isOpen: true,
                             isCreditNote: false,
                           })
+                        }
+                        data-shortcut-id={
+                          account.status === AccountStatus.active &&
+                          !isAccountBillingClosed
+                            ? "record-payment-account"
+                            : undefined
                         }
                       >
                         <CareIcon icon="l-plus" className="mr-2 size-4" />
@@ -411,12 +461,16 @@ export function AccountShow({
               variant="outline"
               className="border-gray-400 gap-1"
               onClick={() => setSheetOpen(true)}
+              data-shortcut-id="edit-account"
             >
               <CareIcon
                 icon="l-edit"
                 className="size-5 stroke-gray-450 stroke-1"
               />
               {t("edit")}
+              <div className="text-xs flex items-center justify-center size-5 rounded-md border border-gray-200">
+                {getShortcutDisplay("edit-account")}
+              </div>
             </Button>
           </div>
         </div>
@@ -515,18 +569,27 @@ export function AccountShow({
               className="border-b-2 px-6 py-2 text-sm font-medium data-[state=active]:border-b-primary-700 data-[state=active]:text-primary-800 rounded-none bg-transparent data-[state=active]:shadow-none data-[state=active]:bg-transparent data-[state=active]:font-semibold text-gray-600"
             >
               {t("invoices")}
+              <div className="text-xs flex items-center justify-center ml-1 w-10 h-6 rounded-md border border-gray-200 bg-gray-50">
+                {getShortcutDisplay("switch-to-invoices-tab")}
+              </div>
             </TabsTrigger>
             <TabsTrigger
               value="charge_items"
               className="border-b-2 px-6 py-2 text-sm font-medium data-[state=active]:border-b-primary-700 data-[state=active]:text-primary-800 rounded-none bg-transparent data-[state=active]:shadow-none data-[state=active]:bg-transparent data-[state=active]:font-semibold text-gray-600"
             >
               {t("charge_items")}
+              <div className="text-xs flex items-center justify-center ml-1 w-10 h-6 rounded-md border border-gray-200 bg-gray-50">
+                {getShortcutDisplay("switch-to-charge-items-tab")}
+              </div>
             </TabsTrigger>
             <TabsTrigger
               value="payments"
               className="border-b-2 px-6 py-2 text-sm font-medium data-[state=active]:border-b-primary-700 data-[state=active]:text-primary-800 rounded-none bg-transparent data-[state=active]:shadow-none data-[state=active]:bg-transparent text-gray-600"
             >
               {t("payments")}
+              <div className="text-xs flex items-center justify-center ml-1 w-10 h-6 rounded-md border border-gray-200 bg-gray-50">
+                {getShortcutDisplay("switch-to-payments-tab")}
+              </div>
             </TabsTrigger>
             {encounterId && (
               <TabsTrigger
@@ -534,9 +597,59 @@ export function AccountShow({
                 className="border-b-2 px-6 py-2 text-sm font-medium data-[state=active]:border-b-primary-700 data-[state=active]:text-primary-800 rounded-none bg-transparent data-[state=active]:shadow-none data-[state=active]:bg-transparent text-gray-600"
               >
                 {t("bed_charge_items")}
+                <div className="text-xs flex items-center justify-center ml-1 w-10 h-6 rounded-md border border-gray-200 bg-gray-50">
+                  {getShortcutDisplay("switch-to-bed-associations-tab")}
+                </div>
               </TabsTrigger>
             )}
           </TabsList>
+        </div>
+
+        {/* Hidden buttons for tab shortcuts */}
+        <div className="hidden">
+          <Button
+            data-shortcut-id="switch-to-invoices-tab"
+            onClick={() =>
+              navigate(
+                `/facility/${facilityId}/billing/account/${accountId}/invoices` +
+                  (encounterId !== undefined
+                    ? `?encounterId=${encounterId}`
+                    : ""),
+              )
+            }
+          />
+          <Button
+            data-shortcut-id="switch-to-charge-items-tab"
+            onClick={() =>
+              navigate(
+                `/facility/${facilityId}/billing/account/${accountId}/charge_items` +
+                  (encounterId !== undefined
+                    ? `?encounterId=${encounterId}`
+                    : ""),
+              )
+            }
+          />
+          <Button
+            data-shortcut-id="switch-to-payments-tab"
+            onClick={() =>
+              navigate(
+                `/facility/${facilityId}/billing/account/${accountId}/payments` +
+                  (encounterId !== undefined
+                    ? `?encounterId=${encounterId}`
+                    : ""),
+              )
+            }
+          />
+          {encounterId && (
+            <Button
+              data-shortcut-id="switch-to-bed-associations-tab"
+              onClick={() =>
+                navigate(
+                  `/facility/${facilityId}/billing/account/${accountId}/bed_charge_items?encounterId=${encounterId}`,
+                )
+              }
+            />
+          )}
         </div>
 
         <TabsContent value="charge_items" className="mt-4">
