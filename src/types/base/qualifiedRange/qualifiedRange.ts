@@ -117,3 +117,81 @@ export const getRangeSummary = (range: NumericRange) => {
 export const getValuesetSummary = (valueset: CustomValueSet) => {
   return `${valueset.interpretation.display} when value is in ${valueset.valueset}`;
 };
+
+export const COLOR_OPTIONS = {
+  primary: {
+    label: "Primary",
+    class: "bg-primary-100",
+    hex: "#def7ec",
+  },
+  secondary: {
+    label: "Secondary",
+    class: "bg-gray-100",
+    hex: "#f3f4f6",
+  },
+  outline: {
+    label: "Outline",
+    class: "bg-gray-300",
+    hex: "#d1d5db",
+  },
+  danger: {
+    label: "Danger",
+    class: "bg-red-600",
+    hex: "#dc2626",
+  },
+  destructive: {
+    label: "Destructive",
+    class: "bg-red-100",
+    hex: "#fee2e2",
+  },
+  indigo: {
+    label: "Indigo",
+    class: "bg-indigo-100",
+    hex: "#e0e7ff",
+  },
+  purple: {
+    label: "Purple",
+    class: "bg-purple-100",
+    hex: "#f3e8ff",
+  },
+  blue: {
+    label: "Blue",
+    class: "bg-blue-100",
+    hex: "#dbeafe",
+  },
+  sky: {
+    label: "Sky",
+    class: "bg-sky-100",
+    hex: "#e0f2fe",
+  },
+  cyan: {
+    label: "Cyan",
+    class: "bg-cyan-100",
+    hex: "#cffafe",
+  },
+  teal: {
+    label: "Teal",
+    class: "bg-teal-100",
+    hex: "#ccfbf1",
+  },
+  green: {
+    label: "Green",
+    class: "bg-green-100",
+    hex: "#dcfce7",
+  },
+  yellow: {
+    label: "Yellow",
+    class: "bg-yellow-100/80",
+    hex: "#fef3c7",
+  },
+  orange: {
+    label: "Orange",
+    class: "bg-orange-100",
+    hex: "#fed7aa",
+  },
+  pink: {
+    label: "Pink",
+    class: "bg-pink-100",
+    hex: "#fce7f3",
+  },
+};
