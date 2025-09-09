@@ -110,7 +110,7 @@ export function PaymentReconciliationShow({
         <div className="flex items-center gap-2">
           <div>
             <h1 className="text-2xl font-bold flex items-center flex-wrap gap-2">
-              {t("payment")}
+              {t(payment.is_credit_note ? "refund" : "payment")}
             </h1>
             <span className="text-sm text-gray-500">#{payment.id}</span>
             <div className="flex flex-wrap space-x-1">
@@ -251,16 +251,17 @@ export function PaymentReconciliationShow({
                             }
                           />
                         )}
-                        {payment.returned_amount != null && (
-                          <InfoItem
-                            label={t("change_returned")}
-                            value={
-                              <MonetaryDisplay
-                                amount={payment.returned_amount}
-                              />
-                            }
-                          />
-                        )}
+                        {!payment.is_credit_note &&
+                          payment.returned_amount != null && (
+                            <InfoItem
+                              label={t("change_returned")}
+                              value={
+                                <MonetaryDisplay
+                                  amount={payment.returned_amount}
+                                />
+                              }
+                            />
+                          )}
                       </div>
                     </div>
                   </>

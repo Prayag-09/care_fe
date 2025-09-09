@@ -63,6 +63,7 @@ interface PaymentReconciliationSheetProps {
   invoice?: InvoiceRead;
   accountId: string;
   onSuccess?: () => void;
+  isCreditNote?: boolean;
 }
 
 // Add schema before the component
@@ -98,6 +99,7 @@ const formSchema = z
     disposition: z.string().optional(),
     note: z.string().optional(),
     account: z.string(),
+    is_credit_note: z.boolean().optional(),
   })
   .refine((data) => Number(data.tendered_amount) >= Number(data.amount), {
     message: t("tender_amount_cannot_be_less_than_payment_amount"),
@@ -111,6 +113,7 @@ export function PaymentReconciliationSheet({
   invoice,
   accountId,
   onSuccess,
+  isCreditNote = false,
 }: PaymentReconciliationSheetProps) {
   const { t } = useTranslation();
   const queryClient = useQueryClient();
@@ -136,6 +139,7 @@ export function PaymentReconciliationSheet({
       disposition: "",
       note: "",
       account: accountId,
+      is_credit_note: isCreditNote,
     },
   });
 
@@ -216,6 +220,7 @@ export function PaymentReconciliationSheet({
       amount: Number(data.amount).toFixed(2),
       tendered_amount: Number(data.tendered_amount).toFixed(2),
       returned_amount: Number(data.returned_amount).toFixed(2),
+      is_credit_note: isCreditNote,
     };
     submitPayment(submissionData);
   });
@@ -349,7 +354,12 @@ export function PaymentReconciliationSheet({
                       <MonetaryAmountInput
                         {...field}
                         value={field.value || ""}
-                        onChange={(e) => field.onChange(e.target.value)}
+                        onChange={(e) => {
+                          field.onChange(e.target.value);
+                          if (isCreditNote) {
+                            setTenderAmount(e.target.value);
+                          }
+                        }}
                       />
                     </FormControl>
                     <FormMessage />
@@ -357,7 +367,7 @@ export function PaymentReconciliationSheet({
                 )}
               />
 
-              {isCashPayment && (
+              {isCashPayment && !isCreditNote && (
                 <>
                   <FormField
                     control={form.control}

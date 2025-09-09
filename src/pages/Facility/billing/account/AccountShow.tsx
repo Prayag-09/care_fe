@@ -1,6 +1,6 @@
 import { DialogDescription } from "@radix-ui/react-dialog";
 import { useMutation, useQuery, useQueryClient } from "@tanstack/react-query";
-import { ChevronDown } from "lucide-react";
+import { ChevronDown, MoreVertical } from "lucide-react";
 import { Link, navigate, useQueryParams } from "raviger";
 import { useEffect, useState } from "react";
 import { useTranslation } from "react-i18next";
@@ -86,7 +86,10 @@ export function AccountShow({
 }) {
   const { t } = useTranslation();
   const [sheetOpen, setSheetOpen] = useState(false);
-  const [isPaymentSheetOpen, setIsPaymentSheetOpen] = useState(false);
+  const [paymentSheet, setPaymentSheet] = useState<{
+    isOpen: boolean;
+    isCreditNote: boolean;
+  }>({ isOpen: false, isCreditNote: false });
   const queryClient = useQueryClient();
   const [closeAccountStatus, setCloseAccountStatus] = useState<{
     sheetOpen: boolean;
@@ -249,13 +252,44 @@ export function AccountShow({
                       {t("create_invoice")}
                     </Button>
 
-                    <Button
-                      variant="primary"
-                      onClick={() => setIsPaymentSheetOpen(true)}
-                    >
-                      <CareIcon icon="l-plus" className="size-4" />
-                      {t("record_payment")}
-                    </Button>
+                    <div className="flex gap-2">
+                      <Button
+                        variant="primary"
+                        onClick={() =>
+                          setPaymentSheet({
+                            isOpen: true,
+                            isCreditNote: false,
+                          })
+                        }
+                      >
+                        <CareIcon icon="l-plus" className="size-4" />
+                        {t("record_payment")}
+                      </Button>
+                      <DropdownMenu>
+                        <DropdownMenuTrigger asChild>
+                          <Button
+                            variant="outline"
+                            size="icon"
+                            className="border-gray-400"
+                          >
+                            <MoreVertical className="h-4 w-4" />
+                          </Button>
+                        </DropdownMenuTrigger>
+                        <DropdownMenuContent align="end">
+                          <DropdownMenuItem
+                            onClick={() =>
+                              setPaymentSheet({
+                                isOpen: true,
+                                isCreditNote: true,
+                              })
+                            }
+                          >
+                            <CareIcon icon="l-plus" className="mr-2 size-4" />
+                            {t("record_credit_note")}
+                          </DropdownMenuItem>
+                        </DropdownMenuContent>
+                      </DropdownMenu>
+                    </div>
                   </>
                 )}
             </div>
@@ -299,10 +333,26 @@ export function AccountShow({
                         {t("create_invoice")}
                       </DropdownMenuItem>
                       <DropdownMenuItem
-                        onClick={() => setIsPaymentSheetOpen(true)}
+                        onClick={() =>
+                          setPaymentSheet({
+                            isOpen: true,
+                            isCreditNote: false,
+                          })
+                        }
                       >
                         <CareIcon icon="l-plus" className="mr-2 size-4" />
                         {t("record_payment")}
+                      </DropdownMenuItem>
+                      <DropdownMenuItem
+                        onClick={() =>
+                          setPaymentSheet({
+                            isOpen: true,
+                            isCreditNote: true,
+                          })
+                        }
+                      >
+                        <CareIcon icon="l-minus" className="mr-2 size-4" />
+                        {t("record_credit_note")}
                       </DropdownMenuItem>
                     </DropdownMenuContent>
                   </DropdownMenu>
@@ -523,10 +573,11 @@ export function AccountShow({
       />
 
       <PaymentReconciliationSheet
-        open={isPaymentSheetOpen}
-        onOpenChange={setIsPaymentSheetOpen}
+        open={paymentSheet.isOpen}
+        onOpenChange={(isOpen) => setPaymentSheet({ ...paymentSheet, isOpen })}
         facilityId={facilityId}
         accountId={accountId}
+        isCreditNote={paymentSheet.isCreditNote}
       />
 
       <Dialog
