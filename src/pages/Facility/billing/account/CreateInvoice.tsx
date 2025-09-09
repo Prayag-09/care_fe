@@ -83,6 +83,8 @@ interface CreateInvoicePageProps {
   sourceUrl?: string;
   locationId?: string;
   patientId?: string;
+  disableCreateChargeItems?: boolean;
+  showDispenseNowButton?: boolean;
 }
 
 interface PriceComponentRowProps {
@@ -137,6 +139,8 @@ export function CreateInvoicePage({
   sourceUrl,
   locationId,
   patientId,
+  disableCreateChargeItems = false,
+  showDispenseNowButton = false,
 }: CreateInvoicePageProps) {
   const { t } = useTranslation();
   const queryClient = useQueryClient();
@@ -363,14 +367,16 @@ export function CreateInvoicePage({
               <div className="text-sm font-medium text-gray-950">
                 {t("billable_charge_items")}
               </div>
-              <Button
-                type="button"
-                variant="outline"
-                onClick={() => setIsAddChargeItemsOpen(true)}
-              >
-                <PlusIcon className="size-4 mr-2" />
-                {t("add_charge_items")}
-              </Button>
+              {!disableCreateChargeItems && (
+                <Button
+                  type="button"
+                  variant="outline"
+                  onClick={() => setIsAddChargeItemsOpen(true)}
+                >
+                  <PlusIcon className="size-4 mr-2" />
+                  {t("add_charge_items")}
+                </Button>
+              )}
             </div>
             {isLoading ? (
               <TableSkeleton count={3} />
@@ -581,17 +587,19 @@ export function CreateInvoicePage({
             >
               {t("cancel")}
             </Button>
-            <Button
-              type="button"
-              variant="outline_primary"
-              onClick={() =>
-                navigate(
-                  `/facility/${facilityId}/locations/${locationId}/medication_dispense/patient/${patientId}/preparation?payment_status=unpaid`,
-                )
-              }
-            >
-              {t("dispense_now")}
-            </Button>
+            {showDispenseNowButton && (
+              <Button
+                type="button"
+                variant="outline_primary"
+                onClick={() =>
+                  navigate(
+                    `/facility/${facilityId}/locations/${locationId}/medication_dispense/patient/${patientId}/preparation?payment_status=unpaid`,
+                  )
+                }
+              >
+                {t("dispense_now")}
+              </Button>
+            )}
             <Button
               type="submit"
               variant="primary_gradient"

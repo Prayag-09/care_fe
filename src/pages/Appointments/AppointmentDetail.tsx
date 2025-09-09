@@ -20,6 +20,9 @@ import { useTranslation } from "react-i18next";
 import { formatPhoneNumberIntl } from "react-phone-number-input";
 import { toast } from "sonner";
 
+import { ChargeItemsSection } from "@/components/Billing/ChargeItems/ChargeItemsSection";
+import { ChargeItemServiceResource } from "@/types/billing/chargeItem/chargeItem";
+
 import { cn } from "@/lib/utils";
 
 import { Alert, AlertDescription, AlertTitle } from "@/components/ui/alert";
@@ -601,6 +604,16 @@ const AppointmentDetails = ({
             queryKey: ["appointment", appointment.id],
           });
         }}
+      />
+
+      <ChargeItemsSection
+        facilityId={facility.id}
+        resourceId={appointment.id}
+        patientId={appointment.patient.id}
+        serviceResourceType={ChargeItemServiceResource.appointment}
+        sourceUrl={`/facility/${facility.id}/patient/${appointment.patient.id}/appointments/${appointment.id}`}
+        encounterId={appointment.associated_encounter?.id}
+        disableCreateChargeItems={true}
       />
       <Card>
         <CardHeader>

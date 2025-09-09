@@ -292,7 +292,9 @@ export function InvoiceShow({
 
   const alertButtonText = sourceUrl?.includes("medication_dispense")
     ? t("medication_dispense_invoice_alert")
-    : t("service_request_invoice_alert");
+    : sourceUrl?.includes("services_requests")
+      ? t("service_request_invoice_alert")
+      : t("appointment_invoice_alert");
 
   if (isLoading) {
     return <TableSkeleton count={5} />;
