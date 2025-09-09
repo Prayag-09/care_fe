@@ -1,14 +1,20 @@
 {
-    "global": [
-      { "key": "escape",              "action": "close-dialog",
-                                      "description": "Close Dialog",
+    "global": [],
+
+    "facility": [
+      { "key": "shift+p",             "action": "register-patient",
+                                      "description": "Register New Patient",
+                                      "when": "canCreate" },
+      
+      { "key": "h",                   "action": "patient-home",
+                                      "description": "Go to Patient Home",
                                       "when": "always" },
       
-      { "key": "ctrl+k",              "action": "command-palette",
-                                      "description": "Open Command Palette",
+      { "key": "p",                   "action": "print-token",
+                                      "description": "Print Token",
                                       "when": "always" },
-                                      
-      { "key": "?",                   "action": "show-shortcuts",
+      
+      { "key": "shift+?",             "action": "show-shortcuts",
                                       "description": "Show Keyboard Shortcuts",
                                       "when": "always" }
     ],
