@@ -55,10 +55,6 @@ export function useFacilityShortcuts(subContext?: string) {
         handler: shortcutActionHandler("record-payment"),
       },
       {
-        id: "submit-record-payment",
-        handler: shortcutActionHandler("submit-record-payment"),
-      },
-      {
         id: "select-chargeItem-billing-sheet",
         handler: shortcutActionHandler("select-chargeItem-billing-sheet"),
       },
@@ -134,6 +130,14 @@ export function useFacilityShortcuts(subContext?: string) {
       {
         id: "add-charge-items-table",
         handler: shortcutActionHandler("add-charge-items-table"),
+      },
+      {
+        id: "print-invoice",
+        handler: shortcutActionHandler("print-invoice"),
+      },
+      {
+        id: "print-charge-items",
+        handler: shortcutActionHandler("print-charge-items"),
       },
       // Generic action handlers
       {
