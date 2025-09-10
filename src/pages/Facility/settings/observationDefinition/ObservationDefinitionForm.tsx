@@ -375,7 +375,7 @@ function ObservationDefinitionFormContent({
                           defaultValue={field.value}
                         >
                           <FormControl>
-                            <SelectTrigger>
+                            <SelectTrigger ref={field.ref}>
                               <SelectValue placeholder={t("select_status")} />
                             </SelectTrigger>
                           </FormControl>
@@ -403,7 +403,7 @@ function ObservationDefinitionFormContent({
                           defaultValue={field.value}
                         >
                           <FormControl>
-                            <SelectTrigger>
+                            <SelectTrigger ref={field.ref}>
                               <SelectValue placeholder={t("select_category")} />
                             </SelectTrigger>
                           </FormControl>
@@ -434,7 +434,7 @@ function ObservationDefinitionFormContent({
                             defaultValue={field.value}
                           >
                             <FormControl>
-                              <SelectTrigger>
+                              <SelectTrigger ref={field.ref}>
                                 <SelectValue
                                   placeholder={t("select_data_type")}
                                 />
@@ -714,7 +714,7 @@ function ObservationDefinitionFormContent({
                                     defaultValue={field.value}
                                   >
                                     <FormControl>
-                                      <SelectTrigger>
+                                      <SelectTrigger ref={field.ref}>
                                         <SelectValue
                                           placeholder={t("select_data_type")}
                                         />
