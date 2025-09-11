@@ -110,6 +110,8 @@ import {
 import scheduleApis from "@/types/scheduling/scheduleApi";
 import { UserReadMinimal } from "@/types/user/user";
 
+import { ShortcutBadge } from "@/Utils/keyboardShortcutComponents";
+import { useFacilityShortcuts } from "@/hooks/useFacilityShortcuts";
 import { MultiPractitionerSelector } from "./components/MultiPractitionerSelect";
 
 interface DateRangeDisplayProps {
@@ -316,6 +318,7 @@ export default function AppointmentsPage({ resourceType, resourceId }: Props) {
     limit: 15,
   });
 
+  useFacilityShortcuts("charge-items-table");
   const practitionerFilterEnabled =
     resourceType === SchedulableResourceType.Practitioner && !resourceId;
 
@@ -689,6 +692,7 @@ export default function AppointmentsPage({ resourceType, resourceId }: Props) {
         <div className="flex flex-col sm:flex-row gap-4 items-start sm:items-center">
           <Button
             variant="primary"
+            data-shortcut-id="print-button"
             disabled={
               differenceInDays(qParams.date_to, qParams.date_from) >= 31
             }
@@ -704,6 +708,7 @@ export default function AppointmentsPage({ resourceType, resourceId }: Props) {
           >
             <CareIcon icon="l-print" className="text-lg" />
             {t("print")}
+            <ShortcutBadge actionId="print-button" className="bg-white" />
           </Button>
           <PatientEncounterOrIdentifierFilter
             onSelect={(patientId) => updateQuery({ patient: patientId })}
