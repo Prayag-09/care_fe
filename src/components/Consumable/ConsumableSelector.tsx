@@ -22,10 +22,7 @@ import {
 import query from "@/Utils/request/query";
 import { cn } from "@/lib/utils";
 import { useCurrentFacilitySilently } from "@/pages/Facility/utils/useCurrentFacility";
-import {
-  ProductKnowledgeBase,
-  ProductKnowledgeType,
-} from "@/types/inventory/productKnowledge/productKnowledge";
+import { ProductKnowledgeBase } from "@/types/inventory/productKnowledge/productKnowledge";
 import productKnowledgeApi from "@/types/inventory/productKnowledge/productKnowledgeApi";
 
 interface ConsumableSelectorProps {
@@ -61,7 +58,6 @@ export default function ConsumableSelector({
         limit: 14,
         name: search,
         status: "active",
-        product_type: ProductKnowledgeType.consumable,
       },
     }),
     enabled: open,
