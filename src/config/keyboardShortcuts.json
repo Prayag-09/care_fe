@@ -101,6 +101,13 @@
       "when": "always",
       "subContext": "chargeItem-sheet"
     },
+        {
+      "key": "a",
+      "action": "add-charge-items",
+      "description": "add Charge Items in invoice",
+      "when": "always",
+      "subContext": "invoice-show"
+    },
     {
       "key": "arrowDown",
       "action": "select-chargeItem-billing-sheet",
@@ -226,10 +233,10 @@
     },
     {
       "key": "a",
-      "action": "add-charge-item",
-      "description": "Add Charge Item",
+      "action": "add-charge-items-invoice",
+      "description": "Add Charge Items",
       "when": "always",
-      "subContext": "charge-items-table"
+      "subContext": "invoice-show"
     },
     {
       "key": "p",
