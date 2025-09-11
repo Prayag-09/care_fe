@@ -1105,7 +1105,10 @@ function AppointmentRow(props: {
             <TabsList>
               {getStatusGroups(t).map((group) => {
                 return (
-                  <TabsTrigger key={group.label} value={group.label}>
+                  <TabsTrigger
+                    key={group.label}
+                    value={group.statuses.join(",")}
+                  >
                     {group.label}
                   </TabsTrigger>
                 );
@@ -1125,7 +1128,7 @@ function AppointmentRow(props: {
             </SelectTrigger>
             <SelectContent>
               {getStatusGroups(t).map((group) => (
-                <SelectItem key={group.label} value={group.label}>
+                <SelectItem key={group.label} value={group.statuses.join(",")}>
                   <div className="flex items-center">{group.label}</div>
                 </SelectItem>
               ))}
