@@ -142,6 +142,10 @@ export function useFacilityShortcuts(subContext?: string) {
         id: "print-button",
         handler: shortcutActionHandler("print-button"),
       },
+      {
+        id: "print-token",
+        handler: shortcutActionHandler("print-token"),
+      },
       // if you dont need permission checks just add bellow
       ...shortcutActionHandlers([
         "patient-home",

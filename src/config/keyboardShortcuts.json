@@ -17,25 +17,29 @@
       "key": "p",
       "action": "print-token",
       "description": "Print Token",
-      "when": "always"
+      "when": "always",
+      "subContext": "patient-home"
     },
     {
       "key": "t",
       "action": "generate-token",
       "description": "Generate Token",
-      "when": "always"
+      "when": "always",
+      "subContext": "patient-home"
     },
     {
       "key": "e",
       "action": "create-encounter",
       "description": "Create Encounter",
-      "when": "canCreate"
+      "when": "always",
+      "subContext": "patient-home"
     },
     {
       "key": "a",
       "action": "schedule-appointment",
       "description": "Schedule Appointment",
-      "when": "canCreate"
+      "when": "always",
+      "subContext": "patient-home"
     },
     {
       "key": "shift+?",
@@ -54,7 +58,8 @@
       "key": "a",
       "action": "add-charge-item",
       "description": "Add Charge Item",
-      "when": "always"
+      "when": "always",
+      "subContext": "billing"
     },
     {
       "key": "i",
@@ -125,7 +130,7 @@
       "subContext": "account-show"
     },
     {
-      "key": "0",
+      "key": "e",
       "action": "edit-account",
       "description": "Edit Account",
       "when": "always",
@@ -188,13 +193,15 @@
       "key": "e",
       "action": "mark-payment-error",
       "description": "Mark as Entered in Error",
-      "when": "always"
+      "when": "always",
+      "subContext": "payment"
     },
     {
       "key": "p",
       "action": "print-payment-receipt",
       "description": "Print Receipt",
-      "when": "always"
+      "when": "always",
+      "subContext": "payment"
     },
     {
       "key": "e",
@@ -207,7 +214,22 @@
       "key": "p",
       "action": "print-button",
       "description": "Print anything",
-      "when": "always"
+      "when": "always",
+      "subContext": "general"
+    },
+    {
+      "key": "p",
+      "action": "print-button",
+      "description": "Print Charge Items",
+      "when": "always",
+      "subContext": "charge-items-table"
+    },
+    {
+      "key": "a",
+      "action": "add-charge-item",
+      "description": "Add Charge Item",
+      "when": "always",
+      "subContext": "charge-items-table"
     },
     {
       "key": "p",
