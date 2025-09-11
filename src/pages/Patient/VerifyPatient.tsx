@@ -45,7 +45,7 @@ import query from "@/Utils/request/query";
 import { useQueryClient } from "@tanstack/react-query";
 export default function VerifyPatient() {
   const queryClient = useQueryClient();
-  useFacilityShortcuts();
+  useFacilityShortcuts("patient-home");
   const { t } = useTranslation();
   const [qParams] = useQueryParams();
   const { phone_number, year_of_birth, partial_id, queue_id, token_id } =
