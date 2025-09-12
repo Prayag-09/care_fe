@@ -1,9 +1,12 @@
 import { PaginatedResponse } from "@/Utils/request/types";
 import { AppointmentPatientRegister } from "@/pages/Patient/Utils";
+import {
+  BatchRequestBody,
+  BatchRequestResponse,
+} from "@/types/base/batch/batch";
 import { Code } from "@/types/base/code/code";
 import { PatientRead } from "@/types/emr/patient/patient";
 import { PlugConfig } from "@/types/plugConfig";
-import { BatchRequestBody, BatchRequestResponse } from "@/types/base/batch/batch";
 import {
   CommentModel,
   CreateResourceRequest,
