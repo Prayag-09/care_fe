@@ -93,7 +93,7 @@ export function ResourceDefinitionCategoryPicker<T>({
   listDefinitions,
   translations,
   allowMultiple = false,
-  mapper,
+  mapper = (item: T) => item as BaseCategoryPickerDefinition,
 }: ResourceDefinitionCategoryPickerProps<T>) {
   const { t } = useTranslation();
   const [open, setOpen] = useState(false);
