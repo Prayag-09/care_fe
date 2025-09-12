@@ -18,12 +18,7 @@ import { ShortcutBadge } from "@/Utils/keyboardShortcutComponents";
 import { Alert, AlertDescription } from "@/components/ui/alert";
 import { Badge } from "@/components/ui/badge";
 import { Button } from "@/components/ui/button";
-import {
-  Card,
-  CardContent,
-  CardFooter,
-  CardHeader,
-} from "@/components/ui/card";
+import { Card, CardContent, CardHeader } from "@/components/ui/card";
 
 import {
   CardGridSkeleton,
@@ -40,7 +35,9 @@ import { getPermissions } from "@/common/Permissions";
 import { usePermissions } from "@/context/PermissionContext";
 
 import TagAssignmentSheet from "@/components/Tags/TagAssignmentSheet";
+import { useEncounterShortcutDisplays } from "@/hooks/useEncounterShortcuts";
 import { TokenCard } from "@/pages/Appointments/components/AppointmentTokenCard";
+import { QuickAction } from "@/pages/Encounters/tabs/overview/quick-actions";
 import { PatientHoverCard } from "@/pages/Facility/services/serviceRequests/PatientHoverCard";
 import useCurrentFacility from "@/pages/Facility/utils/useCurrentFacility";
 import patientApi from "@/types/emr/patient/patientApi";
@@ -56,6 +53,7 @@ import { saveElementAsImage } from "@/Utils/utils";
 import { useQueryClient } from "@tanstack/react-query";
 
 export default function VerifyPatient() {
+  const getShortcutDisplay = useEncounterShortcutDisplays();
   const queryClient = useQueryClient();
   useFacilityShortcuts("patient-home");
   const { t } = useTranslation();
@@ -187,55 +185,22 @@ export default function VerifyPatient() {
                     facilityId={facilityId}
                     patientName={patientData.name}
                     trigger={
-                      <Card
-                        data-shortcut-id="create-encounter"
-                        className="group relative shadow-sm hover:shadow-md transition-all duration-300 cursor-pointer"
-                      >
-                        <CardContent className="h-[80px] overflow-hidden rounded-lg bg-gray-100 m-1 flex items-center justify-center">
-                          <ShortcutBadge
-                            actionId="create-encounter"
-                            position="top-right"
-                            className="m-1"
-                          />
-
-                          <div className="flex size-12 mt-6 items-center justify-center rounded-lg bg-white shadow-sm group-hover:shadow-md transition-shadow">
-                            <SquareActivity className="size-6 text-orange-500" />
-                          </div>
-                        </CardContent>
-                        <CardFooter className="p-0">
-                          <span className="text-sm w-full py-1.5 font-semibold text-gray-800 text-center">
-                            {t("create_encounter")}
-                          </span>
-                        </CardFooter>
-                      </Card>
+                      <QuickAction
+                        icon={<SquareActivity className="text-orange-500" />}
+                        title={t("create_encounter")}
+                        shortcut={getShortcutDisplay("create-encounter")}
+                      />
                     }
                   />
                 )}
 
                 {canWriteAppointment && (
-                  <Card className="group relative shadow-sm hover:shadow-md transition-all duration-300 cursor-pointer">
-                    <Link
-                      href={`/facility/${facilityId}/patient/${patientData.id}/book-appointment`}
-                      data-shortcut-id="schedule-appointment"
-                    >
-                      <CardContent className="h-[80px] overflow-hidden rounded-lg bg-gray-100 m-1 flex items-center justify-center">
-                        <ShortcutBadge
-                          actionId="schedule-appointment"
-                          position="top-right"
-                          className="m-1"
-                        />
-
-                        <div className="flex size-12 mt-6 items-center justify-center rounded-lg bg-white shadow-sm group-hover:shadow-md transition-shadow">
-                          <Stethoscope className="size-6 text-purple-500" />
-                        </div>
-                      </CardContent>
-                      <CardFooter className="p-0">
-                        <span className="text-sm w-full py-1.5 font-semibold text-gray-800 text-center">
-                          {t("schedule_appointment")}
-                        </span>
-                      </CardFooter>
-                    </Link>
-                  </Card>
+                  <QuickAction
+                    icon={<Stethoscope className="text-purple-500" />}
+                    title={t("schedule_appointment")}
+                    shortcut={getShortcutDisplay("schedule-appointment")}
+                    href={`/facility/${facilityId}/patient/${patientData.id}/book-appointment`}
+                  />
                 )}
 
                 {canCreateToken && (
@@ -243,27 +208,11 @@ export default function VerifyPatient() {
                     patient={patientData}
                     facilityId={facilityId}
                     trigger={
-                      <Card
-                        data-shortcut-id="generate-token"
-                        className="group relative shadow-sm hover:shadow-md transition-all duration-300 cursor-pointer"
-                      >
-                        <CardContent className="h-[80px] overflow-hidden rounded-lg bg-gray-100 m-1 flex items-center justify-center">
-                          <ShortcutBadge
-                            actionId="generate-token"
-                            position="top-right"
-                            className="m-1"
-                          />
-
-                          <div className="flex size-12 mt-6 items-center justify-center rounded-lg bg-white shadow-sm group-hover:shadow-md transition-shadow">
-                            <Printer className="size-6 text-gray-500" />
-                          </div>
-                        </CardContent>
-                        <CardFooter className="p-0">
-                          <span className="text-sm w-full py-1.5 font-semibold text-gray-800 text-center">
-                            {t("generate_token")}
-                          </span>
-                        </CardFooter>
-                      </Card>
+                      <QuickAction
+                        icon={<Printer className="text-gray-500" />}
+                        title={t("generate_token")}
+                        shortcut={getShortcutDisplay("generate-token")}
+                      />
                     }
                   />
                 )}
