@@ -354,7 +354,7 @@ export function ProductFormContent({
                 control={form.control}
                 name="product_knowledge"
                 render={({ field }) => (
-                  <FormItem>
+                  <FormItem className="flex flex-col">
                     <FormLabel aria-required>
                       {t("product_knowledge")}
                     </FormLabel>

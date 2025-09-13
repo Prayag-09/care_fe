@@ -25,6 +25,7 @@ interface ProductKnowledgeSelectProps {
   disabled?: boolean;
   className?: string;
   placeholder?: string;
+  enableFavorites?: boolean;
 }
 
 export function ProductKnowledgeSelect({
@@ -33,6 +34,7 @@ export function ProductKnowledgeSelect({
   disabled,
   className,
   placeholder,
+  enableFavorites = false,
 }: ProductKnowledgeSelectProps) {
   const { t } = useTranslation();
   const { facilityId } = useCurrentFacility();
@@ -73,6 +75,22 @@ export function ProductKnowledgeSelect({
         noResultsFound: "no_product_knowledge_found_for",
         noItemsFound: "no_product_knowledge_found",
       }}
+      enableFavorites={enableFavorites}
+      favoritesConfig={
+        enableFavorites
+          ? {
+              listFavorites: {
+                queryFn: productKnowledgeApi.listFavorites,
+              },
+              addFavorite: {
+                queryFn: productKnowledgeApi.addFavorite,
+              },
+              removeFavorite: {
+                queryFn: productKnowledgeApi.removeFavorite,
+              },
+            }
+          : undefined
+      }
     />
   );
 }
