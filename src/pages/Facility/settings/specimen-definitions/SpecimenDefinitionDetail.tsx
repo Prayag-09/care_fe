@@ -72,6 +72,7 @@ export function SpecimenDefinitionDetail({
     updateSpecimenDefinition({
       ...specimenDefinition,
       status: SpecimenDefinitionStatus.retired,
+      slug_value: specimenDefinition.slug_config.slug_value,
     });
   };
 
