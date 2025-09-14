@@ -5159,6 +5159,7 @@
   "valid_year_of_birth": "Please enter a valid year of birth (YYYY)",
   "validation_and_uniqueness": "Validation & Uniqueness",
   "validation_and_uniqueness_help": "Set whether this identifier is required and/or must be unique for each patient.",
+  "validation_errors": "Validation Errors",
   "validation_failed": "Validation failed",
   "value": "Value",
   "value_already_selected": "Value already selected",
