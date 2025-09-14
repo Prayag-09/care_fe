@@ -386,7 +386,7 @@ export default function DispenseDrawer({
             dosage_instruction: [],
             encounter: encounterId,
             location: currentLocation.id,
-            authorizing_prescription: null,
+            authorizing_request: null,
             item: selectedInventory.id,
             quantity: lot.quantity,
             days_supply: 1,

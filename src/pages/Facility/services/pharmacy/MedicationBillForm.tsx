@@ -1160,7 +1160,7 @@ export default function MedicationBillForm({ patientId }: Props) {
           encounter:
             medication?.encounter ?? defaultEncounterId! ?? encounterId,
           location: locationId,
-          authorizing_prescription: medication?.id ?? null,
+          authorizing_request: medication?.id ?? null,
           item: selectedInventory.id,
           quantity: lot.quantity,
           days_supply: item.daysSupply,
@@ -2633,7 +2633,7 @@ export const DispensedItemsSheet = ({
     queryKey: ["medication_dispense", medicationRequestId, qParams],
     queryFn: query(medicationDispenseApi.list, {
       queryParams: {
-        authorizing_prescription: medicationRequestId,
+        authorizing_request: medicationRequestId,
         facility: facilityId,
         location: locationId,
         limit: resultsPerPage,

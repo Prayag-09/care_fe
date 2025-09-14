@@ -106,6 +106,7 @@ import {
   AppointmentStatus,
   SchedulableResourceType,
   TokenSlot,
+  nameFromAppointment,
 } from "@/types/scheduling/schedule";
 import scheduleApis from "@/types/scheduling/scheduleApi";
 import { UserReadMinimal } from "@/types/user/user";
@@ -982,18 +983,18 @@ function AppointmentCard({
           <div className="flex items-center justify-center">
             <Tooltip>
               <TooltipTrigger asChild>
-                <Avatar
-                  name={formatName(appointment.user)}
-                  imageUrl={appointment.user.profile_picture_url}
-                  className="size-14 rounded-r-none"
-                />
+                {appointment.resource_type ===
+                  SchedulableResourceType.Practitioner && (
+                  <Avatar
+                    name={formatName(appointment.resource)}
+                    imageUrl={appointment.resource.profile_picture_url}
+                    className="size-14 rounded-r-none"
+                  />
+                )}
               </TooltipTrigger>
               <TooltipContent className="flex flex-col gap-0">
                 <span className="text-sm font-medium">
-                  {formatName(appointment.user)}
-                </span>
-                <span className="text-xs text-gray-300 truncate">
-                  {appointment.user.username}
+                  {nameFromAppointment(appointment)}
                 </span>
               </TooltipContent>
             </Tooltip>
@@ -1202,7 +1203,7 @@ function AppointmentRowItem({ appointment }: { appointment: Appointment }) {
       </TableCell>
       {/* TODO: Replace with relevant information */}
       <TableCell className="py-6 group-hover:bg-gray-100 bg-white">
-        {formatName(appointment.user)}
+        {nameFromAppointment(appointment)}
       </TableCell>
       <TableCell className="py-6 group-hover:bg-gray-100 bg-white">
         {t(appointment.status)}
