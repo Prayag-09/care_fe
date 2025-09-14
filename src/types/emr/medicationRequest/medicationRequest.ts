@@ -1,5 +1,4 @@
 import { Code } from "@/types/base/code/code";
-import { EncounterRead } from "@/types/emr/encounter/encounter";
 import {
   PrescriptionCreate,
   PrescriptionRead,
@@ -269,8 +268,7 @@ export interface MedicationRequestRead {
 }
 
 export interface MedicationRequestSummary {
-  encounter: EncounterRead;
-  priority: MedicationPriority;
+  prescription: PrescriptionRead;
   count: number;
 }
 
