@@ -54,7 +54,6 @@ import {
   PRESCRIPTION_STATUS_STYLES,
   PrescriptionRead,
 } from "@/types/emr/prescription/prescription";
-import prescriptionApi from "@/types/emr/prescription/prescriptionApi";
 import { DispensedItemsSheet } from "./MedicationBillForm";
 
 interface MedicationTableProps {
@@ -235,15 +234,6 @@ export default function MedicationDispenseList({
       },
     }),
   });
-
-  const { data: prescription } = useQuery({
-    queryKey: ["prescriptions", patientId],
-    queryFn: query(prescriptionApi.get, {
-      pathParams: { patientId, id: "6cef3267-74b5-4cbf-ab0b-e15ef72a014d" },
-    }),
-  });
-
-  console.log(prescription);
 
   const medications = response?.results || [];
 
