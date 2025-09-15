@@ -13,8 +13,11 @@ import PrescriptionView from "@/components/Medicine/PrescriptionView";
 import { MedicationStatementList } from "@/components/Patient/MedicationStatementList";
 
 import query from "@/Utils/request/query";
+import { Button } from "@/components/ui/button";
 import { useEncounter } from "@/pages/Encounters/utils/EncounterProvider";
 import medicationRequestApi from "@/types/emr/medicationRequest/medicationRequestApi";
+import { PlusIcon, ReceiptTextIcon } from "lucide-react";
+import { Link } from "raviger";
 
 interface EmptyStateProps {
   searching?: boolean;
@@ -117,7 +120,7 @@ export default function MedicationRequestTable() {
           <TabsContent value="prescriptions">
             <div className="flex flex-col gap-2">
               <div className="grid grid-cols-[300px_1fr] gap-4">
-                <div className="border-r">
+                <div>
                   <PrescriptionList
                     patientId={patientId}
                     encounterId={encounterId}
@@ -128,16 +131,43 @@ export default function MedicationRequestTable() {
                     }}
                   />
                 </div>
-                <div>
-                  <PrescriptionView
-                    patientId={patientId}
-                    prescriptionId={selectedPrescriptionId}
-                    canWrite={canWrite}
-                    facilityId={facilityId}
-                    encounterId={encounterId}
-                  />
-                </div>
+                {selectedPrescriptionId && (
+                  <div>
+                    <PrescriptionView
+                      patientId={patientId}
+                      prescriptionId={selectedPrescriptionId}
+                      canWrite={canWrite}
+                      facilityId={facilityId}
+                      encounterId={encounterId}
+                    />
+                  </div>
+                )}
               </div>
+              {!selectedPrescriptionId && (
+                <div className="flex w-full items-center justify-center">
+                  <div className="flexitems-center justify-center gap-2 pt-16 text-center">
+                    <div className="rounded-full bg-secondary/10 flex flex-col items-center justify-center gap-2">
+                      <ReceiptTextIcon className="text-gray-500" />
+                      <h3 className="font-medium">
+                        {t("no_prescriptions_found")}
+                      </h3>
+                      {canWrite && (
+                        <Button
+                          asChild
+                          variant="outline"
+                          className="text-gray-950 hover:text-gray-700 h-9 mt-2"
+                          data-cy="edit-prescription"
+                        >
+                          <Link href={`questionnaire/medication_request`}>
+                            <PlusIcon className="mr-2 size-4" />
+                            {t("create_prescription")}
+                          </Link>
+                        </Button>
+                      )}
+                    </div>
+                  </div>
+                </div>
+              )}
             </div>
           </TabsContent>
 

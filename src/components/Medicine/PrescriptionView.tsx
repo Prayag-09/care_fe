@@ -12,11 +12,11 @@ import { Input } from "@/components/ui/input";
 
 import prescriptionApi from "@/types/emr/prescription/prescriptionApi";
 import query from "@/Utils/request/query";
-import { formatName } from "@/Utils/utils";
+import { formatDateTime, formatName } from "@/Utils/utils";
 
 interface PrescriptionViewProps {
   patientId: string;
-  prescriptionId?: string;
+  prescriptionId: string;
   canWrite?: boolean;
   facilityId?: string;
   encounterId?: string;
@@ -40,7 +40,7 @@ export default function PrescriptionView({
     enabled: !!patientId && !!prescriptionId,
   });
 
-  if (!prescriptionId) {
+  if (!prescription) {
     return (
       <div className="flex h-full flex-col items-center justify-center gap-4 p-8 text-center">
         <div className="rounded-full bg-secondary/10 p-3">
@@ -48,9 +48,6 @@ export default function PrescriptionView({
         </div>
         <div className="max-w-[200px] space-y-1">
           <h3 className="font-medium">{t("select_prescription")}</h3>
-          <p className="text-sm text-gray-500">
-            {t("select_prescription_to_view_details")}
-          </p>
         </div>
       </div>
     );
@@ -63,29 +60,12 @@ export default function PrescriptionView({
       </div>
     );
   }
-
-  if (!prescription) {
-    return (
-      <div className="flex h-full flex-col items-center justify-center gap-4 p-8 text-center">
-        <div className="rounded-full bg-secondary/10 p-3">
-          <ReceiptTextIcon className="text-3xl text-gray-500" />
-        </div>
-        <div className="max-w-[200px] space-y-1">
-          <h3 className="font-medium">{t("prescription_not_found")}</h3>
-          <p className="text-sm text-gray-500">
-            {t("prescription_details_not_found")}
-          </p>
-        </div>
-      </div>
-    );
-  }
-
   return (
     <div className="space-y-4">
       <div className="flex items-center justify-between p-2">
         <div>
-          <h3 className="font-medium">
-            {new Date(prescription.created_date).toLocaleDateString()}
+          <h3 className="font-semibold text-lg">
+            {formatDateTime(prescription.created_date, "DD/MM/YYYY hh:mm A")}
           </h3>
           <p className="text-sm text-gray-500">
             {t("prescribed_by")}: {formatName(prescription.prescribed_by)}

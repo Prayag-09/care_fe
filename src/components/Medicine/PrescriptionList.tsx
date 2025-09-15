@@ -1,7 +1,6 @@
 import { cn } from "@/lib/utils";
 import { useQuery } from "@tanstack/react-query";
 import * as React from "react";
-import { useTranslation } from "react-i18next";
 
 import Loading from "@/components/Common/Loading";
 import { Card, CardContent } from "@/components/ui/card";
@@ -17,7 +16,7 @@ interface PrescriptionListProps {
   patientId: string;
   encounterId: string;
   facilityId: string;
-  selectedPrescriptionId?: string | undefined;
+  selectedPrescriptionId?: string;
   onSelectPrescription: (prescription: PrescriptionRead) => void;
 }
 
@@ -28,8 +27,6 @@ export default function PrescriptionList({
   selectedPrescriptionId,
   onSelectPrescription,
 }: PrescriptionListProps) {
-  const { t } = useTranslation();
-
   const { data: prescriptions, isLoading } = useQuery({
     queryKey: ["prescriptions", patientId, encounterId],
     queryFn: query(prescriptionApi.list, {
@@ -58,21 +55,11 @@ export default function PrescriptionList({
   }
 
   if (!prescriptions?.results?.length) {
-    return (
-      <div className="flex h-full flex-col items-center justify-center gap-4 p-8 text-center">
-        <div className="rounded-full bg-secondary/10 p-3">
-          <ReceiptTextIcon className="text-3xl text-gray-500" />
-        </div>
-        <div className="max-w-[200px] space-y-1">
-          <h3 className="font-medium">{t("no_prescriptions")}</h3>
-          <p className="text-sm text-gray-500">{t("no_prescriptions_found")}</p>
-        </div>
-      </div>
-    );
+    return null;
   }
 
   return (
-    <ScrollArea className="h-[calc(100vh-300px)]">
+    <ScrollArea className="h-[calc(100vh-300px)] border-r">
       <div className="space-y-1 p-2">
         {prescriptions.results.map((prescription) => {
           const isSelected = selectedPrescriptionId === prescription.id;
@@ -102,7 +89,7 @@ export default function PrescriptionList({
                       )}
                     />
                     <div className="flex flex-col items-start">
-                      <span className="text-base font-semibold">
+                      <span className="text-base font-medium">
                         {formatDateTime(
                           prescription.created_date,
                           "DD/MM/YYYY hh:mm A",
