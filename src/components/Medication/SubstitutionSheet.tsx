@@ -115,8 +115,6 @@ export function SubstitutionSheet({
     });
   }, [selectedSubstitute, form]);
 
-  // Removed query in favor of ProductKnowledgeSelect
-
   const onSubmit = (values: SubstitutionFormValues) => {
     if (!values.substitutedProductKnowledge) return;
     onSave({
@@ -130,10 +128,6 @@ export function SubstitutionSheet({
   const handleProductSelect = (product: ProductKnowledgeBase) => {
     setSelectedSubstitute(product);
   };
-
-  // Removed in favor of ProductKnowledgeSelect
-
-  // Removed in favor of ProductKnowledgeSelect
 
   if (!originalProductKnowledge) return null;
 
