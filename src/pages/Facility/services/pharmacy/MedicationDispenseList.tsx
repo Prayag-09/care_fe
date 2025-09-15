@@ -53,6 +53,7 @@ import { cn } from "@/lib/utils";
 import medicationRequestApi from "@/types/emr/medicationRequest/medicationRequestApi";
 import {
   PRESCRIPTION_STATUS_STYLES,
+  PrescriptionRead,
   PrescriptionStatus,
 } from "@/types/emr/prescription/prescription";
 import { useMutation, useQueryClient } from "@tanstack/react-query";
@@ -214,12 +215,13 @@ export default function MedicationDispenseList({
   >(null);
   const [medicationToMarkComplete, setMedicationToMarkComplete] =
     useState<MedicationRequestRead | null>(null);
+  const [prescriptionToUpdate, setPrescriptionToUpdate] = useState<{
+    prescription: PrescriptionRead;
+    newStatus: PrescriptionStatus;
+  } | null>(null);
   const [searchTerm, setSearchTerm] = useState("");
   const [dispenseFilter, setDispenseFilter] = useState<
     "all" | keyof typeof MedicationRequestDispenseStatus
-  >("all");
-  const [statusFilter, setStatusFilter] = useState<
-    "all" | MedicationRequestRead["status"]
   >("all");
   const [groupByDispense, setGroupByDispense] = useState(true);
 
@@ -240,6 +242,29 @@ export default function MedicationDispenseList({
       toast.success(t("medication_request_status_updated_successfully"));
       queryClient.invalidateQueries({
         queryKey: ["medication_requests", patientId],
+      });
+    },
+    onError: () => {
+      toast.error(t("something_went_wrong"));
+    },
+  });
+
+  const { mutate: updatePrescriptionStatus } = useMutation({
+    mutationFn: ({
+      prescription,
+      newStatus,
+    }: {
+      prescription: PrescriptionRead;
+      newStatus: PrescriptionStatus;
+    }) => {
+      return mutate(prescriptionApi.update, {
+        pathParams: { patientId, id: prescription.id },
+      })({ ...prescription, status: newStatus });
+    },
+    onSuccess: () => {
+      toast.success(t("prescription_status_updated_successfully"));
+      queryClient.invalidateQueries({
+        queryKey: ["prescription", patientId, prescriptionId],
       });
     },
     onError: () => {
@@ -272,15 +297,13 @@ export default function MedicationDispenseList({
   const filteredMedications = [...allMedications]
     .filter((m) => {
       const name = displayMedicationName(m).toLowerCase();
-      const note = m.note?.toLowerCase() || "";
-      return !term || name.includes(term) || note.includes(term);
+      return !term || name.includes(term);
     })
     .filter(
       (m) =>
         dispenseFilter === "all" ||
         (m.dispense_status || "pending") === dispenseFilter,
     )
-    .filter((m) => statusFilter === "all" || m.status === statusFilter)
     .sort((a, b) =>
       displayMedicationName(a).localeCompare(displayMedicationName(b)),
     );
@@ -305,31 +328,7 @@ export default function MedicationDispenseList({
     <div>
       <div className="mb-4 flex flex-col gap-4">
         <div className="flex flex-col sm:flex-row items-start sm:items-center gap-4">
-          {/* <FilterTabs
-            className="overflow-x-auto w-full"
-            value={qParams.status || "active"}
-            onValueChange={(value) => updateQuery({ status: value })}
-            options={Object.values(MEDICATION_REQUEST_STATUS)}
-            showMoreDropdown={true}
-            showAllOption={false}
-            maxVisibleTabs={4}
-            defaultVisibleOptions={[
-              "active",
-              "completed",
-              "cancelled",
-              "draft",
-            ]}
-          /> */}
           <div className="flex flex-col lg:flex-row items-stretch gap-2 w-full">
-            {/* <div className="flex-1 sm:flex-initial sm:w-auto">
-              <FilterSelect
-                value={qParams.priority || ""}
-                onValueChange={(value) => updateQuery({ priority: value })}
-                options={Object.values(MedicationPriority)}
-                label={t("priority")}
-                onClear={() => updateQuery({ priority: undefined })}
-              />
-            </div> */}
             <div className="w-full lg:w-64">
               <Input
                 value={searchTerm}
@@ -350,17 +349,6 @@ export default function MedicationDispenseList({
                 options={["all", "pending", "partial", "complete"]}
                 label={t("dispense_status") as string}
                 onClear={() => setDispenseFilter("all")}
-              />
-              <FilterSelect
-                value={statusFilter}
-                onValueChange={(value) =>
-                  setStatusFilter(
-                    (value as "all" | MedicationRequestRead["status"]) ?? "all",
-                  )
-                }
-                options={["all", "active", "completed", "cancelled", "draft"]}
-                label={t("status") as string}
-                onClear={() => setStatusFilter("all")}
               />
             </div>
             <div className="flex items-center gap-2 ml-auto">
@@ -422,39 +410,89 @@ export default function MedicationDispenseList({
         />
       ) : (
         <div className="space-y-8">
-          <div className="space-y-3">
-            <div className="bg-white border rounded-md p-3">
+          <div className="space-y-2">
+            <div className="bg-white border rounded-md p-1">
               <div className="flex md:flex-row flex-col items-start md:items-center justify-between gap-2">
                 <div className="flex items-center gap-2">
-                  <span className="text-sm text-gray-700">
-                    {t("prescription")}
-                  </span>
+                  <div className="text-sm text-gray-700 flex items-center gap-2">
+                    <UserIcon className="size-4 text-gray-600" />
+                    <span className="text-gray-900">
+                      {formatName(prescription.prescribed_by)}
+                    </span>
+                    <span className="text-gray-500">{t("on")}</span>
+                    <span className="text-gray-900">
+                      {formatDateTime(prescription.created_date)}
+                    </span>
+                  </div>
+                </div>
+                <div className="flex items-center gap-2">
                   <Badge
                     variant={PRESCRIPTION_STATUS_STYLES[prescription.status]}
                   >
-                    {t(prescription.status)}
+                    {t("status")}: {t(prescription.status)}
                   </Badge>
-                </div>
-                <div className="text-sm text-gray-700 flex items-center gap-2">
-                  <UserIcon className="size-4 text-gray-600" />
-                  <span className="text-gray-900">
-                    {formatName(prescription.prescribed_by)}
-                  </span>
-                  <span className="text-gray-500">{t("on")}</span>
-                  <span className="text-gray-900">
-                    {formatDateTime(prescription.created_date)}
-                  </span>
+                  <DropdownMenu>
+                    <DropdownMenuTrigger asChild>
+                      <Button
+                        variant="outline"
+                        className="border-gray-300 shadow-none"
+                        size="icon"
+                      >
+                        <MoreVertical className="size-4" />
+                      </Button>
+                    </DropdownMenuTrigger>
+                    <DropdownMenuContent align="end">
+                      {prescription.status === PrescriptionStatus.active && (
+                        <DropdownMenuItem
+                          onSelect={() => {
+                            setPrescriptionToUpdate({
+                              prescription,
+                              newStatus: PrescriptionStatus.completed,
+                            });
+                          }}
+                        >
+                          {t("mark_as_completed")}
+                        </DropdownMenuItem>
+                      )}
+                      {prescription.status === PrescriptionStatus.active && (
+                        <DropdownMenuItem
+                          onSelect={() => {
+                            setPrescriptionToUpdate({
+                              prescription,
+                              newStatus: PrescriptionStatus.cancelled,
+                            });
+                          }}
+                        >
+                          {t("cancel_prescription")}
+                        </DropdownMenuItem>
+                      )}
+                      {(prescription.status === PrescriptionStatus.completed ||
+                        prescription.status ===
+                          PrescriptionStatus.cancelled) && (
+                        <DropdownMenuItem
+                          onSelect={() => {
+                            setPrescriptionToUpdate({
+                              prescription,
+                              newStatus: PrescriptionStatus.active,
+                            });
+                          }}
+                        >
+                          {t("reactivate_prescription")}
+                        </DropdownMenuItem>
+                      )}
+                    </DropdownMenuContent>
+                  </DropdownMenu>
                 </div>
               </div>
-              <div className="mt-3">
-                <div className="flex items-center justify-between text-xs text-gray-700">
-                  <span>
-                    {t("total")}: {dispenseCounts.total} • {t("complete")}:{" "}
-                    {dispenseCounts.complete} • {t("partial")}:{" "}
-                    {dispenseCounts.partial} • {t("pending")}:{" "}
-                    {dispenseCounts.pending}
-                  </span>
-                </div>
+            </div>
+            <div className="mt-3">
+              <div className="flex items-center justify-between text-xs text-gray-700">
+                <span>
+                  {t("total")}: {dispenseCounts.total} • {t("complete")}:{" "}
+                  {dispenseCounts.complete} • {t("partial")}:{" "}
+                  {dispenseCounts.partial} • {t("pending")}:{" "}
+                  {dispenseCounts.pending}
+                </span>
               </div>
             </div>
 
@@ -570,6 +608,46 @@ export default function MedicationDispenseList({
           setMedicationToMarkComplete(null);
         }}
         confirmText={t("mark_as_already_given")}
+        cancelText={t("cancel")}
+        variant="primary"
+      />
+      <ConfirmActionDialog
+        open={prescriptionToUpdate !== null}
+        onOpenChange={(open) => {
+          if (!open) setPrescriptionToUpdate(null);
+        }}
+        title={t("update_status")}
+        description={
+          <>
+            <Trans
+              i18nKey="confirm_action_description"
+              values={{
+                action: t("change_status").toLowerCase(),
+              }}
+              components={{
+                1: <strong className="text-gray-900" />,
+              }}
+            />{" "}
+            {t("you_cannot_change_once_submitted")}
+            <p className="mt-2">
+              {t("prescription")}:{" "}
+              <strong>
+                {prescriptionToUpdate?.prescription?.name || t("prescription")}
+              </strong>
+            </p>
+            <p className="mt-1">
+              {t("new_status")}:{" "}
+              <strong>{t(prescriptionToUpdate?.newStatus || "")}</strong>
+            </p>
+          </>
+        }
+        onConfirm={() => {
+          if (prescriptionToUpdate) {
+            updatePrescriptionStatus(prescriptionToUpdate);
+          }
+          setPrescriptionToUpdate(null);
+        }}
+        confirmText={t("update_status")}
         cancelText={t("cancel")}
         variant="primary"
       />

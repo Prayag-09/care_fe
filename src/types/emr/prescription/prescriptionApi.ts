@@ -17,6 +17,11 @@ export default {
     method: HttpMethod.GET,
     TRes: Type<PrescriptionRead>(),
   },
+  update: {
+    path: "/api/v1/patient/{patientId}/medication/prescription/{id}/",
+    method: HttpMethod.PUT,
+    TRes: Type<PrescriptionRead>(),
+  },
   summary: {
     path: "/api/v1/facility/{facilityId}/medication_prescription/summary/",
     method: HttpMethod.GET,
