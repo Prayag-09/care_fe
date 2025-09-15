@@ -166,7 +166,7 @@ const formSchema = z.object({
       productKnowledge: z.any(),
       isSelected: z.boolean(),
       daysSupply: z.number().min(1),
-      isFullyDispensed: z.boolean(),
+      fully_dispensed: z.boolean(),
       dosageInstructions: z.any().optional(),
       lots: z
         .array(
@@ -885,7 +885,7 @@ export default function MedicationBillForm({ patientId }: Props) {
               medication.dosage_instruction[0]?.timing?.repeat?.bounds_duration
                 ?.unit || "",
             ),
-            isFullyDispensed: true,
+            fully_dispensed: true,
             dosageInstructions: medication.dosage_instruction,
             lots: [
               {
@@ -1182,6 +1182,7 @@ export default function MedicationBillForm({ patientId }: Props) {
           item: selectedInventory.id,
           quantity: lot.quantity,
           days_supply: item.daysSupply,
+          fully_dispensed: item.fully_dispensed,
         };
 
         if (
@@ -1203,26 +1204,6 @@ export default function MedicationBillForm({ patientId }: Props) {
         });
       });
     });
-
-    // Get all medications marked as fully dispensed
-    const fullyDispensedMedications = selectedItems
-      .filter((item) => item.isFullyDispensed && item.medication)
-      .map((item) => item.medication);
-
-    // If there are any fully dispensed medications, add a single upsert request
-    if (fullyDispensedMedications.length > 0) {
-      requests.push({
-        url: `/api/v1/patient/${patientId}/medication/request/upsert/`,
-        method: "POST",
-        reference_id: "medication_request_updates",
-        body: {
-          datapoints: fullyDispensedMedications.map((medication) => ({
-            ...medication,
-            dispense_status: "complete",
-          })),
-        },
-      });
-    }
 
     // Get unique prescription IDs from selected items and mark them as completed (only if checked)
     const prescriptionIds = new Set(
@@ -2240,7 +2221,7 @@ export default function MedicationBillForm({ patientId }: Props) {
                                     {field.medication ? (
                                       <FormField
                                         control={form.control}
-                                        name={`items.${index}.isFullyDispensed`}
+                                        name={`items.${index}.fully_dispensed`}
                                         render={({ field: formField }) => (
                                           <FormItem>
                                             <FormControl>
@@ -2465,7 +2446,7 @@ export default function MedicationBillForm({ patientId }: Props) {
                 dosageInstructions[0]?.timing?.repeat?.bounds_duration?.unit ||
                   "",
               ),
-              isFullyDispensed: true,
+              fully_dispensed: true,
               dosageInstructions,
               lots: [
                 {
