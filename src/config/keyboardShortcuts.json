@@ -244,6 +244,13 @@
       "description": "Print Invoice",
       "when": "always",
       "subContext": "invoice-show"
+    },
+    {
+      "key": "s",
+      "action": "navigate-to-source",
+      "description": "Navigate to Source",
+      "when": "always",
+      "subContext": "invoice-show"
     }
   ],
   "encounter": [

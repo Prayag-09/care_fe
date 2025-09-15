@@ -90,8 +90,8 @@ export function SubstitutionSheet({
     defaultValues: {
       substitutedProductKnowledge:
         currentSubstitution?.substitutedProductKnowledge || undefined,
-      type: currentSubstitution?.type,
-      reason: currentSubstitution?.reason,
+      type: currentSubstitution?.type || SubstitutionType.E,
+      reason: currentSubstitution?.reason || SubstitutionReason.OS,
     },
   });
 
@@ -100,8 +100,8 @@ export function SubstitutionSheet({
       form.reset({
         substitutedProductKnowledge:
           currentSubstitution?.substitutedProductKnowledge || undefined,
-        type: currentSubstitution?.type,
-        reason: currentSubstitution?.reason,
+        type: currentSubstitution?.type || SubstitutionType.E,
+        reason: currentSubstitution?.reason || SubstitutionReason.OS,
       });
       setSelectedSubstitute(currentSubstitution?.substitutedProductKnowledge);
       // No need to set search term anymore
