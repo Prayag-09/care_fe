@@ -44,18 +44,24 @@ import mutate from "@/Utils/request/mutate";
 import query from "@/Utils/request/query";
 import encounterApi from "@/types/emr/encounter/encounterApi";
 import patientApi from "@/types/emr/patient/patientApi";
+import prescriptionApi from "@/types/emr/prescription/prescriptionApi";
 import { TagConfig, TagResource } from "@/types/emr/tagConfig/tagConfig";
 import tagConfigApi from "@/types/emr/tagConfig/tagConfigApi";
 import scheduleApis from "@/types/scheduling/scheduleApi";
 
 // Define the entity types that support tags
-export type TagEntityType = "patient" | "encounter" | "appointment";
+export type TagEntityType =
+  | "patient"
+  | "encounter"
+  | "appointment"
+  | "prescription";
 
 // Mapping from entity types to tag resources
 const ENTITY_TO_RESOURCE_MAP = {
   patient: TagResource.PATIENT,
   encounter: TagResource.ENCOUNTER,
   appointment: TagResource.APPOINTMENT,
+  prescription: TagResource.PRESCRIPTION,
 } as const;
 
 // Configuration for different entity types using their respective API files
@@ -75,6 +81,11 @@ const ENTITY_CONFIG = {
     setTagsApi: scheduleApis.appointments.setTags,
     removeTagsApi: scheduleApis.appointments.removeTags,
     displayName: "appointment",
+  },
+  prescription: {
+    setTagsApi: prescriptionApi.setTags,
+    removeTagsApi: prescriptionApi.removeTags,
+    displayName: "prescription",
   },
   // TODO: Add more entity configurations here
   // service_request: {
@@ -100,6 +111,7 @@ interface TagAssignmentSheetProps {
   facilityId?: string;
   currentTags: TagConfig[];
   onUpdate: () => void;
+  patientId?: string;
   trigger?: React.ReactNode;
   canWrite?: boolean;
 }
@@ -390,6 +402,7 @@ export default function TagAssignmentSheet({
   currentTags,
   onUpdate,
   trigger,
+  patientId,
   canWrite = true,
 }: TagAssignmentSheetProps) {
   const { t } = useTranslation();
@@ -404,6 +417,7 @@ export default function TagAssignmentSheet({
       pathParams: {
         external_id: entityId,
         facilityId: facilityId || "",
+        patientId: patientId || "",
       },
     }),
     onSuccess: () => {
@@ -422,6 +436,7 @@ export default function TagAssignmentSheet({
       pathParams: {
         external_id: entityId,
         facilityId: facilityId || "",
+        patientId: patientId || "",
       },
     }),
     onSuccess: () => {

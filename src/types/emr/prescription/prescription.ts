@@ -1,5 +1,6 @@
 import { EncounterRead } from "@/types/emr/encounter/encounter";
 import { MedicationRequestRead } from "@/types/emr/medicationRequest/medicationRequest";
+import { TagConfig } from "@/types/emr/tagConfig/tagConfig";
 import { UserReadMinimal } from "@/types/user/user";
 
 export interface Prescription {
@@ -69,5 +70,5 @@ export function groupMedicationsByPrescription(
 }
 
 export interface PrescriptionSummary extends PrescritionList {
-  tags: string[];
+  tags: TagConfig[];
 }

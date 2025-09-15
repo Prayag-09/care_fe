@@ -27,6 +27,18 @@ export default {
     method: HttpMethod.POST,
     TRes: Type<PrescriptionRead>(),
   },
+  setTags: {
+    path: "/api/v1/patient/{patientId}/medication/prescription/{external_id}/set_tags/",
+    method: HttpMethod.POST,
+    TRes: Type<unknown>(),
+    TBody: Type<{ tags: string[] }>(),
+  },
+  removeTags: {
+    path: "/api/v1/patient/{patientId}/medication/prescription/{external_id}/remove_tags/",
+    method: HttpMethod.POST,
+    TRes: Type<unknown>(),
+    TBody: Type<{ tags: string[] }>(),
+  },
   summary: {
     path: "/api/v1/facility/{facilityId}/medication_prescription/summary/",
     method: HttpMethod.GET,

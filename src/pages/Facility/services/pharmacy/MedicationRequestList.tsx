@@ -1,5 +1,10 @@
-import { useQuery } from "@tanstack/react-query";
-import { ArrowUpRightSquare, ChevronDown, NotepadText } from "lucide-react";
+import { useQuery, useQueryClient } from "@tanstack/react-query";
+import {
+  ArrowUpRightSquare,
+  ChevronDown,
+  Hash,
+  NotepadText,
+} from "lucide-react";
 import { navigate } from "raviger";
 import React, { useState } from "react";
 import { useTranslation } from "react-i18next";
@@ -29,6 +34,7 @@ import {
 import useFilters from "@/hooks/useFilters";
 
 import PatientEncounterOrIdentifierFilter from "@/components/Patient/PatientEncounterOrIdentifierFilter";
+import TagAssignmentSheet from "@/components/Tags/TagAssignmentSheet";
 import {
   ENCOUNTER_CLASSES_COLORS,
   ENCOUNTER_CLASS_ICONS,
@@ -40,6 +46,7 @@ import {
   PrescriptionSummary,
 } from "@/types/emr/prescription/prescription";
 import prescriptionApi from "@/types/emr/prescription/prescriptionApi";
+import { getTagHierarchyDisplay } from "@/types/emr/tagConfig/tagConfig";
 import query from "@/Utils/request/query";
 import { PaginatedResponse } from "@/Utils/request/types";
 import { formatDateTime, formatName } from "@/Utils/utils";
@@ -52,6 +59,7 @@ export default function MedicationRequestList({
   locationId: string;
 }) {
   const { t } = useTranslation();
+  const queryClient = useQueryClient();
   const { qParams, updateQuery, Pagination, resultsPerPage } = useFilters({
     limit: 14,
     disableCache: true,
@@ -100,7 +108,7 @@ export default function MedicationRequestList({
       pathParams: { facilityId },
       queryParams: {
         patient: qParams.search,
-        status: qParams.status,
+        status: qParams.status || "active",
         patient_external_id: qParams.patient_external_id,
         encounter_class: qParams.encounter_class,
         limit: resultsPerPage,
@@ -221,8 +229,8 @@ export default function MedicationRequestList({
               <TableRow>
                 <TableHead>{t("patient_name")}</TableHead>
                 <TableHead>{t("status")}</TableHead>
-                <TableHead>{t("category")}</TableHead>
                 <TableHead>{t("by")}</TableHead>
+                <TableHead>{t("tags", { count: 2 })}</TableHead>
                 <TableHead>{t("action")}</TableHead>
               </TableRow>
             </TableHeader>
@@ -238,30 +246,72 @@ export default function MedicationRequestList({
                   <TableRow key={item.id}>
                     <TableCell className="font-semibold">
                       {item.encounter.patient.name}
+                      <div className="text-xs text-gray-500">
+                        {t("by")}: {formatName(item.prescribed_by)}
+                      </div>
+                      <div className="text-xs text-gray-500">
+                        {t("at")}: {formatDateTime(item.created_date)}
+                      </div>
                     </TableCell>
                     <TableCell>
                       <Badge variant={PRESCRIPTION_STATUS_STYLES[item.status]}>
                         {t(`prescription_status__${item.status}`)}
                       </Badge>
                     </TableCell>
-                    <TableCell>
-                      <Badge
-                        variant={
-                          ENCOUNTER_CLASSES_COLORS[
-                            item.encounter.encounter_class
-                          ]
-                        }
-                      >
-                        {t(
-                          `encounter_class__${item.encounter.encounter_class}`,
-                        )}
-                      </Badge>
-                    </TableCell>
 
                     <TableCell className="text-sm">
-                      {formatName(item.prescribed_by)}
-                      <div className="text-xs text-gray-500">
-                        {formatDateTime(item.created_date)}
+                      <div>
+                        <Badge
+                          size="sm"
+                          variant={
+                            ENCOUNTER_CLASSES_COLORS[
+                              item.encounter.encounter_class
+                            ]
+                          }
+                        >
+                          {t(
+                            `encounter_class__${item.encounter.encounter_class}`,
+                          )}
+                        </Badge>
+                      </div>
+                    </TableCell>
+
+                    <TableCell>
+                      <div className="flex flex-wrap gap-2">
+                        {item.tags && item.tags.length > 0 && (
+                          <div className="flex flex-wrap gap-1">
+                            {item.tags.map((tag) => (
+                              <Badge
+                                key={tag.id}
+                                variant="secondary"
+                                className="text-xs"
+                              >
+                                {getTagHierarchyDisplay(tag)}
+                              </Badge>
+                            ))}
+                          </div>
+                        )}
+                        <TagAssignmentSheet
+                          entityType="prescription"
+                          entityId={item.id}
+                          facilityId={facilityId}
+                          currentTags={item.tags || []}
+                          onUpdate={() => {
+                            queryClient.invalidateQueries({
+                              queryKey: [
+                                "prescriptionQueue",
+                                facilityId,
+                                qParams,
+                              ],
+                            });
+                          }}
+                          patientId={item.encounter.patient.id}
+                          trigger={
+                            <Button variant="outline" size="xs">
+                              <Hash className="size-4" /> {t("tags")}
+                            </Button>
+                          }
+                        />
                       </div>
                     </TableCell>
                     <TableCell>
