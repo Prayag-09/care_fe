@@ -22,6 +22,11 @@ export default {
     method: HttpMethod.PUT,
     TRes: Type<PrescriptionRead>(),
   },
+  upsert: {
+    path: "/api/v1/patient/{patientId}/medication/prescription/upsert/",
+    method: HttpMethod.POST,
+    TRes: Type<PrescriptionRead>(),
+  },
   summary: {
     path: "/api/v1/facility/{facilityId}/medication_prescription/summary/",
     method: HttpMethod.GET,

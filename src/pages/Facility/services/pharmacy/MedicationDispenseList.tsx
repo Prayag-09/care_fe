@@ -321,7 +321,7 @@ export default function MedicationDispenseList({
       | "pending"
       | "partial"
       | "complete";
-    groupedByDispense[key].push(m);
+    groupedByDispense[key]?.push(m);
   }
 
   return (
