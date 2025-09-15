@@ -45,7 +45,7 @@ export default function PrescriptionList({
   // Select first prescription by default
   React.useEffect(() => {
     if (prescriptions?.results?.length && !selectedPrescriptionId) {
-      onSelectPrescription(prescriptions.results[0]);
+      onSelectPrescription(prescriptions.results[0] as PrescriptionRead);
     }
   }, [prescriptions, selectedPrescriptionId, onSelectPrescription]);
 
@@ -74,7 +74,7 @@ export default function PrescriptionList({
   return (
     <ScrollArea className="h-[calc(100vh-300px)]">
       <div className="space-y-1 p-2">
-        {prescriptions.results.map((prescription: PrescriptionRead) => {
+        {prescriptions.results.map((prescription) => {
           const isSelected = selectedPrescriptionId === prescription.id;
           return (
             <Card
@@ -85,7 +85,9 @@ export default function PrescriptionList({
                   ? "bg-white border-primary-600 shadow-md"
                   : "bg-gray-100 hover:bg-gray-100 shadow-none",
               )}
-              onClick={() => onSelectPrescription(prescription)}
+              onClick={() =>
+                onSelectPrescription(prescription as PrescriptionRead)
+              }
             >
               {isSelected && (
                 <div className="absolute right-0 h-8 w-1 bg-primary-600 rounded-l inset-y-1/2 -translate-y-1/2" />
