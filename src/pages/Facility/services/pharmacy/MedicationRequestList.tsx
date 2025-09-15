@@ -34,9 +34,11 @@ import {
   ENCOUNTER_CLASS_ICONS,
   EncounterClass,
 } from "@/types/emr/encounter/encounter";
-import { MedicationRequestSummary } from "@/types/emr/medicationRequest/medicationRequest";
-import medicationRequestApi from "@/types/emr/medicationRequest/medicationRequestApi";
-import { PRESCRIPTION_STATUS_STYLES } from "@/types/emr/prescription/prescription";
+import {
+  PRESCRIPTION_STATUS_STYLES,
+  PrescriptionSummary,
+} from "@/types/emr/prescription/prescription";
+import prescriptionApi from "@/types/emr/prescription/prescriptionApi";
 import query from "@/Utils/request/query";
 import { PaginatedResponse } from "@/Utils/request/types";
 import { formatDateTime, formatName } from "@/Utils/utils";
@@ -99,10 +101,10 @@ export default function MedicationRequestList({
   };
 
   const { data: prescriptionQueue, isLoading } = useQuery<
-    PaginatedResponse<MedicationRequestSummary>
+    PaginatedResponse<PrescriptionSummary>
   >({
     queryKey: ["prescriptionQueue", facilityId, qParams],
-    queryFn: query.debounced(medicationRequestApi.summary, {
+    queryFn: query.debounced(prescriptionApi.summary, {
       pathParams: { facilityId },
       queryParams: {
         patient: qParams.search,
@@ -226,7 +228,6 @@ export default function MedicationRequestList({
                 <TableHead>{t("status")}</TableHead>
                 <TableHead>{t("category")}</TableHead>
                 <TableHead>{t("by")}</TableHead>
-                <TableHead>{t("total_medicines")}</TableHead>
                 <TableHead>{t("action")}</TableHead>
               </TableRow>
             </TableHeader>
@@ -238,61 +239,52 @@ export default function MedicationRequestList({
                   </TableCell>
                 </TableRow>
               ) : (
-                prescriptionQueue?.results?.map(
-                  (item: MedicationRequestSummary) => (
-                    <TableRow key={item.prescription.id}>
-                      <TableCell className="font-semibold">
-                        {item.prescription.encounter.patient.name}
-                      </TableCell>
-                      <TableCell>
-                        <Badge
-                          variant={
-                            PRESCRIPTION_STATUS_STYLES[item.prescription.status]
-                          }
-                        >
-                          {t(
-                            `prescription_status__${item.prescription.status}`,
-                          )}
-                        </Badge>
-                      </TableCell>
-                      <TableCell>
-                        <Badge
-                          variant={
-                            ENCOUNTER_CLASSES_COLORS[
-                              item.prescription.encounter.encounter_class
-                            ]
-                          }
-                        >
-                          {t(
-                            `encounter_class__${item.prescription.encounter.encounter_class}`,
-                          )}
-                        </Badge>
-                      </TableCell>
+                prescriptionQueue?.results?.map((item: PrescriptionSummary) => (
+                  <TableRow key={item.id}>
+                    <TableCell className="font-semibold">
+                      {item.encounter.patient.name}
+                    </TableCell>
+                    <TableCell>
+                      <Badge variant={PRESCRIPTION_STATUS_STYLES[item.status]}>
+                        {t(`prescription_status__${item.status}`)}
+                      </Badge>
+                    </TableCell>
+                    <TableCell>
+                      <Badge
+                        variant={
+                          ENCOUNTER_CLASSES_COLORS[
+                            item.encounter.encounter_class
+                          ]
+                        }
+                      >
+                        {t(
+                          `encounter_class__${item.encounter.encounter_class}`,
+                        )}
+                      </Badge>
+                    </TableCell>
 
-                      <TableCell className="text-sm">
-                        {formatName(item.prescription.prescribed_by)}
-                        <div className="text-xs text-gray-500">
-                          {formatDateTime(item.prescription.created_date)}
-                        </div>
-                      </TableCell>
-                      <TableCell>{item.count}</TableCell>
-                      <TableCell>
-                        <Button
-                          variant="outline"
-                          className="font-semibold"
-                          onClick={() => {
-                            navigate(
-                              `/facility/${facilityId}/locations/${locationId}/medication_requests/patient/${item.prescription.encounter.patient.id}${qParams.billing_status === "partial" ? "/partial" : ""}`,
-                            );
-                          }}
-                        >
-                          <ArrowUpRightSquare strokeWidth={1.5} />
-                          {t("see_prescription")}
-                        </Button>
-                      </TableCell>
-                    </TableRow>
-                  ),
-                )
+                    <TableCell className="text-sm">
+                      {formatName(item.prescribed_by)}
+                      <div className="text-xs text-gray-500">
+                        {formatDateTime(item.created_date)}
+                      </div>
+                    </TableCell>
+                    <TableCell>
+                      <Button
+                        variant="outline"
+                        className="font-semibold"
+                        onClick={() => {
+                          navigate(
+                            `/facility/${facilityId}/locations/${locationId}/medication_requests/patient/${item.encounter.patient.id}/prescription/${item.id}`,
+                          );
+                        }}
+                      >
+                        <ArrowUpRightSquare strokeWidth={1.5} />
+                        {t("see_prescription")}
+                      </Button>
+                    </TableCell>
+                  </TableRow>
+                ))
               )}
             </TableBody>
           </Table>

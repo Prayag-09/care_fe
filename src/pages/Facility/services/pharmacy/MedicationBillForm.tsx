@@ -1263,7 +1263,6 @@ export default function MedicationBillForm({ patientId }: Props) {
               facilityId={facilityId}
               locationId={locationId}
               showViewPrescriptionsButton={true}
-              showViewDispenseButton={true}
             />
           </div>
         )}

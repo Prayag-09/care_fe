@@ -1,9 +1,13 @@
-import { useMutation, useQuery, useQueryClient } from "@tanstack/react-query";
-import { ArrowRightIcon, MoreVertical, PrinterIcon } from "lucide-react";
-import { navigate } from "raviger";
+import { useQuery } from "@tanstack/react-query";
+import {
+  ArrowRightIcon,
+  MoreVertical,
+  PrinterIcon,
+  User as UserIcon,
+} from "lucide-react";
+import { Link, navigate } from "raviger";
 import { useState } from "react";
 import { Trans, useTranslation } from "react-i18next";
-import { toast } from "sonner";
 
 import CareIcon from "@/CAREUI/icons/CareIcon";
 
@@ -17,7 +21,9 @@ import {
 } from "@/components/ui/dropdown-menu";
 import { EmptyState } from "@/components/ui/empty-state";
 import { FilterSelect } from "@/components/ui/filter-select";
-import { FilterTabs } from "@/components/ui/filter-tabs";
+import { Input } from "@/components/ui/input";
+import { Label } from "@/components/ui/label";
+import { Switch } from "@/components/ui/switch";
 import {
   Table,
   TableBody,
@@ -31,29 +37,26 @@ import ConfirmActionDialog from "@/components/Common/ConfirmActionDialog";
 import { TableSkeleton } from "@/components/Common/SkeletonLoading";
 import { formatDoseRange, formatTotalUnits } from "@/components/Medicine/utils";
 
-import useFilters from "@/hooks/useFilters";
-
-import mutate from "@/Utils/request/mutate";
 import query from "@/Utils/request/query";
 import useCurrentLocation from "@/pages/Facility/locations/utils/useCurrentLocation";
 import {
-  MEDICATION_REQUEST_PRIORITY_COLORS,
-  MEDICATION_REQUEST_STATUS,
   MEDICATION_REQUEST_STATUS_COLORS,
-  MedicationPriority,
   MedicationRequestDispenseStatus,
   MedicationRequestRead,
   displayMedicationName,
 } from "@/types/emr/medicationRequest/medicationRequest";
-import medicationRequestApi from "@/types/emr/medicationRequest/medicationRequestApi";
+import prescriptionApi from "@/types/emr/prescription/prescriptionApi";
 
+import mutate from "@/Utils/request/mutate";
 import { formatDateTime, formatName } from "@/Utils/utils";
 import { cn } from "@/lib/utils";
+import medicationRequestApi from "@/types/emr/medicationRequest/medicationRequestApi";
 import {
-  GroupedPrescription,
   PRESCRIPTION_STATUS_STYLES,
-  PrescriptionRead,
+  PrescriptionStatus,
 } from "@/types/emr/prescription/prescription";
+import { useMutation, useQueryClient } from "@tanstack/react-query";
+import { toast } from "sonner";
 import { DispensedItemsSheet } from "./MedicationBillForm";
 
 interface MedicationTableProps {
@@ -79,7 +82,9 @@ function MedicationTable({
             <TableHead className="text-gray-700">{t("frequency")}</TableHead>
             <TableHead className="text-gray-700">{t("duration")}</TableHead>
             <TableHead className="text-gray-700">{t("total_units")}</TableHead>
-            <TableHead className="text-gray-700">{t("priority")}</TableHead>
+            <TableHead className="text-gray-700">
+              {t("dispense_status")}
+            </TableHead>
             <TableHead className="text-gray-700">{t("status")}</TableHead>
             {medications.some(
               (medication) =>
@@ -148,13 +153,7 @@ function MedicationTable({
                   {formatTotalUnits(medication.dosage_instruction, t("units"))}
                 </TableCell>
                 <TableCell>
-                  <Badge
-                    variant={
-                      MEDICATION_REQUEST_PRIORITY_COLORS[medication.priority]
-                    }
-                  >
-                    {t(medication.priority)}
-                  </Badge>
+                  <Badge>{t(medication.dispense_status || "pending")}</Badge>
                 </TableCell>
                 <TableCell>
                   <Badge
@@ -198,58 +197,38 @@ function MedicationTable({
 interface Props {
   facilityId: string;
   patientId: string;
-  partial?: boolean;
+  prescriptionId: string;
 }
 
 export default function MedicationDispenseList({
   facilityId,
   patientId,
-  partial = false,
+  prescriptionId,
 }: Props) {
   const { t } = useTranslation();
   const { locationId } = useCurrentLocation();
-  const { qParams, updateQuery, Pagination, resultsPerPage } = useFilters({
-    limit: 100,
-    disableCache: true,
-  });
+
   const queryClient = useQueryClient();
   const [dispensedMedicationId, setDispensedMedicationId] = useState<
     string | null
   >(null);
   const [medicationToMarkComplete, setMedicationToMarkComplete] =
     useState<MedicationRequestRead | null>(null);
-  const { data: response, isLoading } = useQuery({
-    queryKey: ["medication_requests", qParams, patientId],
-    queryFn: query(medicationRequestApi.list, {
-      pathParams: { patientId },
-      queryParams: {
-        facility: facilityId,
-        limit: resultsPerPage,
-        offset: ((qParams.page ?? 1) - 1) * resultsPerPage,
-        status: qParams.status || "active",
-        priority: qParams.priority,
-        dispense_status: partial ? "partial" : undefined,
-        dispense_status_isnull: !partial ? true : undefined,
-        ordering: "-created_date",
-      },
+  const [searchTerm, setSearchTerm] = useState("");
+  const [dispenseFilter, setDispenseFilter] = useState<
+    "all" | keyof typeof MedicationRequestDispenseStatus
+  >("all");
+  const [statusFilter, setStatusFilter] = useState<
+    "all" | MedicationRequestRead["status"]
+  >("all");
+  const [groupByDispense, setGroupByDispense] = useState(true);
+
+  const { data: prescription, isLoading } = useQuery({
+    queryKey: ["prescription", patientId, prescriptionId],
+    queryFn: query(prescriptionApi.get, {
+      pathParams: { patientId, id: prescriptionId },
     }),
   });
-
-  const medications = response?.results || [];
-
-  const groupedByPrescription = medications.reduce((acc, medication) => {
-    const prescriptionId = medication.prescription?.id;
-    if (prescriptionId && !acc[prescriptionId]) {
-      acc[prescriptionId] = {
-        requests: [],
-        prescription: medication.prescription as PrescriptionRead,
-      };
-    }
-    if (prescriptionId) {
-      acc[prescriptionId].requests.push(medication);
-    }
-    return acc;
-  }, {} as GroupedPrescription);
 
   const { mutate: updateMedicationRequest } = useMutation({
     mutationFn: (medication: MedicationRequestRead) => {
@@ -260,7 +239,7 @@ export default function MedicationDispenseList({
     onSuccess: () => {
       toast.success(t("medication_request_status_updated_successfully"));
       queryClient.invalidateQueries({
-        queryKey: ["medication_requests", qParams, patientId],
+        queryKey: ["medication_requests", patientId],
       });
     },
     onError: () => {
@@ -268,11 +247,65 @@ export default function MedicationDispenseList({
     },
   });
 
+  if (!prescription || isLoading) {
+    return <TableSkeleton count={5} />;
+  }
+
+  const allMedications = prescription.medications;
+
+  const countsInit = {
+    total: allMedications.length,
+    pending: 0,
+    partial: 0,
+    complete: 0,
+  };
+  for (const med of allMedications) {
+    const key = (med.dispense_status || "pending") as
+      | "pending"
+      | "partial"
+      | "complete";
+    countsInit[key] += 1;
+  }
+  const dispenseCounts = countsInit;
+
+  const term = searchTerm.trim().toLowerCase();
+  const filteredMedications = [...allMedications]
+    .filter((m) => {
+      const name = displayMedicationName(m).toLowerCase();
+      const note = m.note?.toLowerCase() || "";
+      return !term || name.includes(term) || note.includes(term);
+    })
+    .filter(
+      (m) =>
+        dispenseFilter === "all" ||
+        (m.dispense_status || "pending") === dispenseFilter,
+    )
+    .filter((m) => statusFilter === "all" || m.status === statusFilter)
+    .sort((a, b) =>
+      displayMedicationName(a).localeCompare(displayMedicationName(b)),
+    );
+
+  const groupedByDispense: Record<
+    "pending" | "partial" | "complete",
+    MedicationRequestRead[]
+  > = {
+    pending: [],
+    partial: [],
+    complete: [],
+  };
+  for (const m of filteredMedications) {
+    const key = (m.dispense_status || "pending") as
+      | "pending"
+      | "partial"
+      | "complete";
+    groupedByDispense[key].push(m);
+  }
+
   return (
     <div>
       <div className="mb-4 flex flex-col gap-4">
         <div className="flex flex-col sm:flex-row items-start sm:items-center gap-4">
-          <FilterTabs
+          {/* <FilterTabs
             className="overflow-x-auto w-full"
             value={qParams.status || "active"}
             onValueChange={(value) => updateQuery({ status: value })}
@@ -286,9 +319,9 @@ export default function MedicationDispenseList({
               "cancelled",
               "draft",
             ]}
-          />
-          <div className="flex flex-col sm:flex-row items-stretch gap-2 w-full sm:w-auto">
-            <div className="flex-1 sm:flex-initial sm:w-auto">
+          /> */}
+          <div className="flex flex-col lg:flex-row items-stretch gap-2 w-full">
+            {/* <div className="flex-1 sm:flex-initial sm:w-auto">
               <FilterSelect
                 value={qParams.priority || ""}
                 onValueChange={(value) => updateQuery({ priority: value })}
@@ -296,33 +329,76 @@ export default function MedicationDispenseList({
                 label={t("priority")}
                 onClear={() => updateQuery({ priority: undefined })}
               />
+            </div> */}
+            <div className="w-full lg:w-64">
+              <Input
+                value={searchTerm}
+                onChange={(e) => setSearchTerm(e.target.value)}
+                placeholder={t("search") as string}
+              />
+            </div>
+            <div className="md:flex gap-2">
+              <FilterSelect
+                value={dispenseFilter}
+                onValueChange={(value) =>
+                  setDispenseFilter(
+                    (value as
+                      | "all"
+                      | keyof typeof MedicationRequestDispenseStatus) ?? "all",
+                  )
+                }
+                options={["all", "pending", "partial", "complete"]}
+                label={t("dispense_status") as string}
+                onClear={() => setDispenseFilter("all")}
+              />
+              <FilterSelect
+                value={statusFilter}
+                onValueChange={(value) =>
+                  setStatusFilter(
+                    (value as "all" | MedicationRequestRead["status"]) ?? "all",
+                  )
+                }
+                options={["all", "active", "completed", "cancelled", "draft"]}
+                label={t("status") as string}
+                onClear={() => setStatusFilter("all")}
+              />
+            </div>
+            <div className="flex items-center gap-2 ml-auto">
+              <Label htmlFor="group-by" className="text-sm text-gray-700">
+                {t("group_by")}: {t("dispense_status")}
+              </Label>
+              <Switch
+                id="group-by"
+                checked={groupByDispense}
+                onCheckedChange={setGroupByDispense}
+              />
             </div>
           </div>
           <div className="ml-auto flex gap-2">
             <Button
               variant="outline"
+              asChild
               className="w-full sm:w-auto border-gray-400 font-semibold"
-              disabled={medications.length === 0}
+            >
+              <Link
+                href={`/facility/${facilityId}/locations/${locationId}/medication_dispense/patient/${patientId}/preparation`}
+                basePath="/"
+              >
+                {t("dispenses")}
+              </Link>
+            </Button>
+            <Button
+              variant="outline"
+              className="w-full sm:w-auto border-gray-400 font-semibold"
+              disabled={prescription.medications.length === 0}
               onClick={() =>
                 navigate(
-                  `/facility/${facilityId}/locations/${locationId}/medication_requests/patient/${patientId}/print`,
-                  {
-                    query: {
-                      status: qParams.status || "active",
-                      priority: qParams.priority || "",
-                      dispense_status: partial ? "partial" : "",
-                      dispense_status_isnull: !partial,
-                      type:
-                        Object.keys(groupedByPrescription).length > 0
-                          ? "pharmacy"
-                          : "other",
-                    },
-                  },
+                  `/facility/${facilityId}/locations/${locationId}/medication_requests/patient/${patientId}/prescription/${prescriptionId}/print`,
                 )
               }
             >
               <PrinterIcon className="size-4" />
-              {t("print_prescriptions")}
+              {t("print")}
             </Button>
             <Button
               onClick={() =>
@@ -332,18 +408,13 @@ export default function MedicationDispenseList({
               }
               className="w-full sm:w-auto"
             >
-              {Object.keys(groupedByPrescription).length > 0
-                ? t("start_billing")
-                : t("add_new_medications")}
+              {t("billing")}
               <ArrowRightIcon className="size-4" />
             </Button>
           </div>
         </div>
       </div>
-
-      {isLoading ? (
-        <TableSkeleton count={5} />
-      ) : medications.length === 0 ? (
+      {prescription.medications.length === 0 ? (
         <EmptyState
           title={t("no_medications_found")}
           description={t("no_medications_found_description")}
@@ -351,73 +422,106 @@ export default function MedicationDispenseList({
         />
       ) : (
         <div className="space-y-8">
-          {Object.keys(groupedByPrescription).length > 0 && (
-            <div className="space-y-2">
-              <h2 className="text-lg font-semibold text-gray-900">
-                {t("pharmacy_medications")}
-              </h2>
-
-              <div className="space-y-6">
-                {Object.keys(groupedByPrescription).map((prescriptionId) => (
-                  <div key={prescriptionId}>
-                    <div className="text-base flex justify-between font-medium text-gray-800 space-x-2 bg-white rounded-t border-gray-300">
-                      <div className="flex items-center gap-2 px-2 py-1">
-                        <span className="text-gray-900">
-                          {t("prescription")}
-                        </span>
-                        <span className="text-gray-700">
-                          {formatDateTime(
-                            groupedByPrescription[prescriptionId].prescription
-                              .created_date,
-                          )}
-                        </span>
-                        <span className="text-gray-500">{t("by")}</span>
-                        <span className="text-gray-900">
-                          {formatName(
-                            groupedByPrescription[prescriptionId].prescription
-                              .prescribed_by,
-                          )}
-                        </span>
-                      </div>
-                      <div className="px-2 py-1">
-                        <Badge
-                          variant={
-                            PRESCRIPTION_STATUS_STYLES[
-                              groupedByPrescription[prescriptionId].prescription
-                                .status
-                            ]
-                          }
-                        >
-                          {t(
-                            groupedByPrescription[prescriptionId].prescription
-                              .status,
-                          )}
-                        </Badge>
-                      </div>
-                    </div>
-                    <MedicationTable
-                      medications={
-                        groupedByPrescription[prescriptionId].requests
-                      }
-                      setDispensedMedicationId={
-                        partial ? setDispensedMedicationId : undefined
-                      }
-                      setMedicationToMarkComplete={
-                        partial ? setMedicationToMarkComplete : undefined
-                      }
-                    />
-                  </div>
-                ))}
+          <div className="space-y-3">
+            <div className="bg-white border rounded-md p-3">
+              <div className="flex md:flex-row flex-col items-start md:items-center justify-between gap-2">
+                <div className="flex items-center gap-2">
+                  <span className="text-sm text-gray-700">
+                    {t("prescription")}
+                  </span>
+                  <Badge
+                    variant={PRESCRIPTION_STATUS_STYLES[prescription.status]}
+                  >
+                    {t(prescription.status)}
+                  </Badge>
+                </div>
+                <div className="text-sm text-gray-700 flex items-center gap-2">
+                  <UserIcon className="size-4 text-gray-600" />
+                  <span className="text-gray-900">
+                    {formatName(prescription.prescribed_by)}
+                  </span>
+                  <span className="text-gray-500">{t("on")}</span>
+                  <span className="text-gray-900">
+                    {formatDateTime(prescription.created_date)}
+                  </span>
+                </div>
+              </div>
+              <div className="mt-3">
+                <div className="flex items-center justify-between text-xs text-gray-700">
+                  <span>
+                    {t("total")}: {dispenseCounts.total} • {t("complete")}:{" "}
+                    {dispenseCounts.complete} • {t("partial")}:{" "}
+                    {dispenseCounts.partial} • {t("pending")}:{" "}
+                    {dispenseCounts.pending}
+                  </span>
+                </div>
               </div>
             </div>
-          )}
 
-          <div className="mt-4">
-            <Pagination totalCount={response?.count || 0} />
+            {groupByDispense ? (
+              <div className="space-y-6">
+                {(["pending", "partial", "complete"] as const).map((key) =>
+                  groupedByDispense[key].length > 0 ? (
+                    <div key={key} className="space-y-2">
+                      <div className="flex items-center justify-between">
+                        <h3 className="text-base font-semibold text-gray-900">
+                          {t(key)} ({groupedByDispense[key].length})
+                        </h3>
+                      </div>
+                      <MedicationTable
+                        medications={groupedByDispense[key]}
+                        setDispensedMedicationId={
+                          prescription.status === PrescriptionStatus.active
+                            ? setDispensedMedicationId
+                            : undefined
+                        }
+                        setMedicationToMarkComplete={
+                          prescription.status === PrescriptionStatus.active
+                            ? setMedicationToMarkComplete
+                            : undefined
+                        }
+                      />
+                    </div>
+                  ) : null,
+                )}
+                {filteredMedications.length === 0 && (
+                  <EmptyState
+                    title={t("no_results")}
+                    description={t("try_adjusting_your_filters")}
+                    icon="l-search"
+                  />
+                )}
+              </div>
+            ) : (
+              <div className="space-y-2">
+                <h2 className="text-lg font-semibold text-gray-900">
+                  {t("pharmacy_medications")}
+                </h2>
+                <MedicationTable
+                  medications={filteredMedications}
+                  setDispensedMedicationId={
+                    prescription.status === PrescriptionStatus.active
+                      ? setDispensedMedicationId
+                      : undefined
+                  }
+                  setMedicationToMarkComplete={
+                    prescription.status === PrescriptionStatus.active
+                      ? setMedicationToMarkComplete
+                      : undefined
+                  }
+                />
+                {filteredMedications.length === 0 && (
+                  <EmptyState
+                    title={t("no_results")}
+                    description={t("try_adjusting_your_filters")}
+                    icon="l-search"
+                  />
+                )}
+              </div>
+            )}
           </div>
         </div>
       )}
-
       {dispensedMedicationId && (
         <DispensedItemsSheet
           open={!!dispensedMedicationId}
@@ -430,7 +534,6 @@ export default function MedicationDispenseList({
           facilityId={facilityId}
         />
       )}
-
       <ConfirmActionDialog
         open={medicationToMarkComplete !== null}
         onOpenChange={(open) => {

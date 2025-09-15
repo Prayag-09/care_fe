@@ -22,10 +22,17 @@ export interface PrescriptionCreate extends Omit<Prescription, "id"> {
   alternate_identifier: string;
 }
 
+export interface PrescritionList extends Prescription {
+  prescribed_by: UserReadMinimal;
+  encounter: EncounterRead;
+  created_date: string;
+}
+
 export interface PrescriptionRead extends Prescription {
   prescribed_by: UserReadMinimal;
   encounter: EncounterRead;
   created_date: string;
+  medications: MedicationRequestRead[];
 }
 
 export const PRESCRIPTION_STATUS_STYLES = {
@@ -34,10 +41,6 @@ export const PRESCRIPTION_STATUS_STYLES = {
   cancelled: "destructive",
 } as const satisfies Record<PrescriptionStatus, string>;
 
-// GroupedPrescription
-export interface GroupedPrescription {
-  [key: string]: {
-    requests: MedicationRequestRead[];
-    prescription: PrescriptionRead;
-  };
+export interface PrescriptionSummary extends PrescritionList {
+  tags: string[];
 }
