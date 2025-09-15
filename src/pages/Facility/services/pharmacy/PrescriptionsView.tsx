@@ -45,6 +45,7 @@ export default function PrescriptionsView({
     <Page title={t("pharmacy_medications")} hideTitleOnPage>
       <div>
         <Button
+          data-shortcut-id="go-back"
           variant="outline"
           className="text-gray-950 font-semibold border-gray-300 mb-4"
           size="sm"

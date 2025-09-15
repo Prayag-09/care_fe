@@ -87,6 +87,8 @@ export default function DispensesView({
               `/facility/${facilityId}/locations/${locationId}/medication_dispense/`,
             )
           }
+          data-shortcut-id="go-back"
+          size="sm"
         >
           <ArrowLeftIcon className="size-4" />
           {t("back_to_dispense_queue")}
