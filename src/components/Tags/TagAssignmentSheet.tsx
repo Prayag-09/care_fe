@@ -45,6 +45,7 @@ import query from "@/Utils/request/query";
 import encounterApi from "@/types/emr/encounter/encounterApi";
 import patientApi from "@/types/emr/patient/patientApi";
 import prescriptionApi from "@/types/emr/prescription/prescriptionApi";
+import serviceRequestApi from "@/types/emr/serviceRequest/serviceRequestApi";
 import { TagConfig, TagResource } from "@/types/emr/tagConfig/tagConfig";
 import tagConfigApi from "@/types/emr/tagConfig/tagConfigApi";
 import scheduleApis from "@/types/scheduling/scheduleApi";
@@ -54,7 +55,8 @@ export type TagEntityType =
   | "patient"
   | "encounter"
   | "appointment"
-  | "prescription";
+  | "prescription"
+  | "service_request";
 
 // Mapping from entity types to tag resources
 const ENTITY_TO_RESOURCE_MAP = {
@@ -62,6 +64,7 @@ const ENTITY_TO_RESOURCE_MAP = {
   encounter: TagResource.ENCOUNTER,
   appointment: TagResource.APPOINTMENT,
   prescription: TagResource.PRESCRIPTION,
+  service_request: TagResource.SERVICE_REQUEST,
 } as const;
 
 // Configuration for different entity types using their respective API files
@@ -87,12 +90,13 @@ const ENTITY_CONFIG = {
     removeTagsApi: prescriptionApi.removeTags,
     displayName: "prescription",
   },
+  service_request: {
+    setTagsApi: serviceRequestApi.setTags,
+    removeTagsApi: serviceRequestApi.removeTags,
+    displayName: "service_request",
+  },
   // TODO: Add more entity configurations here
-  // service_request: {
-  //   setTagsApi: serviceRequestApi.setTags,
-  //   removeTagsApi: serviceRequestApi.removeTags,
-  //   displayName: "service_request",
-  // },
+
   // charge_item: {
   //   setTagsApi: chargeItemApi.setTags,
   //   removeTagsApi: chargeItemApi.removeTags,
