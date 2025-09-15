@@ -6,7 +6,7 @@ import {
   NotepadText,
 } from "lucide-react";
 import { navigate } from "raviger";
-import React, { useState } from "react";
+import React, { useMemo, useState } from "react";
 import { useTranslation } from "react-i18next";
 
 import { Badge } from "@/components/ui/badge";
@@ -35,9 +35,13 @@ import useFilters from "@/hooks/useFilters";
 
 import PatientEncounterOrIdentifierFilter from "@/components/Patient/PatientEncounterOrIdentifierFilter";
 import TagAssignmentSheet from "@/components/Tags/TagAssignmentSheet";
+import { tagFilter } from "@/components/ui/multi-filter/filter-list";
+import MultiFilter from "@/components/ui/multi-filter/multi-filter";
+import useMultiFilterState from "@/components/ui/multi-filter/utils/useMultiFilterState";
+import { createFilterConfig } from "@/components/ui/multi-filter/utils/utils";
 import {
-  ENCOUNTER_CLASSES_COLORS,
   ENCOUNTER_CLASS_ICONS,
+  ENCOUNTER_CLASSES_COLORS,
   EncounterClass,
 } from "@/types/emr/encounter/encounter";
 import {
@@ -46,7 +50,11 @@ import {
   PrescriptionSummary,
 } from "@/types/emr/prescription/prescription";
 import prescriptionApi from "@/types/emr/prescription/prescriptionApi";
-import { getTagHierarchyDisplay } from "@/types/emr/tagConfig/tagConfig";
+import {
+  getTagHierarchyDisplay,
+  TagConfig,
+  TagResource,
+} from "@/types/emr/tagConfig/tagConfig";
 import query from "@/Utils/request/query";
 import { PaginatedResponse } from "@/Utils/request/types";
 import { formatDateTime, formatName } from "@/Utils/utils";
@@ -77,6 +85,50 @@ export default function MedicationRequestList({
     "vr",
     "hh",
   ]);
+
+  // Create filter configurations
+  const filters = useMemo(
+    () => [
+      tagFilter("tags", TagResource.PRESCRIPTION, "multi", "tags"),
+      createFilterConfig(
+        "status",
+        "status",
+        "command",
+        Object.values(PrescriptionStatus).map((status) => ({
+          value: status,
+          label: t(`prescription_status__${status}`),
+          color: PRESCRIPTION_STATUS_STYLES[status],
+        })),
+      ),
+    ],
+    [t],
+  );
+
+  // Handle filter updates
+  const onFilterUpdate = (query: Record<string, unknown>) => {
+    // Update the query parameters based on filter changes
+    const updates: Record<string, unknown> = {};
+
+    if (query.tags) {
+      const tags = query.tags as TagConfig[];
+      updates.tags = tags.length > 0 ? tags.map((tag) => tag.id) : undefined;
+    }
+
+    if (query.status) {
+      updates.status = query.status;
+    }
+
+    updateQuery(updates);
+  };
+
+  // Use the multi-filter state hook
+  const {
+    selectedFilters,
+    handleFilterChange,
+    handleOperationChange,
+    handleClearAll,
+    handleClearFilter,
+  } = useMultiFilterState(filters, onFilterUpdate);
 
   // Handle tab selection
   const handleTabSelect = (value: string) => {
@@ -111,6 +163,7 @@ export default function MedicationRequestList({
         status: qParams.status || "active",
         patient_external_id: qParams.patient_external_id,
         encounter_class: qParams.encounter_class,
+        tags: qParams.tags,
         limit: resultsPerPage,
         offset: ((qParams.page ?? 1) - 1) * resultsPerPage,
       },
@@ -144,7 +197,7 @@ export default function MedicationRequestList({
         </Tabs>
       </div>
       {/* Category tabs and search */}
-      <div className="flex flex-col gap-3 lg:flex-row lg:items-center justify-between lg:gap-6 mb-4">
+      <div className="flex flex-col gap-3 lg:flex-row lg:items-center justify-between lg:gap-6 mb-2">
         <div className="flex flex-wrap gap-2">
           {/* Encounter Class Tabs */}
           <Tabs
@@ -219,6 +272,17 @@ export default function MedicationRequestList({
           />
         </div>
       </div>
+      <MultiFilter
+        selectedFilters={selectedFilters}
+        onFilterChange={handleFilterChange}
+        onOperationChange={handleOperationChange}
+        onClearAll={handleClearAll}
+        onClearFilter={handleClearFilter}
+        placeholder={t("filters")}
+        className="flex sm:flex-row flex-wrap sm:items-center mb-4"
+        triggerButtonClassName="self-start sm:self-center"
+        clearAllButtonClassName="self-center"
+      />
       {/* Table section */}
       <div>
         {isLoading ? (
