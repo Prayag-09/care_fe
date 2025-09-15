@@ -1284,12 +1284,7 @@ export default function MedicationBillForm({ patientId }: Props) {
 
         {patient && (
           <div className="mb-4 rounded-none shadow-none bg-gray-100">
-            <PatientHeader
-              patient={patient}
-              facilityId={facilityId}
-              locationId={locationId}
-              showViewPrescriptionsButton={true}
-            />
+            <PatientHeader patient={patient} facilityId={facilityId} />
           </div>
         )}
 

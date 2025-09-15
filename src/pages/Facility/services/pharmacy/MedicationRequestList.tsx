@@ -12,7 +12,6 @@ import {
   DropdownMenuItem,
   DropdownMenuTrigger,
 } from "@/components/ui/dropdown-menu";
-import { Input } from "@/components/ui/input";
 import { Separator } from "@/components/ui/separator";
 import { Tabs, TabsList, TabsTrigger } from "@/components/ui/tabs";
 
@@ -29,6 +28,7 @@ import {
 
 import useFilters from "@/hooks/useFilters";
 
+import PatientEncounterOrIdentifierFilter from "@/components/Patient/PatientEncounterOrIdentifierFilter";
 import {
   ENCOUNTER_CLASSES_COLORS,
   ENCOUNTER_CLASS_ICONS,
@@ -36,21 +36,13 @@ import {
 } from "@/types/emr/encounter/encounter";
 import {
   PRESCRIPTION_STATUS_STYLES,
+  PrescriptionStatus,
   PrescriptionSummary,
 } from "@/types/emr/prescription/prescription";
 import prescriptionApi from "@/types/emr/prescription/prescriptionApi";
 import query from "@/Utils/request/query";
 import { PaginatedResponse } from "@/Utils/request/types";
 import { formatDateTime, formatName } from "@/Utils/utils";
-
-const BILLING_STATUS_OPTIONS = {
-  pending: {
-    label: "billing_pending",
-  },
-  partial: {
-    label: "partially_billed",
-  },
-} as const;
 
 export default function MedicationRequestList({
   facilityId,
@@ -108,12 +100,11 @@ export default function MedicationRequestList({
       pathParams: { facilityId },
       queryParams: {
         patient: qParams.search,
+        status: qParams.status,
+        patient_external_id: qParams.patient_external_id,
         encounter_class: qParams.encounter_class,
         limit: resultsPerPage,
         offset: ((qParams.page ?? 1) - 1) * resultsPerPage,
-        dispense_status:
-          qParams.billing_status === "partial" ? "partial" : undefined,
-        dispense_status_isnull: qParams.billing_status !== "partial",
       },
     }),
   });
@@ -123,26 +114,29 @@ export default function MedicationRequestList({
       {/* Priority tabs with original styling */}
       <div className="mb-4 pt-6">
         <Tabs
-          value={qParams.billing_status || "pending"}
-          onValueChange={(value) => updateQuery({ billing_status: value })}
+          value={qParams.status || "active"}
+          onValueChange={(value) => updateQuery({ status: value })}
           className="w-full"
         >
           <TabsList className="w-full justify-evenly sm:justify-start border-b rounded-none bg-transparent p-0 h-auto overflow-x-auto">
-            {Object.entries(BILLING_STATUS_OPTIONS).map(([key, { label }]) => (
+            {[
+              PrescriptionStatus.active,
+              PrescriptionStatus.completed,
+              PrescriptionStatus.cancelled,
+            ].map((key) => (
               <TabsTrigger
                 key={key}
                 value={key}
                 className="border-b-2 px-2 sm:px-4 py-2 text-gray-600 hover:text-gray-900 data-[state=active]:border-b-primary-700  data-[state=active]:text-primary-800 data-[state=active]:bg-transparent data-[state=active]:shadow-none rounded-none"
               >
-                {t(label)}
+                {t(`prescription_status__${key}`)}
               </TabsTrigger>
             ))}
           </TabsList>
         </Tabs>
       </div>
-
       {/* Category tabs and search */}
-      <div className="flex flex-col gap-3 lg:flex-row lg:items-center justify-between lg:gap-6 mb-6">
+      <div className="flex flex-col gap-3 lg:flex-row lg:items-center justify-between lg:gap-6 mb-4">
         <div className="flex flex-wrap gap-2">
           {/* Encounter Class Tabs */}
           <Tabs
@@ -206,16 +200,17 @@ export default function MedicationRequestList({
             </TabsList>
           </Tabs>
         </div>
-        <div className="w-full lg:max-w-sm">
-          <Input
-            placeholder={t("search_by_patient_name_or_id_or_pn")}
-            value={qParams.search}
-            onChange={(e) => updateQuery({ search: e.target.value })}
-            className="w-full"
+        <div className="flex items-center gap-2">
+          <PatientEncounterOrIdentifierFilter
+            onSelect={(patientId) =>
+              updateQuery({ patient_external_id: patientId })
+            }
+            placeholder={t("filter_by_identifier")}
+            className="w-full sm:w-auto rounded-md h-9 text-gray-500 shadow-sm"
+            patientId={qParams.patient_external_id}
           />
         </div>
       </div>
-
       {/* Table section */}
       <div>
         {isLoading ? (

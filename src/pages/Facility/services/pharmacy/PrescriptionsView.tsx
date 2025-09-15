@@ -62,7 +62,6 @@ export default function PrescriptionsView({
         <PatientHeader
           patient={patientData}
           facilityId={facilityId}
-          locationId={locationId}
           className="p-2 rounded-none shadow-none bg-gray-100"
         />
       )}
