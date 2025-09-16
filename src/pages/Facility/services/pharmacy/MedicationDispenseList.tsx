@@ -386,7 +386,7 @@ export default function MedicationDispenseList({
               data-shortcut-id="print-button"
               onClick={() =>
                 navigate(
-                  `/facility/${facilityId}/locations/${locationId}/medication_requests/patient/${patientId}/prescription/${prescriptionId}/print`,
+                  `/facility/${facilityId}/patient/${patientId}/prescription/${prescriptionId}/print`,
                 )
               }
             >

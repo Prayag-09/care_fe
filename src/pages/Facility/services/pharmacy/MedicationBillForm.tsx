@@ -2,6 +2,7 @@ import { zodResolver } from "@hookform/resolvers/zod";
 import { useMutation, useQuery, useQueryClient } from "@tanstack/react-query";
 import { formatDate } from "date-fns";
 import {
+  ArrowLeft,
   ChevronDownIcon,
   Eye,
   Info,
@@ -82,9 +83,9 @@ import ValueSetSelect from "@/components/Questionnaire/ValueSetSelect";
 
 import useFilters from "@/hooks/useFilters";
 
-import mutate from "@/Utils/request/mutate";
-import query from "@/Utils/request/query";
+import BackButton from "@/components/Common/BackButton";
 import { PatientHeader } from "@/components/Patient/PatientHeader";
+import { useFacilityShortcuts } from "@/hooks/useFacilityShortcuts";
 import { CreateInvoiceSheet } from "@/pages/Facility/billing/account/components/CreateInvoiceSheet";
 import useCurrentLocation from "@/pages/Facility/locations/utils/useCurrentLocation";
 import useCurrentFacility from "@/pages/Facility/utils/useCurrentFacility";
@@ -129,6 +130,9 @@ import { PrescriptionRead } from "@/types/emr/prescription/prescription";
 import { InventoryRead } from "@/types/inventory/product/inventory";
 import inventoryApi from "@/types/inventory/product/inventoryApi";
 import { ProductKnowledgeBase } from "@/types/inventory/productKnowledge/productKnowledge";
+import { ShortcutBadge } from "@/Utils/keyboardShortcutComponents";
+import mutate from "@/Utils/request/mutate";
+import query from "@/Utils/request/query";
 
 interface GroupedPrescription {
   [key: string]: {
@@ -686,6 +690,7 @@ const AddMedicationSheet = ({
 };
 
 export default function MedicationBillForm({ patientId }: Props) {
+  useFacilityShortcuts("general");
   const { t } = useTranslation();
   const queryClient = useQueryClient();
   const { facilityId } = useCurrentFacility();
@@ -1259,24 +1264,24 @@ export default function MedicationBillForm({ patientId }: Props) {
 
   return (
     <Page title={t("bill_medications")} hideTitleOnPage={true} isInsidePage>
-      <div>
+      <div className="md:max-w-[75vw] mx-auto">
         <div className="mb-6 flex items-center justify-between flex-wrap gap-2">
           <h1 className="text-2xl font-bold whitespace-nowrap">
             {t("bill_medications")}
           </h1>
           <div className="flex gap-2 justify-end">
+            <BackButton data-shortcut-id="go-back">
+              <ArrowLeft />
+              {t("go_back")}
+            </BackButton>
             <Button
-              variant="outline"
-              onClick={() => navigate(`../${patientId}`)}
-            >
-              {t("cancel")}
-            </Button>
-            <Button
+              data-shortcut-id="billing-action"
               onClick={handleDispense}
               disabled={
                 !form.watch("items").some((q) => q.isSelected) || isPending
               }
             >
+              <ShortcutBadge actionId="billing-action" />
               {isPending ? t("billing") : t("bill_selected")}
             </Button>
           </div>

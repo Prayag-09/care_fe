@@ -15,9 +15,9 @@ import { ReceiptTextIcon } from "lucide-react";
 interface PrescriptionListProps {
   patientId: string;
   encounterId: string;
-  facilityId: string;
+  facilityId?: string;
   selectedPrescriptionId?: string;
-  onSelectPrescription: (prescription: PrescriptionRead) => void;
+  onSelectPrescription: (prescription: PrescriptionRead | undefined) => void;
 }
 
 export default function PrescriptionList({
@@ -41,8 +41,12 @@ export default function PrescriptionList({
 
   // Select first prescription by default
   React.useEffect(() => {
-    if (prescriptions?.results?.length && !selectedPrescriptionId) {
-      onSelectPrescription(prescriptions.results[0] as PrescriptionRead);
+    if (prescriptions?.results?.length) {
+      if (!selectedPrescriptionId) {
+        onSelectPrescription(prescriptions.results[0] as PrescriptionRead);
+      }
+    } else {
+      onSelectPrescription(undefined);
     }
   }, [prescriptions, selectedPrescriptionId, onSelectPrescription]);
 
