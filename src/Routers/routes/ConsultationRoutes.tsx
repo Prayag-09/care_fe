@@ -26,11 +26,10 @@ const consultationRoutes: AppRoutes = {
         patientId={patientId}
       />
     ),
-  "/facility/:facilityId/patient/:patientId/encounter/:encounterId/prescriptions/:prescriptionId/print":
-    ({ facilityId, encounterId, patientId, prescriptionId }) => (
+  "/facility/:facilityId/patient/:patientId/prescription/:prescriptionId/print":
+    ({ facilityId, patientId, prescriptionId }) => (
       <PrintPrescription
         facilityId={facilityId}
-        encounterId={encounterId}
         patientId={patientId}
         prescriptionId={prescriptionId}
       />

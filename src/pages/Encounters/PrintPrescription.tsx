@@ -13,19 +13,28 @@ import prescriptionApi from "@/types/emr/prescription/prescriptionApi";
 
 export const PrintPrescription = (props: {
   facilityId: string;
-  encounterId: string;
+  encounterId?: string;
   patientId: string;
   prescriptionId?: string;
 }) => {
   const { facilityId, encounterId, patientId, prescriptionId } = props;
   const { t } = useTranslation();
 
+  const { data: prescription, isLoading } = useQuery({
+    queryKey: ["prescription", patientId, prescriptionId],
+    queryFn: query(prescriptionApi.get, {
+      pathParams: { patientId, id: prescriptionId! },
+    }),
+    enabled: !!prescriptionId,
+  });
+
   const { data: encounter } = useQuery({
     queryKey: ["encounter", encounterId],
     queryFn: query(encounterApi.get, {
-      pathParams: { id: encounterId },
+      pathParams: { id: encounterId || prescription?.encounter?.id || "" },
       queryParams: { facility: facilityId },
     }),
+    enabled: !!encounterId || !!prescription?.encounter?.id,
   });
 
   const { data: patient, isLoading: patientLoading } = useQuery({
@@ -34,14 +43,6 @@ export const PrintPrescription = (props: {
       pathParams: { id: patientId || "" },
     }),
     enabled: !!patientId,
-  });
-
-  const { data: prescription, isLoading } = useQuery({
-    queryKey: ["prescription", patientId, prescriptionId],
-    queryFn: query(prescriptionApi.get, {
-      pathParams: { patientId, id: prescriptionId! },
-    }),
-    enabled: !!prescriptionId,
   });
 
   const { data: activeMedications, isLoading: medicationLoading } = useQuery({
@@ -61,7 +62,7 @@ export const PrintPrescription = (props: {
   if (patientLoading || isLoading || medicationLoading) return <Loading />;
 
   if (
-    !encounter ||
+    (!encounter && !prescription) ||
     !patient ||
     (!prescriptionId && !activeMedications?.results?.length) ||
     (prescriptionId && !prescription)
