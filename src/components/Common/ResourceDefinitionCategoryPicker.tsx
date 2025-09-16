@@ -181,6 +181,7 @@ export function ResourceDefinitionCategoryPicker<T>({
     queryFn: query(favoritesConfig!.listFavorites.queryFn, {
       queryParams: {
         facility: facilityId,
+        favorite_list: "default",
       },
     }),
     enabled: enableFavorites,
