@@ -124,10 +124,10 @@ export default function MedicationRequestTable() {
                   <PrescriptionList
                     patientId={patientId}
                     encounterId={encounterId}
-                    facilityId={facilityId || ""}
+                    facilityId={facilityId}
                     selectedPrescriptionId={selectedPrescriptionId}
                     onSelectPrescription={(prescription) => {
-                      setSelectedPrescriptionId(prescription.id);
+                      setSelectedPrescriptionId(prescription?.id);
                     }}
                   />
                 </div>
