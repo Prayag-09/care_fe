@@ -262,7 +262,8 @@
       "key": "b",
       "action": "billing-action",
       "description": "Any Billing related action",
-      "when": "always"
+      "when": "always",
+      "subContext": "general"
     }
   ],
   "encounter": [
