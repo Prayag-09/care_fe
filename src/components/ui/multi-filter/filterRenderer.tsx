@@ -4,7 +4,7 @@ import RenderDateFilter from "./dateFilter";
 import GenericFilter from "./genericFilter";
 import RenderTagFilter from "./tagFilter";
 import NavigationHelper from "./utils/navigation-helper";
-import { FilterDateRange, FilterState, FilterValues } from "./utils/utils";
+import { FilterDateRange, FilterState, FilterValues } from "./utils/Utils";
 
 export default function FilterRenderer({
   activeFilter,

@@ -17,7 +17,7 @@ import FilterRenderer from "./filterRenderer";
 import { SelectedFilterBar } from "./selectedFilterBar";
 import NavigationHelper from "./utils/navigation-helper";
 import useMultiFilterNavigationShortcuts from "./utils/useMultiFilterNavigationShortcuts";
-import { FilterState, FilterValues } from "./utils/utils";
+import { FilterState, FilterValues } from "./utils/Utils";
 
 interface MultiFilterProps {
   selectedFilters: Record<string, FilterState>;

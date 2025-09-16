@@ -13,7 +13,7 @@ import {
 import { cn } from "@/lib/utils";
 import FilterRenderer from "./filterRenderer";
 import useMultiFilter from "./utils/useMultiFilter";
-import { FilterState, FilterValues, Operation } from "./utils/utils";
+import { FilterState, FilterValues, Operation } from "./utils/Utils";
 
 function SubMenuFilter({
   selectedOption,

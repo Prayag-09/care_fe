@@ -38,7 +38,7 @@ import {
   FilterConfig,
   FilterDateRange,
   TagFilterMeta,
-} from "./utils/utils";
+} from "./utils/Utils";
 
 function TreeViewItem({
   tag,
