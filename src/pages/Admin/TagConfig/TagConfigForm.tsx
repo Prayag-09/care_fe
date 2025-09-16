@@ -1,6 +1,6 @@
 import { zodResolver } from "@hookform/resolvers/zod";
 import { useMutation, useQuery, useQueryClient } from "@tanstack/react-query";
-import React, { useEffect } from "react";
+import { useEffect } from "react";
 import { useForm } from "react-hook-form";
 import { useTranslation } from "react-i18next";
 import { toast } from "sonner";
@@ -30,7 +30,6 @@ import { Textarea } from "@/components/ui/textarea";
 
 import mutate from "@/Utils/request/mutate";
 import query from "@/Utils/request/query";
-import { generateSlug } from "@/Utils/utils";
 import {
   TagCategory,
   TagConfigRequest,
@@ -58,7 +57,6 @@ export default function TagConfigForm({
   const isCreatingChild = Boolean(parentId);
 
   const tagConfigSchema = z.object({
-    slug: z.string().trim().min(1, t("field_required")),
     display: z.string().trim().min(1, t("field_required")),
     category: z.nativeEnum(TagCategory, {
       required_error: t("field_required"),
@@ -89,7 +87,6 @@ export default function TagConfigForm({
   const form = useForm<TagConfigFormValues>({
     resolver: zodResolver(tagConfigSchema),
     defaultValues: {
-      slug: "",
       display: "",
       category: parentTag?.category || TagCategory.CLINICAL,
       description: "",
@@ -99,19 +96,6 @@ export default function TagConfigForm({
       facility_organization: undefined,
     },
   });
-
-  React.useEffect(() => {
-    if (isEditing) return;
-
-    const subscription = form.watch((value, { name }) => {
-      if (name === "display") {
-        form.setValue("slug", generateSlug(value.display || ""), {
-          shouldValidate: true,
-        });
-      }
-    });
-    return () => subscription.unsubscribe();
-  }, [form, isEditing]);
 
   // Fetch existing config data when editing
   const { data: existingConfig, isLoading: isLoadingConfig } = useQuery({
@@ -127,7 +111,6 @@ export default function TagConfigForm({
   useEffect(() => {
     if (existingConfig && isEditing) {
       form.reset({
-        slug: existingConfig.slug,
         display: existingConfig.display,
         category: existingConfig.category,
         description: existingConfig.description || "",
@@ -142,7 +125,6 @@ export default function TagConfigForm({
   useEffect(() => {
     if (parentTag && isCreatingChild) {
       form.reset({
-        slug: "",
         display: "",
         category: parentTag.category,
         description: "",
@@ -183,7 +165,6 @@ export default function TagConfigForm({
 
   const onSubmit = (data: TagConfigFormValues) => {
     const payload: TagConfigRequest = {
-      slug: data.slug,
       display: data.display,
       category: data.category,
       description: data.description || "",
@@ -219,24 +200,6 @@ export default function TagConfigForm({
               <FormControl>
                 <Input
                   placeholder={t("enter_display_name")}
-                  {...field}
-                  disabled={isLoading}
-                />
-              </FormControl>
-              <FormMessage />
-            </FormItem>
-          )}
-        />
-
-        <FormField
-          control={form.control}
-          name="slug"
-          render={({ field }) => (
-            <FormItem>
-              <FormLabel aria-required>{t("slug")}</FormLabel>
-              <FormControl>
-                <Input
-                  placeholder={t("enter_tag_slug")}
                   {...field}
                   disabled={isLoading}
                 />

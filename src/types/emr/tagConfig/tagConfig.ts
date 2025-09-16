@@ -40,7 +40,6 @@ export enum TagResource {
 
 export interface TagConfigBase {
   id: string;
-  slug: string;
   parent?: TagConfigBase;
   display: string;
   category: TagCategory;
@@ -65,7 +64,6 @@ export interface TagConfigRead extends TagConfig {
 }
 
 export interface TagConfigRequest {
-  slug: string;
   display: string;
   category: TagCategory;
   description?: string;

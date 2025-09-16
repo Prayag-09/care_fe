@@ -372,7 +372,7 @@ export default function FacilityOrganizationSelector(
         <div className="space-y-1">
           <Label>
             {t("select_department")}
-            <span className="text-red-500 ml-0.5">*</span>
+            {!props.optional && <span className="text-red-500 ml-0.5">*</span>}
           </Label>
         </div>
       </div>
