@@ -40,7 +40,7 @@ export default {
     TRes: Type<ProductKnowledgeBase>(),
   },
   listFavorites: {
-    path: "/api/v1/product_knowledge/favorite_lists/",
+    path: "/api/v1/product_knowledge/",
     method: HttpMethod.GET,
     TRes: Type<ProductKnowledgeBase[]>(),
   },

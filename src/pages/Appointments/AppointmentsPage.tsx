@@ -1053,25 +1053,32 @@ function AppointmentCard({
         </div>
 
         <div className="flex">
-          <div className="flex items-center justify-center">
-            <Tooltip>
-              <TooltipTrigger>
-                {appointment.resource_type ===
-                  SchedulableResourceType.Practitioner && (
+          {appointment.resource_type ===
+            SchedulableResourceType.Practitioner && (
+            <div className="flex items-center justify-center">
+              <Tooltip>
+                <TooltipTrigger className="size-14">
                   <ScheduleResourceIcon
                     resource={appointment}
                     className="size-14 rounded-r-none"
                   />
-                )}
-              </TooltipTrigger>
-              <TooltipContent className="flex flex-col gap-0">
-                <span className="text-sm font-medium">
-                  {formatScheduleResourceName(appointment)}
-                </span>
-              </TooltipContent>
-            </Tooltip>
-          </div>
-          <div className="bg-gray-100 px-2 py-1 rounded-l-none rounded-r-md ml-px text-center">
+                </TooltipTrigger>
+                <TooltipContent className="flex flex-col gap-0">
+                  <span className="text-sm font-medium">
+                    {formatScheduleResourceName(appointment)}
+                  </span>
+                </TooltipContent>
+              </Tooltip>
+            </div>
+          )}
+          <div
+            className={cn(
+              "bg-gray-100 px-2 py-1 ml-px text-center",
+              appointment.resource_type === SchedulableResourceType.Practitioner
+                ? "rounded-l-none rounded-r-md"
+                : "rounded-md",
+            )}
+          >
             <p className="text-[10px] uppercase">{t("token")}</p>
             <p className="font-bold text-2xl uppercase">
               {appointment.token?.number ?? "--"}

@@ -364,6 +364,7 @@ export function ProductFormContent({
                         )}
                         onChange={(selected) => field.onChange(selected.id)}
                         className="border-gray-200 font-normal text-gray-700"
+                        enableFavorites
                       />
                     </FormControl>
                     <FormDescription>
