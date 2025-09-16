@@ -57,7 +57,6 @@ interface CategoryBreadcrumb {
 export interface BaseCategoryPickerDefinition {
   id: string;
   slug: string;
-  slug_value?: string;
   title: string;
   description?: string;
   category?: ResourceCategoryParent;
@@ -179,19 +178,19 @@ export function ResourceDefinitionCategoryPicker<T>({
 
   const { data: favoritesResponse } = useQuery({
     queryKey: ["favorites", resourceType, facilityId],
-    queryFn: () =>
-      enableFavorites && favoritesConfig
-        ? query(favoritesConfig.listFavorites.queryFn, {
-            pathParams: { facilityId },
-          })
-        : Promise.resolve(null),
-    enabled: enableFavorites && !!favoritesConfig,
+    queryFn: query(favoritesConfig!.listFavorites.queryFn, {
+      queryParams: {
+        facility: facilityId,
+      },
+    }),
+    enabled: enableFavorites,
   });
 
   const addFavoriteMutation = useMutation({
-    mutationFn: async (slugValue: string) => {
+    mutationFn: async (slug: string) => {
       const mutateFn = mutate(favoritesConfig!.addFavorite.queryFn, {
-        pathParams: { slug: slugValue },
+        pathParams: { slug },
+        queryParams: { facility: facilityId },
       });
       return mutateFn({} as T);
     },
@@ -203,9 +202,10 @@ export function ResourceDefinitionCategoryPicker<T>({
   });
 
   const removeFavoriteMutation = useMutation({
-    mutationFn: async (slugValue: string) => {
+    mutationFn: async (slug: string) => {
       const mutateFn = mutate(favoritesConfig!.removeFavorite.queryFn, {
-        pathParams: { slug: slugValue },
+        pathParams: { slug },
+        queryParams: { facility: facilityId },
       });
       return mutateFn({} as T);
     },
@@ -322,12 +322,10 @@ export function ResourceDefinitionCategoryPicker<T>({
       (f: BaseCategoryPickerDefinition) => f.slug === definition.slug,
     );
 
-    const slugValue = definition.slug_value || definition.slug;
-
     if (isFavorited) {
-      removeFavoriteMutation.mutate(slugValue);
+      removeFavoriteMutation.mutate(definition.slug);
     } else {
-      addFavoriteMutation.mutate(slugValue);
+      addFavoriteMutation.mutate(definition.slug);
     }
   };
 
