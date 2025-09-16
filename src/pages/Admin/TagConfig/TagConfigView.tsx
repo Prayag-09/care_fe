@@ -248,6 +248,16 @@ export default function TagConfigView({
                   {tagConfig.has_children ? t("yes") : t("no")}
                 </div>
               </div>
+              <div>
+                <label className="text-sm font-medium text-gray-600">
+                  {t("managing_organization")}
+                </label>
+                <div className="mt-1 text-sm">
+                  {tagConfig.facility_organization
+                    ? tagConfig.facility_organization.name
+                    : t("none")}
+                </div>
+              </div>
             </div>
             {tagConfig.description && (
               <div>

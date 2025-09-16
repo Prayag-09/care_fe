@@ -33,6 +33,7 @@ interface MultiFilterStyleTagSelectorProps {
   selected: TagConfig[];
   onChange: (tags: TagConfig[]) => void;
   resource: TagResource;
+  facilityId?: string;
   className?: string;
   disabled?: boolean;
   isLoading?: boolean;
@@ -43,6 +44,7 @@ interface MultiFilterStyleTagSelectorProps {
 export function MultiFilterStyleTagSelector({
   selected,
   onChange,
+  facilityId,
   resource,
   className,
   disabled = false,
@@ -64,6 +66,7 @@ export function MultiFilterStyleTagSelector({
         status: "active",
         ordering: "priority",
         ...(search ? { search } : {}),
+        ...(facilityId ? { facility: facilityId } : {}),
       },
     }),
     enabled: open,
@@ -78,6 +81,7 @@ export function MultiFilterStyleTagSelector({
         parent: groupPopoverOpen,
         status: "active",
         ordering: "priority",
+        ...(facilityId ? { facility: facilityId } : {}),
       },
     }),
     enabled: open && !!groupPopoverOpen,
@@ -98,10 +102,6 @@ export function MultiFilterStyleTagSelector({
         "id" in t.parent &&
         t.parent.id === parentId,
     );
-
-    if (alreadySelectedInGroup) {
-      onChange(selected.filter((t) => t.id !== alreadySelectedInGroup.id));
-    }
 
     const isCurrentlySelected = selected.some((t) => t.id === tag.id);
 
