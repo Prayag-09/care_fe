@@ -37,6 +37,7 @@ interface FacilityOrganizationSelectorProps {
   facilityId: string;
   currentOrganizations?: FacilityOrganizationRead[];
   singleSelection?: boolean;
+  optional?: boolean;
 }
 
 export default function FacilityOrganizationSelector(
@@ -183,7 +184,7 @@ export default function FacilityOrganizationSelector(
         (org) => org.id === singleOrg.id,
       );
 
-      if (!isAlreadyInCurrent) {
+      if (!isAlreadyInCurrent && !props.optional) {
         handleConfirmSelection(singleOrg);
       }
     }
@@ -195,6 +196,7 @@ export default function FacilityOrganizationSelector(
     selectedOrganizations,
     isLoadingRoot,
     currentOrganizations,
+    props.optional,
   ]);
 
   const renderNavigationPath = () => {

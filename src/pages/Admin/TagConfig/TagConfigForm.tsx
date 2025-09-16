@@ -7,6 +7,7 @@ import { toast } from "sonner";
 import { z } from "zod";
 
 import CareIcon from "@/CAREUI/icons/CareIcon";
+import FacilityOrganizationSelector from "@/pages/Facility/settings/organizations/components/FacilityOrganizationSelector";
 
 import { Button } from "@/components/ui/button";
 import {
@@ -70,6 +71,7 @@ export default function TagConfigForm({
     resource: z.nativeEnum(TagResource, {
       required_error: t("field_required"),
     }),
+    facility_organization: z.string().optional(),
   });
 
   type TagConfigFormValues = z.infer<typeof tagConfigSchema>;
@@ -94,6 +96,7 @@ export default function TagConfigForm({
       priority: parentTag?.priority || 100,
       status: TagStatus.ACTIVE,
       resource: parentTag?.resource || TagResource.PATIENT,
+      facility_organization: undefined,
     },
   });
 
@@ -189,6 +192,9 @@ export default function TagConfigForm({
       resource: data.resource,
       ...(parentId && { parent: parentId }),
       ...(facilityId && { facility: facilityId }),
+      ...(data.facility_organization && {
+        facility_organization: data.facility_organization,
+      }),
     };
 
     if (isEditing) {
@@ -373,6 +379,30 @@ export default function TagConfigForm({
             </FormItem>
           )}
         />
+
+        {facilityId && (
+          <FormField
+            control={form.control}
+            name="facility_organization"
+            render={({ field }) => (
+              <FormItem>
+                <FormLabel>Facility Organisation</FormLabel>
+                <FormControl>
+                  <FacilityOrganizationSelector
+                    facilityId={facilityId}
+                    value={field.value ? [field.value] : null}
+                    onChange={(value: string[] | null) => {
+                      field.onChange(value?.[0] || null);
+                    }}
+                    singleSelection={true}
+                    optional={true}
+                  />
+                </FormControl>
+                <FormMessage />
+              </FormItem>
+            )}
+          />
+        )}
 
         {/* Add parent tag info when creating a child */}
         {isCreatingChild && parentTag && (
