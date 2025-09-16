@@ -47,7 +47,6 @@ import resourceCategoryApi from "@/types/base/resourceCategory/resourceCategoryA
 import { ProductKnowledgeType } from "@/types/inventory/productKnowledge/productKnowledge";
 import mutate from "@/Utils/request/mutate";
 import query from "@/Utils/request/query";
-import { stringifyNestedObject } from "@/Utils/utils";
 
 interface CategoryBreadcrumb {
   slug: string;
@@ -75,6 +74,7 @@ interface ResourceDefinitionCategoryPickerProps<T> {
   allowMultiple?: boolean;
   // Resource type specific props
   resourceType: ResourceCategoryResourceType;
+  searchParamName?: string;
   listDefinitions: {
     queryFn: {
       path: string;
@@ -128,6 +128,7 @@ export function ResourceDefinitionCategoryPicker<T>({
   disabled = false,
   className,
   resourceType,
+  searchParamName = "title",
   listDefinitions,
   translations,
   allowMultiple = false,
@@ -169,7 +170,7 @@ export function ResourceDefinitionCategoryPicker<T>({
         pathParams: { facilityId, ...listDefinitions.pathParams },
         queryParams: {
           category: currentParent || "",
-          title: searchQuery,
+          ...(searchQuery ? { [searchParamName]: searchQuery } : {}), // Use dynamic search param name
           limit: 100,
           ...listDefinitions.queryParams,
         },
@@ -563,14 +564,7 @@ export function ResourceDefinitionCategoryPicker<T>({
             )}
             {searchQuery && definition.category && (
               <div className="text-xs text-gray-500 truncate mt-0.5">
-                {stringifyNestedObject(
-                  {
-                    name: definition.category.title,
-                    parent: definition.category.parent,
-                  },
-                  " -> ",
-                  true,
-                )}
+                {getFullPath(definition).split(` > ${definition.title}`)[0]}
               </div>
             )}
           </div>
