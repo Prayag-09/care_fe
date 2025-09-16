@@ -10,27 +10,30 @@ import {
   DropdownMenuTrigger,
 } from "@/components/ui/dropdown-menu";
 
-import Filter from "./filter";
+import { cn } from "@/lib/utils";
+import FilterRenderer from "./filterRenderer";
 import useMultiFilter from "./utils/useMultiFilter";
-import { FilterState, FilterValues } from "./utils/utils";
+import { FilterState, FilterValues, Operation } from "./utils/utils";
 
 function SubMenuFilter({
   selectedOption,
   setSelectedOption,
   availableOptions,
 }: {
-  selectedOption: string;
-  setSelectedOption: (option: string) => void;
-  availableOptions: string[];
+  selectedOption: Operation | null;
+  setSelectedOption: (option: Operation) => void;
+  availableOptions: Operation[];
 }) {
   const { t } = useTranslation();
   const [open, setOpen] = useState(false);
+
+  if (!selectedOption) return <></>;
 
   return (
     <DropdownMenu open={open} onOpenChange={setOpen}>
       <DropdownMenuTrigger asChild>
         <div className="flex items-center gap-2 px-3 py-2 border-r border-gray-200 underline cursor-pointer text-xs whitespace-nowrap">
-          {t(selectedOption ?? "")}
+          {t(selectedOption.label)}
         </div>
       </DropdownMenuTrigger>
       <DropdownMenuContent
@@ -39,10 +42,10 @@ function SubMenuFilter({
       >
         {availableOptions.map((option) => (
           <DropdownMenuItem
-            key={option}
+            key={option.value || option.label}
             onSelect={() => setSelectedOption(option)}
           >
-            {t(option)}
+            {t(option.label)}
           </DropdownMenuItem>
         ))}
       </DropdownMenuContent>
@@ -59,6 +62,7 @@ export function SelectedFilterBar({
   setOpenState,
   onFilterChange,
   onOperationChange,
+  selectedBarClassName,
 }: {
   selectedFilterKey: string;
   selectedFilters: Record<string, FilterState>;
@@ -68,17 +72,25 @@ export function SelectedFilterBar({
   setOpenState: (open: boolean) => void;
   onFilterChange: (filterKey: string, values: FilterValues) => void;
   onOperationChange: (filterKey: string, operation: string) => void;
+  selectedBarClassName?: string;
 }) {
   const { t } = useTranslation();
   const { filter, selected, selectedOperation, availableOperations } =
     useMultiFilter(selectedFilterKey, selectedFilters);
+
+  if (!selectedOperation) return <></>;
 
   return (
     <DropdownMenu
       open={openState || false}
       onOpenChange={(isOpen) => setOpenState(isOpen)}
     >
-      <div className="flex items-center bg-white rounded-md border border-gray-200 h-10 w-fit">
+      <div
+        className={cn(
+          "flex items-center bg-white rounded-md border border-gray-200 h-10 w-fit",
+          selectedBarClassName,
+        )}
+      >
         <DropdownMenuTrigger asChild>
           <div
             className="flex items-center gap-2 px-3 py-2 border-r border-gray-200 text-sm"
@@ -89,14 +101,14 @@ export function SelectedFilterBar({
           </div>
         </DropdownMenuTrigger>
         <SubMenuFilter
-          selectedOption={selectedOperation ?? ""}
+          selectedOption={selectedOperation ?? null}
           setSelectedOption={(operation) =>
-            onOperationChange(filter.key, operation)
+            onOperationChange(filter.key, operation.value || operation.label)
           }
           availableOptions={availableOperations ?? []}
         />
-        <div className="flex items-center gap-2 px-3 py-2 border-r border-gray-200">
-          {filter.renderSelected?.(selected)}
+        <div className="flex items-center gap-2 px-3 py-2 border-r border-gray-200 whitespace-nowrap">
+          {filter.renderSelected?.(selected, filter, onFilterChange)}
         </div>
         <Button
           variant="ghost"
@@ -107,7 +119,7 @@ export function SelectedFilterBar({
         </Button>
       </div>
       <DropdownMenuContent className="w-[320px] p-0" align="start">
-        <Filter
+        <FilterRenderer
           activeFilter={filter.key}
           selectedFilters={selectedFilters}
           onFilterChange={onFilterChange}

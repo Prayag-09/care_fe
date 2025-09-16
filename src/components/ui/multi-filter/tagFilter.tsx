@@ -32,8 +32,13 @@ import {
 } from "@/types/emr/tagConfig/tagConfig";
 import tagConfigApi from "@/types/emr/tagConfig/tagConfigApi";
 
-import FilterHeader from "./filter-header";
-import { COLOR_PALETTE, FilterConfig, FilterDateRange } from "./utils/utils";
+import FilterHeader from "./filterHeader";
+import {
+  COLOR_PALETTE,
+  FilterConfig,
+  FilterDateRange,
+  TagFilterMeta,
+} from "./utils/utils";
 
 function TreeViewItem({
   tag,
@@ -462,7 +467,7 @@ function GroupSubmenu({
   );
 }
 
-export function RenderTagFilter({
+export default function RenderTagFilter({
   filter,
   selectedTags,
   onFilterChange,
@@ -484,7 +489,7 @@ export function RenderTagFilter({
         onTagsChange={(tags) => {
           onFilterChange(filter.key, tags);
         }}
-        resource={filter.resource!}
+        resource={(filter.meta as TagFilterMeta).resource}
         placeholder={filter.placeholder}
         handleBack={handleBack}
       />

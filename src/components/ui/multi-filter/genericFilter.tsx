@@ -8,7 +8,7 @@ import { Checkbox } from "@/components/ui/checkbox";
 import { Input } from "@/components/ui/input";
 import { RadioGroup, RadioGroupItem } from "@/components/ui/radio-group";
 
-import FilterHeader from "./filter-header";
+import FilterHeader from "./filterHeader";
 import useMultiFilterNavigationShortcuts from "./utils/useMultiFilterNavigationShortcuts";
 import useMultiFilterSearch from "./utils/useMultiFilterSearch";
 import {
@@ -190,13 +190,14 @@ export const GenericSelectedBadge = ({
   selectedLength: number;
   className?: string;
 }) => {
+  const { t } = useTranslation();
   return (
     <div className="flex items-center gap-1 min-w-0 flex-shrink-0">
       <Badge
         variant="outline"
         className={cn("text-xs whitespace-nowrap", className)}
       >
-        {selectedValue}
+        {t(selectedValue)}
       </Badge>
       {selectedLength > 1 && (
         <span className="text-xs bg-gray-100 text-gray-500 px-1 rounded-md whitespace-nowrap">

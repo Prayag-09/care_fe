@@ -30,8 +30,8 @@ import useFilters from "@/hooks/useFilters";
 
 import PatientEncounterOrIdentifierFilter from "@/components/Patient/PatientEncounterOrIdentifierFilter";
 import TagAssignmentSheet from "@/components/Tags/TagAssignmentSheet";
-import { tagFilter } from "@/components/ui/multi-filter/filter-list";
-import MultiFilter from "@/components/ui/multi-filter/multi-filter";
+import { tagFilter } from "@/components/ui/multi-filter/filterConfigs";
+import MultiFilter from "@/components/ui/multi-filter/MultiFilter";
 import useMultiFilterState from "@/components/ui/multi-filter/utils/useMultiFilterState";
 import { createFilterConfig } from "@/components/ui/multi-filter/utils/utils";
 import {
@@ -87,7 +87,7 @@ export default function MedicationRequestList({
       tagFilter("tags", TagResource.PRESCRIPTION, "multi", "tags"),
       createFilterConfig(
         "status",
-        "status",
+        t("status"),
         "command",
         Object.values(PrescriptionStatus).map((status) => ({
           value: status,

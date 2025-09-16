@@ -13,8 +13,8 @@ import {
   DropdownMenuTrigger,
 } from "@/components/ui/dropdown-menu";
 
-import Filter from "./filter";
-import { SelectedFilterBar } from "./selected-filter-bar";
+import FilterRenderer from "./filterRenderer";
+import { SelectedFilterBar } from "./selectedFilterBar";
 import NavigationHelper from "./utils/navigation-helper";
 import useMultiFilterNavigationShortcuts from "./utils/useMultiFilterNavigationShortcuts";
 import { FilterState, FilterValues } from "./utils/utils";
@@ -27,9 +27,9 @@ interface MultiFilterProps {
   onClearFilter: (filterKey: string) => void;
   placeholder?: string;
   className?: string;
-
   triggerButtonClassName?: string;
   clearAllButtonClassName?: string;
+  selectedBarClassName?: string;
   disabled?: boolean;
 }
 export default function MultiFilter({
@@ -42,6 +42,7 @@ export default function MultiFilter({
   className,
   triggerButtonClassName,
   clearAllButtonClassName,
+  selectedBarClassName,
   disabled = false,
 }: MultiFilterProps) {
   const [open, setOpen] = useState(false);
@@ -120,7 +121,7 @@ export default function MultiFilter({
           align="start"
         >
           {activeFilter ? (
-            <Filter
+            <FilterRenderer
               activeFilter={activeFilter}
               selectedFilters={selectedFilters}
               handleBack={handleBack}
@@ -160,6 +161,7 @@ export default function MultiFilter({
             }
             onFilterChange={onFilterChange}
             onOperationChange={onOperationChange}
+            selectedBarClassName={selectedBarClassName}
           />
         );
       })}

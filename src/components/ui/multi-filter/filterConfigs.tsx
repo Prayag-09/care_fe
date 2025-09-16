@@ -10,23 +10,29 @@ import { TagConfig, TagResource } from "@/types/emr/tagConfig/tagConfig";
 import { CalendarFold, CircleDashed, Tag } from "lucide-react";
 
 import { t } from "i18next";
-import { SelectedDateBadge, getDateOperations } from "./date-filter";
-import { GenericSelectedBadge } from "./generic-filter";
-import { SelectedTagBadge } from "./tag-filter";
+import { SelectedDateBadge, getDateOperations } from "./dateFilter";
+import { GenericSelectedBadge } from "./genericFilter";
+import { SelectedTagBadge } from "./tagFilter";
+import {
+  DateRangeOption,
+  FilterConfig,
+  FilterDateRange,
+  FilterMode,
+  FilterValues,
+  Operation,
+  createFilterConfig,
+} from "./utils/utils";
+
 import {
   ENCOUNTER_CLASS_FILTER_COLORS,
   ENCOUNTER_PRIORITY_FILTER_COLORS,
   ENCOUNTER_STATUS_FILTER_COLORS,
-  FilterDateRange,
-  FilterMode,
-  FilterValues,
-  createFilterConfig,
-} from "./utils/utils";
+} from "@/types/emr/encounter/encounter";
 
 export const encounterStatusFilter = (
   key: string = "encounter_status",
   mode: FilterMode = "single",
-  customOperations?: string[],
+  customOperations?: Operation[],
 ) =>
   createFilterConfig(
     key,
@@ -53,14 +59,14 @@ export const encounterStatusFilter = (
       }
       return <></>;
     },
-    () => customOperations || ["is"], // ["is", "is_not"],
+    () => customOperations || [{ label: "is" }],
     mode,
     <CircleDashed className="w-4 h-4" />,
   );
 export const encounterClassFilter = (
   key: string = "encounter_class",
   mode: FilterMode = "single",
-  customOperations?: string[],
+  customOperations?: Operation[],
 ) =>
   createFilterConfig(
     key,
@@ -87,14 +93,14 @@ export const encounterClassFilter = (
       }
       return <></>;
     },
-    () => customOperations || ["is"], // ["is", "is_not"],
+    () => customOperations || [{ label: "is" }],
     mode,
   );
 
 export const encounterPriorityFilter = (
   key: string = "encounter_priority",
   mode: FilterMode = "single",
-  customOperations?: string[],
+  customOperations?: Operation[],
   label?: string,
 ) =>
   createFilterConfig(
@@ -123,43 +129,37 @@ export const encounterPriorityFilter = (
       }
       return <></>;
     },
-    () => customOperations || ["is"], // ["is", "is_not"],
+    () => customOperations || [{ label: "is" }],
     mode,
   );
-
-export const startedDateFilter = (
+export const dateFilter = (
   key: string = "started_date",
   label?: string,
+  dateRangeOptions?: DateRangeOption[],
 ) =>
   createFilterConfig(
     key,
-    label ? t(label) : t("started_date"),
+    label || t("started_date"),
     "date",
     [],
     undefined,
-    (selected: FilterValues) => {
-      return <SelectedDateBadge selected={selected as FilterDateRange} />;
+    (
+      selected: FilterValues,
+      filter?: FilterConfig,
+      onFilterChange?: (filterKey: string, values: FilterValues) => void,
+    ) => {
+      return (
+        <SelectedDateBadge
+          selected={selected as FilterDateRange}
+          filter={filter!}
+          onFilterChange={onFilterChange!}
+        />
+      );
     },
     (selected: FilterValues) => getDateOperations(selected as FilterDateRange),
     "single",
     <CalendarFold className="w-4 h-4" />,
-  );
-export const completedDateFilter = (
-  key: string = "completed_date",
-  label?: string,
-) =>
-  createFilterConfig(
-    key,
-    label ? t(label) : t("completed_date"),
-    "date",
-    [],
-    undefined,
-    (selected: FilterValues) => {
-      return <SelectedDateBadge selected={selected as FilterDateRange} />;
-    },
-    (selected: FilterValues) => getDateOperations(selected as FilterDateRange),
-    "single",
-    <CalendarFold className="w-4 h-4" />,
+    dateRangeOptions,
   );
 export const tagFilter = (
   key: string = "tags",
@@ -178,9 +178,15 @@ export const tagFilter = (
     },
     (selected: FilterValues) => {
       const selectedTags = selected as TagConfig[];
-      if (selectedTags.length === 1) return ["includes"]; // ["includes", "does_not_include"];
-      return ["has_all_of"]; // ["has_all_of", "has_any_of", "exclude_if_any", "exclude_if_all"];
+      if (selectedTags.length === 1)
+        return [{ label: "includes", value: "all" }];
+      return [
+        { label: "has_all_of", value: "all" },
+        { label: "has_any_of", value: "any" },
+      ];
     },
     mode,
     <Tag className="w-4 h-4" />,
+    undefined,
+    "tags_behavior",
   );

@@ -69,7 +69,6 @@ import {
   TableSkeleton,
 } from "@/components/Common/SkeletonLoading";
 import PatientEncounterOrIdentifierFilter from "@/components/Patient/PatientEncounterOrIdentifierFilter";
-import { TagSelectorPopover } from "@/components/Tags/TagAssignmentSheet";
 
 import useAppHistory from "@/hooks/useAppHistory";
 import useAuthUser from "@/hooks/useAuthUser";
@@ -77,13 +76,6 @@ import useFilters, { FilterState } from "@/hooks/useFilters";
 
 import { getPermissions } from "@/common/Permissions";
 
-import query from "@/Utils/request/query";
-import { useView } from "@/Utils/useView";
-import {
-  dateQueryString,
-  formatDateTime,
-  formatPatientAge,
-} from "@/Utils/utils";
 import { usePermissions } from "@/context/PermissionContext";
 import {
   formatSlotTimeRange,
@@ -103,16 +95,33 @@ import {
 } from "@/types/scheduling/schedule";
 import scheduleApis from "@/types/scheduling/scheduleApi";
 import { UserReadMinimal } from "@/types/user/user";
+import query from "@/Utils/request/query";
+import { useView } from "@/Utils/useView";
+import {
+  dateQueryString,
+  formatDateTime,
+  formatPatientAge,
+} from "@/Utils/utils";
 
-import { ShortcutBadge } from "@/Utils/keyboardShortcutComponents";
-import { NonEmptyArray } from "@/Utils/types";
 import { ScheduleResourceIcon } from "@/components/Schedule/ScheduleResourceIcon";
+import {
+  dateFilter,
+  tagFilter,
+} from "@/components/ui/multi-filter/filterConfigs";
+import MultiFilter from "@/components/ui/multi-filter/MultiFilter";
+import useMultiFilterState from "@/components/ui/multi-filter/utils/useMultiFilterState";
+import {
+  FilterDateRange,
+  shortDateRangeOptions,
+} from "@/components/ui/multi-filter/utils/utils";
 import {
   Tooltip,
   TooltipContent,
   TooltipTrigger,
 } from "@/components/ui/tooltip";
 import { useFacilityShortcuts } from "@/hooks/useFacilityShortcuts";
+import { ShortcutBadge } from "@/Utils/keyboardShortcutComponents";
+import { NonEmptyArray } from "@/Utils/types";
 import { MultiPractitionerSelector } from "./components/MultiPractitionerSelect";
 
 interface DateRangeDisplayProps {
@@ -406,6 +415,63 @@ export default function AppointmentsPage({ resourceType, resourceId }: Props) {
   const slots = slotsQuery.data?.results?.filter((s) => s.allocated > 0);
   const slot = slots?.find((s) => s.id === qParams.slot);
 
+  const filters = [
+    tagFilter(
+      "tags",
+      TagResource.APPOINTMENT,
+      "multi",
+      t("tags", { count: 2 }),
+    ),
+    dateFilter("date", t("date"), shortDateRangeOptions),
+  ];
+
+  const onFilterUpdate = (query: Record<string, unknown>) => {
+    for (const [key, value] of Object.entries(query)) {
+      switch (key) {
+        case "tags":
+          query.tags = (value as TagConfig[])?.map((tag) => tag.id).join(",");
+          break;
+        case "tags_behavior":
+          // tags_behavior is already handled by the filter system
+          break;
+        case "date":
+          {
+            const dateRange = value as FilterDateRange;
+            query = {
+              ...query,
+              date: undefined,
+              date_from: dateRange?.from
+                ? dateQueryString(dateRange?.from as Date)
+                : undefined,
+              date_to: dateRange?.to
+                ? dateQueryString(dateRange?.to as Date)
+                : undefined,
+            };
+          }
+          break;
+      }
+    }
+    updateQuery(query);
+  };
+
+  const {
+    selectedFilters,
+    handleFilterChange,
+    handleOperationChange,
+    handleClearAll,
+    handleClearFilter,
+  } = useMultiFilterState(filters, onFilterUpdate, {
+    ...qParams,
+    tags: selectedTags,
+    date:
+      qParams.date_from || qParams.date_to
+        ? {
+            from: qParams.date_from ? new Date(qParams.date_from) : undefined,
+            to: qParams.date_to ? new Date(qParams.date_to) : undefined,
+          }
+        : undefined,
+  });
+
   useEffect(() => {
     if (!isFacilityLoading && !canViewAppointments && !facility) {
       toast.error(t("no_permission_to_view_page"));
@@ -472,14 +538,16 @@ export default function AppointmentsPage({ resourceType, resourceId }: Props) {
           {/* Tags Filter */}
           <div>
             <Label className="mt-1 text-black">{t("filter_by_tags")}</Label>
-            <TagSelectorPopover
-              selected={selectedTags}
-              onChange={(tags) => {
-                updateQuery({
-                  tags: tags.map((tag) => tag.id).join(","),
-                });
-              }}
-              resource={TagResource.APPOINTMENT}
+            <MultiFilter
+              selectedFilters={selectedFilters}
+              onFilterChange={handleFilterChange}
+              onOperationChange={handleOperationChange}
+              onClearAll={handleClearAll}
+              onClearFilter={handleClearFilter}
+              className="flex sm:flex-row mt-2 sm:items-center"
+              triggerButtonClassName="self-start sm:self-center h-9"
+              clearAllButtonClassName="self-center"
+              selectedBarClassName="h-9"
             />
           </div>
           <div>
@@ -721,6 +789,7 @@ export default function AppointmentsPage({ resourceType, resourceId }: Props) {
                 date_to={qParams.date_to}
                 canViewAppointments={canViewAppointments}
                 tags={selectedTags.map((tag) => tag.id)}
+                tags_behavior={qParams.tags_behavior}
                 patient={qParams.patient}
               />
             ))}
@@ -740,6 +809,7 @@ export default function AppointmentsPage({ resourceType, resourceId }: Props) {
           status={qParams.status}
           Pagination={Pagination}
           tags={selectedTags.map((tag) => tag.id)}
+          tags_behavior={qParams.tags_behavior}
           patient={qParams.patient}
           resourceType={resourceType}
           resourceIds={resourceId ? [resourceId] : practitionerIds}
@@ -753,6 +823,7 @@ function AppointmentColumn(props: {
   statusGroup: AppointmentStatusGroup;
   slot?: string | null;
   tags?: string[];
+  tags_behavior?: string;
   date_from: string | null;
   date_to: string | null;
   canViewAppointments: boolean;
@@ -784,6 +855,7 @@ function AppointmentColumn(props: {
       props.date_from,
       props.date_to,
       props.tags,
+      props.tags_behavior,
       props.patient,
     ],
     queryFn: async ({ pageParam = 0, signal }) => {
@@ -796,6 +868,7 @@ function AppointmentColumn(props: {
               ? props.statusGroup.statuses.join(",")
               : selectedStatuses.join(","),
           tags: props.tags?.join(","),
+          tags_behavior: props.tags_behavior,
           limit: 10,
           slot: props.slot,
           resource_type: props.resourceType,
@@ -1043,6 +1116,7 @@ function AppointmentRow(props: {
   date_to: string | null;
   canViewAppointments: boolean;
   tags?: string[];
+  tags_behavior?: string;
   patient?: string;
   resourceType: SchedulableResourceType;
   resourceIds: NonEmptyArray<string>;
@@ -1061,6 +1135,7 @@ function AppointmentRow(props: {
       props.date_from,
       props.date_to,
       props.tags,
+      props.tags_behavior,
       props.patient,
     ],
     queryFn: query(scheduleApis.appointments.list, {
@@ -1072,6 +1147,7 @@ function AppointmentRow(props: {
         date_after: props.date_from,
         date_before: props.date_to,
         tags: props.tags,
+        tags_behavior: props.tags_behavior,
         limit: props.resultsPerPage,
         offset: ((props.page ?? 1) - 1) * props.resultsPerPage,
         ordering: "token_slot__start_datetime",
