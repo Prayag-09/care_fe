@@ -473,7 +473,6 @@ export default function AppointmentsPage({ resourceType, resourceId }: Props) {
           <div>
             <Label className="mt-1 text-black">{t("filter_by_tags")}</Label>
             <TagSelectorPopover
-              asFilter
               selected={selectedTags}
               onChange={(tags) => {
                 updateQuery({
