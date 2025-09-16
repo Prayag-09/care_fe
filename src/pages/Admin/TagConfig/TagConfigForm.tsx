@@ -353,7 +353,7 @@ export default function TagConfigForm({
           )}
         />
 
-        {facilityId && (
+        {facilityId ? (
           <FormField
             control={form.control}
             name="facility_organization"
@@ -375,28 +375,28 @@ export default function TagConfigForm({
               </FormItem>
             )}
           />
+        ) : (
+          <FormField
+            control={form.control}
+            name="organization"
+            render={({ field }) => (
+              <FormItem>
+                <FormLabel>Organization</FormLabel>
+                <FormControl>
+                  <RoleOrgSelector
+                    value={field.value ? [field.value] : null}
+                    onChange={(value: string[] | null) => {
+                      field.onChange(value?.[0] || null);
+                    }}
+                    singleSelection={true}
+                    optional={true}
+                  />
+                </FormControl>
+                <FormMessage />
+              </FormItem>
+            )}
+          />
         )}
-
-        <FormField
-          control={form.control}
-          name="organization"
-          render={({ field }) => (
-            <FormItem>
-              <FormLabel>Organization</FormLabel>
-              <FormControl>
-                <RoleOrgSelector
-                  value={field.value ? [field.value] : null}
-                  onChange={(value: string[] | null) => {
-                    field.onChange(value?.[0] || null);
-                  }}
-                  singleSelection={true}
-                  optional={true}
-                />
-              </FormControl>
-              <FormMessage />
-            </FormItem>
-          )}
-        />
 
         {/* Add parent tag info when creating a child */}
         {isCreatingChild && parentTag && (
