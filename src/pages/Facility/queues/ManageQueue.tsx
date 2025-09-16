@@ -208,6 +208,7 @@ export function ManageQueuePage({
           }}
           currentTab={tab}
           onTabChange={(tab) => navigate(tab)}
+          setPageTitle={false}
         />
       </div>
     </Page>

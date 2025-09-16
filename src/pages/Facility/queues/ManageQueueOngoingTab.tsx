@@ -19,6 +19,7 @@ import {
 import { Label } from "@/components/ui/label";
 import { RadioGroup, RadioGroupItem } from "@/components/ui/radio-group";
 import { Skeleton } from "@/components/ui/skeleton";
+import { cn } from "@/lib/utils";
 import { usePreferredServicePointCategory } from "@/pages/Facility/queues/usePreferredServicePointCategory";
 import { getTokenQueueStatusCount } from "@/pages/Facility/queues/utils";
 import { SchedulableResourceType } from "@/types/scheduling/schedule";
@@ -272,7 +273,7 @@ function WaitingTokensColumn({
       title={t("waiting")}
       count={
         summary && (
-          <Badge size="sm" variant="blue">
+          <Badge size="sm">
             {getTokenQueueStatusCount(summary, TokenStatus.CREATED)}
           </Badge>
         )
@@ -336,10 +337,10 @@ function InServiceTokensColumn({
 
   return (
     <QueueColumn
-      title={t("in_service")}
+      title={t("called_plus_now_serving")}
       count={
         summary && (
-          <Badge size="sm" variant="green">
+          <Badge size="sm">
             {getTokenQueueStatusCount(summary, TokenStatus.IN_PROGRESS)}
           </Badge>
         )
@@ -965,8 +966,19 @@ export function TokenCard({
   token: TokenRead | null;
   options?: React.ReactNode;
 }) {
+  const { t } = useTranslation();
+
   return (
-    <div className="flex gap-3 items-center justify-between p-3 bg-white rounded-lg shadow">
+    <div
+      className={cn(
+        "relative flex gap-3 items-center justify-between p-3 bg-gray-50 rounded-lg shadow",
+        token?.status === TokenStatus.IN_PROGRESS &&
+          "border border-primary-500",
+      )}
+    >
+      {token?.status === TokenStatus.IN_PROGRESS && (
+        <div className="absolute top-1/2 -translate-y-1/2 left-0 w-1 h-8 rounded-r-sm bg-primary-500" />
+      )}
       <div className="flex flex-col">
         {token ? (
           <Link
@@ -993,13 +1005,18 @@ export function TokenCard({
         ) : (
           <Skeleton className="h-4 w-36 my-2" />
         )}
-        {/* <div className="flex items-center gap-1.5"></div> */}
         {/* TODO: do we show tags here? or something else? */}
       </div>
       <div className="flex items-center gap-3">
         {token ? (
-          <div className="min-h-14 p-2 bg-gray-100 border border-gray-200 rounded-lg flex items-center justify-center">
-            <span className="text-lg font-bold">
+          <div className="flex gap-2 items-center justify-center p-2 bg-gray-100 border border-gray-200 rounded-lg">
+            {token.status === TokenStatus.IN_PROGRESS && (
+              <div className="flex gap-1 items-center">
+                <div className="size-2 border border-primary-500 rounded-full bg-primary-200" />
+                <span className="text-sm font-medium">{t("now_serving")}:</span>
+              </div>
+            )}
+            <span className="text-lg font-bold text-black">
               {renderTokenNumber(token)}
             </span>
           </div>
