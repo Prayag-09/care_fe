@@ -111,7 +111,7 @@ export function AddSupplyDeliveryForm({
   const loadFromSupplyRequests = () => {
     if (supplyRequests.length > 0) {
       const itemsFromRequests = supplyRequests.map((request) => ({
-        supplied_inventory_item: "",
+        supplied_inventory_item: undefined,
         supplied_item_quantity: request.quantity,
         product_knowledge: request.item,
         supplied_item: undefined,
@@ -221,8 +221,8 @@ export function AddSupplyDeliveryForm({
                                 <FormControl>
                                   <ProductKnowledgeSelect
                                     value={field.value}
-                                    onChange={(product) => {
-                                      field.onChange(product);
+                                    onChange={(productKnowledge) => {
+                                      field.onChange(productKnowledge);
                                       // Reset inventory item when product changes
                                       form.setValue(
                                         `items.${index}.supplied_inventory_item`,
