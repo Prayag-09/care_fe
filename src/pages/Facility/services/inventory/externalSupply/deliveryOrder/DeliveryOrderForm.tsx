@@ -306,6 +306,7 @@ export default function DeliveryOrderForm({
                         </FormLabel>
                         <FormControl>
                           <Autocomplete
+                            disabled={internal && supplyOrderId}
                             options={
                               internal ? deliveryFromOptions : vendorOptions
                             }
