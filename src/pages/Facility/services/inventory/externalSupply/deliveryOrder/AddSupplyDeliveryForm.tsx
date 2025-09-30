@@ -1,7 +1,6 @@
 import { zodResolver } from "@hookform/resolvers/zod";
-import { useMutation, useQuery, useQueryClient } from "@tanstack/react-query";
+import { useMutation, useQueryClient } from "@tanstack/react-query";
 import { PlusCircle, Trash2 } from "lucide-react";
-import { useState } from "react";
 import { useFieldArray, useForm } from "react-hook-form";
 import { useTranslation } from "react-i18next";
 import { toast } from "sonner";
@@ -30,12 +29,9 @@ import {
   TableHeader,
   TableRow,
 } from "@/components/ui/table";
+import { InventoryItemSelect } from "@/pages/Facility/services/inventory/InventoryItemSelect";
 import { ProductKnowledgeSelect } from "@/pages/Facility/services/inventory/ProductKnowledgeSelect";
 import ProductSelect from "@/pages/Facility/services/inventory/ProductSelect";
-
-import Autocomplete from "@/components/ui/autocomplete";
-import { InventoryRead } from "@/types/inventory/product/inventory";
-import inventoryApi from "@/types/inventory/product/inventoryApi";
 import { ProductRead } from "@/types/inventory/product/product";
 import { ProductKnowledgeBase } from "@/types/inventory/productKnowledge/productKnowledge";
 import {
@@ -47,8 +43,6 @@ import supplyDeliveryApi from "@/types/inventory/supplyDelivery/supplyDeliveryAp
 import { SupplyRequestRead } from "@/types/inventory/supplyRequest/supplyRequest";
 import { ShortcutBadge } from "@/Utils/keyboardShortcutComponents";
 import mutate from "@/Utils/request/mutate";
-import query from "@/Utils/request/query";
-import { formatDate } from "date-fns";
 
 const supplyDeliveryItemSchema = z.object({
   supplied_inventory_item: z.string().optional(),
@@ -89,29 +83,6 @@ export function AddSupplyDeliveryForm({
 }: Props) {
   const { t } = useTranslation();
   const queryClient = useQueryClient();
-  const [searchInventoryItem, setSearchInventoryItem] = useState("");
-
-  const { data: inventoryItems, isLoading: isLoadingInventoryItems } = useQuery(
-    {
-      queryKey: [
-        "inventoryItems",
-        facilityId,
-        destination,
-        searchInventoryItem,
-      ],
-      queryFn: query(inventoryApi.list, {
-        pathParams: { facilityId, locationId: origin || "" },
-        queryParams: { product_knowledge: searchInventoryItem },
-      }),
-      enabled: !!searchInventoryItem && !!origin,
-    },
-  );
-
-  const inventoryItemOptions =
-    inventoryItems?.results.map((item: InventoryRead) => ({
-      label: `#${item.product.batch?.lot_number} ${item.product.expiration_date ? `(${formatDate(item.product.expiration_date, "dd/MM/yyyy")})` : ""}, QTY: ${item.net_content}`,
-      value: item.id,
-    })) || [];
 
   type FormValues = z.infer<typeof createFormSchema>;
 
@@ -257,9 +228,6 @@ export function AddSupplyDeliveryForm({
                                         `items.${index}.supplied_inventory_item`,
                                         "",
                                       );
-                                      setSearchInventoryItem(
-                                        productKnowledge.id,
-                                      );
                                     }}
                                     placeholder={t("select_product")}
                                     className="w-full"
@@ -278,25 +246,14 @@ export function AddSupplyDeliveryForm({
                               render={({ field }) => (
                                 <FormItem>
                                   <FormControl>
-                                    <Autocomplete
-                                      options={inventoryItemOptions}
+                                    <InventoryItemSelect
                                       value={field.value || ""}
                                       onChange={field.onChange}
-                                      isLoading={isLoadingInventoryItems}
-                                      // TODO: Make this work
-                                      //   onSearch={setSearchInventoryItem}
-                                      placeholder={t("select_inventory_item")}
-                                      inputPlaceholder={t(
-                                        "search_inventory_item",
+                                      facilityId={facilityId}
+                                      locationId={origin || ""}
+                                      productKnowledge={form.watch(
+                                        `items.${index}.product_knowledge`,
                                       )}
-                                      noOptionsMessage={t(
-                                        "no_inventory_items_found",
-                                      )}
-                                      disabled={
-                                        !form.watch(
-                                          `items.${index}.product_knowledge`,
-                                        )
-                                      }
                                     />
                                   </FormControl>
                                   <FormMessage />

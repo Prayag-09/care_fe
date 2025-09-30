@@ -252,14 +252,13 @@ export function RequestOrderShow({
         <Card>
           <CardContent className="p-0">
             <Tabs defaultValue="supply-requests" className="w-full">
-              <div className="border-b bg-gray-50/50 px-6 pt-6">
-                <TabsList className="grid w-full grid-cols-3 bg-white shadow-sm">
+              <div className="border-b bg-gray-50/50 px-6 pt-2 pb-1">
+                <TabsList className="grid w-full grid-cols-3 bg-gray-100 shadow-md">
                   <TabsTrigger
                     value="supply-requests"
-                    className="data-[state=active]:bg-primary data-[state=active]:text-primary-foreground data-[state=active]:shadow-sm transition-all duration-200"
+                    className="data-[state=active]:bg-white data-[state=active]:text-primary-foreground data-[state=active]:shadow-sm transition-all duration-200"
                   >
                     <div className="flex items-center gap-2">
-                      <div className="h-2 w-2 rounded-full bg-blue-500"></div>
                       {t("supply_requests")}
                       {supplyRequests?.results &&
                         supplyRequests.results.length > 0 && (
@@ -271,10 +270,9 @@ export function RequestOrderShow({
                   </TabsTrigger>
                   <TabsTrigger
                     value="supply-deliveries"
-                    className="data-[state=active]:bg-primary data-[state=active]:text-primary-foreground data-[state=active]:shadow-sm transition-all duration-200"
+                    className="data-[state=active]:bg-white data-[state=active]:text-primary-foreground data-[state=active]:shadow-sm transition-all duration-200"
                   >
                     <div className="flex items-center gap-2">
-                      <div className="h-2 w-2 rounded-full bg-green-500"></div>
                       {t("supply_deliveries")}
                       {supplyDeliveries?.results &&
                         supplyDeliveries.results.length > 0 && (
@@ -286,10 +284,9 @@ export function RequestOrderShow({
                   </TabsTrigger>
                   <TabsTrigger
                     value="all-deliveries"
-                    className="data-[state=active]:bg-primary data-[state=active]:text-primary-foreground data-[state=active]:shadow-sm transition-all duration-200"
+                    className="data-[state=active]:bg-white data-[state=active]:text-primary-foreground data-[state=active]:shadow-sm transition-all duration-200"
                   >
                     <div className="flex items-center gap-2">
-                      <div className="h-2 w-2 rounded-full bg-purple-500"></div>
                       {t("all_deliveries")}
                       {allSupplyDeliveries?.results &&
                         allSupplyDeliveries.results.length > 0 && (
@@ -302,7 +299,10 @@ export function RequestOrderShow({
                 </TabsList>
               </div>
 
-              <TabsContent value="supply-requests" className="p-6 space-y-6">
+              <TabsContent
+                value="supply-requests"
+                className="px-6 py-4 space-y-6"
+              >
                 {isLoadingSupplyRequests ? (
                   <div className="space-y-4">
                     <div className="animate-pulse">
