@@ -131,6 +131,9 @@ export function AddSupplyDeliveryForm({
       onSuccess();
       form.reset();
     },
+    onError: (_error) => {
+      toast.error(t("error_creating_supply_delivery"));
+    },
   });
 
   function onSubmit(data: FormValues) {
