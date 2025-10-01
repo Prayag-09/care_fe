@@ -46,6 +46,7 @@ export function InventoryItemSelect({
     queryFn: query(inventoryApi.list, {
       pathParams: { facilityId, locationId },
       queryParams: {
+        net_content_gt: 0,
         product_knowledge: productKnowledge?.id || "",
         search: searchTerm,
       },
@@ -55,11 +56,11 @@ export function InventoryItemSelect({
 
   const options =
     inventoryItems?.results.map((item: InventoryRead) => ({
-      label: `${t("lot")} #${item.product.batch?.lot_number} ${
+      label: `${item.product.batch?.lot_number} ${
         item.product.expiration_date
           ? `(${t("expiry")} ${formatDate(item.product.expiration_date, "dd/MM/yyyy")})`
           : ""
-      }`,
+      } - ${item.net_content} ${item.product.product_knowledge.base_unit.display}`,
       value: item.id,
     })) || [];
 
