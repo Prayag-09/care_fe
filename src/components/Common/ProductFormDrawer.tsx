@@ -122,8 +122,8 @@ export function ProductFormDrawer({
   return (
     <Drawer open={open} onOpenChange={onOpenChange}>
       <DrawerContent className="max-h-[90vh] px-8">
-        <div className="max-w-8xl mx-auto">
-          <DrawerHeader className="relative">
+        <DrawerHeader className="relative">
+          <div className="max-w-4xl mx-auto w-full relative">
             <DrawerClose asChild>
               <Button
                 variant="ghost"
@@ -140,154 +140,147 @@ export function ProductFormDrawer({
               Record the product's lot/batch and expiration date, then map it to
               a billable ChargeItem.
             </DrawerDescription>
-          </DrawerHeader>
+          </div>
+        </DrawerHeader>
 
-          <div className="flex-1 overflow-y-auto px-6 pb-4">
-            {/* Receiving Item and Quantity Display */}
-            <div className="mb-8 grid grid-cols-2 gap-8">
-              <div>
-                <p className="text-sm font-medium text-gray-600 mb-1">
-                  Receiving Item
-                </p>
-                <p className="text-xl font-bold text-gray-900">
-                  {receivingItem}
-                </p>
-              </div>
-              <div>
-                <p className="text-sm font-medium text-gray-600 mb-1">
-                  Quantity
-                </p>
-                <p className="text-xl font-bold text-gray-900">{quantity}</p>
-              </div>
+        <div className="flex-1 overflow-y-auto px-6 pb-4">
+          {/* Receiving Item and Quantity Display */}
+          <div className="mb-8 grid grid-cols-2 gap-8">
+            <div>
+              <p className="text-sm font-medium text-gray-600 mb-1">
+                Receiving Item
+              </p>
+              <p className="text-xl font-bold text-gray-900">{receivingItem}</p>
             </div>
-
-            <Form {...form}>
-              <form
-                onSubmit={form.handleSubmit(onSubmit)}
-                className="space-y-2"
-              >
-                {/* Create new lot/expiry section */}
-                <div className="flex flex-col gap-2 bg-gray-100 py-2 rounded-lg">
-                  <div className="flex items-center gap-3">
-                    <h3 className="border-l-4 border-blue-500 pl-2 mt-2 text-base font-semibold text-gray-900">
-                      Create new lot/expiry
-                    </h3>
-                  </div>
-
-                  <div className="grid grid-cols-1 gap-6 md:grid-cols-2 px-3">
-                    <FormField
-                      control={form.control}
-                      name="lot_number"
-                      render={({ field }) => (
-                        <FormItem>
-                          <FormLabel className="text-sm font-medium text-gray-700">
-                            Lot/Batch Number
-                          </FormLabel>
-                          <FormControl>
-                            <Input
-                              placeholder=""
-                              {...field}
-                              className="border-gray-300 h-11 text-base"
-                            />
-                          </FormControl>
-                          <FormMessage />
-                        </FormItem>
-                      )}
-                    />
-
-                    <FormField
-                      control={form.control}
-                      name="expiration_date"
-                      render={({ field }) => (
-                        <FormItem>
-                          <FormLabel className="text-sm font-medium text-gray-700">
-                            Expiry Date
-                          </FormLabel>
-                          <FormControl>
-                            <DatePicker
-                              date={field.value}
-                              onChange={field.onChange}
-                              className="w-full border-gray-300 h-11 text-base"
-                            />
-                          </FormControl>
-                          <FormMessage />
-                        </FormItem>
-                      )}
-                    />
-                  </div>
-                </div>
-
-                {/* Charge Item for Billing section */}
-                <div className="flex flex-col gap-2 bg-gray-100 py-2 rounded-lg">
-                  <div className="flex items-center gap-3">
-                    <h3 className="border-l-4 border-blue-500 pl-2 mt-2 text-base font-semibold text-gray-900">
-                      Charge Item for Billing
-                    </h3>
-                  </div>
-                  <p className="text-sm text-gray-600 leading-relaxed px-3">
-                    Select or create a charge item to link with this product. It
-                    will be used to generate charges during billing.
-                  </p>
-
-                  <div className="px-3">
-                    <FormField
-                      control={form.control}
-                      name="charge_item_definition"
-                      render={({ field }) => (
-                        <FormItem>
-                          <FormLabel className="text-sm font-medium text-gray-700">
-                            Charge item
-                          </FormLabel>
-                          <FormControl>
-                            <ChargeItemDefinitionPicker
-                              facilityId={facilityId}
-                              value={field.value}
-                              onValueChange={field.onChange}
-                              placeholder="Select charge item definition"
-                              className="w-full h-11 text-base"
-                              showCreateButton={true}
-                            />
-                          </FormControl>
-                          <FormMessage />
-                        </FormItem>
-                      )}
-                    />
-                  </div>
-                </div>
-              </form>
-            </Form>
+            <div>
+              <p className="text-sm font-medium text-gray-600 mb-1">Quantity</p>
+              <p className="text-xl font-bold text-gray-900">{quantity}</p>
+            </div>
           </div>
 
-          <DrawerFooter className="flex-row justify-end gap-3 px-6 py-4 border-t border-gray-200">
-            <Button
-              variant="outline"
-              onClick={handleCancel}
-              className="h-11 px-6 text-base"
-            >
-              {t("cancel")}
-            </Button>
-            <Button
-              onClick={form.handleSubmit(onSubmit)}
-              disabled={isPending}
-              className="bg-green-600 hover:bg-green-700 h-11 px-6 text-base font-medium"
-            >
-              {isPending ? (
-                <>
-                  <CareIcon
-                    icon="l-spinner"
-                    className="mr-2 h-4 w-4 animate-spin"
+          <Form {...form}>
+            <form onSubmit={form.handleSubmit(onSubmit)} className="space-y-2">
+              {/* Create new lot/expiry section */}
+              <div className="flex flex-col gap-2 bg-gray-100 py-2 rounded-lg">
+                <div className="flex items-center gap-3">
+                  <h3 className="border-l-4 border-blue-500 pl-2 mt-2 text-base font-semibold text-gray-900">
+                    Create new lot/expiry
+                  </h3>
+                </div>
+
+                <div className="grid grid-cols-1 gap-6 md:grid-cols-2 px-3">
+                  <FormField
+                    control={form.control}
+                    name="lot_number"
+                    render={({ field }) => (
+                      <FormItem>
+                        <FormLabel className="text-sm font-medium text-gray-700">
+                          Lot/Batch Number
+                        </FormLabel>
+                        <FormControl>
+                          <Input
+                            placeholder=""
+                            {...field}
+                            className="border-gray-300 h-11 text-base"
+                          />
+                        </FormControl>
+                        <FormMessage />
+                      </FormItem>
+                    )}
                   />
-                  {t("saving")}...
-                </>
-              ) : (
-                <>
-                  <CareIcon icon="l-check" className="mr-2 h-4 w-4" />
-                  Confirm & Add Lot
-                </>
-              )}
-            </Button>
-          </DrawerFooter>
+
+                  <FormField
+                    control={form.control}
+                    name="expiration_date"
+                    render={({ field }) => (
+                      <FormItem>
+                        <FormLabel className="text-sm font-medium text-gray-700">
+                          Expiry Date
+                        </FormLabel>
+                        <FormControl>
+                          <DatePicker
+                            date={field.value}
+                            onChange={field.onChange}
+                            className="w-full border-gray-300 h-11 text-base"
+                          />
+                        </FormControl>
+                        <FormMessage />
+                      </FormItem>
+                    )}
+                  />
+                </div>
+              </div>
+
+              {/* Charge Item for Billing section */}
+              <div className="flex flex-col gap-2 bg-gray-100 py-2 rounded-lg">
+                <div className="flex items-center gap-3">
+                  <h3 className="border-l-4 border-blue-500 pl-2 mt-2 text-base font-semibold text-gray-900">
+                    Charge Item for Billing
+                  </h3>
+                </div>
+                <p className="text-sm text-gray-600 leading-relaxed px-3">
+                  Select or create a charge item to link with this product. It
+                  will be used to generate charges during billing.
+                </p>
+
+                <div className="px-3">
+                  <FormField
+                    control={form.control}
+                    name="charge_item_definition"
+                    render={({ field }) => (
+                      <FormItem>
+                        <FormLabel className="text-sm font-medium text-gray-700">
+                          Charge item
+                        </FormLabel>
+                        <FormControl>
+                          <ChargeItemDefinitionPicker
+                            facilityId={facilityId}
+                            value={field.value}
+                            onValueChange={field.onChange}
+                            placeholder="Select charge item definition"
+                            className="w-full h-11 text-base"
+                            showCreateButton={true}
+                          />
+                        </FormControl>
+                        <FormMessage />
+                      </FormItem>
+                    )}
+                  />
+                </div>
+              </div>
+            </form>
+          </Form>
         </div>
+
+        <DrawerFooter className="flex-row justify-end gap-3 px-6 py-4 border-t border-gray-200">
+          <Button
+            variant="outline"
+            onClick={handleCancel}
+            className="h-11 px-6 text-base"
+          >
+            {t("cancel")}
+          </Button>
+          <Button
+            onClick={form.handleSubmit(onSubmit)}
+            disabled={isPending}
+            className="bg-green-600 hover:bg-green-700 h-11 px-6 text-base font-medium"
+          >
+            {isPending ? (
+              <>
+                <CareIcon
+                  icon="l-spinner"
+                  className="mr-2 h-4 w-4 animate-spin"
+                />
+                {t("saving")}...
+              </>
+            ) : (
+              <>
+                <CareIcon icon="l-check" className="mr-2 h-4 w-4" />
+                Confirm & Add Lot
+              </>
+            )}
+          </Button>
+        </DrawerFooter>
       </DrawerContent>
     </Drawer>
   );

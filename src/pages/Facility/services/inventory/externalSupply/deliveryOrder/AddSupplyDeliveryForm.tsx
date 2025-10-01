@@ -55,6 +55,7 @@ import { ShortcutBadge } from "@/Utils/keyboardShortcutComponents";
 import mutate from "@/Utils/request/mutate";
 import query from "@/Utils/request/query";
 import { useQueryParams } from "raviger";
+import { useCallback, useRef } from "react";
 
 const supplyDeliveryItemSchema = z.object({
   supplied_inventory_item: z.string().optional(),
@@ -95,6 +96,7 @@ export function AddSupplyDeliveryForm({
   const queryClient = useQueryClient();
   const [qParams] = useQueryParams();
   const [isSelectDialogOpen, setIsSelectDialogOpen] = useState(false);
+  const productKnowledgeRef = useRef<HTMLButtonElement | null>(null);
 
   type FormValues = z.infer<typeof createFormSchema>;
 
@@ -189,6 +191,33 @@ export function AddSupplyDeliveryForm({
     setSelectedItems([]);
   };
 
+  const setProductKnowledgeRef = useCallback(
+    (element: HTMLButtonElement | null, index: number) => {
+      if (element && index === fields.length - 1) {
+        productKnowledgeRef.current = element;
+      }
+    },
+    [fields.length],
+  );
+
+  const handleAddAnotherItem = () => {
+    append({
+      product_knowledge: {} as ProductKnowledgeBase,
+      supplied_inventory_item: "",
+      supplied_item_quantity: 1,
+      supplied_item: undefined,
+      supply_request: undefined,
+      _is_inward_stock: !origin,
+    });
+    const index = form.watch("items").length - 1;
+    setTimeout(() => {
+      if (productKnowledgeRef.current) {
+        productKnowledgeRef.current.click();
+      }
+    });
+    // Set ref to the newly added item's product knowledge select
+  };
+
   function onSubmit(data: FormValues) {
     upsertDelivery({
       datapoints: data.items.map((item) => ({
@@ -276,6 +305,9 @@ export function AddSupplyDeliveryForm({
                               <FormItem>
                                 <FormControl>
                                   <ProductKnowledgeSelect
+                                    ref={(element) =>
+                                      setProductKnowledgeRef(element, index)
+                                    }
                                     value={field.value}
                                     onChange={(productKnowledge) => {
                                       field.onChange(productKnowledge);
@@ -283,6 +315,10 @@ export function AddSupplyDeliveryForm({
                                       form.setValue(
                                         `items.${index}.supplied_inventory_item`,
                                         "",
+                                      );
+                                      form.setValue(
+                                        `items.${index}.supplied_item`,
+                                        undefined,
                                       );
                                     }}
                                     placeholder={t("select_product")}
@@ -322,10 +358,6 @@ export function AddSupplyDeliveryForm({
                           <TableCell className="align-top">
                             <ProductSelect
                               facilityId={facilityId}
-                              productKnowledgeId={
-                                form.watch(`items.${index}.product_knowledge`)
-                                  ?.id
-                              }
                               productKnowledgeSlug={
                                 form.watch(`items.${index}.product_knowledge`)
                                   ?.slug
@@ -411,16 +443,7 @@ export function AddSupplyDeliveryForm({
                 <Button
                   type="button"
                   variant="outline"
-                  onClick={() =>
-                    append({
-                      product_knowledge: {} as ProductKnowledgeBase,
-                      supplied_inventory_item: "",
-                      supplied_item_quantity: 1,
-                      supplied_item: undefined,
-                      supply_request: undefined,
-                      _is_inward_stock: !origin,
-                    })
-                  }
+                  onClick={() => handleAddAnotherItem()}
                 >
                   <PlusCircle className="mr-2 size-4" />
                   {t("add_another_item")}

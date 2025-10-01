@@ -440,7 +440,9 @@ function ProductKnowledgeFormContent({
                               ResourceCategoryResourceType.product_knowledge
                             }
                             value={field.value}
-                            onValueChange={field.onChange}
+                            onValueChange={(category) =>
+                              field.onChange(category?.slug || "")
+                            }
                             placeholder={t("select_category")}
                             className="w-full"
                           />

@@ -26,6 +26,7 @@ interface ProductKnowledgeSelectProps {
   className?: string;
   placeholder?: string;
   enableFavorites?: boolean;
+  ref?: React.Ref<HTMLButtonElement>;
 }
 
 export function ProductKnowledgeSelect({
@@ -35,6 +36,7 @@ export function ProductKnowledgeSelect({
   className,
   placeholder,
   enableFavorites = true,
+  ref,
 }: ProductKnowledgeSelectProps) {
   const { t } = useTranslation();
   const { facilityId } = useCurrentFacility();
@@ -92,6 +94,7 @@ export function ProductKnowledgeSelect({
             }
           : undefined
       }
+      ref={ref}
     />
   );
 }

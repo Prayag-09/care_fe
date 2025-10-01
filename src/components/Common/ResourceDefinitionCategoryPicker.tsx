@@ -119,6 +119,7 @@ interface ResourceDefinitionCategoryPickerProps<T> {
       };
     };
   };
+  ref?: React.Ref<HTMLButtonElement>;
 }
 
 export function ResourceDefinitionCategoryPicker<T>({
@@ -136,6 +137,7 @@ export function ResourceDefinitionCategoryPicker<T>({
   mapper = (item: T) => item as BaseCategoryPickerDefinition,
   enableFavorites = false,
   favoritesConfig,
+  ref,
 }: ResourceDefinitionCategoryPickerProps<T>) {
   const { t } = useTranslation();
   const queryClient = useQueryClient();
@@ -910,7 +912,7 @@ export function ResourceDefinitionCategoryPicker<T>({
           }}
           modal
         >
-          <PopoverTrigger asChild>
+          <PopoverTrigger asChild ref={ref}>
             <Button
               variant="outline"
               role="combobox"
