@@ -81,7 +81,6 @@ export function DeliveryOrderShow({
   const {
     qParams: filterParams,
     updateQuery,
-    Pagination,
     resultsPerPage,
   } = useFilters({
     limit: RESULTS_PER_PAGE_LIMIT,
@@ -108,7 +107,7 @@ export function DeliveryOrderShow({
         filterParams,
         selectedProductKnowledge?.id,
       ],
-      queryFn: query(supplyDeliveryApi.listSupplyDelivery, {
+      queryFn: query.paginated(supplyDeliveryApi.listSupplyDelivery, {
         queryParams: {
           order: deliveryOrderId,
           facility: facilityId,
@@ -611,9 +610,6 @@ export function DeliveryOrderShow({
                           );
                         }}
                       />
-                      {supplyDeliveries && (
-                        <Pagination totalCount={supplyDeliveries.count} />
-                      )}
                     </div>
                   )}
 
