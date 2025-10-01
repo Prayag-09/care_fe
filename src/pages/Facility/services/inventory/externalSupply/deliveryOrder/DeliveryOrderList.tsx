@@ -132,27 +132,29 @@ export function DeliveryOrderList({
               {internal ? t("delivery") : t("inward_entry")}
             </h1>
           </div>
-          <div className="flex items-center gap-2">
-            <Button
-              variant="primary"
-              onClick={() =>
-                navigate(
-                  getInventoryBasePath(
-                    facilityId,
-                    locationId,
-                    internal,
-                    false,
-                    false,
-                    "new",
-                  ),
-                )
-              }
-            >
-              <CareIcon icon="l-plus" />
-              {t("create_order")}
-              <ShortcutBadge actionId="create-order" />
-            </Button>
-          </div>
+          {!isRequester && (
+            <div className="flex items-center gap-2">
+              <Button
+                variant="primary"
+                onClick={() =>
+                  navigate(
+                    getInventoryBasePath(
+                      facilityId,
+                      locationId,
+                      internal,
+                      false,
+                      false,
+                      "new",
+                    ),
+                  )
+                }
+              >
+                <CareIcon icon="l-plus" />
+                {t("create_order")}
+                <ShortcutBadge actionId="create-order" />
+              </Button>
+            </div>
+          )}
         </div>
 
         <Tabs value={currentTab} onValueChange={handleTabChange}>
@@ -181,6 +183,7 @@ export function DeliveryOrderList({
                 facilityId={facilityId}
                 locationId={locationId}
                 internal={internal}
+                isRequester={isRequester}
               />
               <div className="mt-4">
                 <Pagination totalCount={response?.count || 0} />
