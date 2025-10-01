@@ -1,9 +1,9 @@
 import { zodResolver } from "@hookform/resolvers/zod";
 import { useMutation, useQuery, useQueryClient } from "@tanstack/react-query";
-import { CheckIcon, EditIcon, Loader2 } from "lucide-react";
+import { CheckIcon, Loader2 } from "lucide-react";
 import { navigate } from "raviger";
 import { useEffect, useState } from "react";
-import { FieldErrors, useForm } from "react-hook-form";
+import { useForm } from "react-hook-form";
 import { useTranslation } from "react-i18next";
 import * as z from "zod";
 
@@ -36,9 +36,6 @@ import { CompactConditionEditor } from "@/components/Billing/CompactConditionEdi
 import Loading from "@/components/Common/Loading";
 import { ResourceCategoryPicker } from "@/components/Common/ResourceCategoryPicker";
 
-import mutate from "@/Utils/request/mutate";
-import query from "@/Utils/request/query";
-import { generateSlug } from "@/Utils/utils";
 import { cn } from "@/lib/utils";
 import {
   Condition,
@@ -59,6 +56,8 @@ import {
 } from "@/types/billing/chargeItemDefinition/chargeItemDefinition";
 import chargeItemDefinitionApi from "@/types/billing/chargeItemDefinition/chargeItemDefinitionApi";
 import facilityApi from "@/types/facility/facilityApi";
+import mutate from "@/Utils/request/mutate";
+import query from "@/Utils/request/query";
 import { Check, ChevronDown, Component, Search, Trash2 } from "lucide-react";
 
 import { Badge } from "@/components/ui/badge";
@@ -70,10 +69,10 @@ import {
 } from "@/components/ui/popover";
 
 import RadioInput from "@/components/ui/RadioInput";
+import { generateSlug } from "@/Utils/utils";
 
 interface MonetaryComponentSelectorProps {
   title: string;
-  description: string;
   components: MonetaryComponentRead[];
   selectedComponents: MonetaryComponent[];
   onComponentToggle: (
@@ -86,9 +85,7 @@ interface MonetaryComponentSelectorProps {
     conditions: Condition[],
   ) => void;
   type: MonetaryComponentType;
-  errors: FieldErrors<z.infer<typeof priceComponentSchema>>[];
   availableMetrics: Metrics[];
-  minimal?: boolean;
   className?: string;
 }
 
@@ -112,293 +109,6 @@ const priceComponentSchema = z.object({
   conditions: z.array(conditionSchema),
 });
 
-// Schema for basic information
-const basicInformationSchema = z.object({
-  title: z.string().min(1, { message: "field_required" }),
-  slug_value: z
-    .string()
-    .min(1, { message: "field_required" })
-    .regex(/^[a-z0-9-]+$/, {
-      message: "slug_format_message",
-    }),
-  category: z.string().min(1, { message: "field_required" }),
-  _categoryName: z.string().optional(),
-  status: z.nativeEnum(ChargeItemDefinitionStatus),
-});
-
-// Type for basic information
-type BasicInformationValues = z.infer<typeof basicInformationSchema>;
-
-// Basic Information Component with display/edit modes
-function BasicInformationSection({
-  facilityId,
-  values,
-  onValuesChange,
-  isUpdate = false,
-  minimal = false,
-}: {
-  facilityId: string;
-  values: BasicInformationValues;
-  onValuesChange: (values: BasicInformationValues) => void;
-  isUpdate?: boolean;
-  minimal?: boolean;
-}) {
-  const { t } = useTranslation();
-  const [isEditing, setIsEditing] = useState(false);
-  const [localValues, setLocalValues] =
-    useState<BasicInformationValues>(values);
-  const [errors, setErrors] = useState<Record<string, string>>({});
-
-  // Update local values when parent values change
-  useEffect(() => {
-    setLocalValues(values);
-  }, [values]);
-
-  useEffect(() => {
-    if (!isUpdate) {
-      setIsEditing(true);
-    }
-  }, [isUpdate]);
-
-  // Auto-generate slug from title
-  useEffect(() => {
-    if (!isUpdate && localValues.title && isEditing) {
-      setLocalValues((prev) => ({
-        ...prev,
-        slug_value: generateSlug(localValues.title),
-        _categoryName: localValues._categoryName,
-      }));
-    }
-  }, [localValues.title, isUpdate, isEditing]);
-
-  const validateValues = (valuesToValidate: BasicInformationValues) => {
-    const result = basicInformationSchema.safeParse(valuesToValidate);
-    if (result.success) {
-      return {};
-    }
-
-    const newErrors: Record<string, string> = {};
-    result.error.errors.forEach((error) => {
-      const field = error.path[0] as string;
-      newErrors[field] = t(error.message);
-    });
-
-    return newErrors;
-  };
-
-  const handleSave = () => {
-    const valuesToSave = minimal
-      ? { ...localValues, status: ChargeItemDefinitionStatus.active }
-      : localValues;
-
-    const newErrors = validateValues(valuesToSave);
-    setErrors(newErrors);
-
-    if (Object.keys(newErrors).length === 0) {
-      onValuesChange(valuesToSave);
-      setIsEditing(false);
-    }
-  };
-
-  const handleCancel = () => {
-    setLocalValues(values);
-    setErrors({});
-    setIsEditing(false);
-  };
-
-  if (!isEditing) {
-    // Display mode
-    return (
-      <div className="bg-gray-50 rounded-lg border border-gray-200 p-6">
-        <div className="flex items-center justify-between mb-4">
-          <h3 className="text-lg font-medium text-gray-900">
-            {t("basic_information")}
-          </h3>
-          <Button
-            type="button"
-            variant="outline"
-            size="sm"
-            onClick={() => setIsEditing(true)}
-          >
-            <EditIcon className="h-4 w-4 mr-1" />
-            {t("edit_details")}
-          </Button>
-        </div>
-
-        <div
-          className={`grid gap-6 ${minimal ? "grid-cols-1 md:grid-cols-3" : "grid-cols-1 md:grid-cols-4"}`}
-        >
-          <div>
-            <label className="text-sm font-medium text-gray-700 block mb-1">
-              {t("title")}
-            </label>
-            <div className="text-lg font-semibold text-gray-900">
-              {localValues.title || "—"}
-            </div>
-          </div>
-
-          <div>
-            <label className="text-sm font-medium text-gray-700 block mb-1">
-              {t("slug")}
-            </label>
-            <div className="text-lg font-semibold text-gray-900">
-              {localValues.slug_value || "—"}
-            </div>
-          </div>
-
-          <div>
-            <label className="text-sm font-medium text-gray-700 block mb-1">
-              {t("category")}
-            </label>
-            <div className="text-lg font-semibold text-gray-900">
-              {localValues._categoryName || "—"}
-            </div>
-          </div>
-
-          {!minimal && (
-            <div>
-              <label className="text-sm font-medium text-gray-700 block mb-1">
-                {t("status")}
-              </label>
-              <div className="text-lg font-semibold text-gray-900">
-                {localValues.status ? t(localValues.status) : "—"}
-              </div>
-            </div>
-          )}
-        </div>
-      </div>
-    );
-  }
-
-  return (
-    <div className="bg-gray-50 rounded-lg border border-gray-200 p-6">
-      <div className="flex items-center justify-between mb-4">
-        <h3 className="text-lg font-medium text-gray-900">
-          {t("edit_basic_information")}
-        </h3>
-      </div>
-
-      <div
-        className={cn(
-          "grid grid-cols-1 md:grid-cols-3 gap-2 mb-4 sm:mb-2",
-          !minimal && "md:grid-cols-2 mb-2",
-        )}
-      >
-        <div>
-          <label className="text-sm font-medium text-gray-700 block mb-1">
-            {t("title")} <span className="text-red-500">*</span>
-          </label>
-          <Input
-            value={localValues.title}
-            onChange={(e) =>
-              setLocalValues((prev) => ({ ...prev, title: e.target.value }))
-            }
-            placeholder={t("title")}
-            className={errors.title ? "border-red-500" : ""}
-          />
-          {errors.title && (
-            <p className="text-sm text-red-500 mt-1">{errors.title}</p>
-          )}
-        </div>
-
-        <div>
-          <label className="text-sm font-medium text-gray-700 block mb-1">
-            {t("slug")} <span className="text-red-500">*</span>
-          </label>
-          <Input
-            value={localValues.slug_value}
-            onChange={(e) => {
-              const sanitizedValue = e.target.value
-                .toLowerCase()
-                .replace(/[^a-z0-9_-]/g, "");
-              setLocalValues((prev) => ({
-                ...prev,
-                slug_value: sanitizedValue,
-              }));
-            }}
-            placeholder={t("slug_input_placeholder")}
-            className={errors.slug_value ? "border-red-500" : ""}
-          />
-          <p className="text-sm text-gray-500 mt-1">
-            {t("slug_format_message")}
-          </p>
-          {errors.slug_value && (
-            <p className="text-sm text-red-500 mt-1">{errors.slug_value}</p>
-          )}
-        </div>
-
-        <div>
-          <label className="text-sm font-medium text-gray-700 block mb-1">
-            {t("category")} <span className="text-red-500">*</span>
-          </label>
-          <ResourceCategoryPicker
-            facilityId={facilityId}
-            resourceType={ResourceCategoryResourceType.charge_item_definition}
-            value={localValues.category}
-            onValueChange={(category) =>
-              setLocalValues((prev) => ({
-                ...prev,
-                category: category?.slug || "",
-                _categoryName: category?.title || "",
-              }))
-            }
-            placeholder={t("select_category")}
-            className={`w-full ${errors.category ? "border-red-500" : ""}`}
-          />
-          {errors.category && (
-            <p className="text-sm text-red-500 mt-1">{errors.category}</p>
-          )}
-        </div>
-
-        {!minimal && (
-          <div>
-            <label className="text-sm font-medium text-gray-700 block mb-1">
-              {t("status")}
-            </label>
-            <Select
-              value={localValues.status}
-              onValueChange={(status) =>
-                setLocalValues((prev) => ({
-                  ...prev,
-                  status: status as ChargeItemDefinitionStatus,
-                }))
-              }
-            >
-              <SelectTrigger className={errors.status ? "border-red-500" : ""}>
-                <SelectValue placeholder={t("select_status")} />
-              </SelectTrigger>
-              <SelectContent>
-                {Object.values(ChargeItemDefinitionStatus).map((status) => (
-                  <SelectItem key={status} value={status}>
-                    {t(status)}
-                  </SelectItem>
-                ))}
-              </SelectContent>
-            </Select>
-            {errors.status && (
-              <p className="text-sm text-red-500 mt-1">{errors.status}</p>
-            )}
-          </div>
-        )}
-      </div>
-
-      <div className="flex justify-end space-x-2">
-        <Button
-          type="button"
-          variant="outline"
-          size="lg"
-          onClick={handleCancel}
-        >
-          {t("cancel")}
-        </Button>
-        <Button type="button" variant="primary" size="lg" onClick={handleSave}>
-          <CheckIcon className="h-4 w-4 mr-1" />
-          {t("save_changes")}
-        </Button>
-      </div>
-    </div>
-  );
-}
 interface ChargeItemDefinitionFormProps {
   facilityId: string;
   initialData?: ChargeItemDefinitionRead;
@@ -421,15 +131,12 @@ const monetaryComponentIsEqual = <T extends MonetaryComponent>(a: T, b: T) => {
 // Component for monetary component selection with autocomplete
 export function MonetaryComponentSelector({
   title,
-  description,
   components,
   selectedComponents,
   onComponentToggle,
   onConditionsChange,
   type,
-  errors,
   availableMetrics,
-  minimal = false,
   className = "",
 }: MonetaryComponentSelectorProps) {
   const { t } = useTranslation();
@@ -470,13 +177,6 @@ export function MonetaryComponentSelector({
         monetaryComponentIsEqual(c, component) &&
         isSameAmountOrFactor(c, component),
     );
-
-  // Filter components based on search
-  const filteredComponents = components.filter(
-    (component) =>
-      component.title.toLowerCase().includes(searchQuery.toLowerCase()) ||
-      component.code?.code?.toLowerCase().includes(searchQuery.toLowerCase()),
-  );
 
   // Group components by code
   const groupedComponents = components.reduce<
@@ -564,21 +264,6 @@ export function MonetaryComponentSelector({
     setTempSelectedComponents([]);
   };
 
-  const handleValueChange = (component: MonetaryComponent, value: number) => {
-    setTempSelectedComponents((prev) =>
-      prev.map((c) =>
-        monetaryComponentIsEqual(c, component)
-          ? {
-              ...c,
-              ...(c.factor != null
-                ? { factor: value }
-                : { amount: String(value) }),
-            }
-          : c,
-      ),
-    );
-  };
-
   const handleRadioButtonChange = (groupKey: string, selected: string) => {
     // If selected is empty, it means the user deselected the radio button
     if (!selected) {
@@ -635,7 +320,7 @@ export function MonetaryComponentSelector({
                   className="h-4 w-4 text-black/80"
                   strokeWidth={1.25}
                 />
-                <div className="text-md font-semibold text-gray-900 uppercase">
+                <div className="text-sm font-semibold text-gray-900 uppercase">
                   {key}
                 </div>
               </div>
@@ -788,7 +473,7 @@ export function MonetaryComponentSelector({
                   })}
                   {selectedComponents.length > 3 && (
                     <Badge variant="secondary" className="text-xs">
-                      +{selectedComponents.length - 3} more
+                      +{selectedComponents.length - 3} {t("more")}
                     </Badge>
                   )}
                 </>
@@ -812,15 +497,15 @@ export function MonetaryComponentSelector({
                 onChange={(e) => setSearchQuery(e.target.value)}
                 placeholder={t(
                   type === MonetaryComponentType.tax
-                    ? "search_for_tax_options"
-                    : "search_for_discount_options",
+                    ? "search_for_tax_code"
+                    : "search_for_discount_code",
                 )}
                 className="pl-10"
               />
             </div>
           </div>
 
-          <div className="max-h-60 overflow-y-auto p-2">
+          <div className="max-h-72 overflow-y-auto p-2">
             {renderGroupCheckList(filteredGroupComponents)}
             {renderCheckList(filteredNonGroupComponents)}
           </div>
@@ -871,15 +556,6 @@ export function ChargeItemDefinitionForm({
   const { t } = useTranslation();
   const queryClient = useQueryClient();
 
-  // Local state for basic information
-  const [basicInfo, setBasicInfo] = useState<BasicInformationValues>({
-    title: initialData?.title || "",
-    slug_value: initialData?.slug_config.slug_value || "",
-    category: isUpdate ? initialData?.category.slug || "" : categorySlug || "",
-    _categoryName: isUpdate ? initialData?.category.title || "" : "",
-    status: initialData?.status || ChargeItemDefinitionStatus.active,
-  });
-
   // Fetch facility data for available components
   const { data: facilityData, isLoading } = useQuery({
     queryKey: ["facility", facilityId],
@@ -894,8 +570,17 @@ export function ChargeItemDefinitionForm({
     queryFn: query(chargeItemDefinitionApi.listMetrics),
   });
 
-  // Main form schema (without basic information fields)
+  // Main form schema (including basic information fields)
   const formSchema = z.object({
+    title: z.string().min(1, { message: "field_required" }),
+    slug_value: z
+      .string()
+      .min(1, { message: "field_required" })
+      .regex(/^[a-z0-9-]+$/, {
+        message: "slug_format_message",
+      }),
+    category: z.string().min(1, { message: "field_required" }),
+    _categoryName: z.string().optional(),
     status: z.nativeEnum(ChargeItemDefinitionStatus),
     description: z.string().optional(),
     purpose: z.string().optional(),
@@ -931,14 +616,25 @@ export function ChargeItemDefinitionForm({
     ),
   });
 
-  // Initialize form (without basic information fields)
+  // Initialize form (with basic information fields)
   const form = useForm<z.infer<typeof formSchema>>({
     resolver: zodResolver(formSchema),
     defaultValues: {
+      // Basic information fields
+      title: initialData?.title || "",
+      slug_value: initialData?.slug_config.slug_value || "",
+      category: isUpdate
+        ? initialData?.category.slug || ""
+        : categorySlug || "",
+      _categoryName: isUpdate ? initialData?.category.title || "" : "",
       status: initialData?.status || ChargeItemDefinitionStatus.active,
+
+      // Additional details
       description: initialData?.description || "",
       purpose: initialData?.purpose || "",
       derived_from_uri: initialData?.derived_from_uri || undefined,
+
+      // Price components
       price_components: initialData?.price_components.map((component) => ({
         ...mapPriceComponent(component),
         conditions: component.conditions || [],
@@ -951,6 +647,20 @@ export function ChargeItemDefinitionForm({
       ],
     },
   });
+
+  useEffect(() => {
+    if (isUpdate) return;
+
+    const subscription = form.watch((value, { name }) => {
+      if (name === "title") {
+        form.setValue("slug_value", generateSlug(value.title || ""), {
+          shouldValidate: true,
+        });
+      }
+    });
+
+    return () => subscription.unsubscribe();
+  }, [form, isUpdate]);
 
   // Get current form values
   const priceComponents = form.watch("price_components");
@@ -979,42 +689,16 @@ export function ChargeItemDefinitionForm({
 
   const onSubmit = (values: z.infer<typeof formSchema>) => {
     // For minimal mode, ensure status is active
-    const basicInfoToValidate = minimal
-      ? { ...basicInfo, status: ChargeItemDefinitionStatus.active }
-      : basicInfo;
-
-    // Validate basic information first
-    const basicInfoErrors = validateBasicInfo(basicInfoToValidate);
-    if (Object.keys(basicInfoErrors).length > 0) {
-      // Focus on basic info validation errors
-      return;
-    }
-
     const submissionData: ChargeItemDefinitionCreate = {
       ...values,
-      ...basicInfoToValidate, // Include basic information with proper status
+      // Override status if in minimal mode
+      status: minimal ? ChargeItemDefinitionStatus.active : values.status,
       price_components: values.price_components.map((component) => ({
         ...component,
         conditions: component.conditions,
       })),
     };
     upsert(submissionData);
-  };
-
-  // Helper function to validate basic info using Zod
-  const validateBasicInfo = (info: BasicInformationValues) => {
-    const result = basicInformationSchema.safeParse(info);
-    if (result.success) {
-      return {};
-    }
-
-    const errors: Record<string, string> = {};
-    result.error.errors.forEach((error) => {
-      const field = error.path[0] as string;
-      errors[field] = t(error.message);
-    });
-
-    return errors;
   };
 
   if (isLoading || !facilityData) {
@@ -1035,16 +719,6 @@ export function ChargeItemDefinitionForm({
   // Get currently selected components by type
   const getSelectedComponents = (type: MonetaryComponentType) =>
     priceComponents.filter((c) => c.monetary_component_type === type);
-
-  const getSelectedComponentError = (type: MonetaryComponentType) => {
-    const priceComponentsErrors = form.formState.errors.price_components;
-    if (!priceComponentsErrors || !Array.isArray(priceComponentsErrors))
-      return [];
-    const indices = priceComponents
-      .map((c, index) => (c.monetary_component_type === type ? index : -1))
-      .filter((index) => index !== -1);
-    return indices.map((index) => priceComponentsErrors[index]);
-  };
 
   // Handle component selection
   const handleComponentToggle = (
@@ -1075,28 +749,6 @@ export function ChargeItemDefinitionForm({
 
     form.setValue("price_components", newComponents, { shouldValidate: true });
     form.trigger("price_components");
-  };
-
-  // Handle component value change
-  const handleComponentValueChange = (
-    component: MonetaryComponent,
-    value: number,
-  ) => {
-    const currentComponents = form.getValues("price_components");
-    const componentIndex = currentComponents.findIndex((c) =>
-      monetaryComponentIsEqual(c, component),
-    );
-
-    if (componentIndex === -1) return;
-
-    const newComponents = [...currentComponents];
-    newComponents[componentIndex] = {
-      ...newComponents[componentIndex],
-      factor: component.factor != null ? value : undefined,
-      amount: component.factor != null ? undefined : String(value),
-    };
-
-    form.setValue("price_components", newComponents, { shouldValidate: true });
   };
 
   // Handle component conditions change
@@ -1157,13 +809,110 @@ export function ChargeItemDefinitionForm({
         className="space-y-6"
       >
         {/* Basic Information */}
-        <BasicInformationSection
-          facilityId={facilityId}
-          values={basicInfo}
-          onValuesChange={setBasicInfo}
-          isUpdate={isUpdate}
-          minimal={minimal}
-        />
+        <div
+          className={cn(
+            "grid grid-cols-1 md:grid-cols-3 gap-2 mb-4 sm:mb-2 items-start",
+            !minimal && "md:grid-cols-2 mb-2",
+          )}
+        >
+          <FormField
+            control={form.control}
+            name="title"
+            render={({ field }) => (
+              <FormItem>
+                <FormLabel>
+                  {t("title")} <span className="text-red-500">*</span>
+                </FormLabel>
+                <FormControl>
+                  <Input {...field} placeholder={t("title")} />
+                </FormControl>
+                <FormMessage />
+              </FormItem>
+            )}
+          />
+
+          <FormField
+            control={form.control}
+            name="slug_value"
+            render={({ field }) => (
+              <FormItem>
+                <FormLabel>
+                  {t("slug")} <span className="text-red-500">*</span>
+                </FormLabel>
+                <FormControl>
+                  <Input
+                    {...field}
+                    placeholder={t("slug_input_placeholder")}
+                    onChange={(e) => {
+                      const sanitizedValue = e.target.value
+                        .toLowerCase()
+                        .replace(/[^a-z0-9_-]/g, "");
+                      field.onChange(sanitizedValue);
+                    }}
+                  />
+                </FormControl>
+                <FormMessage />
+              </FormItem>
+            )}
+          />
+
+          <FormField
+            control={form.control}
+            name="category"
+            render={({ field }) => (
+              <FormItem>
+                <FormLabel>
+                  {t("category")} <span className="text-red-500">*</span>
+                </FormLabel>
+                <FormControl>
+                  <ResourceCategoryPicker
+                    facilityId={facilityId}
+                    resourceType={
+                      ResourceCategoryResourceType.charge_item_definition
+                    }
+                    value={field.value}
+                    onValueChange={(category) => {
+                      field.onChange(category?.slug || "");
+                      form.setValue("_categoryName", category?.title || "");
+                    }}
+                    placeholder={t("select_category")}
+                    className="w-full"
+                  />
+                </FormControl>
+                <FormMessage />
+              </FormItem>
+            )}
+          />
+
+          {!minimal && (
+            <FormField
+              control={form.control}
+              name="status"
+              render={({ field }) => (
+                <FormItem>
+                  <FormLabel>{t("status")}</FormLabel>
+                  <Select value={field.value} onValueChange={field.onChange}>
+                    <FormControl>
+                      <SelectTrigger>
+                        <SelectValue placeholder={t("select_status")} />
+                      </SelectTrigger>
+                    </FormControl>
+                    <SelectContent>
+                      {Object.values(ChargeItemDefinitionStatus).map(
+                        (status) => (
+                          <SelectItem key={status} value={status}>
+                            {t(status)}
+                          </SelectItem>
+                        ),
+                      )}
+                    </SelectContent>
+                  </Select>
+                  <FormMessage />
+                </FormItem>
+              )}
+            />
+          )}
+        </div>
 
         {/* Additional Details */}
         {!minimal && (
@@ -1303,7 +1052,6 @@ export function ChargeItemDefinitionForm({
 
             <MonetaryComponentSelector
               title={t("taxes")}
-              description={t("select_applicable_taxes")}
               components={availableTaxes}
               selectedComponents={getSelectedComponents(
                 MonetaryComponentType.tax,
@@ -1311,15 +1059,12 @@ export function ChargeItemDefinitionForm({
               onComponentToggle={handleComponentToggle}
               onConditionsChange={handleComponentConditionsChange}
               type={MonetaryComponentType.tax}
-              errors={getSelectedComponentError(MonetaryComponentType.tax)}
               availableMetrics={availableMetrics}
-              minimal={minimal}
               className={minimal ? "w-full" : ""}
             />
 
             <MonetaryComponentSelector
               title={t("discounts")}
-              description={t("select_applicable_discounts")}
               components={availableDiscounts}
               selectedComponents={getSelectedComponents(
                 MonetaryComponentType.discount,
@@ -1327,9 +1072,7 @@ export function ChargeItemDefinitionForm({
               onComponentToggle={handleComponentToggle}
               onConditionsChange={handleComponentConditionsChange}
               type={MonetaryComponentType.discount}
-              errors={getSelectedComponentError(MonetaryComponentType.discount)}
               availableMetrics={availableMetrics}
-              minimal={minimal}
               className={minimal ? "w-full" : ""}
             />
 

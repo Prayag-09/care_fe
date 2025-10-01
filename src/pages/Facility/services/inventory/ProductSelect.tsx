@@ -75,6 +75,12 @@ export default function ProductSelect({
 
   const products = response?.results || [];
 
+  const getExpirationDate = (product: ProductRead) => {
+    return product.expiration_date
+      ? format(new Date(product.expiration_date), "MM/yyyy")
+      : "N/A";
+  };
+
   // Product selector content - shared between drawer and popover
   const selectorContent = (
     <>
@@ -84,7 +90,7 @@ export default function ProductSelect({
           <SearchIcon className="absolute left-3 top-1/2 h-4 w-4 -translate-y-1/2 text-gray-500" />
           <input
             type="text"
-            placeholder="Search lot/batch"
+            placeholder={t("search_product")}
             value={searchQuery}
             onChange={(e) => setSearchQuery(e.target.value)}
             className="w-full pl-10 pr-4 py-2 border border-gray-300 rounded-md focus:ring-2 focus:ring-primary-500 focus:border-primary-500"
@@ -101,7 +107,7 @@ export default function ProductSelect({
           }}
         >
           <CareIcon icon="l-plus" className="size-4 mr-2" />
-          Add Lot/Batch
+          {t("add_new_product")}
         </Button>
       </div>
 
@@ -163,11 +169,7 @@ export default function ProductSelect({
                         </span>
                         {product.expiration_date && (
                           <span className="text-sm text-gray-500">
-                            Expiry:{" "}
-                            {format(
-                              new Date(product.expiration_date),
-                              "MM/yyyy",
-                            )}
+                            Expiry: {getExpirationDate(product)}
                           </span>
                         )}
                       </div>

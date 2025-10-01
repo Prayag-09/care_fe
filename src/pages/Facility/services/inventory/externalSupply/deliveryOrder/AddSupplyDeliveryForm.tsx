@@ -1,7 +1,7 @@
 import { zodResolver } from "@hookform/resolvers/zod";
 import { useMutation, useQuery, useQueryClient } from "@tanstack/react-query";
 import { PlusCircle, Trash2 } from "lucide-react";
-import { useState } from "react";
+import { useCallback, useRef, useState } from "react";
 import { useFieldArray, useForm } from "react-hook-form";
 import { useTranslation } from "react-i18next";
 import { toast } from "sonner";
@@ -55,7 +55,6 @@ import { ShortcutBadge } from "@/Utils/keyboardShortcutComponents";
 import mutate from "@/Utils/request/mutate";
 import query from "@/Utils/request/query";
 import { useQueryParams } from "raviger";
-import { useCallback, useRef } from "react";
 
 const supplyDeliveryItemSchema = z.object({
   supplied_inventory_item: z.string().optional(),
@@ -154,13 +153,11 @@ export function AddSupplyDeliveryForm({
 
   const [selectedItems, setSelectedItems] = useState<string[]>([]);
 
-  if (!supplyRequests) {
-    return <div>{t("loading")}</div>;
-  }
-
   const handleSelectAll = (checked: boolean) => {
     if (checked) {
-      setSelectedItems(supplyRequests.results.map((request) => request.id));
+      setSelectedItems(
+        supplyRequests?.results.map((request) => request.id) || [],
+      );
     } else {
       setSelectedItems([]);
     }
@@ -175,10 +172,10 @@ export function AddSupplyDeliveryForm({
   };
 
   const handleSelectRequests = () => {
-    const selectedRequests = supplyRequests.results.filter((request) =>
+    const selectedRequests = supplyRequests?.results.filter((request) =>
       selectedItems.includes(request.id),
     );
-    const itemsFromRequests = selectedRequests.map((request) => ({
+    const itemsFromRequests = selectedRequests?.map((request) => ({
       supplied_inventory_item: undefined,
       supplied_item_quantity: request.quantity,
       product_knowledge: request.item,
@@ -186,7 +183,7 @@ export function AddSupplyDeliveryForm({
       supply_request: request,
       _is_inward_stock: !origin,
     }));
-    form.setValue("items", itemsFromRequests);
+    form.setValue("items", itemsFromRequests || []);
     setIsSelectDialogOpen(false);
     setSelectedItems([]);
   };
@@ -209,7 +206,6 @@ export function AddSupplyDeliveryForm({
       supply_request: undefined,
       _is_inward_stock: !origin,
     });
-    const index = form.watch("items").length - 1;
     setTimeout(() => {
       if (productKnowledgeRef.current) {
         productKnowledgeRef.current.click();
@@ -429,17 +425,19 @@ export function AddSupplyDeliveryForm({
               </div>
 
               <div className="flex flex-row gap-2 mt-4">
-                {supplyRequests.results.length > 0 && (
-                  <Button
-                    type="button"
-                    variant="secondary"
-                    onClick={loadFromSupplyRequests}
-                  >
-                    {t("load_from_order")} ({supplyRequests.count} {t("items")}
-                    )
-                    <ShortcutBadge actionId="load-from-order" />
-                  </Button>
-                )}
+                {supplyRequests?.results?.length &&
+                  supplyRequests?.results?.length > 0 && (
+                    <Button
+                      type="button"
+                      variant="secondary"
+                      onClick={loadFromSupplyRequests}
+                    >
+                      {t("load_from_order")} ({supplyRequests?.count}{" "}
+                      {t("items")}
+                      )
+                      <ShortcutBadge actionId="load-from-order" />
+                    </Button>
+                  )}
                 <Button
                   type="button"
                   variant="outline"
@@ -461,72 +459,76 @@ export function AddSupplyDeliveryForm({
           </Form>
         </CardContent>
       </Card>
-      <Dialog open={isSelectDialogOpen} onOpenChange={setIsSelectDialogOpen}>
-        <DialogContent className="sm:max-w-xl">
-          <DialogHeader>
-            <DialogTitle>{t("select_items_to_add")}</DialogTitle>
-          </DialogHeader>
-          <div className="space-y-4">
-            <div className="flex items-center space-x-2">
-              <Checkbox
-                id="select-all"
-                checked={selectedItems.length === supplyRequests.results.length}
-                onCheckedChange={(checked) =>
-                  handleSelectAll(checked as boolean)
-                }
-              />
-              <label
-                htmlFor="select-all"
-                className="text-sm font-medium leading-none peer-disabled:cursor-not-allowed peer-disabled:opacity-70"
-              >
-                {t("select_all")}
-              </label>
-            </div>
-            <div className="border rounded-md divide-y">
-              {supplyRequests.results.map((request) => (
-                <div
-                  key={request.id}
-                  className="flex items-center space-x-4 p-2 hover:bg-gray-50"
+      {supplyRequests && (
+        <Dialog open={isSelectDialogOpen} onOpenChange={setIsSelectDialogOpen}>
+          <DialogContent className="sm:max-w-xl">
+            <DialogHeader>
+              <DialogTitle>{t("select_items_to_add")}</DialogTitle>
+            </DialogHeader>
+            <div className="space-y-4">
+              <div className="flex items-center space-x-2">
+                <Checkbox
+                  id="select-all"
+                  checked={
+                    selectedItems.length === supplyRequests.results.length
+                  }
+                  onCheckedChange={(checked) =>
+                    handleSelectAll(checked as boolean)
+                  }
+                />
+                <label
+                  htmlFor="select-all"
+                  className="text-sm font-medium leading-none peer-disabled:cursor-not-allowed peer-disabled:opacity-70"
                 >
-                  <Checkbox
-                    id={request.id}
-                    checked={selectedItems.includes(request.id)}
-                    onCheckedChange={(checked) =>
-                      handleSelectItem(request.id, checked as boolean)
-                    }
-                  />
-                  <div className="flex-1">
-                    <label
-                      htmlFor={request.id}
-                      className="text-sm font-medium leading-none"
-                    >
-                      {request.item.name}
-                    </label>
+                  {t("select_all")}
+                </label>
+              </div>
+              <div className="border rounded-md divide-y">
+                {supplyRequests.results.map((request) => (
+                  <div
+                    key={request.id}
+                    className="flex items-center space-x-4 p-2 hover:bg-gray-50"
+                  >
+                    <Checkbox
+                      id={request.id}
+                      checked={selectedItems.includes(request.id)}
+                      onCheckedChange={(checked) =>
+                        handleSelectItem(request.id, checked as boolean)
+                      }
+                    />
+                    <div className="flex-1">
+                      <label
+                        htmlFor={request.id}
+                        className="text-sm font-medium leading-none"
+                      >
+                        {request.item.name}
+                      </label>
+                    </div>
+                    <div className="text-sm font-medium">
+                      {request.quantity} {request.item.base_unit.display}
+                    </div>
                   </div>
-                  <div className="text-sm font-medium">
-                    {request.quantity} {request.item.base_unit.display}
-                  </div>
-                </div>
-              ))}
+                ))}
+              </div>
             </div>
-          </div>
-          <DialogFooter>
-            <Button
-              variant="outline"
-              onClick={() => setIsSelectDialogOpen(false)}
-            >
-              {t("cancel")}
-            </Button>
-            <Button
-              onClick={handleSelectRequests}
-              disabled={selectedItems.length === 0}
-            >
-              {t("done")}
-              <ShortcutBadge actionId="confirm-load-from-order" />
-            </Button>
-          </DialogFooter>
-        </DialogContent>
-      </Dialog>
+            <DialogFooter>
+              <Button
+                variant="outline"
+                onClick={() => setIsSelectDialogOpen(false)}
+              >
+                {t("cancel")}
+              </Button>
+              <Button
+                onClick={handleSelectRequests}
+                disabled={selectedItems.length === 0}
+              >
+                {t("done")}
+                <ShortcutBadge actionId="confirm-load-from-order" />
+              </Button>
+            </DialogFooter>
+          </DialogContent>
+        </Dialog>
+      )}
     </>
   );
 }
