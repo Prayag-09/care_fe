@@ -25,6 +25,7 @@ import { ProductKnowledgeSelect } from "@/pages/Facility/services/inventory/Prod
 import { ProductKnowledgeBase } from "@/types/inventory/productKnowledge/productKnowledge";
 import { AddItemsForm } from "./AddItemsForm";
 
+import { getInventoryBasePath } from "@/pages/Facility/services/inventory/externalSupply/utils/inventoryUtils";
 import {
   REQUEST_ORDER_PRIORITY_COLORS,
   REQUEST_ORDER_STATUS_COLORS,
@@ -70,7 +71,7 @@ export function RequestOrderShow({
   const { data: supplyRequests, isLoading: isLoadingSupplyRequests } = useQuery(
     {
       queryKey: ["supplyRequests", requestOrderId],
-      queryFn: query(supplyRequestApi.listSupplyRequest, {
+      queryFn: query.paginated(supplyRequestApi.listSupplyRequest, {
         queryParams: {
           order: requestOrderId,
         },
@@ -100,7 +101,7 @@ export function RequestOrderShow({
         requestOrderId,
         selectedProductKnowledge?.id,
       ],
-      queryFn: query(supplyDeliveryApi.listSupplyDelivery, {
+      queryFn: query.paginated(supplyDeliveryApi.listSupplyDelivery, {
         queryParams: {
           facility: facilityId,
           request_order: requestOrderId,
@@ -216,7 +217,15 @@ export function RequestOrderShow({
                 requestOrder.status === RequestOrderStatus.pending)) && (
               <Button variant="outline" asChild>
                 <Link
-                  href={`/${internal ? "internal_transfers" : "external_supply"}/delivery_orders/new?supplyOrder=${requestOrderId}`}
+                  basePath="/"
+                  href={getInventoryBasePath(
+                    facilityId,
+                    locationId,
+                    internal,
+                    false,
+                    isRequester,
+                    `new?supplyOrder=${requestOrderId}`,
+                  )}
                 >
                   {t("create_supply_delivery")}
                   <ShortcutBadge actionId="create-order" />

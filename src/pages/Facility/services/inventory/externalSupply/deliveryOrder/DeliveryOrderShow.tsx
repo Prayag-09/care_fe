@@ -1,6 +1,6 @@
 import { useMutation, useQuery, useQueryClient } from "@tanstack/react-query";
 import { ChevronLeft, Edit, MoreVertical, X } from "lucide-react";
-import { Link, useQueryParams } from "raviger";
+import { Link } from "raviger";
 import { useState } from "react";
 import { Trans, useTranslation } from "react-i18next";
 import { toast } from "sonner";
@@ -48,7 +48,6 @@ import {
   SupplyDeliveryStatus,
 } from "@/types/inventory/supplyDelivery/supplyDelivery";
 import supplyDeliveryApi from "@/types/inventory/supplyDelivery/supplyDeliveryApi";
-import supplyRequestApi from "@/types/inventory/supplyRequest/supplyRequestApi";
 import { ShortcutBadge } from "@/Utils/keyboardShortcutComponents";
 import mutate from "@/Utils/request/mutate";
 import query from "@/Utils/request/query";
@@ -68,7 +67,6 @@ export function DeliveryOrderShow({
 }: Props) {
   const { t } = useTranslation();
   const queryClient = useQueryClient();
-  const [qParams] = useQueryParams();
   const [selectedDeliveries, setSelectedDeliveries] = useState<string[]>([]);
   const [confirmDialog, setConfirmDialog] = useState({
     open: false,
@@ -128,19 +126,6 @@ export function DeliveryOrderShow({
       }),
       enabled: !!deliveryOrderId,
     });
-
-  // Load supply requests when supplyOrder query parameter is present
-  const { data: supplyRequests, isLoading: isLoadingSupplyRequests } = useQuery(
-    {
-      queryKey: ["supplyRequests", qParams.supplyOrder],
-      queryFn: query(supplyRequestApi.listSupplyRequest, {
-        queryParams: {
-          order: qParams.supplyOrder,
-        },
-      }),
-      enabled: !!qParams.supplyOrder,
-    },
-  );
 
   // Query for all supply deliveries related to this delivery order
   const { data: allSupplyDeliveries, isLoading: isLoadingAllSupplyDeliveries } =
@@ -633,14 +618,13 @@ export function DeliveryOrderShow({
                   )}
 
                 {/* Add New Supply Delivery Form - Always show when in draft mode */}
-                {canAddSupplyDeliveries && !isLoadingSupplyRequests && (
+                {canAddSupplyDeliveries && (
                   <AddSupplyDeliveryForm
                     deliveryOrderId={deliveryOrderId}
                     facilityId={facilityId}
                     origin={deliveryOrder.origin?.id}
                     destination={deliveryOrder.destination.id}
                     onSuccess={handleSupplyDeliverySuccess}
-                    supplyRequests={supplyRequests?.results || []}
                   />
                 )}
               </div>
