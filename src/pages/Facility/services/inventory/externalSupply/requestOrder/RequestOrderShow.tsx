@@ -1,14 +1,11 @@
 import { useMutation, useQuery, useQueryClient } from "@tanstack/react-query";
-import { ArrowLeft, X } from "lucide-react";
+import { Box, ChevronLeft, Edit, Truck } from "lucide-react";
 import { Link } from "raviger";
 import { useState } from "react";
-import { useTranslation } from "react-i18next";
+import { Trans, useTranslation } from "react-i18next";
 import { toast } from "sonner";
 
 import Page from "@/components/Common/Page";
-import { Badge } from "@/components/ui/badge";
-import { Button } from "@/components/ui/button";
-import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import {
   Table,
   TableBody,
@@ -16,8 +13,11 @@ import {
   TableHead,
   TableHeader,
   TableRow,
-} from "@/components/ui/table";
-import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
+} from "@/components/Common/Table";
+import { Badge } from "@/components/ui/badge";
+import { Button } from "@/components/ui/button";
+import { Card, CardContent } from "@/components/ui/card";
+import { NavTabs } from "@/components/ui/nav-tabs";
 import { SupplyDeliveryTable } from "@/pages/Facility/services/inventory/SupplyDeliveryTable";
 
 import DeliveryOrderTable from "@/pages/Facility/services/inventory/externalSupply/components/DeliveryOrderTable";
@@ -25,6 +25,13 @@ import { ProductKnowledgeSelect } from "@/pages/Facility/services/inventory/Prod
 import { ProductKnowledgeBase } from "@/types/inventory/productKnowledge/productKnowledge";
 import { AddItemsForm } from "./AddItemsForm";
 
+import BackButton from "@/components/Common/BackButton";
+import {
+  CardListWithHeaderSkeleton,
+  TableSkeleton,
+} from "@/components/Common/SkeletonLoading";
+import { EmptyState } from "@/components/ui/empty-state";
+import useBreakpoints from "@/hooks/useBreakpoints";
 import { getInventoryBasePath } from "@/pages/Facility/services/inventory/externalSupply/utils/inventoryUtils";
 import {
   REQUEST_ORDER_PRIORITY_COLORS,
@@ -57,6 +64,14 @@ export function RequestOrderShow({
   const queryClient = useQueryClient();
   const [selectedProductKnowledge, setSelectedProductKnowledge] =
     useState<ProductKnowledgeBase>();
+  const [currentTab, setCurrentTab] = useState<
+    "supply-requests" | "supply-deliveries" | "all-deliveries"
+  >("supply-requests");
+
+  const showMoreAfterIndex = useBreakpoints({
+    default: 1,
+    xs: 3,
+  });
 
   const { data: requestOrder, isLoading } = useQuery({
     queryKey: ["requestOrders", requestOrderId],
@@ -76,7 +91,7 @@ export function RequestOrderShow({
           order: requestOrderId,
         },
       }),
-      enabled: !!requestOrderId,
+      enabled: !!requestOrderId && currentTab === "supply-requests",
     },
   );
 
@@ -89,7 +104,7 @@ export function RequestOrderShow({
           status: [SupplyDeliveryStatus.completed],
         },
       }),
-      enabled: !!requestOrderId,
+      enabled: !!requestOrderId && currentTab === "supply-deliveries",
     },
   );
 
@@ -115,7 +130,7 @@ export function RequestOrderShow({
               }),
         },
       }),
-      enabled: !!requestOrderId,
+      enabled: !!requestOrderId && currentTab === "all-deliveries",
     });
 
   const { mutate: approveOrder, isPending: isApproving } = useMutation({
@@ -157,14 +172,7 @@ export function RequestOrderShow({
   if (isLoading) {
     return (
       <Page title={t("request_order_details")} hideTitleOnPage>
-        <div className="space-y-4">
-          <div className="animate-pulse">
-            <div className="h-8 bg-gray-200 rounded w-1/3 mb-4"></div>
-            <div className="h-4 bg-gray-200 rounded w-1/2 mb-2"></div>
-            <div className="h-4 bg-gray-200 rounded w-3/4 mb-2"></div>
-            <div className="h-4 bg-gray-200 rounded w-1/4"></div>
-          </div>
-        </div>
+        <CardListWithHeaderSkeleton count={1} />
       </Page>
     );
   }
@@ -172,11 +180,13 @@ export function RequestOrderShow({
   if (!requestOrder) {
     return (
       <Page title={t("request_order_details")} hideTitleOnPage>
-        <div className="space-y-4">
-          <div className="text-center py-8">
-            <p className="text-gray-500">{t("request_order_not_found")}</p>
-          </div>
-        </div>
+        <EmptyState
+          title={t("request_order_not_found")}
+          description={t(
+            "the_request_order_you_are_looking_for_does_not_exist",
+          )}
+          action={<BackButton> {t("go_back")} </BackButton>}
+        />
       </Page>
     );
   }
@@ -191,27 +201,45 @@ export function RequestOrderShow({
       hideTitleOnPage
       shortCutContext="facility:inventory"
     >
-      <div className="space-y-6">
-        {/* Back Button */}
-        <div className="flex items-center justify-between gap-2">
-          <Button
-            variant="ghost"
-            size="sm"
-            onClick={() => window.history.back()}
-            className="flex items-center gap-2"
-          >
-            <ArrowLeft className="h-4 w-4" />
-            {t("back")}
-          </Button>
-          <div className="flex items-center gap-2">
+      <div className="space-y-4">
+        <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-2">
+          <div className="flex items-center gap-4">
+            <BackButton size="icon" className="shrink-0">
+              <ChevronLeft />
+            </BackButton>
+            <div>
+              <h4>{requestOrder.name}</h4>
+              <p className="text-sm text-gray-700">
+                <Trans
+                  i18nKey="delivery_request_from_to"
+                  values={{
+                    from:
+                      requestOrder.origin?.name ||
+                      requestOrder.supplier?.name ||
+                      t("origin"),
+                    to: requestOrder.destination?.name || t("destination"),
+                  }}
+                  components={{
+                    strong: <span className="font-semibold text-gray-700" />,
+                  }}
+                />
+              </p>
+            </div>
+          </div>
+          <div className="flex items-center justify-end gap-2">
             <Button variant="outline" asChild>
-              <Link href={`${requestOrderId}/edit`}>{t("edit")}</Link>
+              <Link href={`${requestOrderId}/edit`}>
+                <Edit /> {t("edit")}
+                <ShortcutBadge actionId="edit-order" />
+              </Link>
             </Button>
+
             {canAddSupplyRequests && (
               <Button onClick={handleApproveOrder} disabled={isApproving}>
                 {isApproving ? t("approving") : t("approve_order")}
               </Button>
             )}
+
             {((internal && !isRequester) ||
               (!internal &&
                 requestOrder.status === RequestOrderStatus.pending)) && (
@@ -234,158 +262,160 @@ export function RequestOrderShow({
             )}
           </div>
         </div>
-        {/* Request Order Details */}
-        <Card>
-          <CardHeader>
-            <div className="flex md:flex-row flex-col justify-between">
-              <CardTitle className="text-xl">{requestOrder.name}</CardTitle>
-              <div className="flex flex-wrap items-center gap-2">
-                <Badge
-                  variant={REQUEST_ORDER_STATUS_COLORS[requestOrder.status]}
-                >
-                  {t(requestOrder.status)}
-                </Badge>
-                <Badge
-                  variant={REQUEST_ORDER_PRIORITY_COLORS[requestOrder.priority]}
-                >
-                  {t(requestOrder.priority)}
-                </Badge>
-                <Badge>{t(requestOrder.category)}</Badge>
-                <Badge>{t(requestOrder.reason)}</Badge>
-              </div>
-            </div>
-          </CardHeader>
-          <CardContent className="space-y-1">
-            {requestOrder.note && (
+
+        <Card className="border-none rounded-lg">
+          <CardContent className="space-y-1 p-4">
+            <div className="grid grid-cols-2 md:grid-cols-4 lg:grid-cols-4 gap-4">
               <div>
-                <label className="text-sm font-medium text-gray-500">
-                  {t("notes")}
+                <label className="text-sm font-medium text-gray-700">
+                  {t("deliver_to")}
                 </label>
-                <p className="text-sm">{requestOrder.note}</p>
+                <div className="text-lg font-semibold text-gray-950">
+                  {requestOrder.destination.name}
+                </div>
               </div>
-            )}
-            <div className="grid grid-cols-1 md:grid-cols-2 gap-">
-              <div>
-                <label className="text-sm font-medium text-gray-500">
-                  {t("destination")}
-                </label>
-                <p className="text-sm">{requestOrder.destination.name}</p>
-              </div>
-              {requestOrder.supplier && (
+
+              {requestOrder.origin && (
                 <div>
-                  <label className="text-sm font-medium text-gray-500">
-                    {t("supplier")}
+                  <label className="text-sm font-medium text-gray-700">
+                    {t("origin")}
                   </label>
-                  <p className="text-sm">{requestOrder.supplier.name}</p>
+                  <div className="text-lg font-semibold text-gray-950">
+                    {requestOrder.origin.name}
+                  </div>
                 </div>
               )}
+
+              {requestOrder.supplier && (
+                <div>
+                  <label className="text-sm font-medium text-gray-700">
+                    {t("supplier")}
+                  </label>
+                  <div className="text-lg font-semibold text-gray-950">
+                    {requestOrder.supplier.name}
+                  </div>
+                </div>
+              )}
+
+              <div>
+                <label className="text-sm font-medium text-gray-700">
+                  {t("priority")}
+                </label>
+                <div>
+                  <Badge
+                    className="rounded-sm"
+                    variant={
+                      REQUEST_ORDER_PRIORITY_COLORS[requestOrder.priority]
+                    }
+                  >
+                    {t(requestOrder.priority)}
+                  </Badge>
+                </div>
+              </div>
+
+              <div>
+                <label className="text-sm font-medium text-gray-700">
+                  {t("status")}
+                </label>
+                <div>
+                  <Badge
+                    className="rounded-sm"
+                    variant={REQUEST_ORDER_STATUS_COLORS[requestOrder.status]}
+                  >
+                    {t(requestOrder.status)}
+                  </Badge>
+                </div>
+              </div>
             </div>
+
+            {requestOrder.note && (
+              <div className="pt-3">
+                <label className="text-sm font-medium text-gray-700">
+                  {t("note")}
+                </label>
+                <p className="text-sm whitespace-pre-wrap">
+                  {requestOrder.note}
+                </p>
+              </div>
+            )}
+          </CardContent>
+        </Card>
+
+        <Card className="-mt-4 mx-5 rounded-t-none shadow-none bg-gray-100">
+          <CardContent className="space-y-1 px-5 py-2 grid lg:grid-cols-2 ">
+            <div className="grid grid-cols-2 sm:grid-cols-3 gap-4">
+              <div>
+                <label className="text-sm font-medium text-gray-700">
+                  {t("category")}
+                </label>
+                <div className="text-base font-semibold">
+                  {t(requestOrder.category)}
+                </div>
+              </div>
+
+              <div>
+                <label className="text-sm font-medium text-gray-700">
+                  {t("intent")}
+                </label>
+                <div className="text-base font-semibold">
+                  {t(requestOrder.intent)}
+                </div>
+              </div>
+
+              <div>
+                <label className="text-sm font-medium text-gray-700">
+                  {t("reason")}
+                </label>
+                <div className="text-base font-semibold">
+                  {t(requestOrder.reason)}
+                </div>
+              </div>
+            </div>
+
+            {requestOrder.note && (
+              <div className="pt-3">
+                <label className="text-sm font-medium text-gray-700">
+                  {t("note")}
+                </label>
+                <p className="text-sm whitespace-pre-wrap">
+                  {requestOrder.note}
+                </p>
+              </div>
+            )}
           </CardContent>
         </Card>
 
         {/* Supply Requests and Deliveries Tabs */}
-        <Card>
-          <CardContent className="p-0">
-            <Tabs defaultValue="supply-requests" className="w-full">
-              <div className="border-b bg-gray-50/50 px-6 pt-2 pb-1">
-                <TabsList className="grid w-full grid-cols-3 bg-gray-100 shadow-md">
-                  <TabsTrigger
-                    value="supply-requests"
-                    className="data-[state=active]:bg-white data-[state=active]:text-primary-foreground data-[state=active]:shadow-sm transition-all duration-200"
-                  >
-                    <div className="flex items-center gap-2">
-                      {t("supply_requests")}
-                      {supplyRequests?.results &&
-                        supplyRequests.results.length > 0 && (
-                          <Badge variant="secondary" className="ml-1 text-xs">
-                            {supplyRequests.results.length}
-                          </Badge>
-                        )}
-                    </div>
-                  </TabsTrigger>
-                  <TabsTrigger
-                    value="supply-deliveries"
-                    className="data-[state=active]:bg-white data-[state=active]:text-primary-foreground data-[state=active]:shadow-sm transition-all duration-200"
-                  >
-                    <div className="flex items-center gap-2">
-                      {t("supply_deliveries")}
-                      {deliveryOrders?.results &&
-                        deliveryOrders.results.length > 0 && (
-                          <Badge variant="secondary" className="ml-1 text-xs">
-                            {deliveryOrders.results.length}
-                          </Badge>
-                        )}
-                    </div>
-                  </TabsTrigger>
-                  <TabsTrigger
-                    value="all-deliveries"
-                    className="data-[state=active]:bg-white data-[state=active]:text-primary-foreground data-[state=active]:shadow-sm transition-all duration-200"
-                  >
-                    <div className="flex items-center gap-2">
-                      {t("all_deliveries")}
-                      {allSupplyDeliveries?.results &&
-                        allSupplyDeliveries.results.length > 0 && (
-                          <Badge variant="secondary" className="ml-1 text-xs">
-                            {allSupplyDeliveries.results.length}
-                          </Badge>
-                        )}
-                    </div>
-                  </TabsTrigger>
-                </TabsList>
-              </div>
-
-              <TabsContent
-                value="supply-requests"
-                className="px-6 py-4 space-y-6"
-              >
-                {isLoadingSupplyRequests ? (
-                  <div className="space-y-4">
-                    <div className="animate-pulse">
-                      <div className="h-8 bg-gray-200 rounded w-1/3 mb-4"></div>
-                      <div className="space-y-3">
-                        {Array.from({ length: 3 }).map((_, i) => (
-                          <div
-                            key={i}
-                            className="h-16 bg-gray-200 rounded"
-                          ></div>
-                        ))}
-                      </div>
-                    </div>
-                  </div>
-                ) : (
-                  <>
-                    {/* Supply Requests Table */}
-                    {supplyRequests?.results &&
-                    supplyRequests.results.length > 0 ? (
-                      <div className="space-y-4">
-                        <div className="rounded-lg border bg-white shadow-sm overflow-hidden">
+        <div className="pb-4">
+          <NavTabs
+            tabs={{
+              "supply-requests": {
+                label: t("supply_requests"),
+                component: (
+                  <div className="space-y-6">
+                    {isLoadingSupplyRequests ? (
+                      <TableSkeleton count={3} />
+                    ) : (
+                      <>
+                        {/* Supply Requests Table */}
+                        {supplyRequests?.results &&
+                        supplyRequests.results.length > 0 ? (
                           <Table>
-                            <TableHeader className="bg-gray-50">
+                            <TableHeader>
                               <TableRow>
-                                <TableHead className="font-semibold text-gray-700">
-                                  {t("item")}
-                                </TableHead>
-                                <TableHead className="font-semibold text-gray-700">
-                                  {t("quantity")}
-                                </TableHead>
-                                <TableHead className="font-semibold text-gray-700">
-                                  {t("status")}
-                                </TableHead>
+                                <TableHead>{t("item")}</TableHead>
+                                <TableHead>{t("quantity")}</TableHead>
+                                <TableHead>{t("status")}</TableHead>
                               </TableRow>
                             </TableHeader>
                             <TableBody>
                               {supplyRequests.results.map((supplyRequest) => (
-                                <TableRow
-                                  key={supplyRequest.id}
-                                  className="hover:bg-gray-50/50"
-                                >
-                                  <TableCell className="font-medium">
+                                <TableRow key={supplyRequest.id}>
+                                  <TableCell>
                                     {supplyRequest.item.name}
                                   </TableCell>
                                   <TableCell>
-                                    <span className="font-semibold text-gray-900">
-                                      {supplyRequest.quantity}
-                                    </span>
+                                    {supplyRequest.quantity}
                                   </TableCell>
                                   <TableCell>
                                     <Badge
@@ -394,7 +424,6 @@ export function RequestOrderShow({
                                           supplyRequest.status
                                         ]
                                       }
-                                      className="font-medium"
                                     >
                                       {t(supplyRequest.status)}
                                     </Badge>
@@ -403,139 +432,100 @@ export function RequestOrderShow({
                               ))}
                             </TableBody>
                           </Table>
-                        </div>
-                      </div>
-                    ) : (
-                      <div className="text-center py-12">
-                        <div className="mx-auto w-12 h-12 bg-gray-100 rounded-full flex items-center justify-center mb-4">
-                          <div className="w-6 h-6 bg-gray-300 rounded"></div>
-                        </div>
-                        <p className="text-gray-500 font-medium">
-                          {t("no_supply_requests_found")}
-                        </p>
-                        <p className="text-gray-400 text-sm mt-1">
-                          {t("add_items_to_get_started")}
-                        </p>
-                      </div>
+                        ) : (
+                          <EmptyState
+                            icon={<Box className="text-primary size-5" />}
+                            title={t("no_supply_requests_found")}
+                            description={t("add_items_to_get_started")}
+                          />
+                        )}
+
+                        {/* Add New Items Form - Always show when in draft mode */}
+                        {canAddSupplyRequests && (
+                          <div className="border-t pt-6">
+                            <AddItemsForm
+                              requestOrderId={requestOrderId}
+                              onSuccess={handleSupplyRequestSuccess}
+                            />
+                          </div>
+                        )}
+                      </>
                     )}
-
-                    {/* Add New Items Form - Always show when in draft mode */}
-                    {canAddSupplyRequests && (
-                      <div className="border-t pt-6">
-                        <AddItemsForm
-                          requestOrderId={requestOrderId}
-                          onSuccess={handleSupplyRequestSuccess}
-                        />
-                      </div>
-                    )}
-                  </>
-                )}
-              </TabsContent>
-
-              <TabsContent value="supply-deliveries" className="p-6">
-                {isLoadingDeliveryOrders ? (
-                  <div className="space-y-4">
-                    <div className="animate-pulse">
-                      <div className="h-8 bg-gray-200 rounded w-1/3 mb-4"></div>
-                      <div className="space-y-3">
-                        {Array.from({ length: 3 }).map((_, i) => (
-                          <div
-                            key={i}
-                            className="h-16 bg-gray-200 rounded"
-                          ></div>
-                        ))}
-                      </div>
-                    </div>
                   </div>
-                ) : deliveryOrders?.results &&
-                  deliveryOrders.results.length > 0 ? (
-                  <DeliveryOrderTable
-                    deliveries={deliveryOrders.results}
-                    isLoading={false}
-                    facilityId={facilityId}
-                    locationId={requestOrder?.destination.id || ""}
-                    internal={false}
-                    isRequester={false}
-                  />
-                ) : (
-                  <div className="text-center py-12">
-                    <div className="mx-auto w-12 h-12 bg-gray-100 rounded-full flex items-center justify-center mb-4">
-                      <div className="w-6 h-6 bg-gray-300 rounded"></div>
-                    </div>
-                    <p className="text-gray-500 font-medium">
-                      {t("no_supply_deliveries_found")}
-                    </p>
-                    <p className="text-gray-400 text-sm mt-1">
-                      {t("deliveries_will_appear_here")}
-                    </p>
-                  </div>
-                )}
-              </TabsContent>
+                ),
+              },
 
-              <TabsContent value="all-deliveries" className="p-6">
-                {isLoadingAllSupplyDeliveries ? (
-                  <div className="space-y-4">
-                    <div className="animate-pulse">
-                      <div className="h-8 bg-gray-200 rounded w-1/3 mb-4"></div>
-                      <div className="space-y-3">
-                        {Array.from({ length: 3 }).map((_, i) => (
-                          <div
-                            key={i}
-                            className="h-16 bg-gray-200 rounded"
-                          ></div>
-                        ))}
-                      </div>
-                    </div>
-                  </div>
-                ) : (
-                  <div className="space-y-4">
-                    <div className="flex items-center justify-start">
-                      <div>
-                        <ProductKnowledgeSelect
-                          value={selectedProductKnowledge}
-                          onChange={(value) => {
-                            setSelectedProductKnowledge(value);
-                          }}
-                          placeholder={t("filter_by_product")}
-                        />
-                      </div>
-                      {selectedProductKnowledge && (
-                        <Button
-                          variant="ghost"
-                          onClick={() => {
-                            setSelectedProductKnowledge(undefined);
-                          }}
-                        >
-                          <X className="h-4 w-4" />
-                          {t("clear")}
-                        </Button>
-                      )}
-                    </div>
-                    {allSupplyDeliveries?.results &&
-                    allSupplyDeliveries.results.length > 0 ? (
-                      <SupplyDeliveryTable
-                        deliveries={allSupplyDeliveries.results}
-                        internal={internal}
+              "supply-deliveries": {
+                label: t("supply_deliveries"),
+                component: (
+                  <div>
+                    {isLoadingDeliveryOrders ? (
+                      <TableSkeleton count={3} />
+                    ) : deliveryOrders?.results &&
+                      deliveryOrders.results.length > 0 ? (
+                      <DeliveryOrderTable
+                        deliveries={deliveryOrders.results}
+                        isLoading={false}
+                        facilityId={facilityId}
+                        locationId={requestOrder?.destination.id || ""}
+                        internal={false}
+                        isRequester={false}
                       />
                     ) : (
-                      <div className="text-center py-12">
-                        <div className="mx-auto w-12 h-12 bg-gray-100 rounded-full flex items-center justify-center mb-4">
-                          <div className="w-6 h-6 bg-gray-300 rounded"></div>
-                        </div>
-                        <p className="text-gray-500 font-medium">
-                          {t("no_deliveries_found")}
-                        </p>
-                        <p className="text-gray-400 text-sm mt-1">
-                          {t("deliveries_will_appear_here")}
-                        </p>
-                      </div>
+                      <EmptyState
+                        icon={<Box className="text-primary size-5" />}
+                        title={t("no_supply_deliveries_found")}
+                        description={t("deliveries_will_appear_here")}
+                      />
                     )}
                   </div>
-                )}
-              </TabsContent>
-            </Tabs>
-          </CardContent>
-        </Card>
+                ),
+              },
+
+              "all-deliveries": {
+                label: t("all_deliveries"),
+                component: (
+                  <div>
+                    {isLoadingAllSupplyDeliveries ? (
+                      <TableSkeleton count={3} />
+                    ) : (
+                      <>
+                        <div className="flex justify-end pb-2 ">
+                          <ProductKnowledgeSelect
+                            value={selectedProductKnowledge}
+                            onChange={(value) => {
+                              setSelectedProductKnowledge(value);
+                            }}
+                            placeholder={t("filter_by_product")}
+                            disableFavorites
+                          />
+                        </div>
+                        {allSupplyDeliveries?.results &&
+                        allSupplyDeliveries.results.length > 0 ? (
+                          <SupplyDeliveryTable
+                            deliveries={allSupplyDeliveries.results}
+                            internal={internal}
+                          />
+                        ) : (
+                          <EmptyState
+                            icon={<Truck className="text-primary size-5" />}
+                            title={t("no_deliveries_found")}
+                            description={t("deliveries_will_appear_here")}
+                          />
+                        )}
+                      </>
+                    )}
+                  </div>
+                ),
+              },
+            }}
+            currentTab={currentTab}
+            onTabChange={setCurrentTab}
+            className="overflow-hidden"
+            tabContentClassName="px-1"
+            showMoreAfterIndex={showMoreAfterIndex}
+          />
+        </div>
       </div>
     </Page>
   );

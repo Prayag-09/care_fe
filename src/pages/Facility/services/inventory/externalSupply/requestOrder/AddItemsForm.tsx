@@ -5,6 +5,14 @@ import { useTranslation } from "react-i18next";
 import { toast } from "sonner";
 import * as z from "zod";
 
+import {
+  Table,
+  TableBody,
+  TableCell,
+  TableHead,
+  TableHeader,
+  TableRow,
+} from "@/components/Common/Table";
 import { Button } from "@/components/ui/button";
 import {
   Form,
@@ -14,14 +22,6 @@ import {
   FormMessage,
 } from "@/components/ui/form";
 import { Input } from "@/components/ui/input";
-import {
-  Table,
-  TableBody,
-  TableCell,
-  TableHead,
-  TableHeader,
-  TableRow,
-} from "@/components/ui/table";
 
 import { ProductKnowledgeSelect } from "@/pages/Facility/services/inventory/ProductKnowledgeSelect";
 
@@ -29,6 +29,7 @@ import { ProductKnowledgeBase } from "@/types/inventory/productKnowledge/product
 import { SupplyRequestStatus } from "@/types/inventory/supplyRequest/supplyRequest";
 import supplyRequestApi from "@/types/inventory/supplyRequest/supplyRequestApi";
 import mutate from "@/Utils/request/mutate";
+import { Trash2 } from "lucide-react";
 
 const supplyRequestFormSchema = z.object({
   requests: z.array(
@@ -96,7 +97,9 @@ export function AddItemsForm({ requestOrderId, onSuccess }: AddItemsFormProps) {
     createSupplyRequests(data.requests);
   }
 
-  function handleAddItem(product: ProductKnowledgeBase) {
+  function handleAddItem(product: ProductKnowledgeBase | undefined) {
+    if (!product) return;
+
     append({
       item: {
         id: product.id,
@@ -109,35 +112,23 @@ export function AddItemsForm({ requestOrderId, onSuccess }: AddItemsFormProps) {
   return (
     <div className="space-y-4">
       <Form {...form}>
-        <form
-          onSubmit={form.handleSubmit(onSubmitSupplyRequests)}
-          className="space-y-4"
-        >
-          <div className="rounded-md overflow-x-auto border-2 border-white shadow-md">
-            <Table className="rounded-lg border shadow-sm w-full bg-white">
-              <TableHeader className="bg-gray-100">
-                <TableRow className="border-b">
-                  <TableHead className="border-x p-3 text-gray-700 text-sm font-medium leading-5">
-                    {t("item")}
-                  </TableHead>
-                  <TableHead className="border-x p-3 text-gray-700 text-sm font-medium leading-5">
-                    {t("quantity")}
-                  </TableHead>
-                  <TableHead className="border-x p-3 text-gray-700 text-sm font-medium leading-5 w-[100px]">
-                    {t("actions")}
-                  </TableHead>
+        <form onSubmit={form.handleSubmit(onSubmitSupplyRequests)}>
+          {fields.length > 0 && (
+            <Table>
+              <TableHeader>
+                <TableRow>
+                  <TableHead>{t("item")}</TableHead>
+                  <TableHead>{t("quantity")}</TableHead>
+                  <TableHead className="w-28">{t("actions")}</TableHead>
                 </TableRow>
               </TableHeader>
-              <TableBody className="bg-white">
+              <TableBody>
                 {fields.map((field, index) => {
                   const itemData = form.getValues(`requests.${index}.item`);
 
                   return (
-                    <TableRow
-                      key={field.id}
-                      className="border-b hover:bg-gray-50"
-                    >
-                      <TableCell className="border-x p-3">
+                    <TableRow key={field.id}>
+                      <TableCell>
                         {itemData?.name ? (
                           <div className="font-medium text-gray-900">
                             {itemData.name}
@@ -148,7 +139,7 @@ export function AddItemsForm({ requestOrderId, onSuccess }: AddItemsFormProps) {
                           </div>
                         )}
                       </TableCell>
-                      <TableCell className="border-x p-3">
+                      <TableCell>
                         <FormField
                           control={form.control}
                           name={`requests.${index}.quantity`}
@@ -172,14 +163,14 @@ export function AddItemsForm({ requestOrderId, onSuccess }: AddItemsFormProps) {
                           )}
                         />
                       </TableCell>
-                      <TableCell className="border-x p-3">
+                      <TableCell>
                         <Button
                           type="button"
-                          variant="ghost"
-                          size="sm"
+                          variant="outline"
                           onClick={() => remove(index)}
                           disabled={fields.length === 0}
                         >
+                          <Trash2 />
                           {t("remove")}
                         </Button>
                       </TableCell>
@@ -188,13 +179,14 @@ export function AddItemsForm({ requestOrderId, onSuccess }: AddItemsFormProps) {
                 })}
               </TableBody>
             </Table>
-          </div>
+          )}
 
           <div className="my-4">
             <ProductKnowledgeSelect
               onChange={handleAddItem}
               className="text-primary-800 border-primary-600"
               placeholder={t("add_item")}
+              disableFavorites
             />
           </div>
 

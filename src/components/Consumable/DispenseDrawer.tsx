@@ -527,6 +527,7 @@ export default function DispenseDrawer({
                     action={
                       <ProductKnowledgeSelect
                         onChange={(product) => {
+                          if (!product) return;
                           append({
                             reference_id: crypto.randomUUID(),
                             productKnowledge: product,
@@ -1042,6 +1043,8 @@ export default function DispenseDrawer({
                     <div className="my-4">
                       <ProductKnowledgeSelect
                         onChange={(product) => {
+                          if (!product) return;
+
                           append({
                             reference_id: crypto.randomUUID(),
                             productKnowledge: product,

@@ -362,9 +362,8 @@ export function ProductFormContent({
                         value={productKnowledgeData?.find(
                           (pk) => pk.slug === field.value,
                         )}
-                        onChange={(selected) => field.onChange(selected.slug)}
+                        onChange={(selected) => field.onChange(selected?.slug)}
                         className="border-gray-300 font-normal text-gray-700"
-                        enableFavorites
                       />
                     </FormControl>
                     <FormDescription>

@@ -89,11 +89,11 @@
   ],
   "facility:inventory": [
     { "key": "c", "action": "create-order", "description": "Create Order", "when": "always" },
-    { "key": "a", "action": "add-item", "description": "Add Item", "when": "always" }
+    { "key": "a", "action": "add-item", "description": "Add Item", "when": "always" },
+    { "key": "e", "action": "edit-order", "description": "Edit Order", "when": "always" }
   ],
   "facility:inventory:delivery": [
     { "key": "l", "action": "load-from-order", "description": "Load from Order", "when": "always" },
-    { "key": "e", "action": "edit-delivery", "description": "Edit Delivery", "when": "always" },
     { "key": "enter", "action": "confirm-load-from-order", "description": "Confirm Load from Order", "when": "always" }
   ],
 

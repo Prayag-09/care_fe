@@ -362,7 +362,7 @@ export function DeliveryOrderShow({
             <Button variant="outline" asChild>
               <Link href={`${deliveryOrderId}/edit`}>
                 <Edit /> {t("edit")}
-                <ShortcutBadge actionId="edit-delivery" />
+                <ShortcutBadge actionId="edit-order" />
               </Link>
             </Button>
 

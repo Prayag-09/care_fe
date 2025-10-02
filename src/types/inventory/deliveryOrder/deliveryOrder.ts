@@ -11,11 +11,11 @@ export enum DeliveryOrderStatus {
 }
 
 export const DELIVERY_ORDER_STATUS_COLORS = {
-  draft: "gray",
+  draft: "secondary",
   pending: "yellow",
   completed: "green",
   abandoned: "destructive",
-  entered_in_error: "gray",
+  entered_in_error: "destructive",
 } as const satisfies Record<
   DeliveryOrderStatus,
   React.ComponentProps<typeof Badge>["variant"]

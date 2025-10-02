@@ -22,11 +22,11 @@ export enum RequestOrderIntent {
 }
 
 export const REQUEST_ORDER_STATUS_COLORS = {
-  draft: "gray",
+  draft: "secondary",
   pending: "yellow",
   completed: "green",
   abandoned: "destructive",
-  entered_in_error: "gray",
+  entered_in_error: "destructive",
 } as const satisfies Record<
   RequestOrderStatus,
   React.ComponentProps<typeof Badge>["variant"]
