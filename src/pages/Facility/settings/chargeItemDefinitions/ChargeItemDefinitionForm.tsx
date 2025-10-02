@@ -48,7 +48,10 @@ import {
   MonetaryComponentType,
 } from "@/types/base/monetaryComponent/monetaryComponent";
 import { ResourceCategoryResourceType } from "@/types/base/resourceCategory/resourceCategory";
-import { MRP_CODE } from "@/types/billing/chargeItem/chargeItem";
+import {
+  MRP_CODE,
+  PURCHASE_PRICE_CODE,
+} from "@/types/billing/chargeItem/chargeItem";
 import {
   ChargeItemDefinitionCreate,
   ChargeItemDefinitionRead,
@@ -575,7 +578,9 @@ export function ChargeItemDefinitionForm({
     title: z.string().min(1, { message: "field_required" }),
     slug_value: z
       .string()
-      .min(1, { message: "field_required" })
+      .trim()
+      .min(5, t("character_count_validation", { min: 5, max: 25 }))
+      .max(25, t("character_count_validation", { min: 5, max: 25 }))
       .regex(/^[a-z0-9-]+$/, {
         message: "slug_format_message",
       }),
@@ -653,7 +658,7 @@ export function ChargeItemDefinitionForm({
 
     const subscription = form.watch((value, { name }) => {
       if (name === "title") {
-        form.setValue("slug_value", generateSlug(value.title || ""), {
+        form.setValue("slug_value", generateSlug(value.title || "", 25), {
           shouldValidate: true,
         });
       }
@@ -666,7 +671,15 @@ export function ChargeItemDefinitionForm({
   const priceComponents = form.watch("price_components");
   const basePrice = form.watch("price_components.0.amount")?.toString() || "0";
   const mrp = priceComponents.find(
-    (c) => c.monetary_component_type === MonetaryComponentType.informational,
+    (c) =>
+      c.code?.code === MRP_CODE &&
+      c.monetary_component_type === MonetaryComponentType.informational,
+  )?.amount;
+
+  const purchasePrice = priceComponents.find(
+    (c) =>
+      c.code?.code === PURCHASE_PRICE_CODE &&
+      c.monetary_component_type === MonetaryComponentType.informational,
   )?.amount;
 
   // Handle form submission
@@ -714,7 +727,19 @@ export function ChargeItemDefinitionForm({
 
   const mrpCode = facilityData.instance_informational_codes.find(
     (c) => c.code === MRP_CODE,
-  );
+  ) || {
+    code: MRP_CODE,
+    system: "care",
+    display: t("mrp"),
+  };
+
+  const purchasePriceCode = facilityData.instance_informational_codes.find(
+    (c) => c.code === PURCHASE_PRICE_CODE,
+  ) || {
+    code: PURCHASE_PRICE_CODE,
+    system: "care",
+    display: t("purchase_price"),
+  };
 
   // Get currently selected components by type
   const getSelectedComponents = (type: MonetaryComponentType) =>
@@ -775,7 +800,9 @@ export function ChargeItemDefinitionForm({
   const handleMrpChange = (value: string) => {
     const currentComponents = form.getValues("price_components");
     const mrpIndex = currentComponents.findIndex(
-      (c) => c.monetary_component_type === MonetaryComponentType.informational,
+      (c) =>
+        c.code?.code === MRP_CODE &&
+        c.monetary_component_type === MonetaryComponentType.informational,
     );
 
     if (mrpIndex >= 0) {
@@ -792,6 +819,33 @@ export function ChargeItemDefinitionForm({
         monetary_component_type: MonetaryComponentType.informational,
         amount: value,
         code: mrpCode,
+        conditions: [],
+      };
+      form.setValue("price_components", [...currentComponents, newComponent]);
+    }
+  };
+
+  const handlePurchasePriceChange = (value: string) => {
+    const currentComponents = form.getValues("price_components");
+    const purchasePriceIndex = currentComponents.findIndex(
+      (c) =>
+        c.code?.code === PURCHASE_PRICE_CODE &&
+        c.monetary_component_type === MonetaryComponentType.informational,
+    );
+
+    if (purchasePriceIndex >= 0) {
+      const updatedComponents = [...currentComponents];
+      updatedComponents[purchasePriceIndex] = {
+        ...updatedComponents[purchasePriceIndex],
+        amount: value,
+        code: purchasePriceCode,
+      };
+      form.setValue("price_components", updatedComponents);
+    } else {
+      const newComponent = {
+        monetary_component_type: MonetaryComponentType.informational,
+        amount: value,
+        code: purchasePriceCode,
         conditions: [],
       };
       form.setValue("price_components", [...currentComponents, newComponent]);
@@ -967,7 +1021,9 @@ export function ChargeItemDefinitionForm({
                       <Input
                         {...field}
                         value={field.value || ""}
-                        onChange={(e) => field.onChange(e.target.value)}
+                        onChange={(e) =>
+                          field.onChange(e.target.value || undefined)
+                        }
                       />
                     </FormControl>
                     <FormMessage />
@@ -1045,6 +1101,27 @@ export function ChargeItemDefinitionForm({
                           ?.message
                       }
                     </FormMessage>
+                  </div>
+                </FormItem>
+              </div>
+              {/* Purchase Price */}
+              <div className="w-full">
+                <FormItem className="flex flex-col">
+                  <FormLabel
+                    className={cn("font-medium text-gray-900 text-base")}
+                  >
+                    {t("purchase_price")}
+                  </FormLabel>
+                  <div className="flex flex-col w-full gap-2">
+                    <FormControl className="w-full">
+                      <MonetaryAmountInput
+                        value={purchasePrice ?? 0}
+                        onChange={(e) =>
+                          handlePurchasePriceChange(e.target.value)
+                        }
+                        placeholder="0.00"
+                      />
+                    </FormControl>
                   </div>
                 </FormItem>
               </div>

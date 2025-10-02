@@ -156,7 +156,10 @@ function ProductKnowledgeFormContent({
   slug,
   existingData,
   categorySlug,
-  onSuccess = () => {},
+  onSuccess = () =>
+    navigate(
+      `/facility/${facilityId}/settings/product_knowledge/categories/${categorySlug}`,
+    ),
 }: {
   facilityId: string;
   slug?: string;
@@ -788,8 +791,8 @@ function ProductKnowledgeFormContent({
                                         >
                                           <span>
                                             {t(`unit_${duration.code}`)}
-                                            <span className="text-sm ml-1">
-                                              {duration.code}
+                                            <span className="text-sm ml-1 text-gray-500">
+                                              ({duration.code})
                                             </span>
                                           </span>
                                         </SelectItem>
@@ -993,7 +996,9 @@ function ProductKnowledgeFormContent({
                 type="button"
                 variant="outline"
                 onClick={() =>
-                  navigate(`/facility/${facilityId}/settings/product_knowledge`)
+                  navigate(
+                    `/facility/${facilityId}/settings/product_knowledge/categories/${categorySlug}`,
+                  )
                 }
               >
                 {t("cancel")}
