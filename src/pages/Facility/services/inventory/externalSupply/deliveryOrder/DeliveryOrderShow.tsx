@@ -1,5 +1,5 @@
 import { useMutation, useQuery, useQueryClient } from "@tanstack/react-query";
-import { ChevronLeft, Edit, MoreVertical, X } from "lucide-react";
+import { ChevronLeft, Edit, MoreVertical, Truck } from "lucide-react";
 import { Link } from "raviger";
 import { useState } from "react";
 import { Trans, useTranslation } from "react-i18next";
@@ -8,6 +8,7 @@ import { toast } from "sonner";
 import { RESULTS_PER_PAGE_LIMIT } from "@/common/constants";
 import BackButton from "@/components/Common/BackButton";
 import Page from "@/components/Common/Page";
+import { TableSkeleton } from "@/components/Common/SkeletonLoading";
 import { Badge } from "@/components/ui/badge";
 import { Button } from "@/components/ui/button";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
@@ -31,6 +32,7 @@ import {
   DropdownMenuItem,
   DropdownMenuTrigger,
 } from "@/components/ui/dropdown-menu";
+import { EmptyState } from "@/components/ui/empty-state";
 import { Label } from "@/components/ui/label";
 import { RadioGroup, RadioGroupItem } from "@/components/ui/radio-group";
 import useFilters from "@/hooks/useFilters";
@@ -469,20 +471,9 @@ export function DeliveryOrderShow({
                       updateQuery({ page: 1 }); // Reset to first page when filter changes
                     }}
                     placeholder={t("filter_by_product")}
+                    disableFavorites
                   />
                 </div>
-                {selectedProductKnowledge && (
-                  <Button
-                    variant="ghost"
-                    onClick={() => {
-                      setSelectedProductKnowledge(undefined);
-                      updateQuery({ page: 1 });
-                    }}
-                  >
-                    <X className="h-4 w-4" />
-                    {t("clear")}
-                  </Button>
-                )}
               </div>
 
               <div className="flex items-center gap-2">
@@ -635,36 +626,17 @@ export function DeliveryOrderShow({
             </DrawerHeader>
             <div className="space-y-4">
               <div className="flex items-center justify-end">
-                <div>
-                  <ProductKnowledgeSelect
-                    value={selectedProductKnowledgeDrawer}
-                    onChange={(value) => {
-                      setSelectedProductKnowledgeDrawer(value);
-                    }}
-                    placeholder={t("filter_by_product")}
-                  />
-                </div>
-                {selectedProductKnowledgeDrawer && (
-                  <Button
-                    variant="ghost"
-                    onClick={() => {
-                      setSelectedProductKnowledgeDrawer(undefined);
-                    }}
-                  >
-                    <X className="h-4 w-4" />
-                    {t("clear")}
-                  </Button>
-                )}
+                <ProductKnowledgeSelect
+                  value={selectedProductKnowledgeDrawer}
+                  onChange={(value) => {
+                    setSelectedProductKnowledgeDrawer(value);
+                  }}
+                  placeholder={t("filter_by_product")}
+                  disableFavorites
+                />
               </div>
               {isLoadingAllSupplyDeliveries ? (
-                <div className="space-y-2">
-                  {Array.from({ length: 3 }).map((_, i) => (
-                    <div key={i} className="animate-pulse">
-                      <div className="h-4 bg-gray-200 rounded w-3/4 mb-2"></div>
-                      <div className="h-4 bg-gray-200 rounded w-1/2"></div>
-                    </div>
-                  ))}
-                </div>
+                <TableSkeleton count={3} />
               ) : allSupplyDeliveries?.results &&
                 allSupplyDeliveries.results.length > 0 ? (
                 <SupplyDeliveryTable
@@ -672,9 +644,11 @@ export function DeliveryOrderShow({
                   internal={internal}
                 />
               ) : (
-                <div className="text-center py-12">
-                  <p className="text-gray-500">{t("no_deliveries_found")}</p>
-                </div>
+                <EmptyState
+                  icon={<Truck className="size-5 text-primary-600" />}
+                  title={t("no_deliveries_found")}
+                  description={t("no_deliveries_found_description")}
+                />
               )}
             </div>
           </DrawerContent>

@@ -124,7 +124,7 @@ export function RequestOrderList({
 
   return (
     <Page
-      title={t(internal ? "orders" : "purchase_orders")}
+      title={internal ? t("orders") : t("purchase_orders")}
       hideTitleOnPage
       shortCutContext="facility:inventory"
     >

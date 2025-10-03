@@ -86,6 +86,7 @@ export function InventoryList({ facilityId, locationId }: InventoryListProps) {
                 });
               }}
               placeholder={t("search_product_knowledge")}
+              disableFavorites
             />
           </div>
 

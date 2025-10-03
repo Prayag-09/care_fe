@@ -61,11 +61,11 @@ export function LocationNav() {
             },
             {
               header: t("orders"),
-              name: t("incoming_orders"),
+              name: t("outgoing_orders"),
               url: `${baseUrl}/inventory/internal/orders/outgoing`,
             },
             {
-              name: t("outgoing_orders"),
+              name: t("incoming_orders"),
               url: `${baseUrl}/inventory/internal/orders/incoming`,
             },
 

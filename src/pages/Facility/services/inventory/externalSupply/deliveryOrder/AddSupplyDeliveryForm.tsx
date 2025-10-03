@@ -38,9 +38,9 @@ import {
   TableHeader,
   TableRow,
 } from "@/components/ui/table";
-import { InventoryItemSelect } from "@/pages/Facility/services/inventory/InventoryItemSelect";
 import { ProductKnowledgeSelect } from "@/pages/Facility/services/inventory/ProductKnowledgeSelect";
 import ProductSelect from "@/pages/Facility/services/inventory/ProductSelect";
+import StockLotSelector from "@/pages/Facility/services/inventory/StockLotSelector";
 import { ProductRead } from "@/types/inventory/product/product";
 import { ProductKnowledgeBase } from "@/types/inventory/productKnowledge/productKnowledge";
 import {
@@ -282,9 +282,7 @@ export function AddSupplyDeliveryForm({
                       {origin && <TableHead>{t("inventory_item")}</TableHead>}
                       {!origin && <TableHead>{t("product")}</TableHead>}
                       <TableHead>{t("quantity")}</TableHead>
-                      <TableHead className="w-[100px]">
-                        {t("actions")}
-                      </TableHead>
+                      <TableHead className="w-28">{t("actions")}</TableHead>
                     </TableRow>
                   </TableHeader>
                   <TableBody>
@@ -319,6 +317,8 @@ export function AddSupplyDeliveryForm({
                                     }}
                                     placeholder={t("select_product")}
                                     className="w-full"
+                                    disableFavorites
+                                    hideClearButton
                                   />
                                 </FormControl>
                                 <FormMessage />
@@ -334,14 +334,31 @@ export function AddSupplyDeliveryForm({
                               render={({ field }) => (
                                 <FormItem>
                                   <FormControl>
-                                    <InventoryItemSelect
-                                      value={field.value || ""}
-                                      onChange={field.onChange}
+                                    <StockLotSelector
+                                      selectedLots={
+                                        field.value
+                                          ? [
+                                              {
+                                                selectedInventoryId:
+                                                  field.value,
+                                                quantity: 1,
+                                              },
+                                            ]
+                                          : []
+                                      }
+                                      onLotSelectionChange={(lots) =>
+                                        field.onChange(
+                                          lots[0]?.selectedInventoryId || "",
+                                        )
+                                      }
                                       facilityId={facilityId}
                                       locationId={origin || ""}
                                       productKnowledge={form.watch(
                                         `items.${index}.product_knowledge`,
                                       )}
+                                      enableSearch={true}
+                                      multiSelect={false}
+                                      className="w-full"
                                     />
                                   </FormControl>
                                   <FormMessage />
@@ -407,15 +424,15 @@ export function AddSupplyDeliveryForm({
                             )}
                           />
                         </TableCell>
-                        <TableCell className="align-top">
+                        <TableCell>
                           <Button
                             type="button"
-                            variant="ghost"
-                            size="sm"
+                            variant="outline"
                             onClick={() => remove(index)}
                             disabled={fields.length === 1}
                           >
                             <Trash2 className="size-4" />
+                            {t("remove")}
                           </Button>
                         </TableCell>
                       </TableRow>

@@ -60,7 +60,7 @@ export default function DeliveryOrderTable({
       <TableHeader>
         <TableRow>
           <TableHead>{t("name")}</TableHead>
-          <TableHead>{t(internal ? t("origin") : t("supplier"))}</TableHead>
+          <TableHead>{internal ? t("origin") : t("supplier")}</TableHead>
           <TableHead>{t("deliver_to")}</TableHead>
           <TableHead>{t("status")}</TableHead>
           <TableHead className="w-28">{t("actions")}</TableHead>

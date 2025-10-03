@@ -121,7 +121,7 @@ export function DeliveryOrderList({
 
   return (
     <Page
-      title={t(internal ? "delivery" : "inward_entry")}
+      title={internal ? t("delivery") : t("inward_entry")}
       hideTitleOnPage
       shortCutContext="facility:inventory"
     >
