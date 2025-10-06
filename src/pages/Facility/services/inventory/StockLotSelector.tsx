@@ -14,6 +14,8 @@ import {
   PopoverTrigger,
 } from "@/components/ui/popover";
 
+import { MonetaryDisplay } from "@/components/ui/monetary-display";
+import { MonetaryComponentType } from "@/types/base/monetaryComponent/monetaryComponent";
 import { InventoryRead } from "@/types/inventory/product/inventory";
 import inventoryApi from "@/types/inventory/product/inventoryApi";
 import { ProductKnowledgeBase } from "@/types/inventory/productKnowledge/productKnowledge";
@@ -115,7 +117,7 @@ export default function StockLotSelector({
       <PopoverTrigger>
         <Button
           variant="outline"
-          className={`w-auto min-w-40 h-auto justify-between px-2 border-gray-300 border ${className}`}
+          className={`w-auto min-w-40 h-auto justify-between p-1 border-gray-300 border ${className}`}
           type="button"
         >
           <div className="flex flex-col min-w-40 items-start gap-1 w-full">
@@ -132,46 +134,59 @@ export default function StockLotSelector({
                 return (
                   <div
                     key={lot.selectedInventoryId}
-                    className="flex items-center justify-between w-full bg-gray-50 px-px py-px border-gray-200 border-1 rounded-sm text-gray-950 gap-1"
+                    className="flex items-center justify-between w-full bg-gray-50 px-px py-0.5 border-gray-200 border-1 rounded-sm text-gray-950 gap-1"
                   >
                     <span className="font-medium text-sm ml-1">
                       {selectedInventory?.product.batch?.lot_number}
                     </span>
-                    <Badge
-                      variant={
-                        selectedInventory?.status === "active" &&
-                        selectedInventory?.net_content > 0
-                          ? "primary"
-                          : "destructive"
-                      }
-                      className="border-none rounded-sm"
-                    >
-                      {selectedInventory?.net_content}{" "}
-                      {selectedInventory?.product.product_knowledge.base_unit
-                        .display || t("units")}
-                    </Badge>
-                    {showexpiry &&
-                      selectedInventory?.product.expiration_date && (
-                        <Badge
-                          variant={
-                            selectedInventory.status === "active" &&
-                            new Date(
-                              selectedInventory.product.expiration_date,
-                            ) >= new Date()
-                              ? "primary"
-                              : "destructive"
+                    <div className="flex items-center gap-1">
+                      <Badge>
+                        <MonetaryDisplay
+                          amount={
+                            selectedInventory?.product.charge_item_definition.price_components.find(
+                              (c) =>
+                                c.monetary_component_type ===
+                                MonetaryComponentType.base,
+                            )?.amount
                           }
-                          className="border-none rounded-sm"
-                        >
-                          {t("expiry")}:{" "}
-                          {selectedInventory.product.expiration_date
-                            ? formatDate(
+                        />
+                      </Badge>
+                      <Badge
+                        variant={
+                          selectedInventory?.status === "active" &&
+                          selectedInventory?.net_content > 0
+                            ? "primary"
+                            : "destructive"
+                        }
+                        className="border-none rounded-sm"
+                      >
+                        {selectedInventory?.net_content}{" "}
+                        {selectedInventory?.product.product_knowledge.base_unit
+                          .display || t("units")}
+                      </Badge>
+                      {showexpiry &&
+                        selectedInventory?.product.expiration_date && (
+                          <Badge
+                            variant={
+                              selectedInventory.status === "active" &&
+                              new Date(
                                 selectedInventory.product.expiration_date,
-                                "dd/MM/yyyy",
-                              )
-                            : "-"}
-                        </Badge>
-                      )}
+                              ) >= new Date()
+                                ? "primary"
+                                : "destructive"
+                            }
+                            className="border-none rounded-sm"
+                          >
+                            {t("expiry")}:{" "}
+                            {selectedInventory.product.expiration_date
+                              ? formatDate(
+                                  selectedInventory.product.expiration_date,
+                                  "dd/MM/yyyy",
+                                )
+                              : "-"}
+                          </Badge>
+                        )}
+                    </div>
                   </div>
                 );
               })
@@ -208,38 +223,50 @@ export default function StockLotSelector({
                   onClick={() => toggleLotSelection(inv.id)}
                 >
                   <Checkbox checked={isSelected} className="mr-2" />
-                  <div className="flex-1 flex items-center justify-between gap-1">
+                  <div className="flex-1 flex items-center justify-between gap-2">
                     <span>{inv.product.batch?.lot_number}</span>
-                    <Badge
-                      variant={
-                        inv.status === "active" && inv.net_content > 0
-                          ? "primary"
-                          : "destructive"
-                      }
-                      className="ml-2"
-                    >
-                      {inv.net_content}{" "}
-                      {inv.product.product_knowledge.base_unit.display ||
-                        t("units")}
-                    </Badge>
-                    {inv.product?.expiration_date && (
+                    <div className="flex items-center gap-1">
+                      <Badge>
+                        <MonetaryDisplay
+                          amount={
+                            inv.product.charge_item_definition.price_components.find(
+                              (c) =>
+                                c.monetary_component_type ===
+                                MonetaryComponentType.base,
+                            )?.amount
+                          }
+                        />
+                      </Badge>
                       <Badge
                         variant={
-                          inv.status === "active" &&
-                          new Date(inv.product.expiration_date) >= new Date()
+                          inv.status === "active" && inv.net_content > 0
                             ? "primary"
                             : "destructive"
                         }
                       >
-                        {t("expiry")}:{" "}
-                        {inv.product.expiration_date
-                          ? formatDate(
-                              inv.product.expiration_date,
-                              "dd/MM/yyyy",
-                            )
-                          : "-"}
+                        {inv.net_content}{" "}
+                        {inv.product.product_knowledge.base_unit.display ||
+                          t("units")}
                       </Badge>
-                    )}
+                      {inv.product?.expiration_date && (
+                        <Badge
+                          variant={
+                            inv.status === "active" &&
+                            new Date(inv.product.expiration_date) >= new Date()
+                              ? "primary"
+                              : "destructive"
+                          }
+                        >
+                          {t("expiry")}:{" "}
+                          {inv.product.expiration_date
+                            ? formatDate(
+                                inv.product.expiration_date,
+                                "dd/MM/yyyy",
+                              )
+                            : "-"}
+                        </Badge>
+                      )}
+                    </div>
                   </div>
                 </div>
               );

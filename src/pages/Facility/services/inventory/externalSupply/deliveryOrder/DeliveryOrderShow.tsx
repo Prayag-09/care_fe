@@ -574,7 +574,7 @@ export function DeliveryOrderShow({
               </div>
             </div>
           </CardHeader>
-          <CardContent className="p-0">
+          <CardContent className="p-2">
             {isLoadingSupplyDeliveries ? (
               <div className="space-y-2">
                 {Array.from({ length: 3 }).map((_, i) => (

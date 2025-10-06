@@ -25,6 +25,8 @@ import useFilters from "@/hooks/useFilters";
 
 import query from "@/Utils/request/query";
 import { FilterSelect } from "@/components/ui/filter-select";
+import { MonetaryDisplay } from "@/components/ui/monetary-display";
+import { MonetaryComponentType } from "@/types/base/monetaryComponent/monetaryComponent";
 import { ACCOUNT_STATUS_COLORS } from "@/types/billing/account/Account";
 import { InventoryStatusOptions } from "@/types/inventory/product/inventory";
 import inventoryApi from "@/types/inventory/product/inventoryApi";
@@ -124,6 +126,7 @@ export function InventoryList({ facilityId, locationId }: InventoryListProps) {
                 <TableHead>{t("status")}</TableHead>
                 <TableHead>{t("expiration_date")}</TableHead>
                 <TableHead>{t("batch")}</TableHead>
+                <TableHead>{t("base_price")}</TableHead>
               </TableRow>
             </TableHeader>
             <TableBody>
@@ -164,6 +167,17 @@ export function InventoryList({ facilityId, locationId }: InventoryListProps) {
                   </TableCell>
                   <TableCell>
                     {inventory.product.batch?.lot_number || "-"}
+                  </TableCell>
+                  <TableCell>
+                    <MonetaryDisplay
+                      amount={
+                        inventory.product.charge_item_definition.price_components.find(
+                          (c) =>
+                            c.monetary_component_type ===
+                            MonetaryComponentType.base,
+                        )?.amount
+                      }
+                    />
                   </TableCell>
                 </TableRow>
               ))}
