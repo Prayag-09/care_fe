@@ -10,7 +10,6 @@ import { z } from "zod";
 
 import Autocomplete from "@/components/ui/autocomplete";
 import { Button } from "@/components/ui/button";
-import { DatePicker } from "@/components/ui/date-picker";
 import {
   Form,
   FormControl,
@@ -402,11 +401,19 @@ export function ProductFormContent({
               render={({ field }) => (
                 <FormItem className="flex flex-col">
                   <FormLabel aria-required>{t("expiration_date")}</FormLabel>
-                  <DatePicker
-                    date={field.value}
-                    onChange={field.onChange}
-                    className="w-full"
-                  />
+                  <FormControl>
+                    <Input
+                      {...field}
+                      type="date"
+                      value={
+                        field.value ? format(field.value, "yyyy-MM-dd") : ""
+                      }
+                      onChange={(e) => {
+                        field.onChange(new Date(e.target.value));
+                      }}
+                      className="w-full"
+                    />
+                  </FormControl>
                   <FormDescription>
                     {t("expiration_date_description")}
                   </FormDescription>

@@ -10,7 +10,6 @@ import { z } from "zod";
 import CareIcon from "@/CAREUI/icons/CareIcon";
 
 import { Button } from "@/components/ui/button";
-import { DatePicker } from "@/components/ui/date-picker";
 import {
   Drawer,
   DrawerClose,
@@ -199,9 +198,17 @@ export function ProductFormDrawer({
                           {t("expiry_date")}
                         </FormLabel>
                         <FormControl>
-                          <DatePicker
-                            date={field.value}
-                            onChange={field.onChange}
+                          <Input
+                            {...field}
+                            type="date"
+                            value={
+                              field.value
+                                ? format(field.value, "yyyy-MM-dd")
+                                : ""
+                            }
+                            onChange={(e) => {
+                              field.onChange(new Date(e.target.value));
+                            }}
                             className="w-full border-gray-300 h-11 text-base"
                           />
                         </FormControl>
