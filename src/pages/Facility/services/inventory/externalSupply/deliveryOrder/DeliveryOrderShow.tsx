@@ -535,7 +535,7 @@ export function DeliveryOrderShow({
                         {isUpsertingDeliveries
                           ? t("updating")
                           : t("confirm_update_stock")}
-                        <ShortcutBadge actionId="enter-action" />
+                        <ShortcutBadge actionId="confirm-action" />
                       </Button>
                       <DropdownMenu>
                         <DropdownMenuTrigger asChild>
@@ -815,6 +815,7 @@ export function DeliveryOrderShow({
                 disabled={isUpsertingDeliveries}
               >
                 {isUpsertingDeliveries ? t("updating") : t("confirm")}
+                <ShortcutBadge actionId="submit-action" />
               </Button>
             </DialogFooter>
           </DialogContent>

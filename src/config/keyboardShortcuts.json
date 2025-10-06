@@ -107,7 +107,8 @@
   ],
   "facility:inventory:delivery": [
     { "key": "l", "action": "load-from-order", "description": "Load from Order", "when": "always" },
-    { "key": "enter", "action": "confirm-load-from-order", "description": "Confirm Load from Order", "when": "always" }
+    { "key": "enter", "action": "confirm-load-from-order", "description": "Confirm Load from Order", "when": "always" },
+    { "key": "enter", "action": "confirm-action", "description": "Confirm Order", "when": "always" }
   ],
 
   "encounter": [
