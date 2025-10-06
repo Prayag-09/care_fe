@@ -227,12 +227,14 @@ export function RequestOrderShow({
             </div>
           </div>
           <div className="flex items-center justify-end gap-2">
-            <Button variant="outline" asChild>
-              <Link href={`${requestOrderId}/edit`}>
-                <Edit /> {t("edit")}
-                <ShortcutBadge actionId="edit-order" />
-              </Link>
-            </Button>
+            {isRequester && (
+              <Button variant="outline" asChild>
+                <Link href={`${requestOrderId}/edit`}>
+                  <Edit /> {t("edit")}
+                  <ShortcutBadge actionId="edit-order" />
+                </Link>
+              </Button>
+            )}
 
             {canAddSupplyRequests && (
               <Button onClick={handleApproveOrder} disabled={isApproving}>

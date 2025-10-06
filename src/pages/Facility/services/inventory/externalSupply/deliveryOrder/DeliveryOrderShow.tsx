@@ -348,12 +348,14 @@ export function DeliveryOrderShow({
             </div>
           </div>
           <div className="flex items-center justify-end gap-2">
-            <Button variant="outline" asChild>
-              <Link href={`${deliveryOrderId}/edit`}>
-                <Edit /> {t("edit")}
-                <ShortcutBadge actionId="edit-order" />
-              </Link>
-            </Button>
+            {!isRequester && (
+              <Button variant="outline" asChild>
+                <Link href={`${deliveryOrderId}/edit`}>
+                  <Edit /> {t("edit")}
+                  <ShortcutBadge actionId="edit-order" />
+                </Link>
+              </Button>
+            )}
 
             {deliveryOrder.status === DeliveryOrderStatus.draft && (
               <Button
@@ -363,6 +365,7 @@ export function DeliveryOrderShow({
                 disabled={isUpdating}
               >
                 {isUpdating ? t("updating") : t("mark_as_approved")}
+                <ShortcutBadge actionId="mark-as" />
               </Button>
             )}
             {deliveryOrder.status === DeliveryOrderStatus.pending &&
@@ -376,6 +379,7 @@ export function DeliveryOrderShow({
                   disabled={isUpdating}
                 >
                   {isUpdating ? t("updating") : t("mark_as_completed")}
+                  <ShortcutBadge actionId="mark-as" />
                 </Button>
               )}
           </div>
@@ -468,6 +472,7 @@ export function DeliveryOrderShow({
                   onClick={() => setShowAllDeliveries(true)}
                 >
                   {t("view_all_deliveries")}
+                  <ShortcutBadge actionId="all-deliveries" />
                 </Button>
 
                 {deliveryOrder.status === DeliveryOrderStatus.pending &&

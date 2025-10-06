@@ -28,8 +28,7 @@ import { Textarea } from "@/components/ui/textarea";
 import Page from "@/components/Common/Page";
 import { FormSkeleton } from "@/components/Common/SkeletonLoading";
 
-import useAppHistory from "@/hooks/useAppHistory";
-
+import BackButton from "@/components/Common/BackButton";
 import Autocomplete from "@/components/ui/autocomplete";
 import { getInventoryBasePath } from "@/pages/Facility/services/inventory/externalSupply/utils/inventoryUtils";
 import {
@@ -77,7 +76,6 @@ export default function DeliveryOrderForm({
 }: Props) {
   const { t } = useTranslation();
 
-  const { goBack } = useAppHistory();
   const isEditMode = Boolean(deliveryOrderId);
   const [qParams] = useQueryParams();
   const supplyOrderId = qParams.supplyOrder;
@@ -106,7 +104,7 @@ export default function DeliveryOrderForm({
     },
   );
 
-  const title = isEditMode ? t("edit_order") : t("create_order");
+  const title = isEditMode ? t("edit_delivery") : t("create_delivery");
 
   const returnPath = getInventoryBasePath(
     facilityId,
@@ -279,17 +277,12 @@ export default function DeliveryOrderForm({
       shortCutContext="facility:inventory:delivery"
     >
       <div className="container mx-auto max-w-5xl">
-        <div className="mb-6 relative">
-          <Button
-            variant="outline"
-            size="icon"
-            className="absolute -right-2 -top-2"
-            onClick={() => goBack()}
-          >
+        <div className="flex justify-between items-center mb-6">
+          <h1 className="text-xl font-semibold text-gray-900">{title}</h1>
+          <BackButton variant="outline" size="icon">
             <X className="size-5" />
             <span className="sr-only">{t("close")}</span>
-          </Button>
-          <h1 className="text-xl font-semibold text-gray-900">{title}</h1>
+          </BackButton>
         </div>
         <Form {...form}>
           <form onSubmit={form.handleSubmit(onSubmit)} className="space-y-6">
@@ -352,6 +345,7 @@ export default function DeliveryOrderForm({
                                 ? t("no_location_found")
                                 : t("no_vendor_found")
                             }
+                            showClearButton={false}
                           />
                         </FormControl>
                         <FormMessage />
@@ -395,7 +389,6 @@ export default function DeliveryOrderForm({
                           >
                             {(isEditMode
                               ? [
-                                  DeliveryOrderStatus.pending,
                                   DeliveryOrderStatus.abandoned,
                                   DeliveryOrderStatus.entered_in_error,
                                 ]

@@ -2,9 +2,6 @@ import { Eye } from "lucide-react";
 import { navigate } from "raviger";
 import { useTranslation } from "react-i18next";
 
-import { Badge } from "@/components/ui/badge";
-import { Button } from "@/components/ui/button";
-import { EmptyState } from "@/components/ui/empty-state";
 import {
   Table,
   TableBody,
@@ -12,7 +9,10 @@ import {
   TableHead,
   TableHeader,
   TableRow,
-} from "@/components/ui/table";
+} from "@/components/Common/Table";
+import { Badge } from "@/components/ui/badge";
+import { Button } from "@/components/ui/button";
+import { EmptyState } from "@/components/ui/empty-state";
 
 import { TableSkeleton } from "@/components/Common/SkeletonLoading";
 
@@ -58,70 +58,59 @@ export default function RequestOrderTable({
   }
 
   return (
-    <div className="rounded-md overflow-hidden border-2 border-white shadow-md">
-      <Table>
-        <TableHeader className="bg-gray-100">
-          <TableRow className="divide-x">
-            <TableHead className="text-gray-700">{t("name")}</TableHead>
-            <TableHead className="text-gray-700">{t("supplier")}</TableHead>
-            <TableHead className="text-gray-700">{t("deliver_to")}</TableHead>
-            <TableHead className="text-gray-700">{t("status")}</TableHead>
-            <TableHead className="text-gray-700">{t("priority")}</TableHead>
-            <TableHead className="w-[100px] text-gray-700">
-              {t("actions")}
-            </TableHead>
+    <Table>
+      <TableHeader>
+        <TableRow>
+          <TableHead>{t("name")}</TableHead>
+          <TableHead>{internal ? t("origin") : t("supplier")}</TableHead>
+          <TableHead>{t("deliver_to")}</TableHead>
+          <TableHead>{t("status")}</TableHead>
+          <TableHead>{t("priority")}</TableHead>
+          <TableHead className="w-28">{t("actions")}</TableHead>
+        </TableRow>
+      </TableHeader>
+      <TableBody>
+        {requests.map((request: RequestOrderRetrieve) => (
+          <TableRow key={request.id}>
+            <TableCell className="font-semibold">{request.name}</TableCell>
+            <TableCell>
+              {request.supplier?.name || request.origin?.name}
+            </TableCell>
+            <TableCell>{request.destination.name}</TableCell>
+            <TableCell>
+              <Badge variant={REQUEST_ORDER_STATUS_COLORS[request.status]}>
+                {t(request.status)}
+              </Badge>
+            </TableCell>
+            <TableCell>
+              <Badge variant={REQUEST_ORDER_PRIORITY_COLORS[request.priority]}>
+                {t(request.priority)}
+              </Badge>
+            </TableCell>
+            <TableCell>
+              <Button
+                variant="outline"
+                className="shadow-sm font-semibold text-gray-950"
+                onClick={() =>
+                  navigate(
+                    getInventoryBasePath(
+                      facilityId,
+                      locationId,
+                      internal,
+                      true,
+                      isRequester,
+                      `${request.id}`,
+                    ),
+                  )
+                }
+              >
+                <Eye />
+                {t("see_details")}
+              </Button>
+            </TableCell>
           </TableRow>
-        </TableHeader>
-        <TableBody className="bg-white text-base">
-          {requests.map((request: RequestOrderRetrieve) => (
-            <TableRow key={request.id} className="divide-x">
-              <TableCell className="font-semibold text-gray-950">
-                {request.name}
-              </TableCell>
-              <TableCell className="font-medium text-gray-950">
-                {request.supplier?.name}
-              </TableCell>
-              <TableCell className="font-medium text-gray-950">
-                {request.destination.name}
-              </TableCell>
-              <TableCell>
-                <Badge variant={REQUEST_ORDER_STATUS_COLORS[request.status]}>
-                  {t(request.status)}
-                </Badge>
-              </TableCell>
-              <TableCell>
-                <Badge
-                  variant={REQUEST_ORDER_PRIORITY_COLORS[request.priority]}
-                >
-                  {t(request.priority)}
-                </Badge>
-              </TableCell>
-              <TableCell>
-                <Button
-                  variant="outline"
-                  size="md"
-                  className="shadow-sm border-gray-400 font-semibold text-gray-950"
-                  onClick={() =>
-                    navigate(
-                      getInventoryBasePath(
-                        facilityId,
-                        locationId,
-                        internal,
-                        true,
-                        isRequester,
-                        `${request.id}`,
-                      ),
-                    )
-                  }
-                >
-                  <Eye />
-                  {t("view_details")}
-                </Button>
-              </TableCell>
-            </TableRow>
-          ))}
-        </TableBody>
-      </Table>
-    </div>
+        ))}
+      </TableBody>
+    </Table>
   );
 }
