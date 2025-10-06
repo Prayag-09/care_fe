@@ -25,11 +25,18 @@ import { ProductKnowledgeSelect } from "@/pages/Facility/services/inventory/Prod
 import { ProductKnowledgeBase } from "@/types/inventory/productKnowledge/productKnowledge";
 import { AddItemsForm } from "./AddItemsForm";
 
+import CareIcon from "@/CAREUI/icons/CareIcon";
 import BackButton from "@/components/Common/BackButton";
 import {
   CardListWithHeaderSkeleton,
   TableSkeleton,
 } from "@/components/Common/SkeletonLoading";
+import {
+  DropdownMenu,
+  DropdownMenuContent,
+  DropdownMenuItem,
+  DropdownMenuTrigger,
+} from "@/components/ui/dropdown-menu";
 import { EmptyState } from "@/components/ui/empty-state";
 import useBreakpoints from "@/hooks/useBreakpoints";
 import { getInventoryBasePath } from "@/pages/Facility/services/inventory/externalSupply/utils/inventoryUtils";
@@ -46,6 +53,68 @@ import supplyRequestApi from "@/types/inventory/supplyRequest/supplyRequestApi";
 import { ShortcutBadge } from "@/Utils/keyboardShortcutComponents";
 import mutate from "@/Utils/request/mutate";
 import query from "@/Utils/request/query";
+
+interface AllSupplyDeliveriesProps {
+  facilityId: string;
+  requestOrderId: string;
+  selectedProductKnowledge?: ProductKnowledgeBase;
+  internal: boolean;
+}
+
+function AllSupplyDeliveriesComponent({
+  facilityId,
+  requestOrderId,
+  selectedProductKnowledge,
+  internal,
+}: AllSupplyDeliveriesProps) {
+  const { t } = useTranslation();
+
+  const qParams = {
+    ...(internal
+      ? {
+          supplied_inventory_item_product_knowledge:
+            selectedProductKnowledge?.id,
+        }
+      : {
+          supplied_item_product_knowledge: selectedProductKnowledge?.id,
+        }),
+  };
+
+  const { data: allSupplyDeliveries, isLoading: isLoadingAllSupplyDeliveries } =
+    useQuery({
+      queryKey: ["allSupplyDeliveries", requestOrderId, qParams],
+      queryFn: query.paginated(supplyDeliveryApi.listSupplyDelivery, {
+        queryParams: {
+          facility: facilityId,
+          request_order: requestOrderId,
+          ...qParams,
+        },
+      }),
+      enabled: !!requestOrderId,
+    });
+
+  return (
+    <div className="pt-2">
+      <div className="space-y-4 max-h-[68vh] overflow-y-auto px-4 pt-4">
+        {isLoadingAllSupplyDeliveries ? (
+          <TableSkeleton count={3} />
+        ) : allSupplyDeliveries?.results &&
+          allSupplyDeliveries.results.length > 0 ? (
+          <SupplyDeliveryTable
+            deliveries={allSupplyDeliveries.results}
+            internal={internal}
+          />
+        ) : (
+          <EmptyState
+            icon={<Truck className="text-primary size-5" />}
+            title={t("no_deliveries_found")}
+            description={t("deliveries_will_appear_here")}
+          />
+        )}
+      </div>
+    </div>
+  );
+}
 
 interface Props {
   facilityId: string;
@@ -108,32 +177,7 @@ export function RequestOrderShow({
     },
   );
 
-  // Query for all supply deliveries related to this request order
-  const { data: allSupplyDeliveries, isLoading: isLoadingAllSupplyDeliveries } =
-    useQuery({
-      queryKey: [
-        "allSupplyDeliveries",
-        requestOrderId,
-        selectedProductKnowledge?.id,
-      ],
-      queryFn: query.paginated(supplyDeliveryApi.listSupplyDelivery, {
-        queryParams: {
-          facility: facilityId,
-          request_order: requestOrderId,
-          ...(internal
-            ? {
-                supplied_inventory_item_product_knowledge:
-                  selectedProductKnowledge?.id,
-              }
-            : {
-                supplied_item_product_knowledge: selectedProductKnowledge?.id,
-              }),
-        },
-      }),
-      enabled: !!requestOrderId && currentTab === "all-deliveries",
-    });
-
-  const { mutate: approveOrder, isPending: isApproving } = useMutation({
+  const { mutate: updateOrder, isPending: isUpdating } = useMutation({
     mutationFn: mutate(requestOrderApi.updateRequestOrder, {
       pathParams: {
         facilityId: facilityId,
@@ -144,10 +188,10 @@ export function RequestOrderShow({
       queryClient.invalidateQueries({
         queryKey: ["requestOrders", requestOrderId],
       });
-      toast.success(t("order_approved_successfully"));
+      toast.success(t("order_updated_successfully"));
     },
     onError: (_error) => {
-      toast.error(t("error_approving_order"));
+      toast.error(t("error_updating_order"));
     },
   });
 
@@ -157,15 +201,15 @@ export function RequestOrderShow({
     });
   }
 
-  function handleApproveOrder() {
+  function updateOrderStatus(status: RequestOrderStatus) {
     if (!requestOrder) return;
 
-    approveOrder({
+    updateOrder({
       ...requestOrder,
-      status: RequestOrderStatus.pending,
       supplier: requestOrder.supplier?.id || "",
       origin: requestOrder.origin?.id || undefined,
       destination: requestOrder.destination.id,
+      status,
     });
   }
 
@@ -237,8 +281,11 @@ export function RequestOrderShow({
             )}
 
             {canAddSupplyRequests && (
-              <Button onClick={handleApproveOrder} disabled={isApproving}>
-                {isApproving ? t("approving") : t("approve_order")}
+              <Button
+                onClick={() => updateOrderStatus(RequestOrderStatus.pending)}
+                disabled={isUpdating}
+              >
+                {isUpdating ? t("approving") : t("approve_order")}
               </Button>
             )}
 
@@ -262,6 +309,84 @@ export function RequestOrderShow({
                 </Link>
               </Button>
             )}
+
+            {isRequester &&
+              requestOrder.status !== RequestOrderStatus.completed &&
+              requestOrder.status !== RequestOrderStatus.entered_in_error && (
+                <DropdownMenu>
+                  <DropdownMenuTrigger asChild>
+                    <Button
+                      variant="outline"
+                      data-cy="invoice-actions-button"
+                      className="border-gray-400 px-2"
+                    >
+                      <CareIcon icon="l-ellipsis-v" />
+                    </Button>
+                  </DropdownMenuTrigger>
+                  <DropdownMenuContent align="end">
+                    {requestOrder.status !== RequestOrderStatus.draft && (
+                      <DropdownMenuItem asChild className="text-primary-900">
+                        <Button
+                          variant="ghost"
+                          onClick={() =>
+                            updateOrderStatus(RequestOrderStatus.draft)
+                          }
+                          className="w-full flex flex-row justify-stretch items-center"
+                          disabled={isUpdating}
+                        >
+                          <CareIcon icon="l-pause" className="mr-1" />
+                          {t("mark_as_draft")}
+                        </Button>
+                      </DropdownMenuItem>
+                    )}
+                    {requestOrder.status === RequestOrderStatus.draft ||
+                      (requestOrder.status === RequestOrderStatus.pending && (
+                        <DropdownMenuItem asChild className="text-primary-900">
+                          <Button
+                            variant="ghost"
+                            onClick={() =>
+                              updateOrderStatus(RequestOrderStatus.completed)
+                            }
+                            className="w-full flex flex-row justify-stretch items-center"
+                            disabled={isUpdating}
+                          >
+                            <CareIcon icon="l-play" className="mr-1" />
+                            {t("mark_as_completed")}
+                          </Button>
+                        </DropdownMenuItem>
+                      ))}
+                    <DropdownMenuItem asChild className="text-primary-900">
+                      <Button
+                        variant="ghost"
+                        onClick={() =>
+                          updateOrderStatus(RequestOrderStatus.entered_in_error)
+                        }
+                        disabled={isUpdating}
+                        className="w-full flex flex-row self-center"
+                      >
+                        <CareIcon
+                          icon="l-exclamation-circle"
+                          className="mr-1"
+                        />
+                        <span>{t("mark_as_entered_in_error")}</span>
+                      </Button>
+                    </DropdownMenuItem>
+                    <DropdownMenuItem asChild className="text-primary-900">
+                      <Button
+                        variant="ghost"
+                        onClick={() =>
+                          updateOrderStatus(RequestOrderStatus.abandoned)
+                        }
+                        disabled={isUpdating}
+                        className="w-full flex flex-row justify-stretch items-center"
+                      >
+                        <CareIcon icon="l-ban" className="mr-1" />
+                        {t("mark_as_abandoned")}
+                      </Button>
+                    </DropdownMenuItem>
+                  </DropdownMenuContent>
+                </DropdownMenu>
+              )}
           </div>
         </div>
 
@@ -470,7 +595,7 @@ export function RequestOrderShow({
                         isLoading={false}
                         facilityId={facilityId}
                         locationId={requestOrder?.destination.id || ""}
-                        internal={false}
+                        internal={true}
                         isRequester={false}
                       />
                     ) : (
@@ -488,35 +613,21 @@ export function RequestOrderShow({
                 label: t("all_deliveries"),
                 component: (
                   <div>
-                    {isLoadingAllSupplyDeliveries ? (
-                      <TableSkeleton count={3} />
-                    ) : (
-                      <>
-                        <div className="flex justify-end pb-2 ">
-                          <ProductKnowledgeSelect
-                            value={selectedProductKnowledge}
-                            onChange={(value) => {
-                              setSelectedProductKnowledge(value);
-                            }}
-                            placeholder={t("filter_by_product")}
-                            disableFavorites
-                          />
-                        </div>
-                        {allSupplyDeliveries?.results &&
-                        allSupplyDeliveries.results.length > 0 ? (
-                          <SupplyDeliveryTable
-                            deliveries={allSupplyDeliveries.results}
-                            internal={internal}
-                          />
-                        ) : (
-                          <EmptyState
-                            icon={<Truck className="text-primary size-5" />}
-                            title={t("no_deliveries_found")}
-                            description={t("deliveries_will_appear_here")}
-                          />
-                        )}
-                      </>
-                    )}
+                    <div className="flex justify-end pb-2 px-4">
+                      <ProductKnowledgeSelect
+                        value={selectedProductKnowledge}
+                        onChange={(value) => {
+                          setSelectedProductKnowledge(value);
+                        }}
+                        placeholder={t("filter_by_product")}
+                        disableFavorites
+                      />
+                    </div>
+                    <AllSupplyDeliveriesComponent
+                      facilityId={facilityId}
+                      requestOrderId={requestOrderId}
+                      internal={internal}
+                    />
                   </div>
                 ),
               },

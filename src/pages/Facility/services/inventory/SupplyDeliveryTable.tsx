@@ -13,6 +13,7 @@ import {
   TableRow,
 } from "@/components/ui/table";
 
+import { cn } from "@/lib/utils";
 import { MonetaryComponentType } from "@/types/base/monetaryComponent/monetaryComponent";
 import {
   SUPPLY_DELIVERY_CONDITION_COLORS,
@@ -50,12 +51,16 @@ export function SupplyDeliveryTable({
     inProgressDeliveries.length > 0 &&
     inProgressDeliveries.every((d) => selectedDeliveries.includes(d.id));
 
+  const showAllCheckbox =
+    showCheckbox &&
+    deliveries.some((d) => d.status === SupplyDeliveryStatus.in_progress);
+
   return (
     <div className="rounded-md overflow-x-auto border-2 border-white shadow-md">
       <Table className="rounded-lg border shadow-sm w-full bg-white">
         <TableHeader className="bg-gray-100">
           <TableRow className="border-b">
-            {showCheckbox && (
+            {showAllCheckbox && (
               <TableHead className="border-x p-3 text-gray-700 text-sm font-medium leading-5">
                 <Checkbox
                   checked={
@@ -100,7 +105,7 @@ export function SupplyDeliveryTable({
         <TableBody className="bg-white">
           {deliveries.map((delivery) => (
             <TableRow key={delivery.id} className="border-b hover:bg-gray-50">
-              {showCheckbox && (
+              {showAllCheckbox && (
                 <TableCell className="border-x p-3 text-gray-950">
                   {delivery.status === SupplyDeliveryStatus.in_progress && (
                     <Checkbox
@@ -113,7 +118,10 @@ export function SupplyDeliveryTable({
                 </TableCell>
               )}
               <TableCell
-                className="border-x p-3 text-gray-950"
+                className={cn(
+                  "border-x p-3 text-gray-950",
+                  onDeliveryClick && "cursor-pointer underline",
+                )}
                 onClick={() => onDeliveryClick?.(delivery)}
               >
                 <div className="font-medium">

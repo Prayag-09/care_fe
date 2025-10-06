@@ -59,6 +59,84 @@ interface Props {
   internal: boolean;
 }
 
+interface AllSupplyDeliveriesProps {
+  facilityId: string;
+  deliveryOrder: any;
+  locationId: string;
+  internal: boolean;
+  isRequester: boolean;
+  selectedProductKnowledge?: ProductKnowledgeBase;
+}
+
+function AllSupplyDeliveriesComponent({
+  facilityId,
+  deliveryOrder,
+  locationId,
+  internal,
+  isRequester,
+  selectedProductKnowledge,
+}: AllSupplyDeliveriesProps) {
+  const { t } = useTranslation();
+
+  const qParams = {
+    ...(internal
+      ? {
+          supplied_inventory_item_product_knowledge:
+            selectedProductKnowledge?.id,
+        }
+      : {
+          supplied_item_product_knowledge: selectedProductKnowledge?.id,
+        }),
+    ...(internal
+      ? {
+          ...(isRequester
+            ? {
+                origin: deliveryOrder.origin?.id,
+                destination: locationId,
+              }
+            : { origin: locationId }),
+        }
+      : {
+          supplier: deliveryOrder?.supplier?.id,
+        }),
+  };
+
+  const { data: allSupplyDeliveries, isLoading: isLoadingAllSupplyDeliveries } =
+    useQuery({
+      queryKey: ["allSupplyDeliveries", qParams],
+      queryFn: query.paginated(supplyDeliveryApi.listSupplyDelivery, {
+        queryParams: {
+          facility: facilityId,
+          ...qParams,
+        },
+      }),
+    });
+
+  return (
+    <div className="pt-2">
+      <div className="space-y-4 max-h-[68vh] overflow-y-auto px-4 pt-4">
+        {isLoadingAllSupplyDeliveries ? (
+          <TableSkeleton count={3} />
+        ) : allSupplyDeliveries?.results &&
+          allSupplyDeliveries.results.length > 0 ? (
+          <>
+            <SupplyDeliveryTable
+              deliveries={allSupplyDeliveries.results}
+              internal={internal}
+            />
+          </>
+        ) : (
+          <EmptyState
+            icon={<Truck className="size-5 text-primary-600" />}
+            title={t("no_deliveries_found")}
+            description={t("no_deliveries_found_description")}
+          />
+        )}
+      </div>
+    </div>
+  );
+}
+
 export function DeliveryOrderShow({
   facilityId,
   deliveryOrderId,
@@ -113,41 +191,6 @@ export function DeliveryOrderShow({
         },
       }),
       enabled: !!deliveryOrderId,
-    });
-
-  // Query for all supply deliveries related to this delivery order
-  const { data: allSupplyDeliveries, isLoading: isLoadingAllSupplyDeliveries } =
-    useQuery({
-      queryKey: [
-        "allSupplyDeliveries",
-        deliveryOrder?.supplier?.id,
-        locationId,
-        selectedProductKnowledgeDrawer?.id,
-      ],
-      queryFn: query(supplyDeliveryApi.listSupplyDelivery, {
-        queryParams: {
-          facility: facilityId,
-          ...(internal
-            ? {
-                supplied_inventory_item_product_knowledge:
-                  selectedProductKnowledgeDrawer?.id,
-              }
-            : {
-                supplied_item_product_knowledge:
-                  selectedProductKnowledgeDrawer?.id,
-              }),
-          ...(internal
-            ? {
-                ...(isRequester
-                  ? { destination: locationId }
-                  : { origin: locationId }),
-              }
-            : {
-                supplier: deliveryOrder?.supplier?.id,
-              }),
-        },
-      }),
-      enabled: !!deliveryOrderId && showAllDeliveries,
     });
 
   const { mutate: upsertSupplyDeliveries, isPending: isUpsertingDeliveries } =
@@ -467,13 +510,15 @@ export function DeliveryOrderShow({
               </div>
 
               <div className="flex items-center gap-2">
-                <Button
-                  variant="outline"
-                  onClick={() => setShowAllDeliveries(true)}
-                >
-                  {t("view_all_deliveries")}
-                  <ShortcutBadge actionId="all-deliveries" />
-                </Button>
+                {deliveryOrder.status === DeliveryOrderStatus.pending && (
+                  <Button
+                    variant="outline"
+                    onClick={() => setShowAllDeliveries(true)}
+                  >
+                    {t("view_all_deliveries")}
+                    <ShortcutBadge actionId="all-deliveries" />
+                  </Button>
+                )}
 
                 {deliveryOrder.status === DeliveryOrderStatus.pending &&
                   isRequester && (
@@ -543,57 +588,62 @@ export function DeliveryOrderShow({
               <div className="space-y-6">
                 {/* Existing Supply Deliveries Table */}
                 {supplyDeliveries?.results &&
-                  supplyDeliveries.results.length > 0 && (
-                    <div className="space-y-4">
-                      <SupplyDeliveryTable
-                        deliveries={supplyDeliveries.results}
-                        showCheckbox={
-                          deliveryOrder.status ===
-                            DeliveryOrderStatus.pending && isRequester
-                        }
-                        selectedDeliveries={selectedDeliveries}
-                        onDeliverySelect={(deliveryId, checked) => {
-                          if (checked) {
-                            setSelectedDeliveries([
-                              ...selectedDeliveries,
-                              deliveryId,
-                            ]);
-                          } else {
-                            setSelectedDeliveries(
-                              selectedDeliveries.filter(
-                                (id) => id !== deliveryId,
-                              ),
-                            );
-                          }
-                        }}
-                        onSelectAll={(checked) => {
-                          if (checked) {
-                            setSelectedDeliveries(
-                              supplyDeliveries.results
-                                .filter(
-                                  (d) =>
-                                    d.status ===
-                                    SupplyDeliveryStatus.in_progress,
-                                )
-                                .map((d) => d.id),
-                            );
-                          } else {
-                            setSelectedDeliveries([]);
-                          }
-                        }}
-                        internal={internal}
-                        onDeliveryClick={(delivery) => {
-                          setShowAllDeliveries(true);
-                          setSelectedProductKnowledgeDrawer(
-                            internal
-                              ? delivery.supplied_inventory_item?.product
-                                  ?.product_knowledge
-                              : delivery.supplied_item?.product_knowledge,
+                supplyDeliveries.results.length > 0 ? (
+                  <div className="space-y-4">
+                    <SupplyDeliveryTable
+                      deliveries={supplyDeliveries.results}
+                      showCheckbox={
+                        deliveryOrder.status === DeliveryOrderStatus.pending &&
+                        isRequester
+                      }
+                      selectedDeliveries={selectedDeliveries}
+                      onDeliverySelect={(deliveryId, checked) => {
+                        if (checked) {
+                          setSelectedDeliveries([
+                            ...selectedDeliveries,
+                            deliveryId,
+                          ]);
+                        } else {
+                          setSelectedDeliveries(
+                            selectedDeliveries.filter(
+                              (id) => id !== deliveryId,
+                            ),
                           );
-                        }}
-                      />
-                    </div>
-                  )}
+                        }
+                      }}
+                      onSelectAll={(checked) => {
+                        if (checked) {
+                          setSelectedDeliveries(
+                            supplyDeliveries.results
+                              .filter(
+                                (d) =>
+                                  d.status === SupplyDeliveryStatus.in_progress,
+                              )
+                              .map((d) => d.id),
+                          );
+                        } else {
+                          setSelectedDeliveries([]);
+                        }
+                      }}
+                      internal={internal}
+                      onDeliveryClick={(delivery) => {
+                        setShowAllDeliveries(true);
+                        setSelectedProductKnowledgeDrawer(
+                          internal
+                            ? delivery.supplied_inventory_item?.product
+                                ?.product_knowledge
+                            : delivery.supplied_item?.product_knowledge,
+                        );
+                      }}
+                    />
+                  </div>
+                ) : (
+                  <EmptyState
+                    icon={<Truck className="size-5 text-primary-600" />}
+                    title={t("no_deliveries_found")}
+                    description={t("no_deliveries_found_description")}
+                  />
+                )}
 
                 {/* Add New Supply Delivery Form - Always show when in draft mode */}
                 {canAddSupplyDeliveries && (
@@ -610,13 +660,23 @@ export function DeliveryOrderShow({
           </CardContent>
         </Card>
 
-        <Drawer open={showAllDeliveries} onOpenChange={setShowAllDeliveries}>
+        <Drawer
+          open={showAllDeliveries}
+          onOpenChange={(open) => {
+            setShowAllDeliveries(open);
+            if (!open) {
+              setTimeout(() => {
+                setSelectedProductKnowledgeDrawer(undefined);
+              }, 100);
+            }
+          }}
+        >
           <DrawerContent className="max-w-7xl mx-auto px-4 sm:px-16 pb-10 ">
             <DrawerHeader>
               <DrawerTitle>{t("all_deliveries")}</DrawerTitle>
             </DrawerHeader>
-            <div className="space-y-4">
-              <div className="flex items-center justify-end">
+            <div>
+              <div className="flex items-center justify-end px-4">
                 <ProductKnowledgeSelect
                   value={selectedProductKnowledgeDrawer}
                   onChange={(value) => {
@@ -626,19 +686,14 @@ export function DeliveryOrderShow({
                   disableFavorites
                 />
               </div>
-              {isLoadingAllSupplyDeliveries ? (
-                <TableSkeleton count={3} />
-              ) : allSupplyDeliveries?.results &&
-                allSupplyDeliveries.results.length > 0 ? (
-                <SupplyDeliveryTable
-                  deliveries={allSupplyDeliveries.results}
+              {deliveryOrder && (
+                <AllSupplyDeliveriesComponent
+                  facilityId={facilityId}
+                  deliveryOrder={deliveryOrder}
+                  locationId={locationId}
                   internal={internal}
-                />
-              ) : (
-                <EmptyState
-                  icon={<Truck className="size-5 text-primary-600" />}
-                  title={t("no_deliveries_found")}
-                  description={t("no_deliveries_found_description")}
+                  isRequester={isRequester}
+                  selectedProductKnowledge={selectedProductKnowledgeDrawer}
                 />
               )}
             </div>
