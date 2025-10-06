@@ -560,7 +560,7 @@ export default function RequestOrderForm({
                   : isEditMode
                     ? t("save")
                     : t("create")}
-                <ShortcutBadge actionId="submit-action" />
+                <ShortcutBadge actionId="enter-action" />
               </Button>
             </div>
           </form>

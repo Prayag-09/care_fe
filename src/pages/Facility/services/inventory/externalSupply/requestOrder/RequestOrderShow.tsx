@@ -286,6 +286,7 @@ export function RequestOrderShow({
                 disabled={isUpdating}
               >
                 {isUpdating ? t("approving") : t("approve_order")}
+                <ShortcutBadge actionId="enter-action" />
               </Button>
             )}
 

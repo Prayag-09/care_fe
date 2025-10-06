@@ -21,6 +21,7 @@ import {
   SupplyDeliveryRead,
   SupplyDeliveryStatus,
 } from "@/types/inventory/supplyDelivery/supplyDelivery";
+import { ShortcutBadge } from "@/Utils/keyboardShortcutComponents";
 
 interface SupplyDeliveryTableProps {
   deliveries: SupplyDeliveryRead[];
@@ -70,7 +71,9 @@ export function SupplyDeliveryTable({
                   onCheckedChange={(checked) => {
                     onSelectAll?.(!!checked);
                   }}
+                  data-shortcut-id="select-all"
                 />
+                <ShortcutBadge actionId="select-all" alwaysShow={false} />
               </TableHead>
             )}
             <TableHead className="border-x p-3 text-gray-700 text-sm font-medium leading-5">

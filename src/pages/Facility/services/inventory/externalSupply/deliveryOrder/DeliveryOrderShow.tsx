@@ -535,6 +535,7 @@ export function DeliveryOrderShow({
                         {isUpsertingDeliveries
                           ? t("updating")
                           : t("confirm_update_stock")}
+                        <ShortcutBadge actionId="enter-action" />
                       </Button>
                       <DropdownMenu>
                         <DropdownMenuTrigger asChild>

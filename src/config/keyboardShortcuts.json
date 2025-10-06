@@ -101,7 +101,8 @@
     { "key": "a", "action": "add-item", "description": "Add Item", "when": "always" },
     { "key": "e", "action": "edit-order", "description": "Edit Order", "when": "always" },
     { "key": "d", "action": "all-deliveries", "description": "Print Order", "when": "always" },
-    { "key": "m", "action": "mark-as", "description": "Mark as Approved/Completed", "when": "always" }
+    { "key": "m", "action": "mark-as", "description": "Mark as Approved/Completed", "when": "always" },
+    { "key": "shift+a", "action": "select-all", "description": "Select All Deliveries", "when": "always" }
 
   ],
   "facility:inventory:delivery": [
