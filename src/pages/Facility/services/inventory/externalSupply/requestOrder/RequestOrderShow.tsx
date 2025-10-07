@@ -303,7 +303,7 @@ export function RequestOrderShow({
                     `new?supplyOrder=${requestOrderId}`,
                   )}
                 >
-                  {t("create_supply_delivery")}
+                  {t("create_delivery_order")}
                   <ShortcutBadge actionId="create-order" />
                 </Link>
               </Button>
