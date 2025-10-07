@@ -532,6 +532,7 @@ export function AddSupplyDeliveryForm({
                   onCheckedChange={(checked) =>
                     handleSelectAll(checked as boolean)
                   }
+                  data-shortcut-id="select-all"
                 />
                 <label
                   htmlFor="select-all"
@@ -580,7 +581,7 @@ export function AddSupplyDeliveryForm({
                 disabled={selectedItems.length === 0}
               >
                 {t("done")}
-                <ShortcutBadge actionId="confirm-load-from-order" />
+                <ShortcutBadge actionId="enter-action" />
               </Button>
             </DialogFooter>
           </DialogContent>
