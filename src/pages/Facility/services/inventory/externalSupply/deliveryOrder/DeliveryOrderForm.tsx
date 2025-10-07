@@ -406,7 +406,7 @@ export default function DeliveryOrderForm({
                   : isEditMode
                     ? t("save")
                     : t("create")}
-                <ShortcutBadge actionId="confirm-action" />
+                <ShortcutBadge actionId="enter-action" />
               </Button>
             </div>
           </form>
