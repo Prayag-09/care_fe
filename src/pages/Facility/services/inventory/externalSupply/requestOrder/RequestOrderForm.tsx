@@ -274,6 +274,7 @@ export default function RequestOrderForm({
                             className="h-9"
                             placeholder={t("enter_order_name")}
                             {...field}
+                            autoFocus
                           />
                         </FormControl>
                         <FormMessage />
@@ -560,7 +561,7 @@ export default function RequestOrderForm({
                   : isEditMode
                     ? t("save")
                     : t("create")}
-                <ShortcutBadge actionId="enter-action" />
+                <ShortcutBadge actionId="confirm-action" />
               </Button>
             </div>
           </form>

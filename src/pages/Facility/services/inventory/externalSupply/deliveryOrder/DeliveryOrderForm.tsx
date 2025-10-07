@@ -304,6 +304,7 @@ export default function DeliveryOrderForm({
                             className="h-9"
                             placeholder={t("enter_order_name")}
                             {...field}
+                            autoFocus
                           />
                         </FormControl>
                         <FormMessage />
@@ -442,7 +443,7 @@ export default function DeliveryOrderForm({
                   : isEditMode
                     ? t("save")
                     : t("create")}
-                <ShortcutBadge actionId="enter-action" />
+                <ShortcutBadge actionId="confirm-action" />
               </Button>
             </div>
           </form>

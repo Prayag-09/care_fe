@@ -283,10 +283,10 @@ export function RequestOrderShow({
             {canAddSupplyRequests && (
               <Button
                 onClick={() => updateOrderStatus(RequestOrderStatus.pending)}
-                disabled={isUpdating}
+                disabled={isUpdating || supplyRequests?.results.length === 0}
               >
-                {isUpdating ? t("approving") : t("approve_order")}
-                <ShortcutBadge actionId="enter-action" />
+                {isUpdating ? t("approving") : t("mark_as_approved")}
+                <ShortcutBadge actionId="mark-as" />
               </Button>
             )}
 
@@ -499,17 +499,6 @@ export function RequestOrderShow({
                 </div>
               </div>
             </div>
-
-            {requestOrder.note && (
-              <div className="pt-3">
-                <label className="text-sm font-medium text-gray-700">
-                  {t("note")}
-                </label>
-                <p className="text-sm whitespace-pre-wrap">
-                  {requestOrder.note}
-                </p>
-              </div>
-            )}
           </CardContent>
         </Card>
 

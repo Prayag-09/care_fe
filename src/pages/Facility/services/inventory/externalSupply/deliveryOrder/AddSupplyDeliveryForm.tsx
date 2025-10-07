@@ -214,7 +214,47 @@ export function AddSupplyDeliveryForm({
     // Set ref to the newly added item's product knowledge select
   };
 
+  const validateFormWithToasts = useCallback(
+    (data: FormValues) => {
+      let hasErrors = false;
+
+      if (data.items.length === 0) {
+        toast.error(t("at_least_one_item_required"));
+        return false;
+      }
+
+      // Validate each item
+      for (const [_index, item] of data.items.entries()) {
+        if (!item.product_knowledge?.slug) {
+          toast.error(t("select_product"));
+          hasErrors = true;
+          break;
+        }
+
+        if (origin) {
+          if (!item.supplied_inventory_item) {
+            toast.error(t("select_stock"));
+            hasErrors = true;
+            break;
+          }
+        }
+
+        if (!origin && !item.supplied_item) {
+          toast.error(t("select_product"));
+          hasErrors = true;
+          break;
+        }
+      }
+
+      return !hasErrors;
+    },
+    [origin, t],
+  );
+
   function onSubmit(data: FormValues) {
+    if (!validateFormWithToasts(data)) {
+      return;
+    }
     upsertDelivery({
       datapoints: data.items.map((item) => ({
         status: SupplyDeliveryStatus.in_progress,
@@ -358,7 +398,7 @@ export function AddSupplyDeliveryForm({
                                       )}
                                       enableSearch={true}
                                       multiSelect={false}
-                                      className="w-full"
+                                      className="w-full h-9"
                                     />
                                   </FormControl>
                                   <FormMessage />

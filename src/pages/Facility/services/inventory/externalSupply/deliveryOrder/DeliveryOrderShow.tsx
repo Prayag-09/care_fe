@@ -405,7 +405,7 @@ export function DeliveryOrderShow({
                 onClick={() =>
                   handleUpdateDeliveryOrderStatus(DeliveryOrderStatus.pending)
                 }
-                disabled={isUpdating}
+                disabled={isUpdating || supplyDeliveries?.results.length === 0}
               >
                 {isUpdating ? t("updating") : t("mark_as_approved")}
                 <ShortcutBadge actionId="mark-as" />
@@ -535,7 +535,7 @@ export function DeliveryOrderShow({
                         {isUpsertingDeliveries
                           ? t("updating")
                           : t("confirm_update_stock")}
-                        <ShortcutBadge actionId="confirm-action" />
+                        <ShortcutBadge actionId="confirm-load-from-order" />
                       </Button>
                       <DropdownMenu>
                         <DropdownMenuTrigger asChild>
