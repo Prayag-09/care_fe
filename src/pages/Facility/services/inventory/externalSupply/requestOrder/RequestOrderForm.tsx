@@ -37,8 +37,10 @@ import { FormSkeleton } from "@/components/Common/SkeletonLoading";
 
 import BackButton from "@/components/Common/BackButton";
 import Autocomplete from "@/components/ui/autocomplete";
+import { Badge } from "@/components/ui/badge";
 import { getInventoryBasePath } from "@/pages/Facility/services/inventory/externalSupply/utils/inventoryUtils";
 import {
+  REQUEST_ORDER_STATUS_COLORS,
   RequestOrderCategory,
   RequestOrderIntent,
   RequestOrderPriority,
@@ -60,7 +62,6 @@ const createRequestOrderFormSchema = (
   internal: boolean,
 ) =>
   z.object({
-    status: z.nativeEnum(RequestOrderStatus),
     name: z.string().min(1, t("name_is_required")),
     note: z.string().optional(),
     intent: z.nativeEnum(RequestOrderIntent),
@@ -164,7 +165,6 @@ export default function RequestOrderForm({
   const form = useForm<FormValues>({
     resolver: zodResolver(createRequestOrderFormSchema(t, internal)),
     defaultValues: {
-      status: RequestOrderStatus.draft,
       name: "",
       note: "",
       intent: RequestOrderIntent.order,
@@ -180,7 +180,6 @@ export default function RequestOrderForm({
   useEffect(() => {
     if (isEditMode && existingData) {
       form.reset({
-        status: existingData.status,
         name: existingData.name,
         note: existingData.note || "",
         intent: existingData.intent,
@@ -226,9 +225,13 @@ export default function RequestOrderForm({
       updateRequestOrder({
         ...data,
         id: requestOrderId,
+        status: existingData?.status || RequestOrderStatus.draft,
       });
     } else {
-      createRequestOrder(data);
+      createRequestOrder({
+        ...data,
+        status: RequestOrderStatus.draft,
+      });
     }
   }
 
@@ -251,7 +254,18 @@ export default function RequestOrderForm({
     <Page title={title} hideTitleOnPage shortCutContext="facility:inventory">
       <div className="container mx-auto max-w-5xl">
         <div className="flex justify-between items-center mb-6">
-          <h1 className="text-xl font-semibold text-gray-900">{title}</h1>
+          <h1 className="text-xl font-semibold text-gray-900 flex items-center gap-2">
+            {title}
+            <Badge
+              variant={
+                REQUEST_ORDER_STATUS_COLORS[
+                  existingData?.status || RequestOrderStatus.draft
+                ]
+              }
+            >
+              {t(existingData?.status || RequestOrderStatus.draft)}
+            </Badge>
+          </h1>
           <BackButton variant="outline" size="icon">
             <X className="size-5" />
             <span className="sr-only">{t("close")}</span>
@@ -346,93 +360,6 @@ export default function RequestOrderForm({
                     </FormItem>
                   )}
                 />
-
-                <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
-                  <FormField
-                    control={form.control}
-                    name="status"
-                    render={({ field }) => (
-                      <FormItem>
-                        <FormLabel>{t("status")}</FormLabel>
-
-                        <FormControl>
-                          <RadioGroup
-                            onValueChange={field.onChange}
-                            defaultValue={field.value}
-                            value={field.value}
-                            className="flex flex-col sm:flex-row gap-2"
-                          >
-                            {(isEditMode
-                              ? [
-                                  RequestOrderStatus.pending,
-                                  RequestOrderStatus.abandoned,
-                                  RequestOrderStatus.entered_in_error,
-                                ]
-                              : [
-                                  RequestOrderStatus.draft,
-                                  RequestOrderStatus.pending,
-                                ]
-                            ).map((status) => (
-                              <div
-                                key={status}
-                                className={cn(
-                                  "flex items-center space-x-2 rounded-md border border-gray-200 bg-white p-2",
-                                  field.value === status &&
-                                    "border-primary bg-primary/10",
-                                )}
-                              >
-                                <RadioGroupItem value={status} id={status} />
-                                <Label htmlFor={status}>{t(status)}</Label>
-                              </div>
-                            ))}
-                          </RadioGroup>
-                        </FormControl>
-
-                        <FormMessage />
-                      </FormItem>
-                    )}
-                  />
-
-                  <FormField
-                    control={form.control}
-                    name="priority"
-                    render={({ field }) => (
-                      <FormItem>
-                        <FormLabel>{t("priority")}</FormLabel>
-                        <FormControl>
-                          <RadioGroup
-                            onValueChange={field.onChange}
-                            defaultValue={field.value}
-                            value={field.value}
-                            className="flex flex-col sm:flex-row gap-2"
-                          >
-                            {Object.values(RequestOrderPriority).map(
-                              (priority) => (
-                                <div
-                                  key={priority}
-                                  className={cn(
-                                    "flex items-center space-x-2 rounded-md border border-gray-200 bg-white p-2",
-                                    field.value === priority &&
-                                      "border-primary bg-primary/10",
-                                  )}
-                                >
-                                  <RadioGroupItem
-                                    value={priority}
-                                    id={priority}
-                                  />
-                                  <Label htmlFor={priority}>
-                                    {t(priority)}
-                                  </Label>
-                                </div>
-                              ),
-                            )}
-                          </RadioGroup>
-                        </FormControl>
-                        <FormMessage />
-                      </FormItem>
-                    )}
-                  />
-                </div>
 
                 <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
                   <FormField

@@ -94,7 +94,10 @@ function AllSupplyDeliveriesComponent({
                 origin: deliveryOrder.origin?.id,
                 destination: locationId,
               }
-            : { origin: locationId }),
+            : {
+                origin: locationId,
+                destination: deliveryOrder.destination?.id,
+              }),
         }
       : {
           supplier: deliveryOrder?.supplier?.id,

@@ -8,8 +8,6 @@ import { useTranslation } from "react-i18next";
 import { toast } from "sonner";
 import { z } from "zod";
 
-import { cn } from "@/lib/utils";
-
 import { Button } from "@/components/ui/button";
 import { Card, CardContent } from "@/components/ui/card";
 import {
@@ -21,8 +19,6 @@ import {
   FormMessage,
 } from "@/components/ui/form";
 import { Input } from "@/components/ui/input";
-import { Label } from "@/components/ui/label";
-import { RadioGroup, RadioGroupItem } from "@/components/ui/radio-group";
 import { Textarea } from "@/components/ui/textarea";
 
 import Page from "@/components/Common/Page";
@@ -30,8 +26,10 @@ import { FormSkeleton } from "@/components/Common/SkeletonLoading";
 
 import BackButton from "@/components/Common/BackButton";
 import Autocomplete from "@/components/ui/autocomplete";
+import { Badge } from "@/components/ui/badge";
 import { getInventoryBasePath } from "@/pages/Facility/services/inventory/externalSupply/utils/inventoryUtils";
 import {
+  DELIVERY_ORDER_STATUS_COLORS,
   DeliveryOrderRetrieve,
   DeliveryOrderStatus,
 } from "@/types/inventory/deliveryOrder/deliveryOrder";
@@ -50,7 +48,6 @@ const createDeliveryOrderFormSchema = (
   internal: boolean,
 ) =>
   z.object({
-    status: z.nativeEnum(DeliveryOrderStatus),
     name: z.string().min(1, t("name_is_required")),
     note: z.string().optional(),
     supplier: internal
@@ -166,7 +163,6 @@ export default function DeliveryOrderForm({
   const form = useForm<FormValues>({
     resolver: zodResolver(createDeliveryOrderFormSchema(t, internal)),
     defaultValues: {
-      status: DeliveryOrderStatus.draft,
       name: "",
       note: "",
       supplier: undefined,
@@ -178,7 +174,6 @@ export default function DeliveryOrderForm({
   useEffect(() => {
     if (isEditMode && existingData) {
       form.reset({
-        status: existingData.status,
         name: existingData.name,
         note: existingData.note || "",
         supplier: existingData.supplier?.id || undefined,
@@ -188,7 +183,6 @@ export default function DeliveryOrderForm({
     } else if (!isEditMode && supplyOrderData) {
       // Prefill form with supply order data
       form.reset({
-        status: DeliveryOrderStatus.draft,
         name: supplyOrderData.name,
         note: supplyOrderData.note || "",
         supplier: supplyOrderData.supplier?.id || undefined,
@@ -249,9 +243,13 @@ export default function DeliveryOrderForm({
       updateDeliveryOrder({
         ...data,
         id: deliveryOrderId,
+        status: existingData?.status || DeliveryOrderStatus.draft,
       });
     } else {
-      createDeliveryOrder(data);
+      createDeliveryOrder({
+        ...data,
+        status: DeliveryOrderStatus.draft,
+      });
     }
   }
 
@@ -281,7 +279,18 @@ export default function DeliveryOrderForm({
     >
       <div className="container mx-auto max-w-5xl">
         <div className="flex justify-between items-center mb-6">
-          <h1 className="text-xl font-semibold text-gray-900">{title}</h1>
+          <h1 className="text-xl font-semibold text-gray-900 flex items-center gap-2">
+            {title}
+            <Badge
+              variant={
+                DELIVERY_ORDER_STATUS_COLORS[
+                  existingData?.status || DeliveryOrderStatus.draft
+                ]
+              }
+            >
+              {t(existingData?.status || DeliveryOrderStatus.draft)}
+            </Badge>
+          </h1>
           <BackButton variant="outline" size="icon">
             <X className="size-5" />
             <span className="sr-only">{t("close")}</span>
@@ -377,52 +386,6 @@ export default function DeliveryOrderForm({
                     </FormItem>
                   )}
                 />
-
-                <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
-                  <FormField
-                    control={form.control}
-                    name="status"
-                    render={({ field }) => (
-                      <FormItem>
-                        <FormLabel>{t("status")}</FormLabel>
-
-                        <FormControl>
-                          <RadioGroup
-                            onValueChange={field.onChange}
-                            defaultValue={field.value}
-                            value={field.value}
-                            className="flex flex-col sm:flex-row gap-2"
-                          >
-                            {(isEditMode
-                              ? [
-                                  DeliveryOrderStatus.abandoned,
-                                  DeliveryOrderStatus.entered_in_error,
-                                ]
-                              : [
-                                  DeliveryOrderStatus.draft,
-                                  DeliveryOrderStatus.pending,
-                                ]
-                            ).map((status) => (
-                              <div
-                                key={status}
-                                className={cn(
-                                  "flex items-center space-x-2 rounded-md border border-gray-200 bg-white p-2",
-                                  field.value === status &&
-                                    "border-primary bg-primary/10",
-                                )}
-                              >
-                                <RadioGroupItem value={status} id={status} />
-                                <Label htmlFor={status}>{t(status)}</Label>
-                              </div>
-                            ))}
-                          </RadioGroup>
-                        </FormControl>
-
-                        <FormMessage />
-                      </FormItem>
-                    )}
-                  />
-                </div>
               </CardContent>
             </Card>
 
