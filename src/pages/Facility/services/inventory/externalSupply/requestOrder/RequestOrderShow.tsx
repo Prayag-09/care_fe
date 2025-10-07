@@ -94,24 +94,22 @@ function AllSupplyDeliveriesComponent({
     });
 
   return (
-    <div className="pt-2">
-      <div className="space-y-4 max-h-[68vh] overflow-y-auto px-4 pt-4">
-        {isLoadingAllSupplyDeliveries ? (
-          <TableSkeleton count={3} />
-        ) : allSupplyDeliveries?.results &&
-          allSupplyDeliveries.results.length > 0 ? (
-          <SupplyDeliveryTable
-            deliveries={allSupplyDeliveries.results}
-            internal={internal}
-          />
-        ) : (
-          <EmptyState
-            icon={<Truck className="text-primary size-5" />}
-            title={t("no_deliveries_found")}
-            description={t("deliveries_will_appear_here")}
-          />
-        )}
-      </div>
+    <div className="space-y-4 max-h-[68vh] overflow-y-auto px-4 pt-4">
+      {isLoadingAllSupplyDeliveries ? (
+        <TableSkeleton count={3} />
+      ) : allSupplyDeliveries?.results &&
+        allSupplyDeliveries.results.length > 0 ? (
+        <SupplyDeliveryTable
+          deliveries={allSupplyDeliveries.results}
+          internal={internal}
+        />
+      ) : (
+        <EmptyState
+          icon={<Truck className="text-primary size-5" />}
+          title={t("no_deliveries_found")}
+          description={t("deliveries_will_appear_here")}
+        />
+      )}
     </div>
   );
 }
@@ -134,7 +132,7 @@ export function RequestOrderShow({
   const [selectedProductKnowledge, setSelectedProductKnowledge] =
     useState<ProductKnowledgeBase>();
   const [currentTab, setCurrentTab] = useState<
-    "supply-requests" | "supply-deliveries" | "all-deliveries"
+    "supply-requests" | "delivery-orders" | "all-supply-deliveries"
   >("supply-requests");
 
   const showMoreAfterIndex = useBreakpoints({
@@ -173,7 +171,7 @@ export function RequestOrderShow({
           status: [SupplyDeliveryStatus.completed],
         },
       }),
-      enabled: !!requestOrderId && currentTab === "supply-deliveries",
+      enabled: !!requestOrderId && currentTab === "delivery-orders",
     },
   );
 
@@ -572,8 +570,8 @@ export function RequestOrderShow({
                 ),
               },
 
-              "supply-deliveries": {
-                label: t("supply_deliveries"),
+              "delivery-orders": {
+                label: t("delivery_orders"),
                 component: (
                   <div>
                     {isLoadingDeliveryOrders ? (
@@ -591,7 +589,7 @@ export function RequestOrderShow({
                     ) : (
                       <EmptyState
                         icon={<Box className="text-primary size-5" />}
-                        title={t("no_supply_deliveries_found")}
+                        title={t("no_delivery_orders_found")}
                         description={t("deliveries_will_appear_here")}
                       />
                     )}
@@ -599,11 +597,11 @@ export function RequestOrderShow({
                 ),
               },
 
-              "all-deliveries": {
-                label: t("all_deliveries"),
+              "all-supply-deliveries": {
+                label: t("all_supply_deliveries"),
                 component: (
                   <div>
-                    <div className="flex justify-end pb-2 px-4">
+                    <div className="flex justify-end px-4">
                       <ProductKnowledgeSelect
                         value={selectedProductKnowledge}
                         onChange={(value) => {
@@ -617,6 +615,7 @@ export function RequestOrderShow({
                       facilityId={facilityId}
                       requestOrderId={requestOrderId}
                       internal={internal}
+                      selectedProductKnowledge={selectedProductKnowledge}
                     />
                   </div>
                 ),
