@@ -630,8 +630,10 @@ export function ChargeItemDefinitionForm({
       slug_value: initialData?.slug_config.slug_value || "",
       category: isUpdate
         ? initialData?.category.slug || ""
-        : categorySlug || "",
-      _categoryName: isUpdate ? initialData?.category.title || "" : "",
+        : initialData?.category.slug || categorySlug || "",
+      _categoryName: isUpdate
+        ? initialData?.category.title || ""
+        : initialData?.category.title || "",
       status: initialData?.status || ChargeItemDefinitionStatus.active,
 
       // Additional details
