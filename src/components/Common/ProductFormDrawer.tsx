@@ -247,6 +247,7 @@ export function ProductFormDrawer({
                             placeholder="Select charge item definition"
                             className="w-full h-11 text-base"
                             showCreateButton={true}
+                            showCopyButton={true}
                           />
                         </FormControl>
                         <FormMessage />

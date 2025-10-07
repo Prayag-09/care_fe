@@ -19,6 +19,7 @@ interface ChargeItemDefinitionDrawerProps {
   onOpenChange: (open: boolean) => void;
   facilityId: string;
   categorySlug?: string;
+  initialData?: ChargeItemDefinitionRead;
   onSuccess?: (chargeItemDefinition: ChargeItemDefinitionRead) => void;
 }
 
@@ -27,6 +28,7 @@ export function ChargeItemDefinitionDrawer({
   onOpenChange,
   facilityId,
   categorySlug,
+  initialData,
   onSuccess,
 }: ChargeItemDefinitionDrawerProps) {
   const { t } = useTranslation();
@@ -55,10 +57,14 @@ export function ChargeItemDefinitionDrawer({
               </Button>
             </DrawerClose>
             <DrawerTitle className="text-left">
-              {t("create_charge_item_definition")}
+              {initialData
+                ? t("copy_charge_item_definition")
+                : t("create_charge_item_definition")}
             </DrawerTitle>
             <DrawerDescription className="text-left">
-              {t("create_charge_item_definition_description")}
+              {initialData
+                ? t("copy_charge_item_definition_description")
+                : t("create_charge_item_definition_description")}
             </DrawerDescription>
           </div>
         </DrawerHeader>
@@ -68,7 +74,8 @@ export function ChargeItemDefinitionDrawer({
             <div className="bg-gray-100 rounded-lg p-4">
               <ChargeItemDefinitionForm
                 facilityId={facilityId}
-                categorySlug={categorySlug}
+                categorySlug={initialData ? undefined : categorySlug}
+                initialData={initialData}
                 minimal={true}
                 onSuccess={handleCreateSuccess}
                 onCancel={handleCancel}
