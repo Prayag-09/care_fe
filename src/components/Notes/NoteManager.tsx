@@ -1,12 +1,4 @@
 import {
-  useInfiniteQuery,
-  useMutation,
-  useQuery,
-  useQueryClient,
-} from "@tanstack/react-query";
-import { formatRelative } from "date-fns";
-import {
-  Info,
   Loader2,
   MessageCircle,
   MessageSquare,
@@ -15,28 +7,14 @@ import {
   Send,
   Users,
 } from "lucide-react";
-import { Link, usePathParams } from "raviger";
-import { useEffect, useMemo, useRef, useState } from "react";
+import { useCallback, useEffect, useMemo, useRef, useState } from "react";
 import { useTranslation } from "react-i18next";
 import { useInView } from "react-intersection-observer";
-import { toast } from "sonner";
 
 import { cn } from "@/lib/utils";
 
 import { AutoExpandingTextarea } from "@/components/ui/auto-expanding-textarea";
-import { Badge } from "@/components/ui/badge";
 import { Button } from "@/components/ui/button";
-import {
-  Dialog,
-  DialogClose,
-  DialogContent,
-  DialogDescription,
-  DialogFooter,
-  DialogHeader,
-  DialogTitle,
-} from "@/components/ui/dialog";
-import { Input } from "@/components/ui/input";
-import { Markdown } from "@/components/ui/markdown";
 import { ScrollArea } from "@/components/ui/scroll-area";
 import {
   Sheet,
@@ -46,286 +24,19 @@ import {
 } from "@/components/ui/sheet";
 import { TooltipComponent } from "@/components/ui/tooltip";
 
-import { Avatar } from "@/components/Common/Avatar";
 import Loading from "@/components/Common/Loading";
 import { CardListSkeleton } from "@/components/Common/SkeletonLoading";
 
+import { MessageItem } from "@/components/Notes/MessageItem";
+import { MobileNav } from "@/components/Notes/MobileNav";
+import { NewThreadDialog } from "@/components/Notes/NewThreadDialog";
+import { ThreadItem } from "@/components/Notes/ThreadItem";
+import { useMessages } from "@/components/Notes/hooks/useMessages";
+import { useThreads } from "@/components/Notes/hooks/useThreads";
+
 import { useIsMobile } from "@/hooks/use-mobile";
-import useAuthUser from "@/hooks/useAuthUser";
 
-import mutate from "@/Utils/request/mutate";
-import query from "@/Utils/request/query";
-import { PaginatedResponse } from "@/Utils/request/types";
-import { formatDateTime, formatName, isTouchDevice } from "@/Utils/utils";
-import patientApi from "@/types/emr/patient/patientApi";
-import { Message } from "@/types/notes/messages";
-import { Thread } from "@/types/notes/threads";
-
-const MESSAGES_LIMIT = 20;
-
-// Thread templates for quick selection
-
-const threadTemplates = [
-  "Treatment Plan",
-  "Medication Notes",
-  "Care Coordination",
-  "General Notes",
-  "Patient History",
-  "Referral Notes",
-  "Lab Results Discussion",
-] as const;
-
-// Info tooltip component for help text
-const InfoTooltip = ({ content }: { content: string }) => (
-  <TooltipComponent content={content}>
-    <Info className="size-4 text-gray-500 hover:text-primary cursor-help" />
-  </TooltipComponent>
-);
-
-// Thread item component
-const ThreadItem = ({
-  thread,
-  isSelected,
-  onClick,
-}: {
-  thread: Thread;
-  isSelected: boolean;
-  onClick: () => void;
-}) => (
-  <button
-    className={cn(
-      "group relative w-full p-4 text-left rounded-lg transition-colors border",
-      isSelected
-        ? "bg-primary-100 hover:bg-primary/15 border-primary"
-        : "hover:bg-gray-100 hover:border-gray-200",
-    )}
-    onClick={onClick}
-    data-cy="thread-title"
-  >
-    <div className="flex items-start justify-between gap-3">
-      <div className="flex-1 min-w-0">
-        <h4 className="font-medium text-sm truncate">{thread.title}</h4>
-      </div>
-      {isSelected && (
-        <div className="w-1.5 h-1.5 rounded-full bg-primary animate-pulse mt-1.5" />
-      )}
-    </div>
-  </button>
-);
-
-// Message item component
-
-function MessageItem({
-  message,
-  className,
-  ...props
-}: React.ComponentProps<"div"> & { message: Message }) {
-  const authUser = useAuthUser();
-  const { facilityId } = usePathParams("/facility/:facilityId/*") ?? {};
-  const isCurrentUser = authUser?.id === message.created_by.id;
-
-  return (
-    <div
-      className={cn(
-        "flex w-full mb-4 animate-in fade-in-0 slide-in-from-bottom-4",
-        isCurrentUser ? "justify-end" : "justify-start",
-        className,
-      )}
-      {...props}
-    >
-      <div
-        className={cn(
-          "flex max-w-[80%] items-start gap-3",
-          isCurrentUser ? "flex-row-reverse" : "flex-row",
-        )}
-      >
-        <TooltipComponent content={message.created_by?.username}>
-          <Link
-            href={
-              facilityId
-                ? `/facility/${facilityId}/users/${message.created_by?.username}`
-                : `/users/${message.created_by?.username}`
-            }
-          >
-            <span className="flex pr-2">
-              <Avatar
-                name={formatName(message.created_by)}
-                imageUrl={message.created_by?.profile_picture_url}
-                className="size-8 rounded-full object-cover ring-1 ring-transparent hover:ring-red-200 transition"
-              />
-            </span>
-          </Link>
-        </TooltipComponent>
-        <div
-          className={cn(
-            "p-3 rounded-lg break-words whitespace-pre-wrap w-full max-w-xs sm:max-w-sm md:max-w-md lg:max-w-lg",
-            isCurrentUser
-              ? "bg-white text-black rounded-tr-none border border-gray-200"
-              : "bg-gray-100 rounded-tl-none border border-gray-200",
-          )}
-        >
-          <p className="text-xs space-x-2 mb-1">
-            <span className="text-gray-700 font-medium">
-              {formatName(message.created_by)}
-            </span>
-            <time
-              className="text-gray-500"
-              dateTime={message.created_date}
-              title={formatDateTime(message.created_date)}
-            >
-              {formatRelative(message.created_date, new Date())}
-            </time>
-          </p>
-          <div
-            className={cn(
-              "p-3 rounded-lg break-words",
-              isCurrentUser
-                ? "bg-white text-black rounded-tr-none border border-gray-200"
-                : "bg-gray-100 rounded-tl-none border border-gray-200",
-            )}
-          >
-            {message.message && (
-              <Markdown content={message.message} className="text-sm" />
-            )}
-          </div>
-        </div>
-      </div>
-    </div>
-  );
-}
-
-// New thread dialog component
-const NewThreadDialog = ({
-  isOpen,
-  onClose,
-  onCreate,
-  isCreating,
-  threadsUnused,
-}: {
-  isOpen: boolean;
-  onClose: () => void;
-  onCreate: (title: string) => void;
-  isCreating: boolean;
-  threadsUnused: string[];
-}) => {
-  const { t } = useTranslation();
-  const [title, setTitle] = useState("");
-  useEffect(() => {
-    if (isOpen) {
-      setTitle("");
-    }
-  }, [isOpen]);
-
-  return (
-    <Dialog
-      open={isOpen}
-      onOpenChange={(open) => {
-        if (!open) {
-          setTitle("");
-          onClose();
-        }
-      }}
-    >
-      <DialogContent className="sm:max-w-md">
-        <DialogHeader>
-          <DialogTitle className="flex items-center gap-2">
-            {t("notes__start_new_discussion")}
-            <InfoTooltip content={t("notes__create_discussion")} />
-          </DialogTitle>
-          <DialogDescription className="text-sm text-left">
-            {threadsUnused.length === 0
-              ? t("notes__no_unused_threads")
-              : t("notes__choose_template")}
-          </DialogDescription>
-        </DialogHeader>
-
-        <div className="space-y-4">
-          <div className="flex flex-wrap gap-2">
-            {threadsUnused.map((template) => (
-              <Badge
-                key={template}
-                variant="primary"
-                className="cursor-pointer hover:bg-primary/10"
-                onClick={() => setTitle(template)}
-              >
-                {template}
-              </Badge>
-            ))}
-          </div>
-
-          <div className="space-y-2">
-            <Input
-              placeholder={t("notes__enter_discussion_title")}
-              value={title}
-              onChange={(e) => setTitle(e.target.value)}
-              data-cy="new-thread-title-input"
-            />
-          </div>
-        </div>
-
-        <DialogFooter>
-          <DialogClose asChild disabled={isCreating}>
-            <Button variant="outline">{t("cancel")}</Button>
-          </DialogClose>
-
-          <Button
-            onClick={() => onCreate(title)}
-            disabled={!title.trim() || isCreating}
-            data-cy="create-thread-button"
-          >
-            {isCreating ? (
-              <Loader2 className="size-4 animate-spin mr-2" />
-            ) : (
-              <MessageSquarePlus className="size-4 mr-2" />
-            )}
-            {t("create")}
-          </Button>
-        </DialogFooter>
-      </DialogContent>
-    </Dialog>
-  );
-};
-
-// Mobile navigation component
-const MobileNav = ({
-  threadsCount,
-  onOpenThreads,
-  onNewThread,
-  canWrite,
-}: {
-  threadsCount: number;
-  onOpenThreads: () => void;
-  onNewThread: () => void;
-  canWrite: boolean;
-}) => {
-  const { t } = useTranslation();
-  return (
-    <div className="lg:hidden fixed bottom-0 left-0 right-0 border-t border-gray-200 bg-white p-2 flex items-center justify-around z-50 divide-x">
-      <Button
-        variant="ghost"
-        size="sm"
-        onClick={onOpenThreads}
-        className="flex-1 flex flex-col items-center gap-1 h-auto py-2 rounded-none"
-      >
-        <MessageCircle className="size-5" />
-        <span className="text-xs">
-          {t("threads")}({threadsCount})
-        </span>
-      </Button>
-      {canWrite && (
-        <Button
-          variant="ghost"
-          size="sm"
-          onClick={onNewThread}
-          className="flex-1 flex flex-col items-center gap-1 h-auto py-2 rounded-none"
-        >
-          <MessageSquarePlus className="size-5" />
-          <span className="text-xs">{t("new_thread")}</span>
-        </Button>
-      )}
-    </div>
-  );
-};
+import { isTouchDevice } from "@/Utils/utils";
 
 interface NoteManagerProps {
   canAccess: boolean;
@@ -343,116 +54,59 @@ export function NoteManager({
   hideEncounterNotes = false,
 }: NoteManagerProps) {
   const { t } = useTranslation();
-  const queryClient = useQueryClient();
   const [selectedThread, setSelectedThread] = useState<string | null>(null);
   const [isThreadsExpanded, setIsThreadsExpanded] = useState(false);
   const [showNewThreadDialog, setShowNewThreadDialog] = useState(false);
   const [newMessage, setNewMessage] = useState("");
   const messagesEndRef = useRef<HTMLDivElement>(null);
-  // points to the first message fetched in the last page or the newly created message
   const recentMessageRef = useRef<HTMLDivElement | null>(null);
   const { ref, inView } = useInView();
   const [commentAdded, setCommentAdded] = useState(false);
   const isMobile = useIsMobile();
 
-  // Fetch threads
-  const { data: threadsData, isLoading: threadsLoading } = useQuery({
-    queryKey: ["threads", encounterId],
-    queryFn: query(patientApi.listThreads, {
-      pathParams: { patientId: patientId },
-      queryParams: {
-        ...(hideEncounterNotes
-          ? { encounter_isnull: "true" }
-          : encounterId && { encounter: encounterId }),
-      },
-    }),
-    enabled: canAccess,
+  const { threadsData, threadsLoading, unusedTemplates } = useThreads({
+    patientId,
+    encounterId,
+    hideEncounterNotes,
+    canAccess,
   });
 
-  // Fetch messages with infinite scroll
   const {
-    data: messagesData,
-    isLoading: messagesLoading,
+    messagesData,
+    messagesLoading,
     hasNextPage,
     fetchNextPage,
     isFetchingNextPage,
-  } = useInfiniteQuery<PaginatedResponse<Message>>({
-    queryKey: ["messages", selectedThread],
-    queryFn: async ({ pageParam = 0 }) => {
-      const response = await query(patientApi.getMessages, {
-        pathParams: {
-          patientId,
-          threadId: selectedThread!,
-        },
-        queryParams: {
-          limit: String(MESSAGES_LIMIT),
-          offset: String(pageParam),
-        },
-      })({ signal: new AbortController().signal });
-      return response as PaginatedResponse<Message>;
-    },
-    initialPageParam: 0,
-    getNextPageParam: (lastPage, allPages) => {
-      const currentOffset = allPages.length * MESSAGES_LIMIT;
-      return currentOffset < lastPage.count ? currentOffset : null;
-    },
-    enabled: !!selectedThread && canAccess,
-  });
-
-  // reset selected thread when encounter changes
-  useEffect(() => {
-    setSelectedThread(null);
-  }, [encounterId]);
-
-  // Create thread mutation
-  const createThreadMutation = useMutation({
-    mutationFn: mutate(patientApi.createThread, {
-      pathParams: { patientId },
-    }),
-    onSuccess: (newThread) => {
-      queryClient.invalidateQueries({ queryKey: ["threads"] });
+    createThreadMutation,
+    createMessageMutation,
+  } = useMessages({
+    patientId,
+    encounterId,
+    selectedThread,
+    canAccess,
+    onThreadCreated: (threadId) => {
       setShowNewThreadDialog(false);
-      setSelectedThread((newThread as Thread).id);
-      toast.success(t("notes__thread_created"));
+      setSelectedThread(threadId);
     },
-    onError: () => {
-      toast.error(t("notes__failed_create_thread"));
-    },
-  });
-
-  // Create message mutation
-  const createMessageMutation = useMutation({
-    mutationFn: mutate(patientApi.postMessage, {
-      pathParams: { patientId, threadId: selectedThread! },
-    }),
-    onSuccess: () => {
-      queryClient.invalidateQueries({ queryKey: ["messages", selectedThread] });
+    onMessageCreated: () => {
       setNewMessage("");
       setCommentAdded(true);
     },
   });
 
-  const [threads, setThreads] = useState<string[]>([...threadTemplates]);
-
-  // Auto-select first thread
+  useEffect(() => {
+    setSelectedThread(null);
+  }, [encounterId]);
 
   useEffect(() => {
-    if (threadsData?.results.length) {
-      if (!selectedThread) setSelectedThread(threadsData.results[0].id);
-      const threadTitles = threadsData.results.map((thread) => thread.title);
-      setThreads(
-        threads.filter((template) => !threadTitles.includes(template)),
-      );
+    if (threadsData?.results.length && !selectedThread) {
+      setSelectedThread(threadsData.results[0].id);
     }
   }, [threadsData, selectedThread]);
-
-  // hack to scroll to bottom on initial load
 
   useEffect(() => {
     messagesEndRef.current?.scrollIntoView();
   }, [messagesLoading]);
-
-  // Handle infinite scroll
 
   useEffect(() => {
     if (inView && hasNextPage) {
@@ -465,42 +119,54 @@ export function NoteManager({
     recentMessageRef.current?.scrollIntoView({ block: "start" });
   }, [messagesData]);
 
-  const handleCreateThread = (title: string) => {
-    if (title.trim()) {
-      if (
-        threadsData?.results.some((thread) => thread.title === title.trim())
-      ) {
-        toast.error(t("thread_already_exists"));
-        return;
-      }
+  const handleCreateThread = useCallback(
+    (title: string) => {
+      if (!title.trim()) return;
+
       createThreadMutation.mutate({
         title: title.trim(),
         encounter: encounterId,
       });
-    }
-  };
+    },
+    [createThreadMutation, encounterId],
+  );
 
-  const handleSendMessage = (e: React.FormEvent) => {
-    e.preventDefault();
-    e.stopPropagation();
-    const canSend =
-      newMessage.trim() && selectedThread && !createMessageMutation.isPending;
-    if (canSend) {
-      createMessageMutation.mutate({ message: newMessage.trim() });
-    }
-  };
+  const handleSendMessage = useCallback(
+    (e: React.FormEvent) => {
+      e.preventDefault();
+      e.stopPropagation();
+
+      if (
+        newMessage.trim() &&
+        selectedThread &&
+        !createMessageMutation.isPending
+      ) {
+        createMessageMutation.mutate({ message: newMessage.trim() });
+      }
+    },
+    [newMessage, selectedThread, createMessageMutation],
+  );
 
   const recentMessage = useMemo(() => {
     if (commentAdded) return messagesData?.pages[0]?.results[0];
     return messagesData?.pages[messagesData.pages.length - 1]?.results[0];
-  }, [messagesData]);
+  }, [messagesData, commentAdded]);
+
+  const messages = useMemo(
+    () => messagesData?.pages.flatMap((page) => page.results) ?? [],
+    [messagesData],
+  );
+
+  const totalMessages = messagesData?.pages[0]?.count ?? 0;
+
+  const participantsCount = useMemo(
+    () => new Set(messages.map((m) => m.created_by.id)).size,
+    [messages],
+  );
 
   if (threadsLoading) {
     return <Loading />;
   }
-
-  const messages = messagesData?.pages.flatMap((page) => page.results) ?? [];
-  const totalMessages = messagesData?.pages[0]?.count ?? 0;
 
   return (
     <div className="flex h-[calc(100vh-13rem)] overflow-hidden lg:h-[calc(100vh-13rem)]">
@@ -566,18 +232,6 @@ export function NoteManager({
                     {t("notes__all_discussions")}
                   </h3>
                 </div>
-                <Button
-                  variant="outline"
-                  size="sm"
-                  onClick={() => {
-                    setShowNewThreadDialog(true);
-                    setIsThreadsExpanded(false);
-                  }}
-                  className="h-8 hidden lg:block"
-                >
-                  <MessageSquarePlus className="size-4 mr-2" />
-                  {t("notes__new")}
-                </Button>
               </div>
             </div>
 
@@ -623,14 +277,11 @@ export function NoteManager({
                   }
                 </h2>
                 <TooltipComponent
-                  content={`${t("participants")}: ${new Set(messages.map((m) => m.created_by.id)).size}
-                    ${t("messages")}: ${totalMessages}`}
+                  content={`${t("participants")}: ${participantsCount}, ${t("messages")}: ${totalMessages}`}
                 >
                   <div className="flex items-center gap-2 text-xs text-gray-500 cursor-pointer">
                     <Users className="size-4" />
-                    <span>
-                      {new Set(messages.map((m) => m.created_by.id)).size}
-                    </span>
+                    <span>{participantsCount}</span>
                     <MessageSquare className="size-4 ml-3" />
                     <span>{totalMessages}</span>
                   </div>
@@ -722,10 +373,7 @@ export function NoteManager({
                             value={newMessage}
                             onChange={(e) => setNewMessage(e.target.value)}
                             onKeyDown={(e) => {
-                              // Skip on mobile devices
-                              if (isTouchDevice) {
-                                return;
-                              }
+                              if (isTouchDevice) return;
                               if (e.key === "Enter" && e.shiftKey) {
                                 handleSendMessage(e);
                               }
@@ -777,7 +425,6 @@ export function NoteManager({
         </div>
       </div>
 
-      {/* Mobile Navigation */}
       <MobileNav
         threadsCount={threadsData?.results.length || 0}
         onOpenThreads={() => setIsThreadsExpanded(true)}
@@ -790,7 +437,7 @@ export function NoteManager({
         onClose={() => setShowNewThreadDialog(false)}
         onCreate={handleCreateThread}
         isCreating={createThreadMutation.isPending}
-        threadsUnused={threads}
+        threadsUnused={unusedTemplates}
       />
     </div>
   );
